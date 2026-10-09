@@ -1,0 +1,251 @@
+{
+  "source": "https://www.deepbook.xyz/",
+  "capturedAt": "2026-09-28T10:33:44.612Z",
+  "assets": [
+    {
+      "source": "https://www.deepbook.xyz/favicon.svg",
+      "local": "/favicon.svg",
+      "bytes": 197
+    },
+    {
+      "source": "https://www.deepbook.xyz/fonts/PPMori-Regular.woff2",
+      "local": "/fonts/PPMori-Regular.woff2",
+      "bytes": 33644
+    },
+    {
+      "source": "https://www.deepbook.xyz/fonts/PPMori-Bold.woff2",
+      "local": "/fonts/PPMori-Bold.woff2",
+      "bytes": 35960
+    },
+    {
+      "source": "https://www.deepbook.xyz/videos/hero-video-bg.mp4?v=2d453db28ead",
+      "local": "/videos/hero-video-bg.mp4",
+      "bytes": 455467
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/spot.CBbDpS_4_1JiKVS.webp",
+      "local": "/media/spot.CBbDpS_4_1JiKVS.webp",
+      "bytes": 31470
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/predict.BodBdkz9_1HgApF.webp",
+      "local": "/media/predict.BodBdkz9_1HgApF.webp",
+      "bytes": 79396
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/safe.C6V4kazH_Z1Ewdpl.webp",
+      "local": "/media/safe.C6V4kazH_Z1Ewdpl.webp",
+      "bytes": 340646
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/keys.Dancpxfy_Z11P3Nq.webp",
+      "local": "/media/keys.Dancpxfy_Z11P3Nq.webp",
+      "bytes": 124706
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/faq.DggOjNdv_ZM7hh6.webp",
+      "local": "/media/faq.DggOjNdv_ZM7hh6.webp",
+      "bytes": 83630
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/book.ClWy4OBZ_Z12oyBF.webp",
+      "local": "/media/book.ClWy4OBZ_Z12oyBF.webp",
+      "bytes": 177668
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/button_up.CkJok8d5_Q97BI.webp",
+      "local": "/media/button_up.CkJok8d5_Q97BI.webp",
+      "bytes": 11606
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/button_down.DQtHa3UL_29PtGo.webp",
+      "local": "/media/button_down.DQtHa3UL_29PtGo.webp",
+      "bytes": 11640
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd.BYC71dFB_1HrHjo.webp",
+      "local": "/media/crowd.BYC71dFB_1HrHjo.webp",
+      "bytes": 354676
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-back-cutout.82PEw6hU_Z1DsCG3.webp",
+      "local": "/media/crowd-back-cutout.82PEw6hU_Z1DsCG3.webp",
+      "bytes": 237018
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-middle-cutout.wb0xCDjv_Z16kqz6.webp",
+      "local": "/media/crowd-middle-cutout.wb0xCDjv_Z16kqz6.webp",
+      "bytes": 203674
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-front-cutout.CSJsgylU_Z19UNCb.webp",
+      "local": "/media/crowd-front-cutout.CSJsgylU_Z19UNCb.webp",
+      "bytes": 176062
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/spot.CBbDpS_4_ZXymH5.webp",
+      "local": "/media/spot.CBbDpS_4_ZXymH5.webp",
+      "bytes": 8978
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/spot.CBbDpS_4_D3zK6.webp",
+      "local": "/media/spot.CBbDpS_4_D3zK6.webp",
+      "bytes": 18822
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/predict.BodBdkz9_Z17RETM.webp",
+      "local": "/media/predict.BodBdkz9_Z17RETM.webp",
+      "bytes": 14692
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/predict.BodBdkz9_Z2u2AtN.webp",
+      "local": "/media/predict.BodBdkz9_Z2u2AtN.webp",
+      "bytes": 42734
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/safe.C6V4kazH_Z298OzX.webp",
+      "local": "/media/safe.C6V4kazH_Z298OzX.webp",
+      "bytes": 69884
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/safe.C6V4kazH_Z1Lp09M.webp",
+      "local": "/media/safe.C6V4kazH_Z1Lp09M.webp",
+      "bytes": 214462
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/keys.Dancpxfy_ZrhvKF.webp",
+      "local": "/media/keys.Dancpxfy_ZrhvKF.webp",
+      "bytes": 11598
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/keys.Dancpxfy_73rR2.webp",
+      "local": "/media/keys.Dancpxfy_73rR2.webp",
+      "bytes": 36398
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/keys.Dancpxfy_Z1z1yhu.webp",
+      "local": "/media/keys.Dancpxfy_Z1z1yhu.webp",
+      "bytes": 59506
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/faq.DggOjNdv_Z26M0m2.webp",
+      "local": "/media/faq.DggOjNdv_Z26M0m2.webp",
+      "bytes": 10504
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/faq.DggOjNdv_1G9znW.webp",
+      "local": "/media/faq.DggOjNdv_1G9znW.webp",
+      "bytes": 38242
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/book.ClWy4OBZ_ZzKExU.webp",
+      "local": "/media/book.ClWy4OBZ_ZzKExU.webp",
+      "bytes": 32754
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/book.ClWy4OBZ_1a1Ix0.webp",
+      "local": "/media/book.ClWy4OBZ_1a1Ix0.webp",
+      "bytes": 98348
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd.BYC71dFB_1Yawpp.webp",
+      "local": "/media/crowd.BYC71dFB_1Yawpp.webp",
+      "bytes": 136442
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd.BYC71dFB_1vibdo.webp",
+      "local": "/media/crowd.BYC71dFB_1vibdo.webp",
+      "bytes": 230528
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-back-cutout.82PEw6hU_Z2hOwjT.webp",
+      "local": "/media/crowd-back-cutout.82PEw6hU_Z2hOwjT.webp",
+      "bytes": 95534
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-back-cutout.82PEw6hU_ZRLbPo.webp",
+      "local": "/media/crowd-back-cutout.82PEw6hU_ZRLbPo.webp",
+      "bytes": 156114
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-middle-cutout.wb0xCDjv_ZR7h4h.webp",
+      "local": "/media/crowd-middle-cutout.wb0xCDjv_ZR7h4h.webp",
+      "bytes": 83576
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-middle-cutout.wb0xCDjv_Z2tBkpY.webp",
+      "local": "/media/crowd-middle-cutout.wb0xCDjv_Z2tBkpY.webp",
+      "bytes": 135488
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-front-cutout.CSJsgylU_2bIkTE.webp",
+      "local": "/media/crowd-front-cutout.CSJsgylU_2bIkTE.webp",
+      "bytes": 75104
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/crowd-front-cutout.CSJsgylU_ardSB.webp",
+      "local": "/media/crowd-front-cutout.CSJsgylU_ardSB.webp",
+      "bytes": 123818
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/Privacy-header.yWrpa3Fv_1MNCbr.webp",
+      "local": "/media/Privacy-header.yWrpa3Fv_1MNCbr.webp",
+      "bytes": 163208
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/Privacy-header.yWrpa3Fv_1ipeyl.webp",
+      "local": "/media/Privacy-header.yWrpa3Fv_1ipeyl.webp",
+      "bytes": 67244
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/Privacy-header.yWrpa3Fv_Zi7hd8.webp",
+      "local": "/media/Privacy-header.yWrpa3Fv_Zi7hd8.webp",
+      "bytes": 129644
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/FAQ-header.tUQX3PLv_Z2fmu4k.webp",
+      "local": "/media/FAQ-header.tUQX3PLv_Z2fmu4k.webp",
+      "bytes": 96684
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/FAQ-header.tUQX3PLv_SJNkp.webp",
+      "local": "/media/FAQ-header.tUQX3PLv_SJNkp.webp",
+      "bytes": 31738
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/FAQ-header.tUQX3PLv_Z2dfB4H.webp",
+      "local": "/media/FAQ-header.tUQX3PLv_Z2dfB4H.webp",
+      "bytes": 62192
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/FAQ-header.tUQX3PLv_Z1lMtiY.webp",
+      "local": "/media/FAQ-header.tUQX3PLv_Z1lMtiY.webp",
+      "bytes": 94452
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/Terms-header.C5mxnOSd_10Pklh.webp",
+      "local": "/media/Terms-header.C5mxnOSd_10Pklh.webp",
+      "bytes": 161638
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/Terms-header.C5mxnOSd_Z1Ek27E.webp",
+      "local": "/media/Terms-header.C5mxnOSd_Z1Ek27E.webp",
+      "bytes": 68726
+    },
+    {
+      "source": "https://www.deepbook.xyz/_astro/Terms-header.C5mxnOSd_tvVK2.webp",
+      "local": "/media/Terms-header.C5mxnOSd_tvVK2.webp",
+      "bytes": 135162
+    },
+    {
+      "source": "https://www.deepbook.xyz/videos/hero-video-bg.mp4",
+      "local": "/videos/hero-video-bg.mp4",
+      "bytes": 455467
+    },
+    {
+      "source": "https://www.deepbook.xyz/images/programmatic/first-file-ext.jpg",
+      "local": "/images/programmatic/first-file-ext.jpg",
+      "bytes": 118738
+    }
+  ]
+}

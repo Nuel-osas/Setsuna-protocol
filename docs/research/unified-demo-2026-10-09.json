@@ -1,0 +1,850 @@
+{
+  "author": "Codex",
+  "recordedAt": "2026-10-09T10:46:21.692Z",
+  "scope": "Unified local synthetic-fund demo; no hosted activation",
+  "source": {
+    "chainId": 143,
+    "block": "111560409",
+    "hash": "0xc8a3dcf05b4b35daf91e0abc74bc91ebc2ec45830d93a8f2b6451cff8214a84b",
+    "historicalMarkPNS": "829642",
+    "markTimestamp": "1791447488"
+  },
+  "publicDeployment": false,
+  "tenderlyConfigured": false,
+  "workerHostAuthenticated": false,
+  "vercelAuthenticated": true,
+  "dockerImageBuilt": false,
+  "app": "http://127.0.0.1:3016/app/",
+  "acceptance": {
+    "author": "Codex",
+    "mode": "isolated-local-hosted-path-proof",
+    "tenderlyDeployed": false,
+    "syntheticFunds": true,
+    "user": "0xa20908e85A9B267B1C2F6930603d269EF20c5948",
+    "faucet": "0x850E5A2aca9e105C62cCc79Eb20DE788D3969B14",
+    "contracts": {
+      "mode": "demo",
+      "chainId": 31337,
+      "name": "Setsuna demo · test funds",
+      "rpc": "http://localhost:3016/api/rpc/",
+      "collateral": "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a",
+      "exchange": "0x34B6552d57a35a1D042CcAe1951BD1C370112a6F",
+      "perpId": 1,
+      "factory": "0xF8E0BEe28D105Aa736ACD3a32a32FA42ad6CF2ae",
+      "earnUSDC": {
+        "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "adapters": [
+          "0xF13d810fcE78A99063770AbaE3c5E54E822525c7",
+          "0xbDDa401808005f996cDAa0933Ac11c4829AA9a74",
+          "0xC9b37C81dc60E3b3BCbB73C524C7470134fE3CDe",
+          "0x6fCDedB1C8492bE8Da47dB5A13ba4F5786C44754",
+          "0x1A6436143dEF32127630C39351820A9c4fa80871"
+        ],
+        "forkBlock": "111560409",
+        "startBlock": "111560416"
+      },
+      "startBlock": "111560411",
+      "faucet": "0x850E5A2aca9e105C62cCc79Eb20DE788D3969B14",
+      "spot": {
+        "gateway": "0x5ee7AACd068F0d97B035A146d126Ae4d81fc631e",
+        "market": "0x065C9d28E428A0db40191a54d33d5b7c71a9C394",
+        "usdc": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "startBlock": "111560411"
+      },
+      "earnMON": {
+        "vault": "0xDE1B8A54d94c517036032f4F3cDa9d40e943FeEB",
+        "gateway": "0x929c20C42707Ec30ab21D6a448Ce9F0947ECc370",
+        "asset": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+        "adapters": [
+          "0x628052207F35B46fbaDebe3380974bE0E8DA91A0",
+          "0x5d2b63f0C287f06EE506435e3D0c527A555E6595"
+        ],
+        "forkBlock": "111560409",
+        "startBlock": "111560411"
+      },
+      "perplFixture": {
+        "mode": "FIXED_HISTORICAL_MARK",
+        "oracleGuardDisabledOnFork": true,
+        "markPNS": "829642"
+      }
+    },
+    "transactionHashes": [
+      "0xe1222af71ac95b9bdda0f208eb6a48a788851aa920eca49114a7f19dd0c2ac0a",
+      "0xb430901191bc86004e66f969e15710fca13b7837ffe990dc1178f3888bc8f400",
+      "0x2c6b6e28730b2708c215cd998204cb4689f92a995399c6049cd469ddafac6b39",
+      "0xce187f2886ec08872d762039fbe052a63d935a8604c7e72c93a46f0d95bbf921",
+      "0x075279e31b5559575b21601cf7cac3d3a72617d9bce914ef4950e3237a17fe7c",
+      "0x47e48b38e7257828ddd1019a5ff8d57a29a0ee9b0eb4f6ac8b6c3da601ddf82b",
+      "0xa79db206b9fdf2593aff9bc2312610a3101639f072cf366f8d42caf29b935217",
+      "0xad6238b5f4addfdbb4997a706bc0b68b7d5db0e10296be5f8ce405844898834a",
+      "0x570788e15e49bf5a7f09bda80b5963cce396e0be77fa29fb2ad8015465d4f0db",
+      "0x943efc94d1f75aff1d4974cef4a91cdd5492ef5f989d4b2b7539e315e7dcb224",
+      "0x00f7bdb0015c8cc51ef86c3a250b96e83c7697d62e60d33ade15f072efbef066",
+      "0xc3caffc5e3067e81e565780d2f13f8368b8d9af0012902560acc1048225a7ab0",
+      "0xd101579eacc3a05232c3507fbabbf2e1515f841a3afefc15ce49de84123a3f79",
+      "0xc0d3f424f8ca456a7effa3000e818aa7d1dcdd8b74c8c4372f60a79f144f236b",
+      "0xc6890a47b823f56854a8aa7f0276f8f7036db102644ef71d391598611405d000",
+      "0x86b481bf0f2d6cfd49f1b0676caebb69c300a49a39c182d4c865091ad0096e4d",
+      "0xa7904b8feb98c96e01fa35235d5a5bbca1aa86f380da65ad37e5797694e5f165",
+      "0x0c13ff179d8452fe3df7fcb4ab35ee5aff67b6249708ac4851bf191ef7ce9062",
+      "0x7005d35b7ac79f4b9e3cb8764767ba0079e52b07cfbf8e092628057f4855d6b0",
+      "0xa22efd55bd2dff4ef0af9d04dee89e9972c40df71e9f39660358aecb69a064c1",
+      "0x5243af9b32fba70e115cea864b453df48d6c044e81e55c9e0ef709bcf6a18b26",
+      "0x2084c78f2c30cec56495e83f8e472d6e5753fd6b5795d6048ffb277b63ee6d59",
+      "0xf34186e3a4b8aaac11ac429ed92628ccfb8d13f42120ec407c38caded0c5d15a",
+      "0xc9941e6a05663d51e6027dfe8a37a93fbb53af728d49597cc80fd88f0a98b654",
+      "0x4319bf9e49dbb877066070ed47df79a9a39cc837838396bc6fd848a022a42f65"
+    ],
+    "executor": [
+      {
+        "mode": "execute",
+        "vault": "0xDE1B8A54d94c517036032f4F3cDa9d40e943FeEB",
+        "result": {
+          "action": "confirmed",
+          "hash": "0x23b2290507ce2fa44d6041e0eb5b5c2734ea01b4ff9de525ee8ec829dbc3e4af",
+          "operation": "observeRates",
+          "blockNumber": "111560445",
+          "gasUsed": "348340",
+          "event": {
+            "timestamp": "1791448149",
+            "destination0Apr": "31292062848749113",
+            "destination1Apr": "68465251349834837"
+          }
+        }
+      },
+      {
+        "mode": "execute",
+        "vault": "0xDE1B8A54d94c517036032f4F3cDa9d40e943FeEB",
+        "result": {
+          "action": "confirmed",
+          "hash": "0xb0543e8e42f23f8742728427c4e58911cc0eadbdca2b63e88d2264e9e5590921",
+          "operation": "observeRates",
+          "blockNumber": "111560447",
+          "gasUsed": "359976",
+          "event": {
+            "timestamp": "1791448751",
+            "destination0Apr": "31292080644671432",
+            "destination1Apr": "68465287037087204"
+          }
+        }
+      },
+      {
+        "mode": "execute",
+        "vault": "0xDE1B8A54d94c517036032f4F3cDa9d40e943FeEB",
+        "result": {
+          "action": "confirmed",
+          "hash": "0x962f6e736392ba1c31fd24e83e73a8a0eaadfbca9ee19201cf6d026b6327a631",
+          "operation": "rebalance",
+          "blockNumber": "111560449",
+          "gasUsed": "762513",
+          "event": {
+            "caller": "0xA19dc64FD6bD59decC246B31B7447B6BfB37A0C1",
+            "withdrawals": [
+              "0",
+              "0"
+            ],
+            "deposits": [
+              "10000000000000000000",
+              "0"
+            ],
+            "annualIncomeBefore": "0",
+            "annualIncomeAfter": "312920865190035400",
+            "repairsLimits": false
+          }
+        }
+      }
+    ],
+    "trading": {
+      "account": "0x95bF0F73DB7D02F5baFb28AAD345F0B95cD372A6",
+      "accountId": "5426",
+      "checks": [
+        "Spot entry funding",
+        "Spot both directions with settled wallet balances",
+        "Spot exact approval consumed and gateway empty",
+        "Invalid size and signature rejection handled",
+        "Perps account initialization and repeat collateral deposit",
+        "Long fill, partial close and full close",
+        "Short fill and full close",
+        "Non-crossing FOK rejected before signing with readable liquidity error",
+        "Activity verifies receipt fills",
+        "Protection revoked on trade and reserve isolated",
+        "Oversized close blocked before signing",
+        "Full free collateral and reserve returned to wallet",
+        "No residual AUSD or allowances in trading account",
+        "Spot and Perps pending receipts survive reload, block writes and reconcile without duplicate broadcast",
+        "Spot and Perps mobile layouts and RPC outage disable writes"
+      ]
+    },
+    "usdc": {
+      "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+      "holdings": [
+        "15196663",
+        "26188959",
+        "22612301",
+        "10440563",
+        "5757692"
+      ],
+      "executor": [
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xd498ee0af573182e5d753d4a559b8a6ab3aea88d3aa5ee772a57255a4aaf71d5",
+            "operation": "observeRates",
+            "blockNumber": "111560456",
+            "gasUsed": "724985",
+            "event": {
+              "timestamp": "1791449960",
+              "rates": [
+                "41273690419935760",
+                "71152587509618328",
+                "61416977080036806",
+                "28356294973708311",
+                "42876421213591486"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "assetSymbol": "USDC",
+          "blockNumber": "111560457",
+          "timestamp": "1791449961",
+          "previous": {
+            "timestamp": "0",
+            "blockNumber": "0",
+            "rates": []
+          },
+          "latest": {
+            "timestamp": "1791449960",
+            "blockNumber": "111560456",
+            "rates": [
+              "41273690419935760",
+              "71152587509618328",
+              "61416977080036806",
+              "28356294973708311",
+              "42876421213591486"
+            ]
+          },
+          "blockedBy": "RatesNotReady",
+          "action": null
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xfc5b68562cc763ee53e5aead95da9e66dfe6fe5f03c8c904e4e05059b00abef4",
+            "operation": "observeRates",
+            "blockNumber": "111560460",
+            "gasUsed": "758126",
+            "event": {
+              "timestamp": "1791450564",
+              "rates": [
+                "41273696845159383",
+                "71149590357379075",
+                "61417066302723748",
+                "28356307419700804",
+                "42876429927463055"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x008a5bfcb94eab67298b7d11fbcb62789ed0d18ba5bf037610f5d1fc16475d04",
+            "operation": "rebalance",
+            "blockNumber": "111560462",
+            "gasUsed": "1250799",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "10025000",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              "annualIncomeBefore": "0",
+              "annualIncomeAfter": "413768",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xa2f59a6265477b0c9be7dc8ab7d475641ae5c8624d6456f36fb1aed891b20694",
+            "operation": "rebalance",
+            "blockNumber": "111560465",
+            "gasUsed": "1287073",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "5170322",
+                "4854678",
+                "0",
+                "0",
+                "0"
+              ],
+              "annualIncomeBefore": "413769",
+              "annualIncomeAfter": "972560",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xb62d4a3c3d222b640f9fdc3a494ee11ebc3e721aa941240dc55fb28ab0da7bca",
+            "operation": "observeRates",
+            "blockNumber": "111560467",
+            "gasUsed": "614563",
+            "event": {
+              "timestamp": "1791451171",
+              "rates": [
+                "41273696105561640",
+                "71146563457523836",
+                "61417155945196966",
+                "28356319927509075",
+                "42876438663057786"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xf7e23d36a845dfc06a5afa579495ddc0e95398b282bc3c1c4fb252f085258964",
+            "operation": "rebalance",
+            "blockNumber": "111560470",
+            "gasUsed": "1252803",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "173",
+                "10024829",
+                "0",
+                "0",
+                "0"
+              ],
+              "annualIncomeBefore": "972546",
+              "annualIncomeAfter": "1685756",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x65cefca117b2f475fc35600adf953a2a7a76a1b04a9251d9808fbe715de0a70e",
+            "operation": "observeRates",
+            "blockNumber": "111560472",
+            "gasUsed": "611553",
+            "event": {
+              "timestamp": "1791451776",
+              "rates": [
+                "41273702541340212",
+                "71143530666696060",
+                "61417245178845428",
+                "28356332394099787",
+                "42876447384166655"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xbf47d004eca7739f1f9f8e1087b0bfb9eff34816be90d397abdcaa445f707659",
+            "operation": "rebalance",
+            "blockNumber": "111560475",
+            "gasUsed": "1253538",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "175",
+                "10024830",
+                "0",
+                "0",
+                "0"
+              ],
+              "annualIncomeBefore": "1685712",
+              "annualIncomeAfter": "2398891",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x6cc485d95dcca99df6d61f45880e166230cf2f0679ed96b7a94cd1bd82198dc1",
+            "operation": "observeRates",
+            "blockNumber": "111560477",
+            "gasUsed": "614373",
+            "event": {
+              "timestamp": "1791452381",
+              "rates": [
+                "41273708977113687",
+                "71140497983884318",
+                "61417334605979471",
+                "28356344860682737",
+                "42876456130801595"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x5e58b025379484b9c77613f3a39854e8d9399b976dc8984c0313c94d065249d7",
+            "operation": "rebalance",
+            "blockNumber": "111560480",
+            "gasUsed": "1451363",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "178",
+                "1286558",
+                "8738274",
+                "0",
+                "0"
+              ],
+              "annualIncomeBefore": "2398819",
+              "annualIncomeAfter": "3027020",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x4abe32ca078181600892a3a5589c316f1715c1bdfe69211a776ee8bf542ab8b9",
+            "operation": "observeRates",
+            "blockNumber": "111560482",
+            "gasUsed": "607623",
+            "event": {
+              "timestamp": "1791452986",
+              "rates": [
+                "41273715412881592",
+                "71137492412180741",
+                "61416182022901397",
+                "28356357327266798",
+                "42876464851906003"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xfdd3b468c07ee7af21fb299cb0732683e8c6bfdaaffe0c3dfa1bd10d7d00a387",
+            "operation": "rebalance",
+            "blockNumber": "111560485",
+            "gasUsed": "1411345",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "695",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "250",
+                "0",
+                "10024070",
+                "0",
+                "0"
+              ],
+              "annualIncomeBefore": "3026946",
+              "annualIncomeAfter": "3642521",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x186769c8a236fae625eeb6eecfcf641615038cb30a506d2b25ce0c89fce83ccc",
+            "operation": "observeRates",
+            "blockNumber": "111560487",
+            "gasUsed": "604823",
+            "event": {
+              "timestamp": "1791453591",
+              "rates": [
+                "41273721848611206",
+                "71134490939557501",
+                "61414846618692314",
+                "28356369793843097",
+                "42876473573008257"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xa4cb7d1ad1bfb97800166cc09893c0fa454adba5572f11dead955826b30c4416",
+            "operation": "rebalance",
+            "blockNumber": "111560490",
+            "gasUsed": "1729126",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "662",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "268",
+                "0",
+                "3849753",
+                "6174339",
+                "0"
+              ],
+              "annualIncomeBefore": "3642449",
+              "annualIncomeAfter": "4053914",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x1761b2377be36d95e647877e9e6f5fc5b68e0fb0b0ea826d9a392f301b5a2ff2",
+            "operation": "observeRates",
+            "blockNumber": "111560492",
+            "gasUsed": "607627",
+            "event": {
+              "timestamp": "1791454196",
+              "rates": [
+                "41273728284328146",
+                "71131489627582637",
+                "61414388809709684",
+                "28356285410681916",
+                "42876482294108357"
+              ]
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0xff7dfb766a11f659dc2dac13e9ce5ab01258c5a2fdd4be039d99afbaaddb50b4",
+            "operation": "rebalance",
+            "blockNumber": "111560496",
+            "gasUsed": "1769177",
+            "event": {
+              "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+              "withdrawals": [
+                "0",
+                "747",
+                "0",
+                "0",
+                "0"
+              ],
+              "deposits": [
+                "221",
+                "0",
+                "147",
+                "4266222",
+                "5757693"
+              ],
+              "annualIncomeBefore": "4053841",
+              "annualIncomeAfter": "4421650",
+              "repairsLimits": false
+            }
+          }
+        },
+        {
+          "mode": "execute",
+          "vault": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407",
+          "result": {
+            "action": "confirmed",
+            "hash": "0x2590d8eb079c4d6c38fe4b60b48a9804398bf0c472e9afd23f3392d12919ee5e",
+            "operation": "observeRates",
+            "blockNumber": "111560498",
+            "gasUsed": "604827",
+            "event": {
+              "timestamp": "1791454802",
+              "rates": [
+                "41273734730700931",
+                "71128483512025935",
+                "61414478441029406",
+                "28356230978906693",
+                "42876475497356206"
+              ]
+            }
+          }
+        }
+      ],
+      "recovered": {
+        "mode": "execute",
+        "reconciled": {
+          "action": "confirmed",
+          "hash": "0xff7dfb766a11f659dc2dac13e9ce5ab01258c5a2fdd4be039d99afbaaddb50b4",
+          "operation": "rebalance",
+          "blockNumber": "111560496",
+          "gasUsed": "1769177",
+          "event": {
+            "caller": "0x7672d801Ac34223274EBE772a4bF905B120fE460",
+            "withdrawals": [
+              "0",
+              "747",
+              "0",
+              "0",
+              "0"
+            ],
+            "deposits": [
+              "221",
+              "0",
+              "147",
+              "4266222",
+              "5757693"
+            ],
+            "annualIncomeBefore": "4053841",
+            "annualIncomeAfter": "4421650",
+            "repairsLimits": false
+          }
+        }
+      },
+      "controlledTimeAdvancement": true,
+      "checks": [
+        "same-wallet-and-fork",
+        "five-funded-protocols",
+        "exact-approval",
+        "deposit-shares",
+        "signed-USDC-rebalance",
+        "cooldown-rejection-no-movement",
+        "restart-no-duplicate",
+        "partial-full-exit",
+        "mobile-outage-recovery"
+      ]
+    },
+    "recovered": {
+      "mode": "execute",
+      "reconciled": {
+        "action": "confirmed",
+        "hash": "0x962f6e736392ba1c31fd24e83e73a8a0eaadfbca9ee19201cf6d026b6327a631",
+        "operation": "rebalance",
+        "blockNumber": "111560449",
+        "gasUsed": "762513",
+        "event": {
+          "caller": "0xA19dc64FD6bD59decC246B31B7447B6BfB37A0C1",
+          "withdrawals": [
+            "0",
+            "0"
+          ],
+          "deposits": [
+            "10000000000000000000",
+            "0"
+          ],
+          "annualIncomeBefore": "0",
+          "annualIncomeAfter": "312920865190035400",
+          "repairsLimits": false
+        }
+      }
+    },
+    "checks": [
+      "empty-wallet-funding",
+      "all-assets-received",
+      "repeat-claim-blocked",
+      "admin-RPC-blocked",
+      "invalid-input-blocked",
+      "executor-network-guards",
+      "MON-deposit-shares-withdrawal",
+      "signed-rebalance",
+      "restart-reconciliation-no-duplicate",
+      "mobile-no-overflow",
+      "RPC-failure-disables-writes"
+    ]
+  },
+  "fundingRecovery": {
+    "user": "0xd8e537F6893eF5F2AE6B0677a378Db947cB86b09",
+    "hash": "0xb7baf5e91555d1b70233275132fc4ea8f01756f96a403bcfbd9940c952ea7b54",
+    "claimRequests": 1,
+    "checks": [
+      "uncertain-response",
+      "pending-disables-repeat",
+      "reload-retains-hash",
+      "actual-receipt-confirmed",
+      "all-test-assets-received"
+    ]
+  },
+  "workerSupervisor": {
+    "node": "v24.21.0",
+    "checks": [
+      "three-workers-start",
+      "confirmed-receipt-state",
+      "graceful-shutdown",
+      "restart-with-preserved-state"
+    ],
+    "pid": 36012
+  },
+  "workers": {
+    "mon": {
+      "action": "confirmed",
+      "hash": "0xcd27bc06197d0e7edf43a803d710934a0743f6b6a7fd6c8386ad2131a2a27e15",
+      "operation": "observeRates",
+      "blockNumber": "111560514",
+      "gasUsed": "291688",
+      "event": {
+        "timestamp": "1791455418",
+        "destination0Apr": "31292277729546283",
+        "destination1Apr": "68465682283672760"
+      }
+    },
+    "usdc": {
+      "action": "confirmed",
+      "hash": "0x04b73bb56b87351fe1b00f0739e85b723ce3c392d3b5cbaec242f7519fc59ab6",
+      "operation": "observeRates",
+      "blockNumber": "111560515",
+      "gasUsed": "615512",
+      "event": {
+        "timestamp": "1791455419",
+        "rates": [
+          "41273748491521426",
+          "71125503875216478",
+          "61417783439573390",
+          "28356407461501904",
+          "42876499855970740"
+        ]
+      }
+    },
+    "price": {
+      "operation": "updateMarkPricePNSByOwner",
+      "state": "confirmed",
+      "at": "2026-10-09T10:46:12.811Z",
+      "hash": "0x3de7abe06fbcb7ef45269a6f311e6e412a11486955ff2d7f8b6c89f8bf5fbb89"
+    }
+  },
+  "validation": {
+    "node24Tests": 27,
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "contractSourceChanged": false,
+    "contractRegressionRerun": false
+  },
+  "localEvidence": ".local/unified-demo/1791542463431",
+  "sourceSHA256": {
+    "scripts/deploy-hosted-demo.mjs": "cefdcc9fd5f272326dc1d571f836998b479e22f1d673dc34d2e7fa5385e68016",
+    "scripts/demo-fork-profiles.mjs": "aecada75f079b921224d0815190cc996f8f36c0a749a250f51b2dbb0561095b6",
+    "scripts/demo-trading-fixture.mjs": "d9e4d5eb9bcd1ef651a4d018cbe68c56df4edf47124b786869d7e75a9f723a1a",
+    "scripts/start-demo-workers.mjs": "0517aa42947216d9a030e3fcd52e05c3e73da29d2fdd38b5f6e4112de8936cb9",
+    "scripts/prepare-demo-workers.mjs": "a3807173fb17d0082524b54fedcc5b031295c94882d102f461e81d1c85902d19",
+    "scripts/check-hosted-journey.mjs": "8c0c01c48e8be4d92a452f78fbc2a0cde7bae7f19f6255e0d1ae2109e416a9f1",
+    "scripts/check-usdc-journey.mjs": "2844ee6c1b04bdd3a161a9f67b882e458790ec068dcd9ea5d31133e20c338d98",
+    "scripts/check-funding-recovery.mjs": "f78c043f586f4226aed883b92ea641d16f165a16450797cc92b8d8b0be9f5c58",
+    "scripts/demo-config.test.mjs": "0c0471c0dd41fb73db0a6ca6cbb29d2da58716ad812020ba3f902402a3420a0c",
+    "scripts/demo-faucet.test.mjs": "2ee748b833c669acfc2b7ecd127cd65a61638979272dba7a960e0f769e987ac7",
+    "src/lib/setsuna/demo-config.ts": "db58f79a183c8f78243b569c7ba7964a1ac18356ab02df3533ee63a9f2a2b494",
+    "src/lib/setsuna/demo-faucet.ts": "2fa6663466c3f639502a1eeccd1cf1a11c13c6d0fafed720f7bc10c2638e7c85",
+    "src/components/setsuna/DemoFunding.tsx": "778470fac8fd6192683d0910b77ca16327f86123df4f745629b34de4f4f3ce17",
+    "src/app/api/demo/fund/route.ts": "267c909e863c046ccd3c528275c5de82a2dc98edb11ed86049d3805fbd0f6b7c",
+    "Dockerfile.workers": "857659bb5fa808eb94767bda971db186d1cb4b8c047f7b7fd70d2cb4cdd48014",
+    "railway.workers.json": "a5c88e7af461c7b536e6d1ab0b1bd2dea202679062f1c3d3f573c1fc37b6fbe4",
+    ".dockerignore": "7d029aa6e8c9eb2fe852dbf1c31204bffbae36c20990a14decd1bf8661352ff7"
+  },
+  "hostingFollowUp": {
+    "author": "Codex",
+    "recordedAt": "2026-10-09T11:44:38.975Z",
+    "railwayAuthenticated": true,
+    "projectId": "aaff010d-31bf-4867-a0fc-59cfb2901534",
+    "projectName": "setsuna-metropolis",
+    "environmentId": "a5fc46c3-b9d4-453b-b2c9-31ac3b358f32",
+    "serviceId": "de9dd037-d25f-4157-8d63-a5b94ef568f8",
+    "serviceName": "setsuna-workers",
+    "savedConfigurationVerified": {
+      "builder": "DOCKERFILE",
+      "dockerfilePath": "Dockerfile.workers",
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 120,
+      "restartPolicyType": "NEVER",
+      "region": "us-west2",
+      "numReplicas": 1,
+      "variableNames": [
+        "NODE_ENV",
+        "PORT",
+        "SETSUNA_WORKER_STATE_DIR"
+      ]
+    },
+    "latestDeployment": null,
+    "activeDeploymentCount": 0,
+    "persistentVolumeCount": 0,
+    "tenderlyConfigured": false,
+    "hostedEnvPermissions": "0600",
+    "publicDeployment": false,
+    "note": "Earlier top-level authentication status is retained as the initial local-verification snapshot. This follow-up records Railway access and empty service setup only."
+  }
+}

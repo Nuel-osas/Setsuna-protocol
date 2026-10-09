@@ -1,0 +1,16 @@
+/node_modules/
+/.next*/
+/.local/
+/.env*
+/reference/
+/evidence/
+/docs/
+/brand/
+/contracts/lib/
+/contracts/out/
+/contracts/cache/
+/contracts/broadcast/
+/contracts/test/
+/contracts/script/
+/*.tsbuildinfo
+/.DS_Store

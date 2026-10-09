@@ -1,0 +1,129 @@
+{
+ "source_file": "/private/tmp/claude-501/g6/d7.jsonl",
+ "block_range_observed": [
+  106771593,
+  108773683
+ ],
+ "label_block": "108773589",
+ "event_counts": {
+  "PositionOpenedV2": 106464,
+  "PositionClosed": 106310,
+  "PositionIncreasedV2": 245303,
+  "PositionDecreased": 284307,
+  "PositionInverted": 11082,
+  "IncreasePositionCollateral": 590,
+  "PositionLiquidated": 81,
+  "AccountCreated": 33
+ },
+ "duplicate_logs_dropped": 0,
+ "ambiguous": {
+  "end_without_seen_start": 190
+ },
+ "active_accounts": 584,
+ "cohort_opened_in_window": {
+  "lifecycles": 117546,
+  "outcomes": {
+   "closed": 106043,
+   "inverted": 11009,
+   "liquidated": 63,
+   "open_at_window_end": 431
+  },
+  "liquidated_share": 0.0005
+ },
+ "cohort_open_before_window": {
+  "lifecycles": 397,
+  "outcomes": {
+   "closed": 267,
+   "inverted": 73,
+   "liquidated": 18,
+   "open_at_window_end": 39
+  },
+  "liquidated_share": 0.0453
+ },
+ "manual_topups": {
+  "events": 590,
+  "distinct_accounts": 64,
+  "accounts_share_of_active": 0.1096,
+  "lifecycles_with_topup": 177,
+  "lifecycles_with_topup_share": 0.0015,
+  "amount_ausd_median": 86.4,
+  "amount_ausd_total": 191314.65,
+  "top_accounts_by_topups": [
+   [
+    1922,
+    251
+   ],
+   [
+    5338,
+    56
+   ],
+   [
+    4924,
+    48
+   ],
+   [
+    4159,
+    27
+   ],
+   [
+    2571,
+    13
+   ],
+   [
+    3196,
+    12
+   ],
+   [
+    1930,
+    12
+   ],
+   [
+    2043,
+    12
+   ],
+   [
+    1956,
+    12
+   ],
+   [
+    4251,
+    9
+   ]
+  ],
+  "account_kind_at_label_block": {
+   "contract": 14,
+   "eoa": 50
+  }
+ },
+ "outcome_topped_up": {
+  "lifecycles": 177,
+  "outcomes": {
+   "closed": 108,
+   "liquidated": 4,
+   "open_at_window_end": 65
+  },
+  "liquidated_share": 0.0226
+ },
+ "outcome_not_topped_up": {
+  "lifecycles": 117766,
+  "outcomes": {
+   "closed": 106202,
+   "inverted": 11082,
+   "liquidated": 77,
+   "open_at_window_end": 405
+  },
+  "liquidated_share": 0.0007
+ },
+ "liquidations": {
+  "full_liquidation_lifecycles": 81,
+  "distinct_accounts": 56,
+  "liquidated_lifecycles_that_had_a_topup": 4,
+  "partial_liquidation_events": 0
+ },
+ "limits": [
+  "Account kind is bytecode at the label block; EOA does not prove manual intent.",
+  "Lifecycles that started before the window have unknown start state.",
+  "A full PositionDecreased without PositionClosed is left open, not guessed as closed.",
+  "Amounts assume CNS has 6 decimals like AUSD."
+ ]
+}

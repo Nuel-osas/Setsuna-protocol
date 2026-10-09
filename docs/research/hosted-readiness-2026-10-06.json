@@ -1,0 +1,175 @@
+{
+  "author": "Codex",
+  "date": "2026-10-06",
+  "scope": "Fresh demo deployment and MON journey through hosted configuration, verified on isolated local fork",
+  "tenderly_deployed": false,
+  "hosted_worker_deployed": false,
+  "public_mode": "preview",
+  "evidence": ".local/hosted-readiness/1791301934881/result.json",
+  "checks": [
+    "empty-wallet-funding",
+    "all-assets-received",
+    "repeat-claim-blocked",
+    "admin-RPC-blocked",
+    "invalid-input-blocked",
+    "executor-network-guards",
+    "MON-deposit-shares-withdrawal",
+    "signed-rebalance",
+    "restart-reconciliation-no-duplicate",
+    "mobile-no-overflow",
+    "RPC-failure-disables-writes"
+  ],
+  "contracts": {
+    "mode": "demo",
+    "chainId": 31337,
+    "name": "Setsuna demo \u00b7 test funds",
+    "rpc": "http://localhost:3011/api/rpc/",
+    "collateral": "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a",
+    "exchange": "0x34B6552d57a35a1D042CcAe1951BD1C370112a6F",
+    "perpId": 1,
+    "factory": "0x8179adEC861D9950A46cd4152f4c95B9fFE44EB8",
+    "startBlock": "110423997",
+    "faucet": "0xa856f4ce35091244E9fE3c8bFBffED72A712F70A",
+    "spot": {
+      "gateway": "0x858bB328b953A550456aC217724634F24Ac4B99a",
+      "market": "0x065C9d28E428A0db40191a54d33d5b7c71a9C394",
+      "usdc": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+      "startBlock": "110423997"
+    },
+    "earnMON": {
+      "vault": "0x6AB59C7aF79e6C3608A4B59e1DC33ccadCe7a08f",
+      "gateway": "0xF3b9F84180831E3B22f99FDB2310edC508631CeF",
+      "asset": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+      "adapters": [
+        "0x62eFa06066D61279e755aEB40d44a39350E44E5C",
+        "0x5026E3f0d2635363bff84c6AB984cB615f4aEaA7"
+      ],
+      "forkBlock": "110418863",
+      "startBlock": "110423997"
+    },
+    "perplFixture": {
+      "mode": "FIXED_HISTORICAL_MARK",
+      "oracleGuardDisabledOnFork": true,
+      "markPNS": "851905"
+    }
+  },
+  "transactions": [
+    "0x143dca74b53741ee2930d50422683b5abd7785647e68a2b8cbf227808dd2e855",
+    "0x1f9f55ee5832ad71c6d4224ef33b3f876b2c6e1c08c2f87357bb1f7a4129b465",
+    "0xe8b32f0cf05881be4953a03a974aa83a852f40396f537324976aa99bd740ea4d"
+  ],
+  "executor": [
+    {
+      "mode": "execute",
+      "vault": "0x6AB59C7aF79e6C3608A4B59e1DC33ccadCe7a08f",
+      "result": {
+        "action": "confirmed",
+        "hash": "0x3e683bfff532fd5bbba8549e1d6db14e589b052f3b33f0c04270a07e68cf5812",
+        "operation": "observeRates",
+        "blockNumber": "110424004",
+        "gasUsed": "346842",
+        "event": {
+          "timestamp": "1791147355",
+          "destination0Apr": "34960255155861678",
+          "destination1Apr": "76935032675424539"
+        }
+      }
+    },
+    {
+      "mode": "execute",
+      "vault": "0x6AB59C7aF79e6C3608A4B59e1DC33ccadCe7a08f",
+      "result": {
+        "action": "confirmed",
+        "hash": "0xf5945168a92d13ae1f59f6151ad8d7779ceb58d8fa0757e4270b56eb6a6d6d37",
+        "operation": "observeRates",
+        "blockNumber": "110424006",
+        "gasUsed": "358420",
+        "event": {
+          "timestamp": "1791147957",
+          "destination0Apr": "34960271038499238",
+          "destination1Apr": "76935060950503062"
+        }
+      }
+    },
+    {
+      "mode": "execute",
+      "vault": "0x6AB59C7aF79e6C3608A4B59e1DC33ccadCe7a08f",
+      "result": {
+        "action": "confirmed",
+        "hash": "0x4a05e93c8ebf1b2df5e542c0e8ac1ffc31fdd755ca8560442ec763df577b1785",
+        "operation": "rebalance",
+        "blockNumber": "110424008",
+        "gasUsed": "758859",
+        "event": {
+          "caller": "0x90Bb302507faa02470689A7435FBC22D8C757ED6",
+          "withdrawals": [
+            "0",
+            "0"
+          ],
+          "deposits": [
+            "10000000000000000000",
+            "0"
+          ],
+          "annualIncomeBefore": "0",
+          "annualIncomeAfter": "349602712115090600",
+          "repairsLimits": false
+        }
+      }
+    }
+  ],
+  "recovered": {
+    "mode": "execute",
+    "reconciled": {
+      "action": "confirmed",
+      "hash": "0x4a05e93c8ebf1b2df5e542c0e8ac1ffc31fdd755ca8560442ec763df577b1785",
+      "operation": "rebalance",
+      "blockNumber": "110424008",
+      "gasUsed": "758859",
+      "event": {
+        "caller": "0x90Bb302507faa02470689A7435FBC22D8C757ED6",
+        "withdrawals": [
+          "0",
+          "0"
+        ],
+        "deposits": [
+          "10000000000000000000",
+          "0"
+        ],
+        "annualIncomeBefore": "0",
+        "annualIncomeAfter": "349602712115090600",
+        "repairsLimits": false
+      }
+    }
+  },
+  "tests": {
+    "faucet_solidity": 6,
+    "earn_executor": 12,
+    "market_and_demo_config": 11,
+    "typecheck": "pass",
+    "production_build": "pass"
+  },
+  "source_sha256": {
+    "contracts/src/demo/SetsunaDemoFaucet.sol": "3ae9edafa2e9149aaf30a1193f521c432f80bbbcd3a820db9940febe62f84810",
+    "contracts/test/SetsunaDemoFaucet.t.sol": "898fdb6f4608107585d4598a30b33f2e2122f9a69f7fe10a9ad9194769638422",
+    "scripts/deploy-hosted-demo.mjs": "91c30cd2c6665e20ca7b6510056a9525396a406f94b3505053b3fb63f44c63a5",
+    "scripts/deploy-demo-faucet.mjs": "d9dc1f2231bc6d9a2cecb45b93245c8eae81f82114807f69a0a46a78d4cc28b7",
+    "scripts/earn-keeper.mjs": "5e9691ddae85c9b6f16370488f4f882f6426ce24bc47a382af0a4fc4fb82907a",
+    "scripts/earn-keeper-network.mjs": "cec7984d3d2af15dcc7f360f29931178224518598f6ffc941f0509e200ac2623",
+    "scripts/earn-keeper-watch.mjs": "a5e267d5e66d056d812024bc2b54f0053b2808b9bb14227988687d89f79bd7fd",
+    "scripts/check-hosted-journey.mjs": "a981c37f189ad229568df4e48000a8b7c9c35367f85440c76045b64c5aed6611",
+    "src/lib/setsuna/demo-config.ts": "ae3c71e9c60f4ff2becce3fcfde1a3eb636b2333b49c91d21485fb4699e56081",
+    "src/lib/setsuna/demo-faucet.ts": "fe94e0923896789fd264055b6ce0acdaa2da220686aa8b546f5fae2a1655511f",
+    "src/lib/setsuna/faucet-server.ts": "534c25eb5c11a637c36861bbf6f718a351610e3d79041e842c63f2c6da4eb6b1",
+    "src/app/api/demo/fund/route.ts": "30e8f576773939e5051041fce4c0ddd1f93f755a76f59565e9c7379ba262f4c0",
+    "src/components/setsuna/DemoFunding.tsx": "5a9b4a7fe783ef03c4a526fe7865ec0d37c795f8a004d2a292602302bf42ffe1",
+    "src/components/setsuna/MONEarn.tsx": "404533ee58d991f977119074cc003253690a5754493f09a8420131e5014ea0ee"
+  },
+  "web_deployment": {
+    "url": "https://setsuna-metropolis.vercel.app",
+    "build_url": "https://setsuna-metropolis-k0u57cclb-nues-projects-a2cec4ad.vercel.app",
+    "mode": "preview",
+    "funding_unconfigured_http": 503,
+    "invalid_funding_input_http": 400,
+    "vercel_build": "pass"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "checkedAt": "2026-09-28T14:54:31.723Z",
+  "pages": [
+    {
+      "viewport": "desktop",
+      "path": "/",
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "path": "/app/",
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "path": "/faq/",
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "path": "/privacy-policy/",
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "path": "/terms-of-use/",
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "/",
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "/app/",
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "/faq/",
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "/privacy-policy/",
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "/terms-of-use/",
+      "passed": true
+    }
+  ],
+  "checks": [
+    "Contract top-up executed via browser; equity restored above trigger and fee-inclusive spending recorded",
+    "Withdraw + approve/fund round trip; spending preserved and exact allowance consumed",
+    "Excess withdrawal rejected before signing",
+    "Revoke, re-arm and cap update; historical policy spending retained",
+    "Wallet session persists across client navigation",
+    "Trading deposit/withdrawal and actual FOK close fill; changed position revokes prior policy",
+    "Injected wallet rejection, connection, chain switch before write, and disconnect on account change",
+    "Actual Mera PRF create/recover derives the same address; no web storage secrets; session signs local account deployment (virtual authenticator)"
+  ],
+  "passed": true,
+  "author": "Codex",
+  "additionalChecks": [
+    "Hero video plays with motion enabled; paused for reduced motion",
+    "Next.js production build and TypeScript pass"
+  ],
+  "limitations": [
+    "All transactions on local chain 31337 using synthetic funds",
+    "Mera WebAuthn PRF tested with a virtual authenticator; physical devices not yet verified",
+    "No public contract deployment, native Expo build, Envio or CRE integration claimed"
+  ],
+  "sources": {
+    "src/app/layout.tsx": "ecc4620eae5a8a044f89def90882258d260adda865e3cfafcd1e8bf5c47f29ed",
+    "src/app/page.tsx": "37c22fe7792f61c7eaa9e56c0f8ccddca43856f51bcef35f0c5945f3867d6bb0",
+    "src/app/template.tsx": "8f476743bf9f851f92da875a44cb02eef355bfb57afe0f7edc7940361d3813e9",
+    "src/styles/setsuna.css": "39ddc91e3bcffecd9bbaac6f3d80af18c4f6780192ef51f6e91c20cf77dfc3db",
+    "src/components/SiteFooter.tsx": "e6f485ac4e50cd7d76444dc8d8b09b4930474f029bfcc76393ffc34aa0cd3987",
+    "src/components/SiteHeader.tsx": "d6bf6fcbd03fd3965cfaea65a2798a24d56f5d4bf5a22d7321c47aeb33efdd0d",
+    "src/lib/setsuna/contracts.ts": "60af6814cf8b89461e8dc3ef958cc18d0b81a72fd46258fe609bf8387dfc0f91",
+    "src/lib/setsuna/content.ts": "d2740f916cd28cb8f3f845790bd43634d38e1aaeacb5635260b8174072baf0c5",
+    "src/lib/setsuna/types.ts": "1bdbdc9308eb6b91c6314a2d658d107bf97eb836ac6e59f24554c1c2f251b8c0",
+    "src/lib/setsuna/format.ts": "9c9cd9cbf65a8d82821498f645983f0fc8df3964ddfbac81997a2d6adc4fe0e7",
+    "src/components/setsuna/Dashboard.tsx": "7c5af11dae86b25000dce7d33632cdc7a9d9d72df551620b8bdcb0a0d20e7fac",
+    "src/components/setsuna/HeroVideo.tsx": "a11bdf9cf08d0b24ffdd2b56ec39fd5d4c56a97623798745aeb1e40a628dfc72",
+    "src/components/setsuna/Brand.tsx": "fb44e72480eebd4ad06f0eddc2ed2b58a6cf683aaf119add52749117ba573b13",
+    "src/components/setsuna/WalletProvider.tsx": "9446e576ba63478f1769099a98acdcba4afea63d0d29ad424706f7c4e92e6ac3",
+    "src/app/terms-of-use/page.tsx": "976796883b53ebb38234360ceade64ad739e96e3d9ae1748431267708f33ac71",
+    "src/app/app/page.tsx": "20e32a6f57a8c335d29f7cba2a5371ec8441f0d5570aee01949d30ad18b743ed",
+    "src/app/privacy-policy/page.tsx": "95c50306da63d6728671f682c10b8db911a6e2e7d6a065415f14095d95fe3f73",
+    "src/app/faq/page.tsx": "5d4d9cb2ef6bf97e24876dae50385a36124de90665fe053bbf7b380f5719c0c8",
+    "src/app/api/deployment/route.ts": "b088dfea1747d2d3499dd9cfd339cd6e7336041ce12733aa75acca260e02eb50"
+  }
+}

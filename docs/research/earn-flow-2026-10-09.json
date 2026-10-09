@@ -1,0 +1,55 @@
+{
+  "author": "Codex",
+  "checkedAt": "2026-10-09T16:48:37.202Z",
+  "base": "http://127.0.0.1:3018",
+  "status": "passed",
+  "checks": [
+    "One form and asset dropdown; switching assets clears amount and old quote",
+    "Asset and mode stay locked during signing; rejected approval sends no transaction and recovers",
+    "USDC: validation, exact onchain preview, signed deposit, asset-specific shares, full withdrawal, no residual approval",
+    "MON: validation, exact onchain preview, signed deposit, asset-specific shares, full withdrawal, no residual approval",
+    "390px and 320px mobile: transaction card first, no horizontal overflow",
+    "Controlled quote failure clears the estimate, blocks submit, and recovers"
+  ],
+  "txs": [
+    {
+      "hash": "0xa98a4580c10a904524d1cab754eeff20311c7f144d55894079c8763063ef6e96",
+      "to": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603"
+    },
+    {
+      "hash": "0x8348460a7e5a59d8e3c60e491e938786ab96e09742db514b9250afe58709a570",
+      "to": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407"
+    },
+    {
+      "hash": "0x7f09b69be58bdaafba9e85d5392d3bc4a32110a622ba84b8515b5ab6fb32d591",
+      "to": "0xb1528d97E85e66Aefb962E8ae2890c49267C5407"
+    },
+    {
+      "hash": "0x3cfef3e7c7c6cf2692c4dcacb69f0ab7b909943839bfc9db32c1d1be631c2d5a",
+      "to": "0x929c20C42707Ec30ab21D6a448Ce9F0947ECc370"
+    },
+    {
+      "hash": "0xc7fe735824e5276e231791cd9d426e8a829f848c0084c150baf5d838439f8527",
+      "to": "0xDE1B8A54d94c517036032f4F3cDa9d40e943FeEB"
+    },
+    {
+      "hash": "0x5c34cfcf809deaa68dd9921e2890d7f95b4146a6b5118c14d61c8a8372c26e67",
+      "to": "0x929c20C42707Ec30ab21D6a448Ce9F0947ECc370"
+    }
+  ],
+  "errors": [],
+  "scope": "Local synthetic Monad fork only. Automated injected signing wallet; one controlled user rejection and one controlled quote outage. No production deployment or mainnet transaction.",
+  "publication": "Local working tree only. User explicitly instructed not to push. No Vercel or Railway deployment was made.",
+  "validation": {
+    "typecheck": "passed",
+    "productionBuild": "passed locally; not published",
+    "decisionUnitChecks": 7,
+    "decisionBrowserScenarios": 8,
+    "decisionBrowserProof": ".local/earn-decision/1791564427069/result.json"
+  },
+  "reference": {
+    "website": "https://usesam.xyz/buy",
+    "source": "../sam-design-preview/ts/packages/web/components/SwapCard.tsx",
+    "note": "Live website loaded; vault data remained unavailable during inspection. The existing SAM reference checkout supplied the transaction-card and selector interaction."
+  }
+}

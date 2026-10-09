@@ -1,0 +1,79 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&display=block" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#020b16}
+  .c{position:relative;width:1500px;height:500px;overflow:hidden;
+     background:
+       radial-gradient(900px 420px at 18% -18%, rgba(122,230,250,.55), transparent 62%),
+       radial-gradient(700px 380px at 92% -30%, rgba(83,222,253,.28), transparent 60%),
+       linear-gradient(180deg,#1690cf 0%,#0c6fb2 26%,#073f72 58%,#03172b 82%,#020b16 100%);
+     font-family:'Geist Mono',ui-monospace,monospace;color:#fff}
+  .rays{position:absolute;inset:-40px;pointer-events:none;mix-blend-mode:screen;opacity:.55}
+  .grain{position:absolute;inset:0;opacity:.14;mix-blend-mode:overlay}
+  svg.chart{position:absolute;inset:0}
+  .copy{position:absolute;left:84px;top:74px}
+  .eye{font-size:13px;letter-spacing:.22em;color:rgba(214,246,255,.82)}
+  h1{margin:18px 0 0;font:400 70px/0.98 'Instrument Serif',Georgia,serif;letter-spacing:-.012em;color:#fff;text-shadow:0 2px 30px rgba(2,11,22,.35)}
+  h1 em{display:block;font-style:italic;color:#bdf3ff}
+  .tag{position:absolute;right:56px;bottom:34px;font-size:12.5px;letter-spacing:.16em;color:rgba(214,246,255,.6)}
+  .instant{font:500 12.5px 'Geist Mono',monospace;letter-spacing:.18em;fill:#fff}
+  .instant2{font:400 12px 'Geist Mono',monospace;letter-spacing:.1em;fill:rgba(214,246,255,.7)}
+  .liq{font:500 11px 'Geist Mono',monospace;letter-spacing:.22em;fill:rgba(255,190,178,.85)}
+</style></head><body>
+<div class="c" id="cover">
+  <svg class="rays" viewBox="0 0 1580 580" preserveAspectRatio="none">
+    <defs><filter id="b"><feGaussianBlur stdDeviation="18"/></filter>
+      <linearGradient id="ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff4ff" stop-opacity=".9"/><stop offset="1" stop-color="#bff4ff" stop-opacity="0"/></linearGradient></defs>
+    <g filter="url(#b)" fill="url(#ray)">
+      <polygon points="180,0 260,0 520,460 380,460"/>
+      <polygon points="420,0 470,0 760,420 660,420"/>
+      <polygon points="1040,0 1090,0 1240,380 1150,380" opacity=".6"/>
+      <polygon points="1290,0 1350,0 1520,340 1430,340" opacity=".45"/>
+    </g>
+  </svg>
+
+  <svg class="chart" viewBox="0 0 1500 500">
+    <defs>
+      <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+        <stop offset=".18" stop-color="#fff" stop-opacity=".35"/>
+        <stop offset=".62" stop-color="#fff" stop-opacity=".95"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+      </linearGradient>
+      <filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="fadeX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity="1"/></linearGradient>
+      <mask id="fade" maskUnits="userSpaceOnUse" x="400" y="300" width="1100" height="160"><rect x="400" y="300" width="1100" height="160" fill="url(#fadeX)"/></mask>
+      <linearGradient id="danger" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8f7a" stop-opacity="0"/><stop offset="1" stop-color="#ff8f7a" stop-opacity=".18"/></linearGradient>
+    </defs>
+
+    <!-- liquidation zone -->
+    <g mask="url(#fade)">
+      <rect x="400" y="356" width="1100" height="60" fill="url(#danger)"/>
+      <line x1="400" y1="416" x2="1500" y2="416" stroke="rgba(255,190,178,.75)" stroke-width="1.3" stroke-dasharray="6 7"/>
+    </g>
+    <text x="1444" y="404" text-anchor="end" class="liq">LIQUIDATION</text>
+
+    <!-- price: drifts down, kisses the line, then the wave lifts it (logo curve) -->
+    <path id="p" d="M520,214 C590,228 620,250 660,262 S720,288 760,300 S820,322 850,336 S900,366 930,382 S968,404 990,407
+                     C1030,412 1052,396 1074,362 C1100,322 1120,284 1160,262 C1200,240 1236,250 1268,236
+                     S1336,196 1372,186 S1440,160 1500,148"
+          fill="none" stroke="url(#line)" stroke-width="2.6" stroke-linecap="round" filter="url(#glow)"/>
+
+    <!-- the instant -->
+    <line x1="990" y1="128" x2="990" y2="440" stroke="rgba(255,255,255,.55)" stroke-width="1"/>
+    <circle cx="990" cy="407" r="17" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
+    <circle cx="990" cy="407" r="6.5" fill="#fff"/>
+    <text x="1004" y="146" class="instant">THE INSTANT</text>
+    <text x="1004" y="166" class="instant2">margin added · position kept</text>
+  </svg>
+
+  <svg class="grain" width="1500" height="500"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+
+  <div class="copy">
+    <div class="eye">SETSUNA · LIQUIDATION PROTECTION FOR PERPL</div>
+    <h1>Liquidation takes an instant.<em>So does Setsuna.</em></h1>
+  </div>
+  <div class="tag">BUILT ON MONAD · CAPPED · NON-CUSTODIAL</div>
+</div>
+</body></html>

@@ -1,0 +1,115 @@
+{
+  "author": "Codex",
+  "createdAt": "2026-10-09T12:16:25.602Z",
+  "source": ".local/railway-workers-2026-10-09/source",
+  "uploaded": false,
+  "dockerImageBuilt": false,
+  "files": [
+    {
+      "path": "package.json",
+      "bytes": 4061,
+      "sha256": "e5ac3d67b79ea10e57be3c7389dd6950264b484d012315ce536aa9d35200450b"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 67436,
+      "sha256": "ad94410d01cb10e9e1a9037d631d117478bfc9102abac587506fde2813b91a68"
+    },
+    {
+      "path": "Dockerfile.workers",
+      "bytes": 326,
+      "sha256": "857659bb5fa808eb94767bda971db186d1cb4b8c047f7b7fd70d2cb4cdd48014"
+    },
+    {
+      "path": ".dockerignore",
+      "bytes": 178,
+      "sha256": "7d029aa6e8c9eb2fe852dbf1c31204bffbae36c20990a14decd1bf8661352ff7"
+    },
+    {
+      "path": "scripts/start-demo-workers.mjs",
+      "bytes": 6598,
+      "sha256": "0517aa42947216d9a030e3fcd52e05c3e73da29d2fdd38b5f6e4112de8936cb9"
+    },
+    {
+      "path": "scripts/earn-keeper-watch.mjs",
+      "bytes": 1369,
+      "sha256": "a5e267d5e66d056d812024bc2b54f0053b2808b9bb14227988687d89f79bd7fd"
+    },
+    {
+      "path": "scripts/earn-keeper.mjs",
+      "bytes": 6358,
+      "sha256": "798077e1674c691944288a6b4a69a5581823925215fe354302bd4331149846bf"
+    },
+    {
+      "path": "scripts/earn-keeper-core.mjs",
+      "bytes": 7375,
+      "sha256": "24a17070bd5975393f36ddbbc296055e30d8070f9acd2cff71f2be692fc91120"
+    },
+    {
+      "path": "scripts/earn-keeper-network.mjs",
+      "bytes": 4193,
+      "sha256": "e7002bbef39b5ba48c0a8ae3066a0826602c963770b7512b59e97c416dc50f5f"
+    },
+    {
+      "path": "scripts/demo-fork-profiles.mjs",
+      "bytes": 951,
+      "sha256": "aecada75f079b921224d0815190cc996f8f36c0a749a250f51b2dbb0561095b6"
+    },
+    {
+      "path": "scripts/demo-trading-fixture.mjs",
+      "bytes": 5301,
+      "sha256": "d9e4d5eb9bcd1ef651a4d018cbe68c56df4edf47124b786869d7e75a9f723a1a"
+    },
+    {
+      "path": "scripts/demo-trading-watch.mjs",
+      "bytes": 2135,
+      "sha256": "51a9c0f6ed3345d670ef905fd9c0bb558a77e736b86a4bf13f6737aedff90630"
+    },
+    {
+      "path": "src/lib/setsuna/demo-config.ts",
+      "bytes": 3787,
+      "sha256": "db58f79a183c8f78243b569c7ba7964a1ac18356ab02df3533ee63a9f2a2b494"
+    },
+    {
+      "path": "src/lib/setsuna/usdc-deployment.ts",
+      "bytes": 2589,
+      "sha256": "1373caade552af53b74185ad8bb50df552e7d350c8ace4f398aa6a7193478f7a"
+    },
+    {
+      "path": "src/lib/setsuna/types.ts",
+      "bytes": 2170,
+      "sha256": "88d7116db7242f56955d334a376a08d3471e17e7bccc91964c1ff08a59e19fe0"
+    },
+    {
+      "path": "contracts/abi/SetsunaEarnVault.json",
+      "bytes": 31999,
+      "sha256": "40cc28914ac7261dff6cef636bc72b5dfee0e7022e9cb46f9f62c8c18e33ac92"
+    },
+    {
+      "path": "contracts/abi/SetsunaUSDCVault.json",
+      "bytes": 32404,
+      "sha256": "b608085323d47b9b8bb968ce8366ecdcae7a21353cf5b2e2c89a4b146a942bbc"
+    },
+    {
+      "path": "contracts/abi/IPerplExchange.json",
+      "bytes": 28496,
+      "sha256": "895f31593bc9430fa07a092dab6de1a9627f319b3b5108375cc36b7c692e6025"
+    }
+  ],
+  "verification": {
+    "recordedAt": "2026-10-09T12:17:31.989Z",
+    "node": "24.21.0",
+    "mode": "read-only against the current local unified fork",
+    "checks": [
+      "reviewed-fork",
+      "both-vaults",
+      "distinct-funded-signers",
+      "price-fixture"
+    ],
+    "fileCount": 18,
+    "privateEnvironmentFilesIncluded": false,
+    "extraWorkersStarted": false
+  },
+  "tenderlyEndpointsConfigured": false,
+  "publicDeployment": false
+}

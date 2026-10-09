@@ -1,0 +1,46 @@
+{
+  "gate": "G6 lifecycle-joined manual top-up count",
+  "author": "Claude",
+  "observed_at_local": "2026-09-28 18:01 WAT",
+  "mode": "READ ONLY: eth_getLogs, eth_call, eth_getCode; no transactions",
+  "exchange": "0x34b6552d57a35a1d042ccae1951bd1c370112a6f",
+  "window_blocks": [106771593, 108773683],
+  "window_length": "7 days at about 286,000 blocks per day",
+  "coverage": "20,021 of 20,021 hundred-block windows fetched; 1,474 failed on first pass and 5 on second, all recovered on retry",
+  "events_read": 706441,
+  "duplicate_logs_dropped": 0,
+  "ambiguous": {"lifecycle_end_without_seen_start": 190, "note": "positions opened before the window; counted in the before-window cohort"},
+  "active_accounts": 584,
+  "lifecycles": {"opened_in_window": 117546, "open_before_window": 397},
+  "manual_topups": {
+    "events": 590,
+    "distinct_accounts": 64,
+    "share_of_active_accounts": 0.1096,
+    "lifecycles_with_a_topup": 177,
+    "median_amount_ausd": 86.4,
+    "total_amount_ausd": 191314.65,
+    "concentration": "account 1922 made 251 of 590 events (43%); the top 5 accounts made 395 (67%)",
+    "account_kind_at_block_108773589": "64 of 64 are EOAs. 14 carry EIP-7702 delegation code (prefix 0xef0100); none is a deployed contract. EOA does not establish manual intent."
+  },
+  "liquidations": {
+    "full_liquidations": 81,
+    "partial_liquidation_events": 0,
+    "distinct_accounts": 56,
+    "accounts_liquidated_more_than_once": 12,
+    "max_liquidations_one_account": 7,
+    "liquidated_lifecycles_with_a_prior_topup": 4,
+    "last_known_position_collateral_ausd": {
+      "known_for": 64, "unknown_opened_before_window": 17,
+      "median": 41.03, "p25": 5.26, "p75": 132.33, "max": 4248.95, "total": 14813.83,
+      "note": "last deposit seen before liquidation, a lower bound on collateral at stake; PositionLiquidated.posDepositCNS reads 0 in most events and was not used"
+    }
+  },
+  "not_an_effect_estimate": "Topped-up lifecycles ended liquidated at 2.26% versus 0.07% for the rest. Traders top up positions already at risk, so this is selection, not evidence that topping up fails or works.",
+  "limits": [
+    "One 7-day window; weekly variation unknown.",
+    "Event counts show heavy automated trading (106,464 opens in 7 days across 584 accounts); per-account behaviour is not per-person behaviour.",
+    "Amounts assume CNS has 6 decimals like AUSD.",
+    "No attribution of intent, and no willingness-to-pay evidence."
+  ],
+  "reproduce": "scripts/research/g6_rpc_sample.py FROM TO OUT.jsonl 64, then scripts/research/g6_analyze.py OUT.jsonl RESULT.json 108773589"
+}

@@ -1,0 +1,287 @@
+{
+  "author": "Codex",
+  "date": "2026-10-09",
+  "primaryApp": "https://setsuna.finance/app/",
+  "judgeGuide": "https://setsuna.finance/evidence/",
+  "vercelDeployment": "dpl_Ec7X4yrufj5mz2t48LYgtpD5M3z2",
+  "unitTests": {
+    "file": "scripts/earn-decision.test.mjs",
+    "passed": 7
+  },
+  "localDecisionBrowser": {
+    "author": "Codex",
+    "checkedAt": "2026-10-09T15:48:11.213Z",
+    "base": "http://127.0.0.1:3018",
+    "status": "passed",
+    "checks": [
+      "MON: live fork decision, expandable rate inputs and mobile layout",
+      "USDC: live fork decision, expandable rate inputs and mobile layout",
+      "MON: controlled cooldown preview explained accurately",
+      "USDC: controlled cooldown preview explained accurately",
+      "MON: controlled unavailable preview explained accurately",
+      "USDC: controlled unavailable preview explained accurately",
+      "MON: controlled small-gain preview explained accurately",
+      "USDC: controlled small-gain preview explained accurately"
+    ],
+    "live": [
+      {
+        "asset": "MON",
+        "text": "WHY THIS ALLOCATION\nWaiting for the cooldown\n\nAt this block, 81 seconds remain before another rebalance can be considered.\n\nEligible destinations receive targets proportional to the lowest of their two recorded base rates and the current rate, within the vault\u2019s caps. Targets describe the intended allocation; the next move is limited to 10% gross movement.\n\nCurrent cash\n1.000007 MON\nLast rebalance\n2026-10-08 10:59:23 UTC\nLatest rate observation\n2026-10-08 11:03:51 UTC\nRead at block\n111561173\nRate inputs used by the rule"
+      },
+      {
+        "asset": "USDC",
+        "text": "WHY THIS ALLOCATION\nWaiting for the cooldown\n\nAt this block, 81 seconds remain before another rebalance can be considered.\n\nEligible destinations receive targets proportional to the lowest of their two recorded base rates and the current rate, within the vault\u2019s caps. Targets describe the intended allocation; the next move is limited to 10% gross movement.\n\nCurrent cash\n16.025135 USDC\nLast rebalance\n2026-10-08 10:59:39 UTC\nLatest rate observation\n2026-10-08 11:03:35 UTC\nRead at block\n111561174\nRate inputs used by the rule"
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only browser verification. Three explicitly controlled RPC-response fixtures test error/preview presentation; no transactions or fork state changes."
+  },
+  "publicDecisionBrowser": {
+    "author": "Codex",
+    "checkedAt": "2026-10-09T15:52:04.311Z",
+    "base": "https://setsuna-metropolis.vercel.app",
+    "status": "passed",
+    "checks": [
+      "MON: live fork decision, expandable rate inputs and mobile layout",
+      "USDC: live fork decision, expandable rate inputs and mobile layout",
+      "MON: controlled cooldown preview explained accurately",
+      "USDC: controlled cooldown preview explained accurately",
+      "MON: controlled unavailable preview explained accurately",
+      "USDC: controlled unavailable preview explained accurately",
+      "MON: controlled small-gain preview explained accurately",
+      "USDC: controlled small-gain preview explained accurately"
+    ],
+    "live": [
+      {
+        "asset": "MON",
+        "text": "WHY THIS ALLOCATION\nWaiting for the cooldown\n\nAt this block, 396 seconds remain before another rebalance can be considered.\n\nEligible destinations receive targets proportional to the lowest of their two recorded base rates and the current rate, within the vault\u2019s caps. Targets describe the intended allocation; the next move is limited to 10% gross movement.\n\nCurrent cash\n1.000008 MON\nLast rebalance\n2026-10-08 11:09:38 UTC\nLatest rate observation\n2026-10-08 11:09:07 UTC\nRead at block\n111561196\nRate inputs used by the rule"
+      },
+      {
+        "asset": "USDC",
+        "text": "WHY THIS ALLOCATION\nWaiting for the cooldown\n\nAt this block, 412 seconds remain before another rebalance can be considered.\n\nEligible destinations receive targets proportional to the lowest of their two recorded base rates and the current rate, within the vault\u2019s caps. Targets describe the intended allocation; the next move is limited to 10% gross movement.\n\nCurrent cash\n16.025149 USDC\nLast rebalance\n2026-10-08 11:09:54 UTC\nLatest rate observation\n2026-10-08 11:08:51 UTC\nRead at block\n111561196\nRate inputs used by the rule"
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only browser verification. Three explicitly controlled RPC-response fixtures test error/preview presentation; no transactions or fork state changes."
+  },
+  "changedPages": {
+    "checkedAt": "2026-10-09T15:52:10.120Z",
+    "status": "passed",
+    "url": "https://setsuna-metropolis.vercel.app",
+    "checked": [
+      "/docs/trading/spot/",
+      "/docs/trading/perps/",
+      "/docs/how-it-works/rebalancing/",
+      "/earn/"
+    ],
+    "errors": [],
+    "scope": "Four changed public pages; mobile rendering and current deployment copy."
+  },
+  "judgePage": {
+    "checkedAt": "2026-10-09T15:59:31.655Z",
+    "base": "https://setsuna-metropolis.vercel.app",
+    "status": "passed",
+    "links": [
+      "https://setsuna-metropolis.vercel.app/app/",
+      "https://setsuna-workers-production.up.railway.app/tx/0x977b0bf7c860bb7af5447ec804bcc04fca585e76b424dfeda57d484ac551930f",
+      "https://setsuna-workers-production.up.railway.app/tx/0xe36bdcca06768e33362c3f4f1537e8b6091eef49083ac3aa6e5e276365d901d3",
+      "https://setsuna-metropolis.vercel.app/evidence/earn-rule-proof-2026-10-09.json",
+      "https://setsuna-metropolis.vercel.app/evidence/public-demo-2026-10-09.json",
+      "https://setsuna-metropolis.vercel.app/docs/how-it-works/rebalancing/",
+      "https://setsuna-metropolis.vercel.app/docs/developers/contracts/",
+      "https://setsuna-metropolis.vercel.app/api/deployment/"
+    ],
+    "errors": [],
+    "scope": "Public evidence page, desktop/mobile, referenced receipts and JSON proof downloads."
+  },
+  "customDomain": {
+    "checkedAt": "2026-10-09T16:03:22.389Z",
+    "status": "passed",
+    "domain": "https://setsuna.finance",
+    "chainId": 31337,
+    "rpc": "https://setsuna.finance/api/rpc/",
+    "checks": [
+      "MON and USDC decision data from same-origin RPC",
+      "Mobile layout",
+      "Existing recipient faucet cooldown rejected without a transfer",
+      "Current public evidence page"
+    ],
+    "dns": "Google and Cloudflare resolve 76.76.21.21; local OS resolver still stale. Browser used an explicit hostname mapping to that verified address, with normal TLS verification.",
+    "errors": []
+  },
+  "ruleProof": {
+    "author": "Codex",
+    "checkedAt": "2026-10-09T15:51:26.963Z",
+    "environment": "Public synthetic Monad fork, chain 31337",
+    "results": [
+      {
+        "asset": "MON",
+        "vault": "0x114255d235bA6EfF3b0F6b6498035c62F1A62a7F",
+        "receipt": "0x0bc411f7d544ad65e0f81c869768468fb75b1d74d77af8097e106bb0116c34bf",
+        "receiptBlock": "111560588",
+        "executedMovement": {
+          "caller": "0xaBD7F05D3D1f40E3c2c967872aF6D08d1d27787F",
+          "withdrawals": [
+            "0",
+            "0"
+          ],
+          "deposits": [
+            "1000000000000000000",
+            "0"
+          ],
+          "annualIncomeBefore": "0",
+          "annualIncomeAfter": "31292111053567072",
+          "repairsLimits": false
+        },
+        "simulation": {
+          "function": "rebalance",
+          "atBlock": "111561195",
+          "timestamp": "1791457967",
+          "revertedWith": "CooldownActive",
+          "broadcast": false
+        }
+      },
+      {
+        "asset": "USDC",
+        "vault": "0x55EcE31A7fC5f99460a1F3970d60Dd701B7E8021",
+        "receipt": "0xe36bdcca06768e33362c3f4f1537e8b6091eef49083ac3aa6e5e276365d901d3",
+        "receiptBlock": "111560591",
+        "executedMovement": {
+          "caller": "0x21A2f6E9FE5ADb2e08Ad515610cF06CFff94c99c",
+          "withdrawals": [
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "deposits": [
+            "14264141",
+            "1760859",
+            "0",
+            "0",
+            "0"
+          ],
+          "annualIncomeBefore": "413769",
+          "annualIncomeAfter": "1127792",
+          "repairsLimits": false
+        },
+        "simulation": {
+          "function": "rebalance",
+          "atBlock": "111561196",
+          "timestamp": "1791457982",
+          "revertedWith": "CooldownActive",
+          "broadcast": false
+        }
+      }
+    ],
+    "scope": "Confirmed existing successful rebalance receipts and independently simulated a new rebalance at the recorded current block. No transaction broadcast, clock change or state override."
+  },
+  "recording": {
+    "author": "Codex",
+    "recordedAt": "2026-10-09T16:02:21.647Z",
+    "status": "passed",
+    "base": "https://setsuna-metropolis.vercel.app",
+    "wallet": "0x873B0924C72FC99CF6A764695A05047e1C53fDEC",
+    "transactions": [
+      "0xa6a20296453e3b95982c266697ba2ff8a3577ba7ca034497511a6ebdefef5fb8",
+      "0x5f5d035cf5d839b8a45338b3a8d36e33fd897d8e564e6bceea67ccdd83da3190",
+      "0xbce6d61d017e78975c9e9bb4381dba164ff609575364d5562bc6800cf36bd687"
+    ],
+    "chapters": [
+      {
+        "seconds": 0.701,
+        "title": "Setsuna \u00b7 one deposit, transparent allocation",
+        "detail": "This is the public web demo. Earn leads, with Spot and Perps alongside it."
+      },
+      {
+        "seconds": 6.826,
+        "title": "Start with test funds",
+        "detail": "The faucet supplies synthetic MON for gas, USDC for Earn/Spot, and AUSD for Perps."
+      },
+      {
+        "seconds": 11.545,
+        "title": "Deposit 100 USDC",
+        "detail": "Approve only the deposit amount. The vault then issues setsUSDC receipt shares."
+      },
+      {
+        "seconds": 37.818,
+        "title": "Inspect the actual vault holdings",
+        "detail": "Five fixed lending integrations plus cash. A new deposit can remain idle until a permitted rebalance."
+      },
+      {
+        "seconds": 45.835,
+        "title": "See why the vault moves\u2014or waits",
+        "detail": "The contract reports its decision at the displayed block. The cooldown and movement limits still apply."
+      },
+      {
+        "seconds": 53.884,
+        "title": "Compare the recorded rate inputs",
+        "detail": "The allocation rule uses conservative base-rate observations. Rates are not guaranteed returns or a complete risk score."
+      },
+      {
+        "seconds": 61.935,
+        "title": "Verify executed events",
+        "detail": "Each receipt links to the same fork\u2019s explorer. A proposed allocation is different from a completed move."
+      },
+      {
+        "seconds": 68.983,
+        "title": "Withdraw the available position",
+        "detail": "Redeem setsUSDC into USDC. Availability depends on cash and lending-market liquidity."
+      },
+      {
+        "seconds": 87.403,
+        "title": "Spot \u00b7 MON / USDC through Kuru",
+        "detail": "This supporting workspace uses wallet assets. Earn shares do not automatically fund trades."
+      },
+      {
+        "seconds": 94.434,
+        "title": "Perps \u00b7 AUSD collateral through Perpl",
+        "detail": "Perps is separate from Earn. This fork demo uses a fixed historical BTC mark of $82,964.20."
+      },
+      {
+        "seconds": 101.542,
+        "title": "Try it yourself \u00b7 inspect the evidence",
+        "detail": "setsuna-metropolis.vercel.app \u00b7 Recorded receipts and limits are available on the Evidence page."
+      }
+    ],
+    "errors": [],
+    "scope": "Real public fork funding and USDC deposit/full withdrawal, signed through an injected test wallet. Spot and Perps screens shown without new trades. Recording captions are an overlay, not application state. No clock changes or administrator RPC.",
+    "primaryUrl": "https://setsuna.finance",
+    "recordingOrigin": "https://setsuna-metropolis.vercel.app",
+    "editing": "Uncut browser recording with explanatory captions, followed by a five-second card for the newly linked primary domain. Silent video. No chain-time advancement."
+  },
+  "video": {
+    "path": "brand/video/setsuna-web-demo-2026-10-09/Setsuna-Web-Demo.mp4",
+    "durationSeconds": 120.433333,
+    "width": 1440,
+    "height": 900,
+    "audio": false,
+    "sha256": "b10378b19309fd4ea46bc611e098a16044aa41d621440233544231782a9e186a"
+  },
+  "validation": {
+    "typescript": "passed",
+    "productionBuild": "passed",
+    "solidity": "not rerun; contract source unchanged"
+  },
+  "remaining": [
+    "Real wallet extension and physical-phone Mera verification",
+    "Independent user trials",
+    "Organizer confirmation of fork/mobile-web bounty eligibility",
+    "Confirmed code-access URL and final portal upload"
+  ],
+  "sourceSha256": {
+    "src/lib/setsuna/earn-decision.ts": "f6b16493dd1c4541d6d557a3e3aef68d850603873c04d0cdd3b6e2df08aba9b1",
+    "src/lib/setsuna/mon.ts": "b3066fdc8026f6c5f761d2caaed35462ab38f10087764c6f5ad2549de87b7631",
+    "src/lib/setsuna/usdc.ts": "0adc550f50eb8a61629ec96d14f218521ac91b4179fb78c376116d9197f74799",
+    "src/components/setsuna/EarnDecision.tsx": "a7e8509aae1407737b5b8bc11d80a75ada20f2169d95b2f27c5c29c2bc78c628",
+    "src/components/setsuna/MONEarn.tsx": "ed23058f5bddefc148475213a3746e05d57bb541fea6106fb743ecc92f7aba22",
+    "src/components/setsuna/USDCEarn.tsx": "7e17aabb44299773b6dd789500c05d284afdcf9f2fc89a45cc656ca887aa4d0c",
+    "src/components/setsuna/EarnRates.tsx": "c1a19b8a9709235380158cf1964f2fb430be3db7a729d5b4bfe717d5c65b223c",
+    "src/app/evidence/page.tsx": "274e9ed7a08d7d79beeb5771376a418e9a651382209bac43d62e9ff79741c4dd",
+    "src/styles/setsuna.css": "f1cc8c6b1c3905314d0ca5d1d079520980cc434c15d7113785997adaa07b1fbf",
+    "scripts/earn-decision.test.mjs": "dd7f703f9ba53201f952d535b1dbc63d58c83c38269f746d329a2f7f20d440fb",
+    "scripts/check-earn-decision.mjs": "9236edb12839cfa0c04da51f28bfb11afcdd6725b908ac6e7b208578831b154c",
+    "scripts/record-earn-demo.mjs": "011929dc937647b1c370e0a491ec2f72c3cee4ac0dbd56cab5f0c0635a79cee4"
+  }
+}

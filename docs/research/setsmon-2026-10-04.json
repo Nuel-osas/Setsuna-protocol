@@ -1,0 +1,232 @@
+{
+  "author": "Codex",
+  "verifiedAtUTC": "2026-10-04T08:58:32.440547+00:00",
+  "status": "IMPLEMENTED_LOCAL_FORK_PROTOTYPE",
+  "publicEarnDeployment": false,
+  "syntheticFunding": true,
+  "publicChainWrites": false,
+  "fork": {
+    "sourceChainId": 143,
+    "localDemoChainId": 31337,
+    "number": "110418863",
+    "hash": "0xed4f56748e560219f9926e46d78591ec746b5bca4497e65d0734062fbb46a97b",
+    "parentHash": "0x4828183d3dd658319ca668f383044a7cb99efa8cdbed8b82d0f988c9467026ac",
+    "timestamp": "1791102539",
+    "timestampUTC": "2026-10-04T08:28:59+00:00"
+  },
+  "marketSnapshot": {
+    "blockNumber": "110418863",
+    "WMON": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+    "Neverland": {
+      "pool": "0x80F00661b13CC5F6ccd3885bE7b4C9c67545D585",
+      "dataProvider": "0xfd0b6b6F736376F7B99ee989c749007c7757fDba",
+      "receipt": "0xD0fd2Cf7F6CEff4F96B1161F5E995D5843326154",
+      "totalSupplyWei": "34066949765835962851393064",
+      "availableReserveCashWei": "6197315494219469757206061",
+      "baseSupplyAprWad": "34959535237043957"
+    },
+    "Euler": {
+      "market": "0x7B4BcAEAC5Eb67ae947903F24BBa660eE06A5231",
+      "totalSupplyWei": "818476328052880981745429",
+      "availableCashWei": "82345387448379693236134",
+      "borrowedWei": "736130940604501288509295",
+      "model": "0x6a920368d185cB4d514c964d885Ea718D8168475",
+      "interestFeeBps": 1000,
+      "hooks": [
+        "0x0000000000000000000000000000000000000000",
+        0
+      ],
+      "baseSupplyAprWad": "77045759441591579"
+    },
+    "AaveWMONReserveTokens": [
+      "0x0000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000"
+    ]
+  },
+  "policy": {
+    "underlyingDecimals": 18,
+    "shareDecimals": 24,
+    "depositCapMON": "25000",
+    "minimumMarketSupplyMON": "250000",
+    "targetCashBps": 1000,
+    "venueCapBps": 6000,
+    "grossMovementBps": 1000,
+    "cooldownSeconds": 600,
+    "observationIntervalSeconds": 300,
+    "minimumAnnualGainMON": "0.001",
+    "roundingBudgetWei": "4"
+  },
+  "tests": {
+    "solidity": {
+      "passed": 94,
+      "failed": 0,
+      "skipped": 0,
+      "newMONUnitAndFuzz": 12,
+      "newMONFork": 8,
+      "command": "RUN_FORK=true forge test --root contracts -vv",
+      "logSHA256": "37d1bb310727b1879b4057274a9cd6c4566d64937127868fbccd1a3d0fd804b0"
+    },
+    "executors": {
+      "passed": 18,
+      "failed": 0,
+      "earn": 12,
+      "protection": 6,
+      "logSHA256": "faf7c2fd62543f257b32b413c6227183516abc0ff23b3b28046e6ba5c34b966f"
+    },
+    "typecheck": "passed",
+    "productionNextBuild": {
+      "result": "passed",
+      "logSHA256": "048f8557a8ea662667716fdbaae897dfdfe78544b367d13e23df7a80fcf3fbeb"
+    },
+    "sevenDayForkRoundTrip": {
+      "principalMON": "1000",
+      "returnedMON": "1001.090799094980475682",
+      "simulatedSeconds": 604800,
+      "forecast": false
+    },
+    "browser": {
+      "result": "passed",
+      "mode": "LOCAL_FORK_ONLY",
+      "syntheticFunding": true,
+      "url": "http://127.0.0.1:3007",
+      "vault": "0xcb9C69648AC0470D8b8875F1a5F6D5D81FE32332",
+      "gateway": "0x7a8C823811c6C4C73d87dEEc188B9b7906145196",
+      "depositMON": "42.125",
+      "mintedShares": "42124845517029872679426685",
+      "finalShares": "0",
+      "runtimeErrors": [],
+      "checks": [
+        "local demo connection",
+        "invalid and over-cap amounts blocked",
+        "native MON deposit",
+        "receipt shares verified onchain",
+        "exact share approval and native withdrawal",
+        "gateway balances and allowances cleared",
+        "activity history",
+        "mobile layout",
+        "separate USDC status",
+        "RPC outage disables transactions"
+      ],
+      "checkedAt": "2026-10-04T08:56:36.091Z"
+    }
+  },
+  "localDeployment": {
+    "asset": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+    "euler": "0x9B25DE2eD9B83cc9aee7f3F8D500DFC0a6f94046",
+    "factory": "0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9",
+    "gateway": "0x7a8C823811c6C4C73d87dEEc188B9b7906145196",
+    "neverland": "0x56507D6720BA9063fE82772c94fa9bC3aa6EEA2F",
+    "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "vault": "0xcb9C69648AC0470D8b8875F1a5F6D5D81FE32332",
+    "rpc": "http://127.0.0.1:18607",
+    "mode": "LOCAL_FORK_ONLY",
+    "syntheticFunding": true,
+    "chainId": 31337,
+    "forkChainId": 143,
+    "forkBlock": "110418863",
+    "forkHash": "0xed4f56748e560219f9926e46d78591ec746b5bca4497e65d0734062fbb46a97b",
+    "seedOwner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "executor": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+    "startBlock": "110418865",
+    "seededMON": "1000",
+    "preparedAt": "2026-10-04T08:55:50.172Z"
+  },
+  "compiledSizes": {
+    "SetsunaMONVault": {
+      "runtimeBytes": 15203,
+      "creationBytes": 16699
+    },
+    "SetsunaMONGateway": {
+      "runtimeBytes": 2632,
+      "creationBytes": 3204
+    },
+    "SetsunaMONFactory": {
+      "runtimeBytes": 4648,
+      "creationBytes": 36948
+    },
+    "NeverlandMONAdapter": {
+      "runtimeBytes": 6309,
+      "creationBytes": 7379
+    },
+    "EulerMONAdapter": {
+      "runtimeBytes": 5786,
+      "creationBytes": 6753
+    },
+    "MONVaultDeployer": {
+      "runtimeBytes": 17280,
+      "creationBytes": 17325
+    },
+    "MONAdapterDeployer": {
+      "runtimeBytes": 14765,
+      "creationBytes": 14810
+    }
+  },
+  "sourceSHA256": {
+    "contracts/src/earn/AaveUSDCAdapter.sol": "51e70417942f01ebd95e39e3d41b20d7c86cb08c21656a4b095b53ca3bff77c1",
+    "contracts/src/earn/EulerMONAdapter.sol": "72c98e9fc2426983b72d15792c92676ac6f656a71da0c5ae29e6154516582627",
+    "contracts/src/earn/ILendingAdapter.sol": "5dd116751d616a4b7d0597f8191638b774ad2bb9e441122446bd073cadc5b4d8",
+    "contracts/src/earn/MorphoUSDCAdapter.sol": "8fc2b36e1472a8bea758348d75a814be5bc5a54f97600c1f4de9599a4e852a78",
+    "contracts/src/earn/NeverlandMONAdapter.sol": "e1409e3aac977f7f17c5d02e300f980f9e8388b71caebe05ce66a86f9b6b32c4",
+    "contracts/src/earn/SetsunaEarnCore.sol": "ff6556f4f495b7d797cec7fb21d3ffce4eaa91f2757efc37fd08de81d6dc7793",
+    "contracts/src/earn/SetsunaEarnVault.sol": "2bb3b47d3ef38b5649499621c0edf64271002bae1f1c84ad60e6b8a2e096b0d2",
+    "contracts/src/earn/SetsunaMONFactory.sol": "abc4fa19a367dea2d78eff0857034e09c49164958f603ca7357bf933e7375d6d",
+    "contracts/src/earn/SetsunaMONGateway.sol": "73f2aa1e4bbb18fbf9edeeea80f529820a361359af0dea16748c8ecc0507e541",
+    "contracts/src/earn/SetsunaMONVault.sol": "620bd0fa70306d1a580db18ffb986139b6e18d7d397a226d3582250c38844669",
+    "contracts/src/earn/SetsunaUSDCFactory.sol": "c1958a3bfa8ab67543e1db3131960fedc300867372ba51c9e2f7004adde7ad87",
+    "contracts/src/earn/VenueInterfaces.sol": "c5617814297f4c932e1075402865c280fe9b0f54a0908fc9ed2d94b53fe32f92",
+    "contracts/script/LocalEarnDemo.s.sol": "56b1f8aa91da6ae1cbeb5048ee65ad829a0109b0cd383795b36996d2231b1154",
+    "contracts/test/SetsunaMON.t.sol": "cad7830ab42d7973bf66a48ac686b15c393bdfe978727774bf3284827d323361",
+    "contracts/test/SetsunaMONFork.t.sol": "e01e1377d0acc5e91ab33e85c75407b3c58b2b47f19c79d6436f31d0443aa908",
+    "contracts/test/SetsunaEarn.t.sol": "5e91492938b4d1fefa64cdbb088696dd634459e961099fa3ebf8e9df7d8d5d91",
+    "contracts/test/SetsunaEarnFork.t.sol": "21e866721fb9a74c56f202fd64c5e9abca55db96d692bb6ffb9cad185ea887c4",
+    "contracts/test/EarnMocks.sol": "f1fa74853726d02d2fa80f7e250931d6d9b032a4c30eaf441f58ad0c39c06502",
+    "scripts/earn-keeper-core.mjs": "24a17070bd5975393f36ddbbc296055e30d8070f9acd2cff71f2be692fc91120",
+    "scripts/earn-keeper.mjs": "6f11ec4163d595f5b4d60d64ece366c503ee938255d641c9aed451075410f343",
+    "scripts/earn-keeper-core.test.mjs": "418b56acee6260c14fb339451adcba89cdc14f1462a49054785d9d8360b0ffae",
+    "scripts/earn-local-demo.mjs": "f7c79f95adcd7f21e54fe8f51a78c9cb1200dd169580cea7ffa001160f7e8b9c",
+    "scripts/check-setsmon.mjs": "065db9c89334772856039cdc8e2fde4dbc67c6b309bc87ed2b78905a26bffd3a",
+    "scripts/export-abis.mjs": "3e5b9e312e1b83f3199f548e91495a9eb0cba947d5b87f846fb90a460acdad3f",
+    "src/components/setsuna/MONEarn.tsx": "b847058052161f9bfb97e818e6859ed41747e266c6568dec12f036b76c0a5e19",
+    "src/components/setsuna/EarnApp.tsx": "aa62877c2049dc117f197dc4cd4402eece83493bff8f7f9153efd886f1305cba",
+    "src/components/setsuna/WalletProvider.tsx": "3c40423caf4cba1806dc10fe1be9b05dcd45627d58070ba661a6c42afe75ee94",
+    "src/lib/setsuna/mon.ts": "4c503cba413333c5c6917721a1e7bb26b9c58845a59a45e2409154087ffbdba8",
+    "src/lib/setsuna/types.ts": "ab59854bfc5842b96f77ac7ad747eaa19533b768e50c47412fd6934e4f20d3b0",
+    "src/app/api/deployment/route.ts": "815a46222307208bb6cf9f0cb7084450632bd53c3e0b89250d289410353ee876",
+    "src/styles/setsuna.css": "de722e3e30f87f92d3f2b4a54789a30a49745725c58d1536adda68ebc8bdca10"
+  },
+  "abiSHA256": {
+    "contracts/abi/EulerMONAdapter.json": "1d152ab5131c98ba2ae8a1b95ca96bc33f860943f9244332c41a648e2459e062",
+    "contracts/abi/NeverlandMONAdapter.json": "4b9f9b0dea0de244493a45e542695952e6ee5707ff64de5b93b647c8351ff0d6",
+    "contracts/abi/SetsunaMONFactory.json": "f1216734857b4f896e43029d17561c0096fbf8e7147dde6f40b9bb088f0ef04c",
+    "contracts/abi/SetsunaMONGateway.json": "baebb69f33bb25312d660499fc1b18068bb106e87e7b4b57217e55ba05fe3c8b",
+    "contracts/abi/SetsunaMONVault.json": "40cc28914ac7261dff6cef636bc72b5dfee0e7022e9cb46f9f62c8c18e33ac92"
+  },
+  "limitations": [
+    "No public or Tenderly deployment",
+    "Synthetic funds and controlled fork time; future mainnet state is not replayed",
+    "External venue governance and borrower/collateral risk persist",
+    "No independent audit or guarantee of principal, returns or instant withdrawal",
+    "Current local MON and original Perpl demonstrations run on separate forks",
+    "Kuru Spot, expanded Perps and a combined portfolio/deployment remain follow-up work",
+    "No realized-performance index or physical passkey/device proof in this task"
+  ],
+  "references": [
+    {
+      "url": "https://github.com/Neverland-Money/neverland-wrapped-tokens/blob/main/src/NeverlandAddressBook.sol",
+      "snapshotSHA256": "df4ccbc0da3176a8e79d6720de6f22aff17795f5c1f30f58440b9b5f72f2e245"
+    },
+    {
+      "url": "https://github.com/neverland-money/neverland-lending/blob/main/contracts/protocol/pool/DefaultReserveInterestRateStrategy.sol",
+      "snapshotSHA256": "0e5aa1d968ed81567de83660f8335d91b7d62d3d084cae5f40373b26ed0e22f0"
+    },
+    {
+      "url": "https://github.com/euler-xyz/euler-labels/blob/development/143/products.json",
+      "snapshotSHA256": "fae8f984697fb9b807f96d5e4bdad2449d53478864d7009f12063f4d4542b91c"
+    },
+    {
+      "url": "https://github.com/euler-xyz/euler-vault-kit/blob/master/src/InterestRateModels/IIRM.sol",
+      "snapshotSHA256": "88554942896d8e48f0ffb4e32cf5cd1d35cc692ab3b3573b03704e885b27212c"
+    }
+  ]
+}

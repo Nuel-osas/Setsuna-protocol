@@ -1,0 +1,25 @@
+{
+  "author": "Codex",
+  "checkedAt": "2026-10-05T06:46:03.503Z",
+  "publicURL": "https://setsuna-metropolis.vercel.app",
+  "releaseMode": "read-only-mainnet-market-preview",
+  "vercelProject": "setsuna-metropolis",
+  "localTradingURL": "http://localhost:3008/app/",
+  "checks": {
+    "marketAndConfigUnitTests": 9,
+    "typecheck": "passed",
+    "productionBuild": "passed locally and on Vercel Node 24",
+    "localTrading": "Spot round-trip, Perpl open/close and AUSD withdrawal, setsMON deposit/redeem, pending-receipt recovery passed",
+    "marketBrowser": "passed locally and on public URL at desktop/tablet/mobile widths",
+    "hostedConfiguration": "verified actual local contract links and restricted RPC; not a Tenderly deployment",
+    "publicPages": "all app/marketing/legal/evidence pages and favicon returned HTTP 200",
+    "earnAPI": "HTTP 200"
+  },
+  "pending": [
+    "Tenderly hosted fork and contract deployment",
+    "Synthetic funding for visitor wallets; no public faucet implemented",
+    "Hosted Earn executor and Perpl fixture/refresher or validated state sync",
+    "setsUSDC deployed vault/UI connection"
+  ],
+  "evidence": ".local/live-wiring/review/"
+}

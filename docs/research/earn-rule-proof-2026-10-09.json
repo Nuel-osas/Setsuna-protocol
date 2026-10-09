@@ -1,0 +1,68 @@
+{
+  "author": "Codex",
+  "checkedAt": "2026-10-09T15:51:26.963Z",
+  "environment": "Public synthetic Monad fork, chain 31337",
+  "results": [
+    {
+      "asset": "MON",
+      "vault": "0x114255d235bA6EfF3b0F6b6498035c62F1A62a7F",
+      "receipt": "0x0bc411f7d544ad65e0f81c869768468fb75b1d74d77af8097e106bb0116c34bf",
+      "receiptBlock": "111560588",
+      "executedMovement": {
+        "caller": "0xaBD7F05D3D1f40E3c2c967872aF6D08d1d27787F",
+        "withdrawals": [
+          "0",
+          "0"
+        ],
+        "deposits": [
+          "1000000000000000000",
+          "0"
+        ],
+        "annualIncomeBefore": "0",
+        "annualIncomeAfter": "31292111053567072",
+        "repairsLimits": false
+      },
+      "simulation": {
+        "function": "rebalance",
+        "atBlock": "111561195",
+        "timestamp": "1791457967",
+        "revertedWith": "CooldownActive",
+        "broadcast": false
+      }
+    },
+    {
+      "asset": "USDC",
+      "vault": "0x55EcE31A7fC5f99460a1F3970d60Dd701B7E8021",
+      "receipt": "0xe36bdcca06768e33362c3f4f1537e8b6091eef49083ac3aa6e5e276365d901d3",
+      "receiptBlock": "111560591",
+      "executedMovement": {
+        "caller": "0x21A2f6E9FE5ADb2e08Ad515610cF06CFff94c99c",
+        "withdrawals": [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "deposits": [
+          "14264141",
+          "1760859",
+          "0",
+          "0",
+          "0"
+        ],
+        "annualIncomeBefore": "413769",
+        "annualIncomeAfter": "1127792",
+        "repairsLimits": false
+      },
+      "simulation": {
+        "function": "rebalance",
+        "atBlock": "111561196",
+        "timestamp": "1791457982",
+        "revertedWith": "CooldownActive",
+        "broadcast": false
+      }
+    }
+  ],
+  "scope": "Confirmed existing successful rebalance receipts and independently simulated a new rebalance at the recorded current block. No transaction broadcast, clock change or state override."
+}

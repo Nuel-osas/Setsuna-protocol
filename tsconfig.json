@@ -1,0 +1,87 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "next.config.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    ".next-earn/types/**/*.ts",
+    ".next-earn/dev/types/**/*.ts",
+    ".next-setsmon-build/types/**/*.ts",
+    ".next-setsmon-build/dev/types/**/*.ts",
+    ".next-trading/types/**/*.ts",
+    ".next-trading/dev/types/**/*.ts",
+    ".next-trading-build/types/**/*.ts",
+    ".next-trading-build/dev/types/**/*.ts",
+    ".next-refresh-build/types/**/*.ts",
+    ".next-refresh-build/dev/types/**/*.ts",
+    ".next-terminal-build/types/**/*.ts",
+    ".next-terminal-build/dev/types/**/*.ts",
+    ".next-live/types/**/*.ts",
+    ".next-live/dev/types/**/*.ts",
+    ".next-live-build/types/**/*.ts",
+    ".next-live-build/dev/types/**/*.ts",
+    ".next-hosted-check/types/**/*.ts",
+    ".next-hosted-check/dev/types/**/*.ts",
+    ".next-spot-build/types/**/*.ts",
+    ".next-spot-build/dev/types/**/*.ts",
+    ".next-hosted-journey/types/**/*.ts",
+    ".next-hosted-journey/dev/types/**/*.ts",
+    ".next-hosted-build/types/**/*.ts",
+    ".next-hosted-build/dev/types/**/*.ts",
+    ".next-trading-complete-build/types/**/*.ts",
+    ".next-trading-complete-build/dev/types/**/*.ts",
+    ".next-usdc/types/**/*.ts",
+    ".next-usdc/dev/types/**/*.ts",
+    ".next-usdc-build/types/**/*.ts",
+    ".next-usdc-build/dev/types/**/*.ts",
+    ".next-usdc-five/types/**/*.ts",
+    ".next-usdc-five/dev/types/**/*.ts",
+    ".next-usdc-five-build/types/**/*.ts",
+    ".next-usdc-five-build/dev/types/**/*.ts",
+    ".next-docs-build/types/**/*.ts",
+    ".next-docs-build/dev/types/**/*.ts",
+    ".next-unified-demo/types/**/*.ts",
+    ".next-unified-demo/dev/types/**/*.ts",
+    ".next-unified-build/types/**/*.ts",
+    ".next-unified-build/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "reference",
+    "evidence"
+  ]
+}

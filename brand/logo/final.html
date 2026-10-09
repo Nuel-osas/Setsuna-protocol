@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600&family=Geist+Mono&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#06121f;font-family:Geist,sans-serif;color:#eaf9ff}
+.wrap{width:1600px;padding:56px;box-sizing:border-box}
+h2{font-weight:600;font-size:26px;margin:0;letter-spacing:-.01em}
+.sub{font:12.5px 'Geist Mono',monospace;color:#7fa9c4;margin:8px 0 22px;max-width:70ch;line-height:1.5}
+.grid{display:grid;grid-template-columns:420px 420px 1fr;gap:20px;margin-bottom:56px}
+.tile{height:300px;border-radius:24px;display:grid;place-items:center}
+.dark{background:radial-gradient(500px 260px at 30% 0%,rgba(83,222,253,.35),transparent 60%),linear-gradient(180deg,#0c6fb2,#020b16)}
+.light{background:#f2fbff}
+.side{display:grid;gap:20px}
+.lock{height:140px;border-radius:24px;background:#020b16;display:flex;align-items:center;justify-content:center;gap:18px;font:600 58px Geist;letter-spacing:-.04em}
+.lock.l{background:#f2fbff;color:#06233f}
+.icons{display:flex;gap:26px;align-items:flex-end;justify-content:center;height:140px;border-radius:24px;background:#0a1a2b}
+.app{width:112px;height:112px;border-radius:26px;background:linear-gradient(160deg,#53defd 0%,#1690cf 40%,#0c4f86 78%,#031a30 100%);display:grid;place-items:center}
+.fav{display:flex;flex-direction:column;align-items:center;gap:6px;font:11px 'Geist Mono';color:#7fa9c4}
+</style></head><body><div class="wrap" id="w"></div>
+<script src="final.js"></script>
+<script>
+const t={lift:['A1 · Lift','Straight cut. The right half is lifted a full step: the moment a position is pulled back above the line.'],
+         wave:['A2 · Wave Lift','The cut is a wave, as in the reference logo. The right half is lifted: one disc, one instant, one rescue.']};
+const svg=(k,fg,s)=>`<svg width="${s}" height="${s}" viewBox="0 0 64 64">${finals[k](fg)}</svg>`;
+document.getElementById('w').innerHTML=Object.keys(finals).map(k=>`
+<h2>${t[k][0]}</h2><div class="sub">${t[k][1]}</div>
+<div class="grid">
+ <div class="tile dark">${svg(k,'#ffffff',200)}</div>
+ <div class="tile light">${svg(k,'#0a4f88',200)}</div>
+ <div class="side">
+  <div class="lock">${svg(k,'#53defd',72)}<span>setsuna</span></div>
+  <div class="lock l">${svg(k,'#0c6fb2',72)}<span>setsuna</span></div>
+  <div class="icons"><div class="app">${svg(k,'#fff',70)}</div>
+   <div class="fav">${svg(k,'#eaf9ff',32)}32</div><div class="fav">${svg(k,'#eaf9ff',16)}16</div>
+   <div class="fav">${svg(k,'#000',32)}mono</div></div>
+ </div></div>`).join('');
+</script></body></html>

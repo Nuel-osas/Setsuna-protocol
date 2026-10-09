@@ -1,0 +1,20 @@
+{
+  "author": "Codex",
+  "checkedAt": "2026-10-09T12:29:20.485Z",
+  "authenticated": true,
+  "visiblePlan": "Free",
+  "virtualEnvironmentAction": "Contact us for Console",
+  "createControlPresent": false,
+  "environmentCreated": false,
+  "rpcConfigured": false,
+  "screenshot": ".local/tenderly-entitlement-gate-2026-10-09.png",
+  "billing": {
+    "plan": "Free",
+    "simulationsIncluded": false,
+    "monthlySimulationRequests": "0 / 0",
+    "networkEntitlements": []
+  },
+  "requiredNextStep": "Activate the Metropolis sponsor entitlement or obtain an eligible Tenderly environment.",
+  "paidUpgradePurchased": false,
+  "supportMessageSent": false
+}

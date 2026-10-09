@@ -1,0 +1,132 @@
+{
+  "author": "Codex",
+  "observed_at_utc": "2026-09-28T13:43:15.915214+00:00",
+  "scope": "Implemented contract and keeper core; local verification only",
+  "fork": {
+    "source_chain_id": 143,
+    "block": 108749101,
+    "hash": "0x7ce374183bf2649f316a1bb1312074e9c37965995ecb60cdc947ab236bc67150",
+    "abi_revision": "01b9910761755b0a0d9c710c1ede62ab937daa7d"
+  },
+  "solidity_tests": {
+    "command": "RUN_FORK=true forge test --json",
+    "passed": 41,
+    "failed": 0,
+    "suites": [
+      {
+        "suite": "test/PerplAccountProof.t.sol:PerplAccountProofTest",
+        "passed": 1,
+        "tests": [
+          "testFork_G1_ContractCreatesDepositsTradesAndIncreasesCollateral()"
+        ]
+      },
+      {
+        "suite": "test/PerplRisk.t.sol:PerplRiskTest",
+        "passed": 4,
+        "tests": [
+          "testInvalidVenueScalesAndResidueFailClosed()",
+          "testKnownNotionalAndMarginFactorUnits()",
+          "testLongAndShortResidueRepresentTheSameEffectiveEntry()",
+          "testSubCnsMaintenanceRoundsUp()"
+        ]
+      },
+      {
+        "suite": "test/SetsunaAccount.t.sol:SetsunaAccountTest",
+        "passed": 26,
+        "tests": [
+          "testCannotResetAnActivePolicyBudget()",
+          "testCapCannotPayMarginWhenFeeWouldExceedIt()",
+          "testConfiguredFeeCeilingLimitsActualPayout()",
+          "testExecutionFailuresRollBackAllBalancesAndPolicy()",
+          "testFactoryBindsOwnerAndRejectsDuplicate()",
+          "testFeeTransferFailureRollsBackVenueDepositAndCollateral()",
+          "testFrozenAccountRefuses()",
+          "testFundingCountedExactlyOnce()",
+          "testFuzzCapAndReserveBoundEverySuccessfulRescue(uint256,uint256)",
+          "testInsolventReserveRefuses()",
+          "testMinimumTopUpRefusesInsteadOfIncreasingSpend()",
+          "testNoOutstandingOrdersAtArmOrRescue()",
+          "testNoPartialTopUpWhenReserveIsInsufficient()",
+          "testPermissionlessTopUpRestoresTargetAndCountsFeeInsideCap()",
+          "testReentrantRescueCannotDoubleSpend()",
+          "testRepeatedRescuesExhaustTheSameCumulativeBudget()",
+          "testRestingTriggerAndWrongMarketOrdersRejected()",
+          "testRevocationAndRearmingKeepSeparatePolicyHistory()",
+          "testSameBlockSameSideSameSizeReopenDoesNotReusePolicy()",
+          "testSnapshotIncludesEntryPriceResidue()",
+          "testStaleInvalidAndFutureMarksRefuseWithoutFees()",
+          "testTradingDepositAndWithdrawalLeaveReserveUntouched()",
+          "testUnauthorizedCallsCannotSpendReserveOrChangePolicy()",
+          "testVenueLiquidationRefusesWithoutTouchingReserve()",
+          "testVenuePartialDeleverageFailsBinding()",
+          "testWithdrawalPreservesSpentBudgetAndRefillDoesNotResetIt()"
+        ]
+      },
+      {
+        "suite": "test/SetsunaFork.t.sol:SetsunaForkTest",
+        "passed": 10,
+        "tests": [
+          "testFork_ActualAccountRescuesWithinCapThenRefusesHealthyPosition()",
+          "testFork_BothForwardingPathsRejectEvenAPrivilegedForwarder()",
+          "testFork_CapAndReserveWithdrawalDoNotResetSpentBudget()",
+          "testFork_G5_LiquidationBoundaryMatchesEntryBasedMaintenance()",
+          "testFork_G5_ShortLiquidationBoundaryMatchesEntryBasedMaintenance()",
+          "testFork_InjectedSilentIncreaseFailureRollsBackNativeDeposit()",
+          "testFork_PartialIOCLeavesNoDelayedOrderAndRevokesPolicy()",
+          "testFork_SameBlockCloseReopenAndFlipInvalidateAuthorization()",
+          "testFork_StaleReferenceCannotSpendReserve()",
+          "testFork_UnfillableFOKCannotLeaveAPartialPositionOrRestingOrder()"
+        ]
+      }
+    ],
+    "fuzz_runs": 256
+  },
+  "keeper_tests": {
+    "command": "npm run test:keeper",
+    "passed": 6,
+    "failed": 0
+  },
+  "app_checks": {
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "local_demo": {
+    "command": "npm run demo:local",
+    "chain_id": 31337,
+    "synthetic_funding": true,
+    "outcome": "rescued",
+    "after_status": "Not triggered",
+    "rescue": {
+      "policyId": "1",
+      "rescuer": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "amountCNS": "49994940",
+      "feeCNS": "499949",
+      "usedCNS": "50494889",
+      "reserveCNS": "149505111"
+    },
+    "local_tx_hash": "0xffa6c95d3d2606405b83cf2290d52f6af461e0f4167b7452ce901b68c339e467",
+    "local_evm_gas_used": "294873"
+  },
+  "source_sha256": {
+    "contracts/foundry.toml": "cb7f9fe3e894cc05bf113e2b21c06ea80cfe10db57687ceb3a08713220f48d0e",
+    "contracts/src/PerplRisk.sol": "713571983bff837e9ba3a89844a6bd05392135d8f5554f580023030d2977806e",
+    "contracts/src/SetsunaAccount.sol": "2ba66e2d8e389a7c4c9429a794623fc28eee0b01ce19a3c9a85b14e025835ee6",
+    "contracts/src/SetsunaFactory.sol": "c4d1fab6a50f34ca046d6828361ec576a1abc8f37c47637d9d544d54e93ce1dc",
+    "contracts/src/interfaces/IPerplExchange.sol": "f907d01b693cc1f56934f5c19b8167063153fd703557d3b15d3e27ae2bff1342",
+    "contracts/test/Mocks.sol": "69ef9ff20719b1b4be6061584caebf4b464c5233f1a4a2727955ca66d2ed2092",
+    "contracts/test/PerplAccountProof.t.sol": "c4894b00f6c305825c09f74d31ebef5e9d21662786ae9404c2019d87b89551c2",
+    "contracts/test/PerplRisk.t.sol": "c7cafd2a1b8585f6991a41d676fb42ab30cbceb892e28a067b7139d5ee17e6c2",
+    "contracts/test/SetsunaAccount.t.sol": "55edc3410f23ce46798b8ede214a5e51c7df0fd9c586b598901b3b92050d334d",
+    "contracts/test/SetsunaFork.t.sol": "d00243b5f43d58f64447c14f84cd4c9d23f43f08fe8b03e3f3d6f78d2c31b145",
+    "scripts/keeper-core.mjs": "bff110374c187a8cbab8395f5ca16da1c3ef50de74874c4a3c873b19dc738520",
+    "scripts/keeper.mjs": "3931c8eea44febbf6924c4c53401bb37e1854cbc8a9d2563ea61a6ff67802428",
+    "scripts/local-demo.mjs": "83eafd7101f263a82154251b13186a9d3f163e72547117238943e2d1e8fd3375"
+  },
+  "limitations": [
+    "No public-chain transaction or deployed public account.",
+    "Controlled fork liquidation checks use local administrator roles and mark changes; not historical outcomes.",
+    "Fault injections verify Setsuna rollback rather than every native Perpl failure path.",
+    "Future venue upgrades, emergency paths, live latency and keeper economics remain unproven.",
+    "Mera/mobile UI, Envio, CRE, usage research and willingness-to-pay validation remain outstanding."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "gate": "G7 history coverage",
+  "author": "Claude",
+  "observed_at_local": "2026-09-28 15:22 WAT",
+  "mode": "READ ONLY: eth_getLogs, eth_getCode; no transactions",
+  "exchange": "0x34b6552d57a35a1d042ccae1951bd1c370112a6f",
+  "reference_head_block": 108773589,
+  "block_rate_assumed": "about 3.31 blocks per second, so about 286,000 blocks per day",
+  "log_depth_probe_100_block_windows": {
+    "30_days_back_block_100192627": "4756 logs, monadinfra",
+    "60_days_back_block_91612627": "5877 logs, monadinfra and rpc.monad.xyz",
+    "120_days_back_block_74452627": "1676 logs, monadinfra and rpc.monad.xyz",
+    "240_days_back_block_40132627": "0 logs; exchange has no bytecode at this block"
+  },
+  "rpc_limits": {
+    "eth_getLogs_max_range_blocks": 100,
+    "rpc.monad.xyz": "limited to a 100 range",
+    "rpc-mainnet.monadinfra.com": "block range too large above 100",
+    "rpc3.monad.xyz": "Block range is too large above 100",
+    "unfiltered_100_block_responses": "several MB; some responses truncated, so topic filtering is required"
+  },
+  "throughput_topic_filtered_18_events": {
+    "12_workers": "121 windows (about 1 hour of blocks) in 63.4 s",
+    "32_workers": "120 windows in 28.9 s",
+    "64_workers": "120 windows in 10.8 s, 0 failures"
+  },
+  "hypersync": "monad.hypersync.xyz answers /height without a token; /query requires an Envio API token (app.envio.dev). Not used.",
+  "verdict": "PASS for a 30-day BTC report and for any window up to at least 120 days. Exchange deployment lies between 120 and 240 days back; not bisected.",
+  "limits": [
+    "Depth is shown by non-empty windows at sampled points, not by a continuous scan.",
+    "Throughput depends on public RPC capacity and may vary."
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "author": "Codex",
+  "date": "2026-10-05",
+  "source": "https://app.deepbook.xyz/spot",
+  "publicURL": "https://setsuna-metropolis.vercel.app/app/?tab=spot",
+  "scope": "Spot layout and interactions; Kuru execution retained",
+  "capture": {
+    "pages": 1,
+    "resources": 9,
+    "bytes": 2250456,
+    "failures": [],
+    "discoveryErrors": [
+      {
+        "page": "http://127.0.0.1:60541/spot/",
+        "message": "Failed to construct 'URL': Invalid URL"
+      }
+    ],
+    "offlineVerificationPassed": false
+  },
+  "browser": {
+    "base": "http://127.0.0.1:3009",
+    "at": "2026-10-05T08:58:54.470Z",
+    "checks": [
+      "Desktop chart/book/ticket geometry, price grouping, quote/base sizes, book filters and actual Kuru trade feed pass.",
+      "Responsive widths pass; mobile chart/book/trades tabs and order form open/close work."
+    ],
+    "errors": []
+  },
+  "validation": [
+    "10 market/config tests passed",
+    "local Spot, Perps, setsMON transaction flows passed",
+    "receipt recovery passed",
+    "existing terminal regression passed",
+    "exact Max/25% balances, gas reserve and order precision checked",
+    "TypeScript and production build passed"
+  ],
+  "limits": [
+    "Public deployment remains read-only",
+    "No resting limit orders",
+    "Kuru close-price history, not OHLC candles",
+    "No DeepBook wallet, fonts, logo, fee-token logic or TradingView runtime copied"
+  ],
+  "publicBrowser": {
+    "base": "https://setsuna-metropolis.vercel.app",
+    "at": "2026-10-05T09:00:38.457Z",
+    "checks": [
+      "Desktop chart/book/ticket geometry, price grouping, quote/base sizes, book filters and actual Kuru trade feed pass.",
+      "Responsive widths pass; mobile chart/book/trades tabs and order form open/close work."
+    ],
+    "errors": []
+  }
+}

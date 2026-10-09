@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+reference/
+evidence/
+*.tsbuildinfo
+.env*
+!.env.example
+.DS_Store
+next-env.d.ts
+.local/
+
+.next-*/
+.vercel
+
+# Large media and exports (kept locally, not in the repo)
+brand/video/
+brand/**/*.zip
+brand/social/*/
+*.mp4
+*.wav

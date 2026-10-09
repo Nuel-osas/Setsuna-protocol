@@ -1,0 +1,508 @@
+{
+  "author": "Codex",
+  "recordedAt": "2026-10-08T08:52:17.216Z",
+  "scope": "Local Monad mainnet fork, synthetic USDC; no public or mainnet deployment",
+  "source": {
+    "block": "111560409",
+    "hash": "0xc8a3dcf05b4b35daf91e0abc74bc91ebc2ec45830d93a8f2b6451cff8214a84b"
+  },
+  "curvance": {
+    "market": "0x7f779f7F5316F6164dC5a25422A5ee51504B284A",
+    "manager": "0x27a4fC8aa36d0ae896C85E8a34e80Fa061E8b4c4",
+    "registry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+    "collateral": "wsrUSD",
+    "rate": "min(active vesting borrow rate, predicted post-allocation borrow rate) * utilization * (1-interestFee) * 365 days; estimate excludes incentives",
+    "sourceRevision": "332721eb0b7efb26137a519a0808360ca7831f53"
+  },
+  "tests": {
+    "solidity": {
+      "passed": 152,
+      "failed": 0,
+      "skipped": 0,
+      "fiveProtocolForkTests": 10,
+      "unitAndRegressionIncludes": "legacy USDC, setsMON, Spot, Perps, and eleven native market research probes",
+      "command": "RUN_FORK=true forge test --root contracts -vv",
+      "logSha256": "d0e1872c8a81c2ff577c8cf4d7deb39c530dddd0e5bcadcbad546b3c60d1ce58",
+      "faultInjection": "Four five-protocol integration tests use actual protocol calls; six additional Curvance failure/authority probes use test funding and, where applicable, mocked RPC-level contract reads. Seven-day accrual uses simulated time."
+    },
+    "keeperAndConfig": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typescript": "passed",
+    "productionBuild": "passed",
+    "browser": {
+      "checkedAt": "2026-10-08T08:51:04.623Z",
+      "sourceBlock": "111560409",
+      "vault": "0xaD086172fdd014eCAfD67DBd0ee1E47bB3c2C000",
+      "checks": [
+        "5 destinations visible and Curvance funded when configured",
+        "invalid and excess input blocked",
+        "exact approval consumed",
+        "deposit mints shares",
+        "public rate observation",
+        "public rebalance",
+        "partial redemption",
+        "full redemption",
+        "reload",
+        "mobile width"
+      ],
+      "events": [
+        {
+          "event": "AccountingUpdated",
+          "hash": "0xbafc8babbdd1671e3287fed3c7549e0cc42d6a0b3694eb2f47bc34ba13a052b1",
+          "block": "111560481"
+        },
+        {
+          "event": "Transfer",
+          "hash": "0xbafc8babbdd1671e3287fed3c7549e0cc42d6a0b3694eb2f47bc34ba13a052b1",
+          "block": "111560481"
+        },
+        {
+          "event": "Deposit",
+          "hash": "0xbafc8babbdd1671e3287fed3c7549e0cc42d6a0b3694eb2f47bc34ba13a052b1",
+          "block": "111560481"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x4b396a536aedbf198b26f00ea5a20da2fafcbe4b9ddf71738042bfa580bb0fa6",
+          "block": "111560489"
+        },
+        {
+          "event": "RatesObserved",
+          "hash": "0x4b396a536aedbf198b26f00ea5a20da2fafcbe4b9ddf71738042bfa580bb0fa6",
+          "block": "111560489"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x860de1e6bba9fdd6905840074cbc48b9bbf721387aec7fd843210566c4bd06b8",
+          "block": "111560491"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x860de1e6bba9fdd6905840074cbc48b9bbf721387aec7fd843210566c4bd06b8",
+          "block": "111560491"
+        },
+        {
+          "event": "Rebalanced",
+          "hash": "0x860de1e6bba9fdd6905840074cbc48b9bbf721387aec7fd843210566c4bd06b8",
+          "block": "111560491"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x4089271c1ca2164954859f7beb9f6013bea950e3123f442abbcc1053745c3a36",
+          "block": "111560494"
+        },
+        {
+          "event": "Transfer",
+          "hash": "0x4089271c1ca2164954859f7beb9f6013bea950e3123f442abbcc1053745c3a36",
+          "block": "111560494"
+        },
+        {
+          "event": "Withdraw",
+          "hash": "0x4089271c1ca2164954859f7beb9f6013bea950e3123f442abbcc1053745c3a36",
+          "block": "111560494"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x4089271c1ca2164954859f7beb9f6013bea950e3123f442abbcc1053745c3a36",
+          "block": "111560494"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x52b3ae124a694ffceb0caf5983001ba8e0739daff2d4434361749801b85ae106",
+          "block": "111560496"
+        },
+        {
+          "event": "Transfer",
+          "hash": "0x52b3ae124a694ffceb0caf5983001ba8e0739daff2d4434361749801b85ae106",
+          "block": "111560496"
+        },
+        {
+          "event": "Withdraw",
+          "hash": "0x52b3ae124a694ffceb0caf5983001ba8e0739daff2d4434361749801b85ae106",
+          "block": "111560496"
+        },
+        {
+          "event": "AccountingUpdated",
+          "hash": "0x52b3ae124a694ffceb0caf5983001ba8e0739daff2d4434361749801b85ae106",
+          "block": "111560496"
+        }
+      ],
+      "errors": []
+    },
+    "runningKeeper": [
+      {
+        "mode": "execute",
+        "vault": "0xaD086172fdd014eCAfD67DBd0ee1E47bB3c2C000",
+        "result": {
+          "action": "confirmed",
+          "hash": "0x5cf86de1eff704a4ab3f1a67e41123c3ad70860aa759bf57dc18ce9847ced826",
+          "operation": "rebalance",
+          "blockNumber": "111560608",
+          "gasUsed": "1714319",
+          "event": {
+            "caller": "0xaD82596f6bB285100629065Ae2d2b9ed2EFA2B19",
+            "withdrawals": [
+              "15194346",
+              "26198202",
+              "22609456",
+              "10438875",
+              "15784339"
+            ],
+            "deposits": [
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ],
+            "annualIncomeBefore": "53235118",
+            "annualIncomeAfter": "48385017",
+            "repairsLimits": true
+          }
+        }
+      },
+      {
+        "mode": "execute",
+        "vault": "0xaD086172fdd014eCAfD67DBd0ee1E47bB3c2C000",
+        "result": {
+          "action": "confirmed",
+          "hash": "0xbac6945cce661f9161e95a47225a14c8157ad0f4510838c6700ff4acdca7decd",
+          "operation": "observeRates",
+          "blockNumber": "111560620",
+          "gasUsed": "619979",
+          "event": {
+            "timestamp": "1791456875",
+            "rates": [
+              "41273692173605522",
+              "71117470673877487",
+              "61385951924668140",
+              "28354803716103132",
+              "42876059795960678"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "forkTestAmounts": {
+    "initialDeposit": "1000",
+    "allocatedUSDC": [
+      "151.608226",
+      "261.265479",
+      "225.484222",
+      "104.153912",
+      "157.494159"
+    ],
+    "partialWithdrawal": "400",
+    "remainingRedemption": "600.006667",
+    "sevenSimulatedDayFullRedemption": "1000.927648",
+    "caveat": "Controlled test funding and simulated time; not customer yield or a return forecast."
+  },
+  "snapshot": {
+    "block": "111560534",
+    "positions": [
+      {
+        "protocol": "Aave",
+        "adapter": "0xADC1579b26B32960abf31FEDDD5Ae01A73C3E263",
+        "assets": "166810289",
+        "marketCash": "14177311520769",
+        "baseAprWad": "41273676775654733"
+      },
+      {
+        "protocol": "Morpho",
+        "adapter": "0x74fA8645cb0235150e39761d1a6b257d99a7499D",
+        "assets": "287443161",
+        "marketCash": "5611770439659",
+        "baseAprWad": "71121594761734654"
+      },
+      {
+        "protocol": "Euler",
+        "adapter": "0x856eC0eD92d77C52cFD5aDCb4ce1240E4c9c42D0",
+        "assets": "248094495",
+        "marketCash": "444122897319",
+        "baseAprWad": "61382625018739607"
+      },
+      {
+        "protocol": "Neverland",
+        "adapter": "0x183a192C3C77760844E30331599AA9f0Fb2eC313",
+        "assets": "114597682",
+        "marketCash": "797300251869",
+        "baseAprWad": "28354624100744486"
+      },
+      {
+        "protocol": "Curvance",
+        "adapter": "0x9fa45B7377c156A408548585ECe64F081f93F12A",
+        "assets": "173286440",
+        "marketCash": "3105583929389",
+        "baseAprWad": "42876028045030716"
+      }
+    ],
+    "cash": "9775685"
+  },
+  "compiledSizes": {
+    "CurvanceUSDCAdapter": {
+      "initBytes": 8601,
+      "initBytesWithConstructorArgs": 8761,
+      "runtimeBytes": 7165
+    },
+    "SetsunaUSDCVault": {
+      "initBytes": 18399,
+      "initBytesWithConstructorArgs": 18527,
+      "runtimeBytes": 16911
+    },
+    "SetsunaUSDCV2Factory": {
+      "initBytes": 45468,
+      "initBytesWithConstructorArgs": 45500,
+      "runtimeBytes": 3798
+    },
+    "USDCV2VaultDeployer": {
+      "initBytes": 19068,
+      "initBytesWithConstructorArgs": 19068,
+      "runtimeBytes": 19042
+    }
+  },
+  "sha256": {
+    "contracts/src/earn/CurvanceUSDCAdapter.sol": "501d95391e33d1c098ee961b82935cd7e6df5fd0f3094000a2d911eacf845c67",
+    "contracts/src/earn/SetsunaMultiEarnCore.sol": "2af85e1c0af8b7645ae830d5de1e508ba70e2788a4926abab713622bd8390c21",
+    "contracts/src/earn/SetsunaUSDCV2Factory.sol": "b032210c93fb9bca85877acb1a0fb8c23af2ef148b98df073655926dec4b3e60",
+    "contracts/test/SetsunaUSDCFiveFork.t.sol": "7534cc7d10bc111e10d531448a1809cea89e0b802389d360ccf9a49fdb44cc2f",
+    "contracts/test/SetsunaUSDCV2.t.sol": "e14ffdc9d9430c9b70712364a81f7ad2ce2f8f130122844973849118887b798d",
+    "src/lib/setsuna/usdc-deployment.ts": "1373caade552af53b74185ad8bb50df552e7d350c8ace4f398aa6a7193478f7a",
+    "src/components/setsuna/USDCEarn.tsx": "28ffafcab9b5735c968d6d9a0b069260ac15b8f0cc52a8a36f2e13314643d905",
+    "scripts/usdc-v2-demo.mjs": "c6bcebdf72e3eb1e924cecd46701e84093e9795482bcc011d8fb4f45ca50b3fc",
+    "scripts/check-usdc-v2.mjs": "3456512b1809364b1366fcef276cd3b4b8a3c26e2064f230f4f5a089eb7f1575",
+    "scripts/demo-config.test.mjs": "1b9a7d399d4b3532a644218264bf63ac8ee7e281fbb5b5bc70fa074734e20581"
+  },
+  "deployment": {
+    "manifest": {
+      "mode": "LOCAL_USDC_FORK_ONLY",
+      "syntheticFunding": true,
+      "chainId": 31337,
+      "forkHash": "0xc8a3dcf05b4b35daf91e0abc74bc91ebc2ec45830d93a8f2b6451cff8214a84b",
+      "factory": "0x5f246addcf057e0f778cd422e20e413be70f9a0c",
+      "vaultDeployer": "0x3c2bafebbb0c8c58f39a976e725cd20d611d01e9",
+      "owner": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "seedOwner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "earnUSDC": {
+        "vault": "0xaD086172fdd014eCAfD67DBd0ee1E47bB3c2C000",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "adapters": [
+          "0xADC1579b26B32960abf31FEDDD5Ae01A73C3E263",
+          "0x74fA8645cb0235150e39761d1a6b257d99a7499D",
+          "0x856eC0eD92d77C52cFD5aDCb4ce1240E4c9c42D0",
+          "0x183a192C3C77760844E30331599AA9f0Fb2eC313",
+          "0x9fa45B7377c156A408548585ECe64F081f93F12A"
+        ],
+        "forkBlock": "111560409",
+        "startBlock": "111560412"
+      }
+    },
+    "transactions": [
+      {
+        "label": "USDCV2VaultDeployer",
+        "hash": "0x9fde1e663721ef9b82ef70f05252d70952b08785902cb5c7252cc36c8753bb4f",
+        "block": "111560410",
+        "gas": "4162560"
+      },
+      {
+        "label": "SetsunaUSDCV2Factory",
+        "hash": "0xf00f4a79f780206bf6c0c723bffe7dac832bf2e4fedf5611f81f4e88240f2b19",
+        "block": "111560411",
+        "gas": "9858958"
+      },
+      {
+        "label": "createFiveProtocolVault",
+        "hash": "0x3a717b3a07b12ec29213d60dac29ad7db2ffedf9ee188011b0c240148c5582c0",
+        "block": "111560412",
+        "gas": "10919698"
+      },
+      {
+        "label": "transfer",
+        "hash": "0x588342673d7a4c64809015e740f9bc5487ba10022300c57a3ba5a05ae8a25ffa",
+        "block": "111560413",
+        "gas": "62171"
+      },
+      {
+        "label": "transfer",
+        "hash": "0xbd9ab69483894dbd6c1813292f6628ec5932a66051dd198da09559a8c1d823d9",
+        "block": "111560414",
+        "gas": "62159"
+      },
+      {
+        "label": "approve",
+        "hash": "0x484d473e7efa686c8bc692ac752441fa90c2e0a831dfb406031a2d34bbaf8e06",
+        "block": "111560415",
+        "gas": "55425"
+      },
+      {
+        "label": "deposit",
+        "hash": "0xea3c540f19b9c26627af391b688ffb857d4762bb3c3fa95241e79646a0980919",
+        "block": "111560416",
+        "gas": "532621"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0x6aa0de0cee611197769a742f8cbc6430eec1f8134dd3916b4f7a6dec1cef4c05",
+        "block": "111560417",
+        "gas": "717842"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0x560fe0eb6bb7a69df8937f0c65a0983c1a587707747664b644c9878bcd5d6499",
+        "block": "111560419",
+        "gas": "758146"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0x20a7e404dcac0bdc65ccaf5db08c91da007519f0ae3f22564f9a271192352e6c",
+        "block": "111560421",
+        "gas": "618736"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0x0d14dad8d768d87f62a3ec04f47c906a753964fe06a5775a1de9e1663f898e85",
+        "block": "111560423",
+        "gas": "1251534"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xe62a5d857a1becd388f80226ef2a8ad784304c136e5584e893a5fcd5306f3396",
+        "block": "111560425",
+        "gas": "621726"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0xa20c37847d2fd820cb960382a026bc63c8dccca30b9cb024698e5c27fe0dc16f",
+        "block": "111560427",
+        "gas": "1280385"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0x14c06a540fb0a745a30a96f3beea893a9b3e38b89030d264b77b45785077d0cc",
+        "block": "111560429",
+        "gas": "623956"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0x4079d5b8a88e0467500445d1a73d90f735c80c8fa8ceba788c4a4bc5a983ffa2",
+        "block": "111560431",
+        "gas": "1244190"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0x06db4b678a82ec16c17fd1ac3d01239d1ef38b535f5cb73f1f7c18c6de896887",
+        "block": "111560433",
+        "gas": "624526"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0xa98117a858a5d46a7623712dc9babe9f83022fa49eb94a595fa7884fd2bb21aa",
+        "block": "111560435",
+        "gas": "1253538"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xa61f934b117adaa3505434c50337c1b07ef95ce958856cd8412592dbff9d11c5",
+        "block": "111560437",
+        "gas": "624146"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0xa4888e310264122ba8945ac973a4f8c1d49cd3ac02e924d4c012daf65aa4c2d9",
+        "block": "111560439",
+        "gas": "1449491"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xcd61321997a6b284b1b38c602dc2e6c88f11fab803a3713172db6fbdd6402725",
+        "block": "111560441",
+        "gas": "623912"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0x6cf2c2a4fcf4a46451aec1b7203cbdf17de9b03a47fab68df84d342d65b42b7f",
+        "block": "111560443",
+        "gas": "1400783"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xa493bd3e66d14830e4e03482c1536432e32742be39a2e96b4c2291159fde5e1f",
+        "block": "111560445",
+        "gas": "623912"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0x855a132c6f0c1c8b24487bc0e635a4c5fe102e6e56030304a0e0955d43655e2b",
+        "block": "111560447",
+        "gas": "1718565"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xae1fc87949c48f6982b13682fbeedc84915d1462a352e8f507ffaa646f83f1b8",
+        "block": "111560449",
+        "gas": "626712"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0x030cdbc8a670e764f25898cc82bff0d8b5d715d201f048016e411f8c1e5e1b76",
+        "block": "111560451",
+        "gas": "1772650"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0x582daf00dc8ae57603fa9f93e4412573fd6ea7b6956816a8585329fbd33525a4",
+        "block": "111560453",
+        "gas": "629512"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0xbb993bb751fe109bf922f82b1968359a9102c2c92e9ada171e9f9b261abcf88c",
+        "block": "111560455",
+        "gas": "1704959"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xc49903ea62d608328d66e1c20327b1e1b70c286bc69d0cffee3b0aa92fe85d1a",
+        "block": "111560457",
+        "gas": "629512"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0xd901fe138581c8982226912b77fcb572e245273bfc3274d6dc3e9233d4cdabf3",
+        "block": "111560459",
+        "gas": "1726769"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xc6c5778cb758984d5a7aa4a6a61f7daeb8a6a0abcb2157044940e0fe15b56511",
+        "block": "111560461",
+        "gas": "629512"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0x4067f122e1bb51c5054072f4cd2a813591ee04a2d328914265c792e2ea27384b",
+        "block": "111560463",
+        "gas": "1726643"
+      },
+      {
+        "label": "observeRates",
+        "hash": "0xa0565dc7a8db66f262cf3a27bfe87702b86b4732d308a8cb61d8099b11bd9719",
+        "block": "111560465",
+        "gas": "629512"
+      },
+      {
+        "label": "rebalance",
+        "hash": "0xaf079f13f54ea6df5ad7e8f619b28044449c0bed04b33e450e5bee4c1c4ddd82",
+        "block": "111560467",
+        "gas": "1726643"
+      }
+    ]
+  },
+  "afterKeeper": {
+    "block": "111560648",
+    "cash": "100000903",
+    "nav": "1000009133"
+  }
+}

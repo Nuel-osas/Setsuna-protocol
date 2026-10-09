@@ -1,0 +1,595 @@
+{
+  "scope": "Read-only discovery; size/rate screen is not production approval or a withdrawal guarantee",
+  "chainId": 143,
+  "blockNumber": "111560409",
+  "blockHash": "0xc8a3dcf05b4b35daf91e0abc74bc91ebc2ec45830d93a8f2b6451cff8214a84b",
+  "parentHash": "0x19ae1b058fd08d90d2ad7c126546e3c7783e9ce7d54d447f54a11c7e7312af57",
+  "timestamp": "1791447513",
+  "sourceTime": "2026-10-08T08:18:33.000Z",
+  "usdc": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+  "minimumMarketAssets": "250000000000",
+  "decimals": 6,
+  "curvance": {
+    "registry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+    "registryCodeHash": "0x89ae18dddd89bf845c1715fee4e449dddf0309a1ba895f8d608ce10525b8f024",
+    "markets": [
+      {
+        "address": "0x8EE9FC28B8Da872c38A496e9dDB9700bb7261774",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0xa6A2A92F126b79Ee0804845ee6B52899b4491093",
+        "codeHash": "0x5ba6ee35f829d4774fe7e32405dce24760b3252b9100f8dd132a467dfdbd79c1",
+        "collateral": [
+          {
+            "address": "0x1e240E30E51491546deC3aF16B0b4EAC8Dd110D4",
+            "asset": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "name": "Curvance Wrapped MON"
+          }
+        ],
+        "totalAssets": "335767454283",
+        "assetsHeld": "126321633170",
+        "debt": "209445626105",
+        "feeBps": 1000,
+        "irm": "0x1622D77E311638C77779e6D9B212E3e7D73AaFB4",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "1175778150",
+        "indicativeBaseAprWad": "37079339738400000",
+        "tenPercentCashLimit": "12632163317",
+        "passesPreliminaryScreen": true,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      },
+      {
+        "address": "0x7C9d4f1695C6282Da5e5509Aa51fC9fb417C6f1d",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0x01C4a0d396EFE982B1B103BE9910321d34e1aEA9",
+        "codeHash": "0x49e1d59a9d9de98a975a503d624065e64041ff7c7c07df4a96af6fec73328647",
+        "collateral": [
+          {
+            "address": "0x3D2Ff9F862D89Ba526a0fC166bD56ABe04EF28d5",
+            "asset": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
+            "name": "Curvance Wrapped BTC"
+          }
+        ],
+        "totalAssets": "2587523048",
+        "assetsHeld": "2576664049",
+        "debt": "10781222",
+        "feeBps": 2000,
+        "irm": "0x9F57957F2CA8d0DB433e4623f8bd248293b01e86",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "33032",
+        "indicativeBaseAprWad": "1041697152000",
+        "tenPercentCashLimit": "257666404",
+        "passesPreliminaryScreen": false,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      },
+      {
+        "address": "0x21aDBb60a5fB909e7F1fB48aACC4569615CD97b5",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0xb3E9E0134354cc91b7FB9F9d6C3ab0dE7854BB49",
+        "codeHash": "0xcaea163bb8d1552b8723eb496b07459488ee6db72f2b71f41d8580211ce8eb2d",
+        "collateral": [
+          {
+            "address": "0x8Af00fbbb2601A8F7636EabbF6243B30BEA47D50",
+            "asset": "0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242",
+            "name": "Curvance Wrapped Ether"
+          }
+        ],
+        "totalAssets": "706922890",
+        "assetsHeld": "566528145",
+        "debt": "140316967",
+        "feeBps": 2000,
+        "irm": "0x034f1a014946Fe4d4ea3bD36A315F775a8C1aB26",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "74975004",
+        "indicativeBaseAprWad": "2364411726144000",
+        "tenPercentCashLimit": "56652814",
+        "passesPreliminaryScreen": false,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      },
+      {
+        "address": "0x9891178A1178E4C740Fa61Fd6e30A9D92D897590",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0x38104e87Eb96ce5ef1C23a06878dB0D657B4a699",
+        "codeHash": "0x6731dfe294ea63c30a46c35f65adf3d651c447af0deac232b3dc71e8a5e520de",
+        "collateral": [
+          {
+            "address": "0x3afB9A1cC0d2b0D62502B84B070601fF0DC84363",
+            "asset": "0x9648dB94F1e6B19e7D755585542981F97dc806c6",
+            "name": "Curvance Staked avUSD"
+          }
+        ],
+        "totalAssets": "3996755733720",
+        "assetsHeld": "365064731326",
+        "debt": "3631690587831",
+        "feeBps": 1000,
+        "irm": "0x11EE1eDee565c216f595D329A59863E360DCeB42",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "1805675683",
+        "indicativeBaseAprWad": "56943788339088000",
+        "tenPercentCashLimit": "36506473132",
+        "passesPreliminaryScreen": true,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      },
+      {
+        "address": "0x516dAd4b2b59650Fd1885459530a86c72936d4f2",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0x8AF3E980d2d50F8E97dcD7DBbD7cAa0d17605974",
+        "codeHash": "0x0a7404a592974478339a399959891bcb557cf457c4e22aefb382618d81115638",
+        "collateral": [
+          {
+            "address": "0xc3DfC3CD69C97877720f5386f8d4742B0F147F28",
+            "asset": "0xaD663aC84052b52BE4ed1b27BA416505e84a00Bf",
+            "name": "Curvance High Yield AUSD Vault"
+          }
+        ],
+        "totalAssets": "281006947",
+        "assetsHeld": "178312",
+        "debt": "280750602",
+        "feeBps": 1000,
+        "irm": "0xe88040C37a65815756b44da866B5f8516CBAf1AC",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "5967623407",
+        "indicativeBaseAprWad": "188194971763152000",
+        "tenPercentCashLimit": "17831",
+        "passesPreliminaryScreen": false,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      },
+      {
+        "address": "0x207340D15F4E3C63AE610429f34b87C73a5D55e5",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0x00308C908d2FdF700CbBFeFCDabcF5325bF5eD92",
+        "codeHash": "0x399eec27d2c1c20b278332538c47ff82cfa1ca4f69dd994edf301a2ace397e56",
+        "collateral": [
+          {
+            "address": "0xB071bAAad3392Cb6016276EE9C99aed23bEdEecc",
+            "asset": "0x2ABc42250154752273a4560e875c858623F83ecC",
+            "name": "Curvance Agua Global Carry Vault"
+          }
+        ],
+        "totalAssets": "7026673492070",
+        "assetsHeld": "733812803006",
+        "debt": "6292860539853",
+        "feeBps": 1000,
+        "irm": "0x287c70c55670d8A6c47FBB9142CBce531663F128",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "2288930403",
+        "indicativeBaseAprWad": "72183709189008000",
+        "tenPercentCashLimit": "73381280300",
+        "passesPreliminaryScreen": true,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      },
+      {
+        "address": "0x7f779f7F5316F6164dC5a25422A5ee51504B284A",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "name": "Curvance USDC",
+        "manager": "0x27a4fC8aa36d0ae896C85E8a34e80Fa061E8b4c4",
+        "codeHash": "0x28b3ccb9c637dc6b3bbf0d22050825a03a6cd97ecfe273763f68a0157e0a8b9e",
+        "collateral": [
+          {
+            "address": "0x78B4ddab63826C9021e7F75b1a8EE18bEc8012e6",
+            "asset": "0x4809010926aec940b550D34a46A52739f996D75D",
+            "name": "Curvance Wrapped Savings rUSD"
+          }
+        ],
+        "totalAssets": "30880311557640",
+        "assetsHeld": "3105410643541",
+        "debt": "27774892159692",
+        "feeBps": 1000,
+        "irm": "0xAd22787690DBBbBD70F8081F5293ee5a88Be4cec",
+        "centralRegistry": "0x1310f352f1389969Ece6741671c4B919523912fF",
+        "maxDeposit": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "actionsPaused": [
+          false,
+          false,
+          false
+        ],
+        "redeemPausedRaw": 1,
+        "supplyRatePerSecondWad": "1359599275",
+        "indicativeBaseAprWad": "42876322736400000",
+        "tenPercentCashLimit": "310541064354",
+        "passesPreliminaryScreen": true,
+        "rateCaveat": "Indicative frontend quote; pending accrual/model adjustment and reward vesting require adapter-specific handling"
+      }
+    ],
+    "errors": [],
+    "managers": [
+      "0x830D40CDFdc494BC1A2729a7381bfCe44326c944",
+      "0x7C822B093A116654F824Ec2A35CD23a3749E4f90",
+      "0x83840d837E7A3E00bBb0B8501E60E989A8987c37",
+      "0xE1C24B2E93230FBe33d32Ba38ECA3218284143e2",
+      "0x5EA0a1Cf3501C954b64902c5e92100b8A2CaB1Ac",
+      "0xe5970cDB1916B2cCF6185C86C174EEE2d330D05B",
+      "0xBBE7A3c45aDBb16F6490767b663428c34aA341Eb",
+      "0xd6365555f6a697C7C295bA741100AA644cE28545",
+      "0x05e70717fA8BD0F21a9F826d093d99f6Da4f1554",
+      "0xa6A2A92F126b79Ee0804845ee6B52899b4491093",
+      "0x01C4a0d396EFE982B1B103BE9910321d34e1aEA9",
+      "0xb3E9E0134354cc91b7FB9F9d6C3ab0dE7854BB49",
+      "0xb00aFF53a4Df2b4E2f97a3d9ffaDb55564C8E42F",
+      "0x90fc1A4abC4ee5f8a9560dE069067D9606d2909C",
+      "0x627a15859d09C1550e2934991AA95aFc6896e3Ef",
+      "0x4409e2161B6f9A25ACbC471a37390654Ed272249",
+      "0x2DB9AB1bB00d7000b21A2EbcE7D1a9b91F351E72",
+      "0xBc4cd7bbd8d38027A88838B88BA04561FA778C35",
+      "0x38104e87Eb96ce5ef1C23a06878dB0D657B4a699",
+      "0x4B0a39eCC3e5A5dA3ce6D492D4D255cD1F0209F7",
+      "0xdDd5681fCBB040e3bD3c126AA6caf1677DFCEc2e",
+      "0x120E3ef143457F9F4d1E3eCDC448a5bb1092cE6a",
+      "0xFADE6B86fED641c7840d9E4997666F30D2160210",
+      "0x8AF3E980d2d50F8E97dcD7DBbD7cAa0d17605974",
+      "0x00308C908d2FdF700CbBFeFCDabcF5325bF5eD92",
+      "0x27a4fC8aa36d0ae896C85E8a34e80Fa061E8b4c4",
+      "0x0247EAbB0fD8953C4869a81857fd55289BB32fBd"
+    ]
+  },
+  "townsquare": {
+    "pool": "0xdb4E67F878289A820046f46f6304fd6Ee1449281",
+    "spoke": "0xA457235B68606a7921b7c525D92e9592e793b4C0",
+    "errors": [],
+    "poolCodeHash": "0x33e47c8f6a07ce33ce240cc7fbff5d56203b4370f75c29de57edf2171e0f6772",
+    "spokeCodeHash": "0x55c3c29f0665b6b471ac3d28dc3fb78e085ee9a91b74aee1462fd4c2b9333a7b",
+    "deposit": {
+      "optimalUtilisationRatio": 9750,
+      "totalAmount": "20137956256",
+      "interestRate": "51414859359996416",
+      "interestIndex": "1120562564031219338"
+    },
+    "variableBorrow": {
+      "vr0": 0,
+      "vr1": 70000,
+      "vr2": 3000000,
+      "totalAmount": "17963532850",
+      "interestRate": "64042722188576688",
+      "interestIndex": "1164643850904675057"
+    },
+    "stableBorrow": {
+      "sr0": 0,
+      "sr1": 0,
+      "sr2": 0,
+      "sr3": 0,
+      "optimalStableToTotalDebtRatio": 0,
+      "increaseBorrowBalanceUtilisationRatio": 0,
+      "increaseBorrowBalanceDepositInterestRate": 0,
+      "decreaseBorrowBalanceDelta": 0,
+      "totalAmount": "0",
+      "interestRate": "70000000000000000",
+      "averageInterestRate": "0"
+    },
+    "config": {
+      "deprecated": false,
+      "stableBorrowSupported": false,
+      "canMintTsToken": false,
+      "flashLoanSupported": false
+    },
+    "caps": {
+      "deposit": "100000000",
+      "borrow": "30000000",
+      "stableBorrowPercentage": "60000000000000000"
+    },
+    "lastUpdateTimestamp": "1791433045",
+    "poolId": 10,
+    "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+    "poolUSDC": "3420325542",
+    "spokeUSDC": "0",
+    "accountingCash": "2174423406",
+    "meetsSizeFloor": false,
+    "note": "Direct USDC lending pool only; stored totals and rate at lastUpdateTimestamp, not a survey of managed-yield vaults or proof of exit capacity"
+  },
+  "sources": [
+    "https://github.com/curvance/curvance-contracts/blob/develop/script/DeployOptimizerAnvil.s.sol",
+    "https://github.com/curvance/curvance-contracts/blob/develop/contracts/interfaces/IDynamicIRM.sol",
+    "https://app.curvance.com/transparency",
+    "https://app.townsq.xyz/",
+    "https://github.com/TowneSquare/TownSqVault"
+  ],
+  "complete": true,
+  "author": "Codex",
+  "reviewDate": "2026-10-08",
+  "sourceRevisions": {
+    "curvance/curvance-contracts": "332721eb0b7efb26137a519a0808360ca7831f53",
+    "TowneSquare/TownSqVault": "168eb469b003d42d8ea7306e1c5d2f1ed27c1525"
+  },
+  "verification": {
+    "scope": "Independent contract depositor on a pinned local EVM fork; synthetic USDC; no protocol overrides; no mainnet writes",
+    "passingForkTests": 11,
+    "testResults": {
+      "testFork_CurvanceAgua_ImmediateRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 189531
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 237\u00b5s 666ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceAgua_SevenDayRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 202614
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 234\u00b5s 167ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceMoveBetweenMarketsAndExit()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 287665
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 757\u00b5s 167ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceSavUSD_ImmediateRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 189246
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 108\u00b5s 459ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceSavUSD_SevenDayRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 202636
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 136\u00b5s 958ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceWMON_ImmediateRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 189333
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 131\u00b5s 792ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceWMON_SevenDayRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 202548
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 120\u00b5s 458ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceWsrUSD_ImmediateRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 189729
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 178\u00b5s 625ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_CurvanceWsrUSD_SevenDayRoundTrip()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 202680
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "1ms 120\u00b5s 959ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_TownSquare_ImmediateRoundTripBelowSizeFloor()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 1160526
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "3ms 919\u00b5s 542ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      },
+      "testFork_TownSquare_SevenDayRoundTripBelowSizeFloor()": {
+        "status": "Success",
+        "reason": null,
+        "counterexample": null,
+        "logs": [],
+        "decoded_logs": [],
+        "kind": {
+          "Unit": {
+            "gas": 1181210
+          }
+        },
+        "traces": [],
+        "labeled_addresses": {},
+        "duration": "3ms 938\u00b5s 166ns",
+        "breakpoints": {},
+        "gas_snapshots": {}
+      }
+    },
+    "fullSolidityRegressionRerun": false,
+    "appChanged": false,
+    "productionAdaptersAdded": false,
+    "timeSimulation": "Seven days without intervening outside trades; not customer returns or yield forecasts",
+    "reproduce": [
+      "node scripts/research/native-market-screen.mjs",
+      "RUN_FORK=true forge test --root contracts --match-contract NativeEarnMarketsForkTest -vv"
+    ],
+    "sourceSHA256": {
+      "scripts/research/native-market-screen.mjs": "411fa23b862ec5008b98e0bd9421865b1e7e9ed0d2607a83737aa55091107eff",
+      "contracts/test/NativeEarnMarketsFork.t.sol": "fa44fbf00001a05ecc379bcfc7e531b29262e374a74c83093ecfe21cace614d0"
+    },
+    "roundTrips": {
+      "testFork_CurvanceAgua_ImmediateRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "999999999"
+      },
+      "testFork_CurvanceAgua_SevenDayRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "1001383953"
+      },
+      "testFork_CurvanceMoveBetweenMarketsAndExit": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "999999998"
+      },
+      "testFork_CurvanceSavUSD_ImmediateRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "999999998"
+      },
+      "testFork_CurvanceSavUSD_SevenDayRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "1001091527"
+      },
+      "testFork_CurvanceWMON_ImmediateRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "999999999"
+      },
+      "testFork_CurvanceWMON_SevenDayRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "1000706901"
+      },
+      "testFork_CurvanceWsrUSD_ImmediateRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "999999999"
+      },
+      "testFork_CurvanceWsrUSD_SevenDayRoundTrip": {
+        "depositedUSDCBaseUnits": "1000000000",
+        "recoveredUSDCBaseUnits": "1000822232"
+      },
+      "testFork_TownSquare_ImmediateRoundTripBelowSizeFloor": {
+        "depositedUSDCBaseUnits": "100000000",
+        "recoveredUSDCBaseUnits": "99999999"
+      },
+      "testFork_TownSquare_SevenDayRoundTripBelowSizeFloor": {
+        "depositedUSDCBaseUnits": "100000000",
+        "recoveredUSDCBaseUnits": "100097630"
+      }
+    }
+  },
+  "decision": {
+    "curvance": "Four direct USDC markets meet the preliminary size/liquidity/rate screen and passed immediate plus simulated-time round trips. Strong next adapter candidate; no Setsuna integration implemented in this screening task.",
+    "townsquare": "Direct same-chain USDC lending round trips pass, but the pool fails the unchanged 250,000-USDC market-size floor. Managed-yield vault wrappers are a separate strategy and were not fork-tested.",
+    "nativeArchitecture": "Keep single-underlying receipt shares and fixed adapters. Add a new vault deployment if destinations change; extending beyond four requires core/factory/manifest/keeper/UI changes."
+  }
+}

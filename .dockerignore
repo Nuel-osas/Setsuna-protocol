@@ -1,0 +1,13 @@
+**
+!package.json
+!package-lock.json
+!Dockerfile.workers
+!scripts/
+!scripts/**
+!src/
+!src/lib/
+!src/lib/setsuna/
+!src/lib/setsuna/**
+!contracts/
+!contracts/abi/
+!contracts/abi/**

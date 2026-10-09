@@ -1,0 +1,889 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "owner_",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "exchange_",
+        "type": "address",
+        "internalType": "contract IPerplExchange"
+      },
+      {
+        "name": "collateral_",
+        "type": "address",
+        "internalType": "contract IERC20"
+      },
+      {
+        "name": "perpId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "accountId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "armPolicy",
+    "inputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct SetsunaAccount.PolicyConfig",
+        "components": [
+          {
+            "name": "capCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minTopUpCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feeMaxCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "triggerBufferBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "targetBufferBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxMarkAgeSec",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "collateral",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "currentPolicyId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "depositTrading",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "exchange",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IPerplExchange"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeOrder",
+    "inputs": [
+      {
+        "name": "order",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.OrderDesc",
+        "components": [
+          {
+            "name": "orderDescId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "perpId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "orderId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pricePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expiryBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "postOnly",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "fillOrKill",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "immediateOrCancel",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "maxMatches",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "leverageHdths",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastExecutionBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxNegPnlCollatBPS",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fundReserve",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getPolicy",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct SetsunaAccount.Policy",
+        "components": [
+          {
+            "name": "config",
+            "type": "tuple",
+            "internalType": "struct SetsunaAccount.PolicyConfig",
+            "components": [
+              {
+                "name": "capCNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "minTopUpCNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "feeMaxCNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "triggerBufferBps",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "targetBufferBps",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "feeBps",
+                "type": "uint16",
+                "internalType": "uint16"
+              },
+              {
+                "name": "maxMarkAgeSec",
+                "type": "uint32",
+                "internalType": "uint32"
+              }
+            ]
+          },
+          {
+            "name": "usedCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "binding",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "active",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [
+      {
+        "name": "initialTradingCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "perpId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "positionNonce",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "previewTopUp",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "q",
+        "type": "tuple",
+        "internalType": "struct SetsunaAccount.Quote",
+        "components": [
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum SetsunaAccount.Status"
+          },
+          {
+            "name": "policyId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feeCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "spendableCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maintenanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "equityCNS",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "triggerEquityCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "targetEquityCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "markTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "reserveCNS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "revokePolicy",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setCap",
+    "inputs": [
+      {
+        "name": "capCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "topUp",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum SetsunaAccount.Status"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawReserve",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawTrading",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "CapChanged",
+    "inputs": [
+      {
+        "name": "policyId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "capCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "usedCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Initialized",
+    "inputs": [
+      {
+        "name": "accountId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tradingCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OrderSubmitted",
+    "inputs": [
+      {
+        "name": "positionNonce",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "orderType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "lotLNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PolicyArmed",
+    "inputs": [
+      {
+        "name": "policyId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "binding",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "config",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct SetsunaAccount.PolicyConfig",
+        "components": [
+          {
+            "name": "capCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minTopUpCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feeMaxCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "triggerBufferBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "targetBufferBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxMarkAgeSec",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PolicyRevoked",
+    "inputs": [
+      {
+        "name": "policyId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "usedCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Refused",
+    "inputs": [
+      {
+        "name": "policyId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reason",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum SetsunaAccount.Status"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReserveFunded",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reserveCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReserveWithdrawn",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reserveCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ToppedUp",
+    "inputs": [
+      {
+        "name": "policyId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "rescuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "usedCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reserveCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TradingDeposited",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TradingWithdrawn",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "CannotArm",
+    "inputs": [
+      {
+        "name": "reason",
+        "type": "uint8",
+        "internalType": "enum SetsunaAccount.Status"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidConfiguration",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PolicyAlreadyActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ReentrancyGuardReentrantCall",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ReserveInsolvent",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SafeCastOverflowedIntToUint",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "int256",
+        "internalType": "int256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "SafeCastOverflowedUintToInt",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "SafeERC20FailedOperation",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Unauthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnexpectedDelta",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnsupportedOrder",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnsupportedPosition",
+    "inputs": []
+  }
+]

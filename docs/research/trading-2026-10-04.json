@@ -1,0 +1,136 @@
+{
+  "author": "Codex",
+  "verifiedAt": "2026-10-04T09:38:59.110831+00:00",
+  "mode": "LOCAL_FORK_ONLY",
+  "syntheticFunding": true,
+  "publicChainWrites": false,
+  "fork": {
+    "chainId": 143,
+    "block": "110418863",
+    "hash": "0xed4f56748e560219f9926e46d78591ec746b5bca4497e65d0734062fbb46a97b"
+  },
+  "local": {
+    "chainId": 31337,
+    "rpc": "http://127.0.0.1:18608",
+    "app": "http://localhost:3008/app/"
+  },
+  "deployments": {
+    "vault": "0xcb9C69648AC0470D8b8875F1a5F6D5D81FE32332",
+    "gateway": "0x7a8C823811c6C4C73d87dEEc188B9b7906145196",
+    "perplFactory": "0xaD82Ecf79e232B0391C5479C7f632aA1EA701Ed1",
+    "spotGateway": "0x4Dd5336F3C0D70893A7a86c6aEBe9B953E87c891",
+    "spotMarket": "0x065C9d28E428A0db40191a54d33d5b7c71a9C394",
+    "usdc": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603"
+  },
+  "perplCollateral": "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a",
+  "combinedDemoPerplFixture": {
+    "mode": "FIXED_HISTORICAL_MARK",
+    "markPNS": "851905",
+    "originalMarkTimestamp": "1791102515",
+    "venueOwner": "0xd0a0205e9188998E0bE7F2600a715aD3CD289Cb1",
+    "oracleGuardDisabledOnFork": true
+  },
+  "separatePerplContractTests": "Original pinned oracle/mark state; no bypass or mark update",
+  "results": {
+    "solidity": {
+      "passed": 107,
+      "failed": 0,
+      "skipped": 0,
+      "newSpotUnit": 5,
+      "newSpotFork": 5,
+      "newPerplFork": 3
+    },
+    "executor": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "nextProductionBuild": "passed",
+    "browser": {
+      "result": "passed",
+      "url": "http://127.0.0.1:3008",
+      "mode": "LOCAL_FORK_ONLY",
+      "syntheticFunding": true,
+      "perplPriceFixture": {
+        "mode": "FIXED_HISTORICAL_MARK",
+        "markPNS": "851905",
+        "oracleGuardDisabledOnFork": true
+      },
+      "checks": [
+        "native MON to USDC receipt and wallet balance",
+        "USDC approval and MON return swap",
+        "gateway balances and allowances cleared",
+        "invalid and precision-dust inputs blocked",
+        "Perpl account creation and AUSD funding",
+        "actual BTC long fill",
+        "protection armed",
+        "actual close fill revokes protection without spending reserve",
+        "free trading collateral withdrawn to wallet",
+        "setsMON deposit and withdrawal in the same wallet; AUSD reserve untouched",
+        "all three sections at 390px without horizontal overflow",
+        "RPC failure disables quoting and swaps"
+      ],
+      "runtimeErrors": [],
+      "checkedAt": "2026-10-04T09:33:58.218Z"
+    },
+    "receiptRecovery": {
+      "result": "passed",
+      "faultInjection": "browser pending-hash storage; actual confirmed local receipts",
+      "sections": [
+        "Spot",
+        "Perps"
+      ],
+      "checkedAt": "2026-10-04T09:39:01.876Z"
+    }
+  },
+  "kuruRoundTrip": {
+    "nativeMONIn": "100",
+    "usdcOut": "3.427600",
+    "nativeMONBack": "96.2727860011",
+    "book": "Pinned historical liquidity; spread applies"
+  },
+  "emptyMarket": {
+    "address": "0x131A2e70A5b31a517A74b8c567149bc294470Da9",
+    "pair": "MON/AUSD",
+    "quotes": "zero both directions at pinned state",
+    "enabled": false
+  },
+  "compiledSpotBytes": {
+    "runtime": 3859,
+    "creation": 4579
+  },
+  "sha256": {
+    "contracts/src/spot/SetsunaSpot.sol": "12774fb96c5e86f0f90fb683e55df4602524a1bfc26ef526c91d50cb4daf9653",
+    "contracts/src/SetsunaAccount.sol": "2ba66e2d8e389a7c4c9429a794623fc28eee0b01ce19a3c9a85b14e025835ee6",
+    "contracts/src/SetsunaFactory.sol": "c4d1fab6a50f34ca046d6828361ec576a1abc8f37c47637d9d544d54e93ce1dc",
+    "contracts/test/SetsunaSpot.t.sol": "d7229be4b2951497666419cfdfafc332885b38a3f6ae2bb6a02f03d5ddc01230",
+    "contracts/test/SetsunaSpotFork.t.sol": "d57c3787b2f239293b82b0c25d1674e8a15319f3c66e0009683305b901259aeb",
+    "contracts/test/SetsunaTradingFork.t.sol": "156cf6af866733aeedc92084e3266904c1224aa3ead166df934116509d462f85",
+    "contracts/script/LocalTradingDemo.s.sol": "7a34251d19e07eaedb74b9e4875b4ffe23f6506a2b3fc47f1a821342aa01dd78",
+    "scripts/earn-local-demo.mjs": "918d0fe5ee8aea0e470b236428202b9cd2ed9493a9f3975e7061596b525c27bb",
+    "scripts/trading-fixtures.mjs": "c81d284d982d8f289cefc68c6a52befc93ddf08d7384e467feb934e9d38cc55e",
+    "scripts/check-trading.mjs": "3a052c939b0b6f146cb013f75b6b914e570489d6624951cfb793ae0bcf3f6aa5",
+    "scripts/check-trading-recovery.mjs": "d48d15f97385ccb0463f28750113dfebe30b41589b64a2cae86be486e00b1a10",
+    "src/lib/setsuna/spot.ts": "a5f9d83fd7d66045e6c077b3d201e414c4b5c78e234a34f45ec4f73cce6bc0ca",
+    "src/components/setsuna/SpotApp.tsx": "e8f85c7f0847f08be8a3b350daf9758523e3e5b8d618e6e6a7690445e2742e1e",
+    "src/components/setsuna/AppShell.tsx": "5ecd88c76282066649f6fb285c10e5f659a216401333792179eaaf7843110b65",
+    "src/components/setsuna/App.tsx": "7b84d0519a62ad6acb064e822626f1e230e216dabe8e89303b52265be05caf29",
+    "src/components/setsuna/useSetsuna.ts": "0294e5e8de97c7f1e9436fea5f42cd52cf83b2d2f37d229e8392be8c924143f2",
+    "src/app/api/deployment/route.ts": "9aafdd83ca98b9bc68719aca6879fa1ba94248b0ce5bca201dc2f7ffe7837278",
+    "contracts/abi/SetsunaSpot.json": "f91b233eee282100f07a44afc4bca9fe01d65275c16d36e1f3eb87419c7cb08d"
+  },
+  "logs": [
+    ".local/trading/full-test.log",
+    ".local/trading/executor-tests.log",
+    ".local/trading/next-build.log",
+    ".local/trading/typecheck.log",
+    ".local/trading/browser-check.log",
+    ".local/trading/recovery-check.log"
+  ],
+  "references": [
+    "https://docs.kuru.io/contracts/Contract-addresses",
+    "https://github.com/Kuru-Labs/Kuru-contracts-dex-public/blob/main/contracts/OrderBook.sol",
+    "https://github.com/PerplFoundation/dex-sdk/blob/01b9910761755b0a0d9c710c1ede62ab937daa7d/crates/sdk/abi/dex/Exchange.json",
+    "https://perplfoundation.github.io/explainers/mark-price/overview.html"
+  ]
+}

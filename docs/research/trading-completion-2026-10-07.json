@@ -1,0 +1,355 @@
+{
+  "author": "Codex",
+  "date": "2026-10-07",
+  "result": "passed",
+  "mode": "isolated-local-fork-with-hosted-configuration",
+  "syntheticFunds": true,
+  "tenderlyDeployed": false,
+  "physicalIPhoneTested": false,
+  "localProof": ".local/hosted-readiness/1791353799817",
+  "app": "http://127.0.0.1:3011/app/",
+  "wallet": "0x48a64E05c5A4E07667DD8b0724d16eBAD52b3D5B",
+  "contracts": {
+    "mode": "demo",
+    "chainId": 31337,
+    "name": "Setsuna demo · test funds",
+    "rpc": "http://localhost:3011/api/rpc/",
+    "collateral": "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a",
+    "exchange": "0x34B6552d57a35a1D042CcAe1951BD1C370112a6F",
+    "perpId": 1,
+    "factory": "0x7640E9bC01b1bEEaE103475d719f4D7247DB8E61",
+    "startBlock": "110423997",
+    "faucet": "0x93a20fBb2cc689fF1f95b8b929dcD7c8406B13e4",
+    "spot": {
+      "gateway": "0xC08F74c9d43c6Eec181C6D07915513E0E6AC3C71",
+      "market": "0x065C9d28E428A0db40191a54d33d5b7c71a9C394",
+      "usdc": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+      "startBlock": "110423997"
+    },
+    "earnMON": {
+      "vault": "0x05aC5bF6245BD27dBef8aBC5a2C183bCd6065fc6",
+      "gateway": "0x6a250D9A97fD5A18F56e6e3FE32636d56C7b8Aa9",
+      "asset": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+      "adapters": [
+        "0x4DFfa90F63673476205648e1Dd8Fe1F542BF5eAE",
+        "0xDb9C2f0eCdC1BCE05Cfc0Ba970c3a83D8927d08C"
+      ],
+      "forkBlock": "110418863",
+      "startBlock": "110423997"
+    },
+    "perplFixture": {
+      "mode": "FIXED_HISTORICAL_MARK",
+      "oracleGuardDisabledOnFork": true,
+      "markPNS": "851905"
+    }
+  },
+  "trading": {
+    "account": "0x815c479f1c4520a8A219B4DB34F48975F43e8eE1",
+    "accountId": "5396",
+    "checks": [
+      "Spot entry funding",
+      "Spot both directions with settled wallet balances",
+      "Spot exact approval consumed and gateway empty",
+      "Invalid size and signature rejection handled",
+      "Perps account initialization and repeat collateral deposit",
+      "Long fill, partial close and full close",
+      "Short fill and full close",
+      "Non-crossing FOK rejected before signing with readable liquidity error",
+      "Activity verifies receipt fills",
+      "Protection revoked on trade and reserve isolated",
+      "Oversized close blocked before signing",
+      "Full free collateral and reserve returned to wallet",
+      "No residual AUSD or allowances in trading account",
+      "Spot and Perps pending receipts survive reload, block writes and reconcile without duplicate broadcast",
+      "Spot and Perps mobile layouts and RPC outage disable writes"
+    ]
+  },
+  "mobile": {
+    "author": "Codex",
+    "checkedAt": "2026-10-07T06:20:10.577Z",
+    "viewport": "390x844 Chromium",
+    "checks": [
+      "loaded trading screens without horizontal overflow",
+      "enabled actions become disabled on RPC outage",
+      "actions recover when RPC returns"
+    ],
+    "physicalIPhoneTested": false
+  },
+  "receipts": [
+    {
+      "hash": "0xe6b7e2d702a03990582e565dc8ff1b67565ed0ec7a993c510e2dae3773c4b4cf",
+      "status": "success",
+      "blockNumber": "110424005",
+      "gasUsed": "188094",
+      "to": "0xc08f74c9d43c6eec181c6d07915513e0e6ac3c71"
+    },
+    {
+      "hash": "0xac6c4ff6376315d6fc5287897bc5e7210d723404187ef679bcdda4baada28efa",
+      "status": "success",
+      "blockNumber": "110424006",
+      "gasUsed": "55437",
+      "to": "0x754704bc059f8c67012fed69bc8a327a5aafb603"
+    },
+    {
+      "hash": "0xbc309c9af864acddd02e70dd2c7a56b6ddea4d33b04fa518e22ae438d8d50173",
+      "status": "success",
+      "blockNumber": "110424007",
+      "gasUsed": "193838",
+      "to": "0xc08f74c9d43c6eec181c6d07915513e0e6ac3c71"
+    },
+    {
+      "hash": "0xcb8e789dc1c82763196335b936ee3876f154f40c64c979c016927c287ae4f875",
+      "status": "success",
+      "blockNumber": "110424008",
+      "gasUsed": "2864193",
+      "to": "0x7640e9bc01b1beeae103475d719f4d7247db8e61"
+    },
+    {
+      "hash": "0x19f6303b490d14405659031470acbc31c71c56d016b163cb1316cebc24d45323",
+      "status": "success",
+      "blockNumber": "110424009",
+      "gasUsed": "50958",
+      "to": "0x00000000efe302beaa2b3e6e1b18d08d69a9012a"
+    },
+    {
+      "hash": "0x621abb9146ccd4696fac1bedc6b1cf721831f876e3d1100ed65530d05a01667d",
+      "status": "success",
+      "blockNumber": "110424011",
+      "gasUsed": "222329",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0xe51b4d65203519cbfa28f4760dd831c422dd3624c7e671a32b083e53f4a52343",
+      "status": "success",
+      "blockNumber": "110424012",
+      "gasUsed": "50970",
+      "to": "0x00000000efe302beaa2b3e6e1b18d08d69a9012a"
+    },
+    {
+      "hash": "0x93c09580ec5b515d4de012ef805941641d777289c9b2594dd71dcfdb1d3c3d4f",
+      "status": "success",
+      "blockNumber": "110424013",
+      "gasUsed": "143897",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0x32390edba4ad9d1d5a65b28837c9e5b4872863a75ff83d601f209fd25a3d6c29",
+      "status": "success",
+      "blockNumber": "110424014",
+      "gasUsed": "50970",
+      "to": "0x00000000efe302beaa2b3e6e1b18d08d69a9012a"
+    },
+    {
+      "hash": "0x2e67143cbe31f62913ce9140f4530eca9eab4809a413b72bc3c51d00bd1b4b45",
+      "status": "success",
+      "blockNumber": "110424015",
+      "gasUsed": "93372",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0xc1e09557f01e262033d57a9cee8fdfd524698dc42f27c69d9fcf4f54fa5f9935",
+      "status": "success",
+      "blockNumber": "110424016",
+      "gasUsed": "498038",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0x6ae8c48fecab72178e20cd584aa9bddeda51b7ea5105ffce4ec09c73923411d2",
+      "status": "success",
+      "blockNumber": "110424017",
+      "gasUsed": "276660",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0x623788ac5ae2b12faec70af0814579dbaaa82b7e58acaf06c2f4b0c2de6675e9",
+      "status": "success",
+      "blockNumber": "110424019",
+      "gasUsed": "211811",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0xf414df91d892e707ff3d1c22e1728c039c9c71cc0fb677ebe3f19584906dfe06",
+      "status": "success",
+      "blockNumber": "110424020",
+      "gasUsed": "214832",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0x9ace1e9ef877ad7758865cf36543c963c206680005d494c191b94c87d9b6c29f",
+      "status": "success",
+      "blockNumber": "110424021",
+      "gasUsed": "254584",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0xe645c972dff54452002055e8ee52c531b72989f2d8b583e8e3e57a3c52f75091",
+      "status": "success",
+      "blockNumber": "110424022",
+      "gasUsed": "345553",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0x38dc0837da586bb281ab5390c64aee5987545ae25ef8f2536a6d06db6a6618fc",
+      "status": "success",
+      "blockNumber": "110424023",
+      "gasUsed": "131359",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0x2514e2dfe159559dca2ad9ff70ad02d7c3ad67ca649bb03c58ca801658fef3a4",
+      "status": "success",
+      "blockNumber": "110424024",
+      "gasUsed": "49181",
+      "to": "0x815c479f1c4520a8a219b4db34f48975f43e8ee1"
+    },
+    {
+      "hash": "0xe669134cbe6d70d4c9c7ee2947eac589abb90b0bd6967ee633c4dbbad2461e9b",
+      "status": "success",
+      "blockNumber": "110424026",
+      "gasUsed": "302032",
+      "to": "0x6a250d9a97fd5a18f56e6e3fe32636d56c7b8aa9"
+    },
+    {
+      "hash": "0x0187ddfbae31ed73d8bc841a55a6f34fcb733e81ea4f78369614ccb042d99a80",
+      "status": "success",
+      "blockNumber": "110424033",
+      "gasUsed": "46061",
+      "to": "0x05ac5bf6245bd27dbef8abc5a2c183bcd6065fc6"
+    },
+    {
+      "hash": "0x4ab539e61167e0b526544ae9e338bf080141efb4cbbdd9ac8f9b1053946e70d2",
+      "status": "success",
+      "blockNumber": "110424034",
+      "gasUsed": "514481",
+      "to": "0x6a250d9a97fd5a18f56e6e3fe32636d56c7b8aa9"
+    }
+  ],
+  "earnExecutor": [
+    {
+      "mode": "execute",
+      "vault": "0x05aC5bF6245BD27dBef8aBC5a2C183bCd6065fc6",
+      "result": {
+        "action": "confirmed",
+        "hash": "0x2ed5ef012271f2d3aaf1d2f300efe85a407976e70d095eefcf5b82e6bab6b802",
+        "operation": "observeRates",
+        "blockNumber": "110424028",
+        "gasUsed": "347222",
+        "event": {
+          "timestamp": "1791147379",
+          "destination0Apr": "34960255789056784",
+          "destination1Apr": "76935033797373229"
+        }
+      }
+    },
+    {
+      "mode": "execute",
+      "vault": "0x05aC5bF6245BD27dBef8aBC5a2C183bCd6065fc6",
+      "result": {
+        "action": "confirmed",
+        "hash": "0xd6505605a070776b8636d8fc31ec5333ada3a8576813b5b7bf1ffbfa1f0a93ea",
+        "operation": "observeRates",
+        "blockNumber": "110424030",
+        "gasUsed": "358800",
+        "event": {
+          "timestamp": "1791147981",
+          "destination0Apr": "34960271671693817",
+          "destination1Apr": "76935062092382078"
+        }
+      }
+    },
+    {
+      "mode": "execute",
+      "vault": "0x05aC5bF6245BD27dBef8aBC5a2C183bCd6065fc6",
+      "result": {
+        "action": "confirmed",
+        "hash": "0xcca32f4f0eab954b16f5355f973bbe81a7e34f503d709cbaa8fd81d399d050af",
+        "operation": "rebalance",
+        "blockNumber": "110424032",
+        "gasUsed": "758194",
+        "event": {
+          "caller": "0x035809F7c305B6650b42b15dE8496eE2f92da0d7",
+          "withdrawals": [
+            "0",
+            "0"
+          ],
+          "deposits": [
+            "10000000000000000000",
+            "0"
+          ],
+          "annualIncomeBefore": "0",
+          "annualIncomeAfter": "349602718447036330",
+          "repairsLimits": false
+        }
+      }
+    }
+  ],
+  "receiptReconciliation": {
+    "mode": "execute",
+    "reconciled": {
+      "action": "confirmed",
+      "hash": "0xcca32f4f0eab954b16f5355f973bbe81a7e34f503d709cbaa8fd81d399d050af",
+      "operation": "rebalance",
+      "blockNumber": "110424032",
+      "gasUsed": "758194",
+      "event": {
+        "caller": "0x035809F7c305B6650b42b15dE8496eE2f92da0d7",
+        "withdrawals": [
+          "0",
+          "0"
+        ],
+        "deposits": [
+          "10000000000000000000",
+          "0"
+        ],
+        "annualIncomeBefore": "0",
+        "annualIncomeAfter": "349602718447036330",
+        "repairsLimits": false
+      }
+    }
+  },
+  "checks": [
+    "empty-wallet-funding",
+    "all-assets-received",
+    "repeat-claim-blocked",
+    "admin-RPC-blocked",
+    "invalid-input-blocked",
+    "executor-network-guards",
+    "MON-deposit-shares-withdrawal",
+    "signed-rebalance",
+    "restart-reconciliation-no-duplicate",
+    "mobile-no-overflow",
+    "RPC-failure-disables-writes"
+  ],
+  "automatedTests": {
+    "receiptAndError": 6,
+    "protectionExecutor": 6,
+    "marketAndConfig": 11,
+    "typecheck": "passed",
+    "nextProductionBuild": "passed"
+  },
+  "publicRelease": {
+    "url": "https://setsuna-metropolis.vercel.app",
+    "immutable": "https://setsuna-metropolis-4n3bal7g5-nues-projects-a2cec4ad.vercel.app",
+    "mode": "preview",
+    "appStatus": 200,
+    "fundingStatus": 503
+  },
+  "sources": {
+    "src/components/setsuna/App.tsx": "e019bcecfb6451c60456470bbb5ebba1dfad1e56d9d0cec5746f405f5e02cfba",
+    "src/components/setsuna/SpotApp.tsx": "03952b68df90d98b26164f0f810198721e1128fc1eed1db1598ec1e83886f167",
+    "src/components/setsuna/useSetsuna.ts": "1d9ea9691e2ff7126f723ec8be577670bf0780fa525133a2da1b28528e26825c",
+    "src/components/setsuna/DemoFunding.tsx": "7da226a8487023ed17d67b0246af0bdcefc609a89a5dd1d704bf4aaa7a4122bf",
+    "src/lib/setsuna/contracts.ts": "d0b90ef24dd12b7f2891169c4947f1c63f6eea634a8343fd70228e151a8591d2",
+    "src/lib/setsuna/trading-receipt.ts": "5a4f9940ba35fa550b712ca8a7aae7e45c8ac5a6693a5761890fd942b7ca2375",
+    "src/lib/setsuna/perpl-events.ts": "77e899dbd8a6c79209e295111c4dbc69f14cc1da379ba06bcd34f75187fe9ae4",
+    "src/lib/setsuna/format.ts": "dffb80b608980ede312085c50f9f93fa3ca5da7603f1aed60d64a7b301a7a9c4",
+    "scripts/deploy-hosted-demo.mjs": "603d85930ea4a7bcfa0a5ec8d09c869b804c9f7301ae6a717f4e478d487439e8",
+    "scripts/demo-trading-fixture.mjs": "84966714a45747187de8644bd60ade7fe47a14fd00f3d70b3f5cfc99f6d91ec5",
+    "scripts/demo-trading-watch.mjs": "51a9c0f6ed3345d670ef905fd9c0bb558a77e736b86a4bf13f6737aedff90630",
+    "scripts/check-hosted-journey.mjs": "0c11699c3a8e2ccfd387d4360273abdd150ad549a34393ce7aa3c00a3a10cc20",
+    "scripts/check-trading-journey.mjs": "9d2edbcdbda87ed9d40b0b41fc2f491926baea3d9919ba9da733ecfcea1bc066",
+    "scripts/check-trading-mobile.mjs": "daaa73ed95746d77975124003b5aa99719be81b28bfcfe416fbb823d9c30927b",
+    "contracts/src/spot/SetsunaSpot.sol": "12774fb96c5e86f0f90fb683e55df4602524a1bfc26ef526c91d50cb4daf9653",
+    "contracts/src/SetsunaAccount.sol": "2ba66e2d8e389a7c4c9429a794623fc28eee0b01ce19a3c9a85b14e025835ee6"
+  }
+}

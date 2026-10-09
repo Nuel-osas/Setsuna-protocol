@@ -1,0 +1,324 @@
+{
+  "author": "Codex",
+  "recordedAtUtc": "2026-10-02T12:53:50.319414+00:00",
+  "status": "Five passing integration probes; no Setsuna Earn vault or production adapter implemented",
+  "environment": {
+    "kind": "local Foundry fork of Monad mainnet",
+    "chainId": 143,
+    "rpcReadSource": "https://rpc.monad.xyz",
+    "blockNumber": 109894238,
+    "blockHash": "0x3eecc9010c1283f06368591874bcfeac276ceb12e2920388292053498ce09923",
+    "parentHash": "0x14959d692dfb9ea7b5a5b21287854adc2a95339fbf74ff96f09e4ac9e4d29cac",
+    "blockTimestamp": 1790944138,
+    "blockTimeUtc": "2026-10-02T12:28:58Z",
+    "funding": "Foundry deal: 1000 native USDC to test contract independently in each test",
+    "publicTransactionsSent": false,
+    "simulatedTimeOnlyInAccrualTestSeconds": 604800
+  },
+  "reproduce": {
+    "workingDirectory": "setsuna",
+    "command": "RUN_FORK=true MONAD_RPC_URL=https://rpc.monad.xyz forge test --root contracts --match-contract EarnMarketsForkTest -vv --json",
+    "preflight": "Verify cast chain-id = 143 and cast block 109894238 --json matches the block hash above using the same RPC",
+    "requires": "Existing Foundry dependencies and an RPC retaining state at the pinned block; RUN_FORK=true or tests skip",
+    "forgeVersion": "forge Version: 1.5.1-stable\nCommit SHA: b0a9dd9ceda36f63e2326ce530c10e6916f4b8a2\nBuild Timestamp: 2025-12-22T11:41:09.812070000Z (1766403669)\nBuild Profile: maxperf",
+    "sourceSha256": {
+      "contracts/test/EarnMarketsFork.t.sol": "3d0ba90c977e80e85debc6d0600627fd18de71dd811532011d771b7c2b1bf215",
+      "contracts/foundry.toml": "cb7f9fe3e894cc05bf113e2b21c06ea80cfe10db57687ceb3a08713220f48d0e"
+    }
+  },
+  "token": {
+    "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+    "symbol": "USDC",
+    "decimals": 6,
+    "registry": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+  },
+  "destinations": {
+    "aave": {
+      "protocol": "Aave V3",
+      "pool": "0x69a5F9AD4f96ebf0a0C792dD42a01cC5C0102fef",
+      "receipt": "0x35a73BAcb179d3740395A3ceCc87FF2e581d6042",
+      "dataProvider": "0xB65A68B98274ef7D9a60E0C0747dD1BEc3D32fad",
+      "reserveData": {
+        "unbacked": "0",
+        "accruedToTreasuryScaled": "134885220445",
+        "totalAToken": "165815669466139",
+        "totalStableDebt": "0",
+        "totalVariableDebt": "151504491756364",
+        "liquidityRate": "40767246567591495170644182",
+        "variableBorrowRate": "49616431266931654342109342",
+        "stableBorrowRate": "0",
+        "averageStableBorrowRate": "0",
+        "liquidityIndex": "1009658333916206748209346621",
+        "variableBorrowIndex": "1011957114643435378690333496",
+        "lastUpdateTimestamp": "1790943789"
+      },
+      "receiptUnderlying": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+      "receiptPool": "0x69a5F9AD4f96ebf0a0C792dD42a01cC5C0102fef",
+      "cashUSDCUnits": "14447374702276",
+      "reserveConfigurationRaw": "7237005577332262213973186568752005780840647977154502683997290204037023014220"
+    },
+    "morpho": {
+      "protocol": "Morpho Blue",
+      "core": "0xD5D960E8C380B724a48AC59E2DfF1b2CB4a1eAee",
+      "marketId": "0xe35c5abc6418b6319b014e07aa3c86163a870a957284128f03cf7a9e414f8899",
+      "marketParams": {
+        "loanToken": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "collateralToken": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
+        "oracle": "0xff07261c87763cc5693ab78746d0b6735Ec626F5",
+        "irm": "0x09475a3D6eA8c314c592b1a3799bDE044E2F400F",
+        "lltvWad": "860000000000000000"
+      },
+      "storedMarketBeforeAccrual": {
+        "totalSupplyAssets": "105537762986",
+        "totalSupplyShares": "102786079266606379",
+        "totalBorrowAssets": "57764122092",
+        "totalBorrowShares": "56050006138284608",
+        "lastUpdate": "1790892598",
+        "feeWad": "0"
+      },
+      "bookLiquidityUSDCUnits": "47773640894",
+      "routing": "Direct market; no MetaMorpho wrapper or curator fee",
+      "frontendMinimumSizeGateMet": false
+    }
+  },
+  "testSummary": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "tests": {
+    "testFork_AaveContractDepositsPartiallyWithdrawsAndFullyExits()": {
+      "status": "Success",
+      "decodedLogs": [
+        "deposit USDC units: 1000000000",
+        "partial withdrawal USDC units: 400000000",
+        "final withdrawal USDC units: 599999998",
+        "ending wallet USDC units: 999999998"
+      ],
+      "kind": {
+        "Unit": {
+          "gas": 291705
+        }
+      }
+    },
+    "testFork_ContractMovesUSDCBetweenDifferentProtocols()": {
+      "status": "Success",
+      "decodedLogs": [
+        "Aave exit USDC units: 999999999",
+        "Morpho exit USDC units: 999999998"
+      ],
+      "kind": {
+        "Unit": {
+          "gas": 334464
+        }
+      }
+    },
+    "testFork_InterestAccruesAndCanBeWithdrawnAfterSevenSimulatedDays()": {
+      "status": "Success",
+      "decodedLogs": [
+        "simulated elapsed seconds: 604800",
+        "Aave 500 USDC exit units: 500390916",
+        "Morpho 500 USDC exit units: 500096790",
+        "ending wallet USDC units: 1000487706"
+      ],
+      "kind": {
+        "Unit": {
+          "gas": 354323
+        }
+      }
+    },
+    "testFork_MorphoContractDepositsPartiallyWithdrawsAndFullyExits()": {
+      "status": "Success",
+      "decodedLogs": [
+        "deposit USDC units: 1000000000",
+        "supply shares minted: 973907317441875",
+        "partial withdrawal USDC units: 400000000",
+        "final withdrawal USDC units: 599999999",
+        "ending wallet USDC units: 999999999"
+      ],
+      "kind": {
+        "Unit": {
+          "gas": 157685
+        }
+      }
+    },
+    "testFork_OnchainBaseRatesReactToNewSupply()": {
+      "status": "Success",
+      "decodedLogs": [
+        "Aave supply APR ray before: 40767246567591495170644182",
+        "Aave supply APR ray after: 40767004809183077769593379",
+        "Morpho supply APR wad before: 12182798953572410",
+        "Morpho supply APR wad after: 12088423221429244"
+      ],
+      "kind": {
+        "Unit": {
+          "gas": 355176
+        }
+      }
+    }
+  },
+  "sourceRevisions": {
+    "morpho-org/morpho-blue": "8e26ca6a8dbc5089edcd67fb576248810fd2870a",
+    "aave-dao/aave-v3-origin": "8305565ae342f1773c42cd2e4593f175fe5968a0",
+    "bgd-labs/aave-address-book": "f648e5dd3763467b836dfa35484ffe7024e6572a",
+    "monad-crypto/protocols": "a9efca6aa04cd17aef089c0a9977d7b607ad272a",
+    "euler-xyz/euler-earn": "ea3dacc05f4003a1326815429d70d0c77f0dabb4"
+  },
+  "competitorContractReads": {
+    "blockNumber": "109894238",
+    "eulerMetadataSource": "https://app.euler.finance/api/public/metadata?chainId=143",
+    "targets": [
+      {
+        "name": "K3 Capital Earn USDC",
+        "address": "0xA981f053C118FE4dB0e1aEBA192AAD20Ec7F7801",
+        "allocator": "0x65a66f24a25e8cf651c9e31d296623298c80f742",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "totalAssets": "20093136207",
+        "owner": "0x060DB084bF41872861f175d83f3cb1B5566dfEA3",
+        "curator": "0x0000000000000000000000000000000000000000",
+        "guardian": "0x9cC876dCb0e99cC040cf5F92880d0Ee9e320CA61",
+        "timelock": "86400",
+        "withdrawQueueLength": "7",
+        "publicAllocatorEnabled": false,
+        "strategies": [
+          {
+            "address": "0x289F801765B99B5E6263853859fE302dbecaB6d6",
+            "metadata": {
+              "name": "Isolated XAUT-USDC",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": true
+            }
+          },
+          {
+            "address": "0xF2acB868eaf64ef36BC0D3B4BA93aF00fC3167cF",
+            "metadata": {
+              "name": "Isolated gMON-WMON-USDC",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": true
+            }
+          },
+          {
+            "address": "0xf62C7CD4f71434f7C4d12A1142133d4Ed4aBaEc4",
+            "metadata": {
+              "name": "Isolated LBTC-USDC",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": true
+            }
+          },
+          {
+            "address": "0x6FD376b65d34539558b696200DF7D84b801B4270",
+            "metadata": {
+              "name": "Escrowed collateral",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": false
+            }
+          },
+          {
+            "address": "0x1E4D67c666c2Ccf27A0aF980fE6c8e0f05aC8949",
+            "metadata": {
+              "name": "K3 Isolated wstETH-WETH-USDC",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": false
+            }
+          },
+          {
+            "address": "0x5792753b66Eb5213E416755546abBcC1AEF1008A",
+            "metadata": {
+              "name": "K3 Isolated shMON-WMON-USDC",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": false
+            }
+          },
+          {
+            "address": "0xF19E8Ddc541dEE2F4D6796a79b1C1E10A415a0Da",
+            "metadata": {
+              "name": "K3 Isolated WBTC-USDC",
+              "type": "evk",
+              "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "deprecated": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "Steakhouse High Yield USDC V1",
+        "address": "0x802c91d807A8DaCA257c4708ab264B6520964e44",
+        "allocator": "0xfd70575B732F9482F4197FE1075492e114E97302",
+        "asset": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "totalAssets": "11995627156",
+        "owner": "0x0A0e559bc3b0950a7e448F0d4894db195b9cf8DD",
+        "curator": "0x827e86072B06674a077f592A531dcE4590aDeCdB",
+        "guardian": "0x827e86072B06674a077f592A531dcE4590aDeCdB",
+        "timelock": "259200",
+        "withdrawQueueLength": "6",
+        "publicAllocatorEnabled": true,
+        "publicAllocatorFeeWei": "0",
+        "publicAllocatorFlowCaps": [
+          {
+            "marketId": "0xb0e2356396611ddd427580df2c4316bf1c8569983cc5863febdc9be80491dd2b",
+            "collateral": "NONE",
+            "caps": [
+              "1021016171053958",
+              "978983828946042"
+            ]
+          },
+          {
+            "marketId": "0xe35c5abc6418b6319b014e07aa3c86163a870a957284128f03cf7a9e414f8899",
+            "collateral": "WBTC",
+            "caps": [
+              "4635904365763",
+              "1000364095634237"
+            ]
+          },
+          {
+            "marketId": "0x51efed9df487fd3e316421212683e04cfdb198d470c5c936ae4f36efb45b213d",
+            "collateral": "XAUt0",
+            "caps": [
+              "0",
+              "1000000000000000"
+            ]
+          },
+          {
+            "marketId": "0xcaa68590c9fd1815f5f2e9f61c2001061813f6e346f07505b9e9b3d228b4aa13",
+            "collateral": "WMON",
+            "caps": [
+              "181925",
+              "1000000000000000"
+            ]
+          },
+          {
+            "marketId": "0x409f2824aee2d8391d4a5924935e13312e157055e262b923b60c9dcb47e6311d",
+            "collateral": "WETH",
+            "caps": [
+              "4723046544820",
+              "1000276953455180"
+            ]
+          },
+          {
+            "marketId": "0xbc3e3ac4b896a999b2943273f3ed121238a4da4218d4e48533739c0f4b43253e",
+            "collateral": "wstETH",
+            "caps": [
+              "210832247968",
+              "999989167752032"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "Fork uses synthetic depositor funding; no public deployment or public receipts.",
+    "No production Setsuna vault, adapter, permissionless allocator, or loss/accounting implementation is proved.",
+    "Seven-day interest result advances local time; it is not actual historic performance or a forecast.",
+    "Snapshot base APR excludes incentives and transaction gas; rate changes after supply and over time.",
+    "Selected Morpho market is below the UI prototype minimum size of 250000 USD; fork compatibility does not waive eligibility.",
+    "Competitor authorization and flow-cap reads do not prove an executed competitive rebalance; metadata is retrieved on the review date, not historical.",
+    "Exact deployed proxy authority, bytecode matching, stress liquidity, risk limits, MON routes and public demo setup remain separate gates."
+  ]
+}

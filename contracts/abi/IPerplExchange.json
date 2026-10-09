@@ -1,0 +1,1184 @@
+[
+  {
+    "type": "function",
+    "name": "allowOrderForwarding",
+    "inputs": [
+      {
+        "name": "allow",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createAccount",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "accountId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "depositCollateral",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "execFwdPositionOps",
+    "inputs": [
+      {
+        "name": "forwardedOrders",
+        "type": "tuple[]",
+        "internalType": "struct IPerplExchange.FwdOrderDesc[]",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feePer100K",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderDesc",
+            "type": "tuple",
+            "internalType": "struct IPerplExchange.OrderDesc",
+            "components": [
+              {
+                "name": "orderDescId",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "perpId",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "orderType",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "orderId",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "pricePNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "lotLNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "expiryBlock",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "postOnly",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "fillOrKill",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "immediateOrCancel",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "maxMatches",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "leverageHdths",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "lastExecutionBlock",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "amountCNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "maxNegPnlCollatBPS",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "execTriggerOrder",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "triggerPricePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "triggerPriceCondition",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "triggerRequestId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "triggerPositionId",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct IPerplExchange.OrderSignature[]",
+        "components": [
+          {
+            "name": "perpId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderId",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "execFwdPositionOpsV2",
+    "inputs": [
+      {
+        "name": "forwardedOrders",
+        "type": "tuple[]",
+        "internalType": "struct IPerplExchange.FwdOrderDesc[]",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feePer100K",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderDesc",
+            "type": "tuple",
+            "internalType": "struct IPerplExchange.OrderDesc",
+            "components": [
+              {
+                "name": "orderDescId",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "perpId",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "orderType",
+                "type": "uint8",
+                "internalType": "uint8"
+              },
+              {
+                "name": "orderId",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "pricePNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "lotLNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "expiryBlock",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "postOnly",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "fillOrKill",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "immediateOrCancel",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "maxMatches",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "leverageHdths",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "lastExecutionBlock",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "amountCNS",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "maxNegPnlCollatBPS",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "execTriggerOrder",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "triggerPricePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "triggerPriceCondition",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "triggerRequestId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "triggerPositionId",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "extensions",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct IPerplExchange.OrderSignature[]",
+        "components": [
+          {
+            "name": "perpId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderId",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "execOrder",
+    "inputs": [
+      {
+        "name": "orderDesc",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.OrderDesc",
+        "components": [
+          {
+            "name": "orderDescId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "perpId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "orderId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pricePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expiryBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "postOnly",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "fillOrKill",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "immediateOrCancel",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "maxMatches",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "leverageHdths",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastExecutionBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxNegPnlCollatBPS",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "signature",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.OrderSignature",
+        "components": [
+          {
+            "name": "perpId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "orderId",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getAccountByAddr",
+    "inputs": [
+      {
+        "name": "accountAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "accountInfo",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.AccountInfo",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "balanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lockedBalanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "frozen",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "accountAddr",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "positions",
+            "type": "tuple",
+            "internalType": "struct IPerplExchange.PositionBitMap",
+            "components": [
+              {
+                "name": "bank1",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "bank2",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "bank3",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "bank4",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getAccountById",
+    "inputs": [
+      {
+        "name": "accountId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "accountInfo",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.AccountInfo",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "balanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lockedBalanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "frozen",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "accountAddr",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "positions",
+            "type": "tuple",
+            "internalType": "struct IPerplExchange.PositionBitMap",
+            "components": [
+              {
+                "name": "bank1",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "bank2",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "bank3",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "bank4",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMarginFractions",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lotLNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "perpInitMarginFracHdths",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "perpMaintMarginFracHdths",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "dynamicInitMarginFracHdths",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "oiMaxLNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "unityDescentThreshHdths",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "overColDescentThreshHdths",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMinAccountOpenCNS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "minAccountOpenCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMinimumSettleCNS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "minimumSettleCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOrderLocks",
+    "inputs": [
+      {
+        "name": "accountId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "orderLocks",
+        "type": "tuple[]",
+        "internalType": "struct IPerplExchange.OrderLock[]",
+        "components": [
+          {
+            "name": "orderLockId",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "nextOrderLockId",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "prevOrderLockId",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "orderType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint40",
+            "internalType": "uint40"
+          },
+          {
+            "name": "amountCNS",
+            "type": "uint80",
+            "internalType": "uint80"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPerpetualInfo",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "perpetualInfo",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.PerpetualInfo",
+        "components": [
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "priceDecimals",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotDecimals",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "linkFeedId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "priceTolPer100K",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "marginTol",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "marginTolDecimals",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "refPriceMaxAgeSec",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "positionBalanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "insuranceBalanceCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "markPNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "markTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastPNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "oraclePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "oracleTimestampSec",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "longOpenInterestLNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "shortOpenInterestLNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "fundingStartBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "fundingRatePct100k",
+            "type": "int16",
+            "internalType": "int16"
+          },
+          {
+            "name": "absFundingClampPctPer100K",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "basePricePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxBidPriceONS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minBidPriceONS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxAskPriceONS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minAskPriceONS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "numOrders",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "ignOracle",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPositionV2",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "accountId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "positionInfo",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.PositionInfoV2",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "nextNodeId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "prevNodeId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "positionType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "depositCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pricePNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "entryBlock",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pnlCNS",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "deltaPnlCNS",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "premiumPnlCNS",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "priceResiduePNSQ16",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "markPricePNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "markPriceValid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getWithdrawAllowanceData",
+    "inputs": [
+      {
+        "name": "blockNumber",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "allowanceCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "expiryBlock",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lastAllowanceBlock",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cnsPerBlock",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "increasePositionCollateral",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "liquidation",
+    "inputs": [
+      {
+        "name": "liquidationDesc",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.LiquidationDesc",
+        "components": [
+          {
+            "name": "perpId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "posAccountId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "userProceedsToPosition",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setAdministrator",
+    "inputs": [
+      {
+        "name": "administrator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "add",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setPositionAdministrator",
+    "inputs": [
+      {
+        "name": "positionAdministrator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "add",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setPriceTolPer100KByOwner",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tolerancePer100K",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateMarkPricePNSByOwner",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "markPricePNS",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawCollateral",
+    "inputs": [
+      {
+        "name": "amountCNS",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+]

@@ -1,0 +1,310 @@
+{
+  "author": "Codex",
+  "recordedAt": "2026-10-04T10:09:37.032Z",
+  "preview": "http://localhost:3008/",
+  "scope": "Frontend visual refresh; only Walrus and TBook design references; original SVG/CSS assets.",
+  "djView": {
+    "repository": "https://github.com/Nuel-osas/D-j-View",
+    "commit": "e4d3c78f107d3242329b1c370a972cf5c7221740",
+    "checkout": ".local/frontend-refresh/d-j-view",
+    "historicalPath": "/Users/emmanuelosadebe/site-capture-tool",
+    "historicalSession": "01a0931a-1af0-7151-bdfd-5e065a8c195a"
+  },
+  "captures": [
+    {
+      "source": "https://walrus.xyz/",
+      "capturedAt": "2026-10-04T09:54:14.765Z",
+      "pages": 1,
+      "resources": 157,
+      "downloadedBytes": 17727302,
+      "failures": [],
+      "offlineVerificationPassed": false,
+      "offlineVerification": [
+        {
+          "errors": [],
+          "externalRequestCount": 3,
+          "missingCount": 3,
+          "brokenImages": []
+        }
+      ],
+      "reportDirectory": ".local/frontend-refresh/walrus"
+    },
+    {
+      "source": "https://www.tbook.com/",
+      "capturedAt": "2026-10-04T09:54:14.775Z",
+      "pages": 1,
+      "resources": 50,
+      "downloadedBytes": 22531626,
+      "failures": [],
+      "offlineVerificationPassed": false,
+      "offlineVerification": [
+        {
+          "errors": [
+            "Requests did not settle within the verification budget."
+          ],
+          "externalRequestCount": 0,
+          "missingCount": 0,
+          "brokenImages": []
+        }
+      ],
+      "reportDirectory": ".local/frontend-refresh/tbook"
+    }
+  ],
+  "sourceSHA256": {
+    "src/app/page.tsx": "5ca7ea11f21dfbf03094e5e3e65f7155a7e1503a70368b8ac23c8b49179316cf",
+    "src/app/layout.tsx": "2995a7c6530e8ea36243fe4695c607de490c3b97ff7efe4e30d32e5356153c76",
+    "src/app/earn/page.tsx": "8c5de382b5cd6c29db83e0f4bd885b40d6b5b298e8dcd873456066b214148cfc",
+    "src/app/trade/page.tsx": "364d3e0a2abbfa91bb42211713bb5e9b48822a6af694fe911581f291ff58adc4",
+    "src/components/SiteHeader.tsx": "eaccf66c7b6d217622596dc19e775df00ef098c89a4d3f640f2997e3eeb4b5a4",
+    "src/components/SiteFooter.tsx": "093899e16917dd1695bebf7b5e676261be8f4e613e489ae614f4c59aaf40b025",
+    "src/components/setsuna/AuroraHero.tsx": "93637f030e24f9d9cb106350ad421e54376bb654ba588aba151b23a58d967464",
+    "src/components/setsuna/VaultFlow.tsx": "e2b4c0deb23c358e62a087955eef58439c5a7aff4af4174863615eaf3f28e52b",
+    "src/components/setsuna/FlowSculpture.tsx": "6afcd4599d19080937bdc2e9dda863a9e2e86b0876bb815960b143c6412e4896",
+    "src/styles/refresh.css": "cf488c6099f572bdf3d9e722d170fd5b65fb18525bb93ab9e915b091bb5b077a"
+  },
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    "build": {
+      "command": "SETSUNA_DIST_DIR=.next-refresh-build npm run build",
+      "exitCode": 0,
+      "log": ".local/frontend-refresh/next-build.log"
+    },
+    "browser": {
+      "result": "passed",
+      "checkedAt": "2026-10-04T10:07:37.057Z",
+      "checks": [
+        {
+          "route": "/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/earn/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/trade/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/security/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/faq/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/evidence/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/privacy-policy/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/terms-of-use/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/app/",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/app/?tab=spot",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/app/?tab=perps",
+          "width": 1440,
+          "status": 200,
+          "viewport": 1440,
+          "body": 1440,
+          "brokenImages": []
+        },
+        {
+          "route": "/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/earn/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/trade/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/security/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/faq/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/evidence/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/privacy-policy/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/terms-of-use/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/app/",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/app/?tab=spot",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        {
+          "route": "/app/?tab=perps",
+          "width": 390,
+          "status": 200,
+          "viewport": 390,
+          "body": 390,
+          "brokenImages": []
+        },
+        "Mobile navigation opens, Escape closes, navigation closes menu.",
+        "MON/USDC illustration and FAQ controls respond correctly.",
+        "Scroll morph works; reduced motion disables morph and sculpture animation.",
+        "Homepage Spot and Perps cards open the correct app section.",
+        "Hero Earn CTA opens the Earn app."
+      ],
+      "errors": [],
+      "requestHosts": [
+        "127.0.0.1"
+      ]
+    },
+    "trading": {
+      "result": "passed",
+      "url": "http://127.0.0.1:3008",
+      "mode": "LOCAL_FORK_ONLY",
+      "syntheticFunding": true,
+      "perplPriceFixture": {
+        "mode": "FIXED_HISTORICAL_MARK",
+        "markPNS": "851905",
+        "oracleGuardDisabledOnFork": true
+      },
+      "checks": [
+        "native MON to USDC receipt and wallet balance",
+        "USDC approval and MON return swap",
+        "gateway balances and allowances cleared",
+        "invalid and precision-dust inputs blocked",
+        "Perpl account creation and AUSD funding",
+        "actual BTC long fill",
+        "protection armed",
+        "actual close fill revokes protection without spending reserve",
+        "free trading collateral withdrawn to wallet",
+        "setsMON deposit and withdrawal in the same wallet; AUSD reserve untouched",
+        "all three sections at 390px without horizontal overflow",
+        "RPC failure disables quoting and swaps"
+      ],
+      "runtimeErrors": [],
+      "checkedAt": "2026-10-04T10:07:33.641Z"
+    },
+    "receiptRecovery": {
+      "result": "passed",
+      "faultInjection": "browser pending-hash storage; actual confirmed local receipts",
+      "sections": [
+        "Spot",
+        "Perps"
+      ],
+      "checkedAt": "2026-10-04T10:07:37.165Z"
+    }
+  },
+  "limitations": [
+    "Reference capture offline dependency verification did not pass; details preserved above.",
+    "Browser trades executed only on the existing synthetic-fund local fork.",
+    "Perps browser demo uses a disclosed fixed historical mark; oracle guard disabled only on that fork.",
+    "No contract/keeper changes; Solidity and executor suites not rerun for this visual change.",
+    "No public deployment or production security approval."
+  ]
+}

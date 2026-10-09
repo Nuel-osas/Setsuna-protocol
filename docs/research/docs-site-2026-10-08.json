@@ -1,0 +1,174 @@
+{
+  "author": "Codex",
+  "recordedAt": "2026-10-08T09:30:19.083Z",
+  "preview": "http://127.0.0.1:3015/docs/",
+  "scope": "Original Next.js documentation website. No public deployment, financial transactions, contract changes or keeper changes in this task.",
+  "reference": {
+    "site": "https://docs.usesam.xyz/",
+    "repository": "https://github.com/Iamknownasfesal/sam",
+    "implementation": "Astro Starlight reference; independently authored Next.js implementation",
+    "tool": "D-j-View",
+    "capturedPages": [
+      "https://docs.usesam.xyz/",
+      "https://docs.usesam.xyz/getting-started/deposit/",
+      "https://docs.usesam.xyz/getting-started/withdraw/"
+    ],
+    "failures": [],
+    "adaptations": [],
+    "offlineVerificationPassed": true,
+    "artifact": ".local/sam-docs-reference"
+  },
+  "implementation": {
+    "articles": 22,
+    "markdown": "src/content/docs",
+    "parser": "marked@18.1.0",
+    "staticRoutes": true,
+    "search": "Full authored article text searched locally",
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "scripts": "npm run check:docs",
+    "typography": "Geist and Geist Mono; SAM-matched weights: body 400, strong 620, H1 680, H2 640, sidebar 400/600; 16px body and 14px sidebar"
+  },
+  "validation": {
+    "typescript": "passed",
+    "productionBuild": "passed; 22 docs routes statically generated",
+    "browser": {
+      "checkedAt": "2026-10-08T09:29:29.983Z",
+      "base": "http://127.0.0.1:3015",
+      "pages": [
+        "/docs/",
+        "/docs/getting-started/deposit/",
+        "/docs/getting-started/withdraw/",
+        "/docs/getting-started/yield/",
+        "/docs/getting-started/risks/",
+        "/docs/getting-started/faq/",
+        "/docs/how-it-works/overview/",
+        "/docs/how-it-works/vaults/",
+        "/docs/how-it-works/where-funds-go/",
+        "/docs/how-it-works/earning/",
+        "/docs/how-it-works/rebalancing/",
+        "/docs/how-it-works/liquidity/",
+        "/docs/math/exchange-rate/",
+        "/docs/math/apr/",
+        "/docs/math/allocation/",
+        "/docs/math/withdrawals/",
+        "/docs/trading/spot/",
+        "/docs/trading/perps/",
+        "/docs/developers/architecture/",
+        "/docs/developers/contracts/",
+        "/docs/developers/keepers/",
+        "/docs/developers/local-demo/"
+      ],
+      "internalLinks": 23,
+      "checks": [
+        "22 pages render with one heading and active navigation",
+        "internal links and section anchors",
+        "unknown doc 404",
+        "Markdown and code clipboard copy",
+        "search body text and no-results state",
+        "Ctrl+K, arrow keys, Enter and Escape",
+        "positive/negative share-value example and invalid inputs",
+        "dark theme persists after reload",
+        "desktop and 390px mobile without document overflow",
+        "mobile navigation closes after route change",
+        "existing homepage and Earn app navigation preserved"
+      ],
+      "errors": []
+    },
+    "financialRegression": "Not rerun: no financial logic changed; browser checks preserved existing app/header flow.",
+    "typography": {
+      "checkedAt": "2026-10-08T09:29:07.378Z",
+      "reference": "SAM docs live styles and checked-in custom.css",
+      "actual": [
+        {
+          "selector": "h1",
+          "family": "Geist, \"Geist Fallback\", \"Instrument Sans\", \"Instrument Sans Fallback\", sans-serif",
+          "weight": "680",
+          "size": "36px",
+          "color": "rgb(23, 46, 52)"
+        },
+        {
+          "selector": ".sd-prose h2",
+          "family": "Geist, \"Geist Fallback\", \"Instrument Sans\", \"Instrument Sans Fallback\", sans-serif",
+          "weight": "640",
+          "size": "22px",
+          "color": "rgb(23, 46, 52)"
+        },
+        {
+          "selector": ".sd-prose p",
+          "family": "Geist, \"Geist Fallback\", \"Instrument Sans\", \"Instrument Sans Fallback\", sans-serif",
+          "weight": "400",
+          "size": "16px",
+          "color": "rgb(61, 67, 76)"
+        },
+        {
+          "selector": ".sd-prose strong",
+          "family": "Geist, \"Geist Fallback\", \"Instrument Sans\", \"Instrument Sans Fallback\", sans-serif",
+          "weight": "620",
+          "size": "16px",
+          "color": "rgb(23, 46, 52)"
+        },
+        {
+          "selector": ".sd-navigation a:not([aria-current])",
+          "family": "Geist, \"Geist Fallback\", \"Instrument Sans\", \"Instrument Sans Fallback\", sans-serif",
+          "weight": "400",
+          "size": "14px",
+          "color": "rgb(61, 67, 76)"
+        },
+        {
+          "selector": ".sd-navigation a[aria-current]",
+          "family": "Geist, \"Geist Fallback\", \"Instrument Sans\", \"Instrument Sans Fallback\", sans-serif",
+          "weight": "600",
+          "size": "14px",
+          "color": "rgb(62, 99, 201)"
+        }
+      ]
+    }
+  },
+  "screenshots": [
+    ".local/docs-review/introduction-desktop.png",
+    ".local/docs-review/introduction-mobile.png",
+    ".local/docs-review/dark-desktop.png",
+    ".local/docs-review/math-desktop.png",
+    ".local/docs-review/search-mobile.png"
+  ],
+  "sha256": {
+    "package.json": "85fa298b33d0211262fbca8459ca2e846fb2d9201475c46cd1821b7dba1d2091",
+    "package-lock.json": "ad94410d01cb10e9e1a9037d631d117478bfc9102abac587506fde2813b91a68",
+    "src/lib/docs/catalog.ts": "d3f06a4d2b8842b3f7288c3185d22729743156ee8d80954be43b8067686d2ce6",
+    "src/lib/docs/content.ts": "58dd59864859490d8805747e714a7b8d256cdb35ed80e38d3fb4fa1c4eadbb98",
+    "src/components/docs/DocsShell.tsx": "8ad7fa45b24c8d936ae77ebc0afc41f0a69acedbb4e29d7bfe838e0ca8a6a10e",
+    "src/components/docs/DocEnhancements.tsx": "9bb4cf3fb0456cc2d41db07061ead8a7d8de5693723ad387a0e5334b183a7fe8",
+    "src/app/docs/layout.tsx": "87b021ea6262517d2461add8f0c18a4da3d2aa18be913f02f0c0363b6e1119b8",
+    "src/app/docs/[[...slug]]/page.tsx": "7ed33bd44af762a4a2b1f18d7145b9c06ae5ab7ec0295a544f29f43640f25fde",
+    "src/styles/docs.css": "bd6af6cf129436767c93f14fc7c4d68a3dd4ed766288ca369db8063f6b1a9dd5",
+    "src/components/SiteHeader.tsx": "d88ad3c2cb2f615a0d132706cf250ad607305d08227fad41f94e68325aab5187",
+    "src/components/SiteFooter.tsx": "fff4fc59649cb01d8521e001401595f73e3624bfc63d0e661b20c56af137d214",
+    "src/lib/setsuna/site.ts": "bf1c04b96293f1556cfd6607b570ab69469835d35f0c66430b3b140bbdbee0ea",
+    "scripts/check-docs.mjs": "eb52d2ff24a0aeb169035ce7fc1324deba29247b15f56988e84bb5dd14f1b738",
+    "src/content/docs/developers/architecture.md": "7bb509cfb575269cea04bd190ebf99953b78322bc54007aedcfebabd80a9eb82",
+    "src/content/docs/developers/contracts.md": "79deeaada87ebdaf2b096d70bbfe5720a9a0556617fb066c9d44fbca876d2b30",
+    "src/content/docs/developers/keepers.md": "877a76c97867aa4d475e0ca0703cfd00e8ee7666c88ec9ef7f3beaf4537514a2",
+    "src/content/docs/developers/local-demo.md": "74991bcf3a92319b0583668514d77e1d6a7139648ce76197f70cb2e656b24c3a",
+    "src/content/docs/getting-started/deposit.md": "54f1b9ba72acec8f08ad83445950b050dc87883ab1dab2b6a16859064ec19e9c",
+    "src/content/docs/getting-started/faq.md": "5283fea02ebd71ba2c8e12ccaa255404e46f7acbaf1a90eebd110a4359daf753",
+    "src/content/docs/getting-started/risks.md": "9156ab2497d35af33dcea5dcb5345a026e418cd21b58b588fb2045f18082bdba",
+    "src/content/docs/getting-started/withdraw.md": "d17db74a52e4a9edd92be6b8233b0b7626bff4dc0505962af04aa287a20b4f91",
+    "src/content/docs/getting-started/yield.md": "93145540c1489bfc881fc8768131e734e2f0a922307853b7f036acad796feb69",
+    "src/content/docs/how-it-works/earning.md": "d4ff2559e5f62f0c46070aad4e4202e9ae71931b17db9973d934f7fa1a6e495f",
+    "src/content/docs/how-it-works/liquidity.md": "ba308371ab6354b0af3a7a396595700d5e32ae7acf8cb1e50f2181b0ebca3e73",
+    "src/content/docs/how-it-works/overview.md": "6b7f5c66afce76e46e500c5a3b3473693dfb94252e3767cac1ea4f36fc3bb1f7",
+    "src/content/docs/how-it-works/rebalancing.md": "771e4091f72f6a1f11c669072ed510bd6b6ef0e71185df72777697d881f1d4ca",
+    "src/content/docs/how-it-works/vaults.md": "ec7bf7e99a15b52cca774235a99f1b6713689a51631b54d0834fbb5e2563aa7e",
+    "src/content/docs/how-it-works/where-funds-go.md": "02a56739bcf24b201afad200cfe954543532a732be07fb787793198684464266",
+    "src/content/docs/index.md": "3b94c8725ef085917696e2ff88ac310817de7f8c4aac91a278d6148b8c7ffc6f",
+    "src/content/docs/math/allocation.md": "cb7a1cdc57cb5ed64dd8a01fae997714711a87c942e539778f1221f14fdbcfa7",
+    "src/content/docs/math/apr.md": "a35b087f6da08b67995867c2375b47c751ae896c6e70dc6cf0eeda36806316b6",
+    "src/content/docs/math/exchange-rate.md": "e56beb18543d721e929d1ab2d96d2d9d6534108f9e2b5349f0d8a3ce42f43f13",
+    "src/content/docs/math/withdrawals.md": "d9eba603d812d928ce3226e24f61c64aca7d440c288f1f3f2cbb37646252941a",
+    "src/content/docs/trading/perps.md": "2a477e79efd8d9f0cdd67a9b0a7f13b54e238c92d61687877166383c1bd05862",
+    "src/content/docs/trading/spot.md": "204fc20230a4dcc30c45755ffcd88fd09100c08f6076be02f2d86da448bdb4e7"
+  }
+}

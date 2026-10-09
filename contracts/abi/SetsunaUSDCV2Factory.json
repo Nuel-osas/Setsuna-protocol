@@ -1,0 +1,95 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "vaultDeployer_",
+        "type": "address",
+        "internalType": "contract USDCV2VaultDeployer"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "MORPHO_MARKET",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "USDC",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createFiveProtocolVault",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "vault",
+        "type": "address",
+        "internalType": "contract SetsunaUSDCVault"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createVault",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "vault",
+        "type": "address",
+        "internalType": "contract SetsunaUSDCVault"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "VaultCreated",
+    "inputs": [
+      {
+        "name": "vault",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "guardian",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "adapters",
+        "type": "address[]",
+        "indexed": false,
+        "internalType": "address[]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "WrongChain",
+    "inputs": []
+  }
+]

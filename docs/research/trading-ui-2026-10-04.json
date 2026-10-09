@@ -1,0 +1,121 @@
+{
+  "author": "Codex",
+  "recordedAt": "2026-10-04T10:38:28.609Z",
+  "reference": "https://www.kuru.io/markets/0x065c9d28e428a0db40191a54d33d5b7c71a9c394/trade",
+  "scope": "Spot and Perps frontend terminal; original SVG charts; actual local-fork market reads.",
+  "preview": "http://localhost:3008/app/?tab=spot",
+  "sourceSHA256": {
+    "src/components/setsuna/App.tsx": "c50f5ed8277354d727d70448820361519342f50e58c3c2ecffd3a8761588d426",
+    "src/components/setsuna/SpotApp.tsx": "fb95422f1b339d1bf486bb323023b37f446ae09fd08f50b3067bf6259956ec3a",
+    "src/components/setsuna/AppShell.tsx": "4aa2f31fc236b2dab72f7bb6f01eb6a28a746442833e0740f3e1ebf385092ddf",
+    "src/components/setsuna/TradingMarket.tsx": "ae446bc81cb47b9bcbf517393dfc8387cecbbc34d2b679815d4d2d4d17dba919",
+    "src/components/setsuna/useTradingMarket.ts": "679d8f37e46709f9f9c8766eaa4c5ab92119502cec87cb5f37890498f113fada",
+    "src/lib/setsuna/market-view.ts": "e8a9b98e0671b96a566f44b6aa30b639a612bf34c513e0036d90b119c7ceeeab",
+    "src/styles/terminal.css": "39b284d53dbf98d498bbdca234ed9fa7a6321ef1b5fda5cb64cd7f778ea9d84b",
+    "src/app/layout.tsx": "0f411e93b707526da9ca6034cefff40a73035534775f597788dd433a5d7ff545",
+    "scripts/check-trading-terminal.mjs": "fa65d9820a0640c3a335719df4f2078b13414aa19d5a30d8c5c2b5eb0f190440",
+    "scripts/check-trading.mjs": "08800aff6204bd1433c7e90a9374625bc0510c4b7eedd587b53b2d1565cf5e55",
+    "scripts/check-trading-recovery.mjs": "c9e45e93a08c73a7ded7680fa486a4d7a6d6aadfbdf26b1aa89b2c5b2fd56447",
+    "scripts/market-view.test.mjs": "480d023350138798fc1b3eca642d488ad19beb5b1e1498ed9912c00d2c6f9c21"
+  },
+  "capture": {
+    "tool": "D-j-View",
+    "commit": "e4d3c78f107d3242329b1c370a972cf5c7221740",
+    "directory": ".local/frontend-refresh/kuru-terminal",
+    "pages": 1,
+    "resources": 95,
+    "downloadedBytes": 17012850,
+    "downloadFailures": 0,
+    "discoveryUnresolved": 17,
+    "discoveryPageErrors": 1,
+    "offlineVerificationPassed": false,
+    "offlineVerification": [
+      {
+        "errors": [
+          "Browser doesn't support required api, or doNotTrack is active."
+        ],
+        "missingCount": 201,
+        "externalRequestCount": 43
+      }
+    ]
+  },
+  "checks": {
+    "decoder": {
+      "command": "node --test scripts/market-view.test.mjs",
+      "passed": 3,
+      "failed": 0
+    },
+    "terminal": {
+      "result": "passed",
+      "checkedAt": "2026-10-04T10:34:47.755Z",
+      "checks": [
+        "Spot book filters and price/depth switching work with actual fork data.",
+        "spot: 1440px, no document overflow.",
+        "spot: 1024px, no document overflow.",
+        "spot: 768px, no document overflow.",
+        "spot: 390px, no document overflow.",
+        "Perps side, leverage and chart controls work; fixture disclosure remains visible.",
+        "perps: 1440px, no document overflow.",
+        "perps: 1024px, no document overflow.",
+        "perps: 768px, no document overflow.",
+        "perps: 390px, no document overflow.",
+        "RPC failure clears market price/depth instead of presenting stale data.",
+        "Earn and marketing pages retain their own styling."
+      ],
+      "errors": []
+    },
+    "transactions": {
+      "result": "passed",
+      "url": "http://127.0.0.1:3008",
+      "mode": "LOCAL_FORK_ONLY",
+      "syntheticFunding": true,
+      "perplPriceFixture": {
+        "mode": "FIXED_HISTORICAL_MARK",
+        "markPNS": "851905",
+        "oracleGuardDisabledOnFork": true
+      },
+      "checks": [
+        "native MON to USDC receipt and wallet balance",
+        "USDC approval and MON return swap",
+        "gateway balances and allowances cleared",
+        "invalid and precision-dust inputs blocked",
+        "Perpl account creation and AUSD funding",
+        "actual BTC long fill",
+        "protection armed",
+        "actual close fill revokes protection without spending reserve",
+        "free trading collateral withdrawn to wallet",
+        "setsMON deposit and withdrawal in the same wallet; AUSD reserve untouched",
+        "all three sections at 390px without horizontal overflow",
+        "RPC failure disables quoting and swaps"
+      ],
+      "runtimeErrors": [],
+      "checkedAt": "2026-10-04T10:36:25.313Z"
+    },
+    "receiptRecovery": {
+      "result": "passed",
+      "faultInjection": "browser pending-hash storage; actual confirmed local receipts",
+      "sections": [
+        "Spot",
+        "Perps"
+      ],
+      "checkedAt": "2026-10-04T10:36:28.699Z"
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    "productionBuild": {
+      "command": "SETSUNA_DIST_DIR=.next-terminal-build npm run build",
+      "exitCode": 0,
+      "log": ".local/trading-terminal/build.log"
+    }
+  },
+  "limitations": [
+    "Only local fork execution with synthetic funds.",
+    "Spot depth contains resting CLOB orders, not AMM liquidity.",
+    "Price charts show session observations; historical candles are not connected.",
+    "Perps uses the existing disclosed fixed historical mark fixture; no Perpl book depth.",
+    "Existing execution types preserved; no new resting-order or cancel/replace functionality.",
+    "No public-chain writes or deployment."
+  ]
+}

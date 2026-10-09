@@ -1,0 +1,19 @@
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.30"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+fs_permissions = [{ access = "read-write", path = "../.local" }]
+remappings = ["forge-std/=lib/forge-std/src/", "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/"]
+
+[profile.default.fuzz]
+runs = 256
+
+[fmt]
+line_length = 110
+single_line_statement_blocks = "multi"

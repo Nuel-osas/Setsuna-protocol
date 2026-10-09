@@ -1,0 +1,1608 @@
+{
+  "author": "Codex",
+  "recordedAtUtc": "2026-10-02T14:09:42.631454+00:00",
+  "status": "Prototype implemented and locally verified; no public deployment or customer funds",
+  "environment": {
+    "chainId": 143,
+    "forkBlock": 109894238,
+    "forkHash": "0x3eecc9010c1283f06368591874bcfeac276ceb12e2920388292053498ce09923",
+    "timestamp": "2026-10-02T12:28:58Z",
+    "rpc": "https://rpc.monad.xyz",
+    "funding": "synthetic depositor USDC in isolated Foundry forks",
+    "time": "controlled vm.warp; not historical realized performance"
+  },
+  "commands": {
+    "solidity": "RUN_FORK=true forge test --root contracts --json > .local/earn-core-tests.json",
+    "executor": "node --test --test-reporter=tap scripts/keeper-core.test.mjs scripts/earn-keeper-core.test.mjs > .local/earn-executor-tests.tap",
+    "exportAbis": "node scripts/export-abis.mjs"
+  },
+  "testSummary": {
+    "solidity": {
+      "Success": 74
+    },
+    "suites": {
+      "test/EarnMarketsFork.t.sol:EarnMarketsForkTest": {
+        "Success": 5
+      },
+      "test/PerplAccountProof.t.sol:PerplAccountProofTest": {
+        "Success": 1
+      },
+      "test/PerplRisk.t.sol:PerplRiskTest": {
+        "Success": 4
+      },
+      "test/SetsunaAccount.t.sol:SetsunaAccountTest": {
+        "Success": 26
+      },
+      "test/SetsunaEarn.t.sol:SetsunaEarnTest": {
+        "Success": 22
+      },
+      "test/SetsunaEarnFork.t.sol:SetsunaEarnForkTest": {
+        "Success": 6
+      },
+      "test/SetsunaFork.t.sol:SetsunaForkTest": {
+        "Success": 10
+      }
+    },
+    "executor": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "newEarnTests": 11,
+      "originalProtectionTests": 6
+    },
+    "newEarnContractTests": 28,
+    "newEarnFuzzRuns": 257,
+    "executorEvidenceScope": "Synthetic client fault tests and real local transaction signing; no public broadcast or live operator deployment"
+  },
+  "observedForkResults": {
+    "provenance": "Earlier verbose run of the six new Earn fork tests; same logic before forge fmt; final regression JSON below records all passing tests",
+    "units": "micro-USDC",
+    "deposit": 1000000000,
+    "twoProtocolIntegrationMinimumSupply": 100000000000,
+    "aavePosition": 600001572,
+    "morphoPosition": 300000786,
+    "idle": 100000263,
+    "fullRedemption": 1000002620,
+    "residualNAV": 1,
+    "sevenDays": {
+      "navBefore": 1000002621,
+      "navAfter": 1000529799,
+      "paid": 1000529798
+    }
+  },
+  "factoryPolicy": {
+    "asset": {
+      "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+      "symbol": "USDC",
+      "decimals": 6,
+      "registry": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+    },
+    "minimumMarketSupplyUSDC": "250000",
+    "depositCapUSDC": "25000",
+    "bufferBps": 1000,
+    "exposureCapBps": 6000,
+    "grossMovementCapBps": 1000,
+    "cooldownSeconds": 600,
+    "observationIntervalSeconds": 300,
+    "observationMaxAgeSeconds": 1800,
+    "maxRateSpreadBps": 1000,
+    "minimumAnnualGainMicroUSDC": 1000,
+    "roundingBudgetMicroUSDC": 4,
+    "shareDecimals": 12,
+    "fees": 0,
+    "executorRewards": 0,
+    "morphoEligibleAtPinnedBlock": false,
+    "factoryTargetBpsAtPinnedBlock": {
+      "aave": 6000,
+      "morpho": 0,
+      "idle": 4000
+    }
+  },
+  "compiler": {
+    "version": "0.8.30+commit.73712a01"
+  },
+  "compilerSettings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "cancun",
+    "viaIR": true
+  },
+  "forge": "forge Version: 1.5.1-stable\nCommit SHA: b0a9dd9ceda36f63e2326ce530c10e6916f4b8a2\nBuild Timestamp: 2025-12-22T11:41:09.812070000Z (1766403669)\nBuild Profile: maxperf",
+  "sourceRevisions": {
+    "morpho-org/morpho-blue": "8e26ca6a8dbc5089edcd67fb576248810fd2870a",
+    "aave-dao/aave-v3-origin": "8305565ae342f1773c42cd2e4593f175fe5968a0",
+    "bgd-labs/aave-address-book": "f648e5dd3763467b836dfa35484ffe7024e6572a",
+    "monad-crypto/protocols": "a9efca6aa04cd17aef089c0a9977d7b607ad272a",
+    "euler-xyz/euler-earn": "ea3dacc05f4003a1326815429d70d0c77f0dabb4",
+    "OpenZeppelin/openzeppelin-contracts": {
+      "tag": "v5.4.0",
+      "commit": "c64a1edb67b6e3f4a15cca8909c9482ad33a02b0"
+    },
+    "foundry-rs/forge-std": {
+      "tag": "v1.10.0",
+      "commit": "8bbcf6e3f8f62f419e5429a0bd89331c85c37824"
+    }
+  },
+  "sha256": {
+    "contracts/abi/AaveUSDCAdapter.json": "7245acecf0aec9abc2db0e4f8599f6b9ddc7b514980302025a29c495d7f28da8",
+    "contracts/abi/MorphoUSDCAdapter.json": "7f9afad5c8692b662e6d30400f5e12932e38505dd701e4a5164bc2c95fca9772",
+    "contracts/abi/SetsunaEarnVault.json": "d4dcab294fadb963b12380aed177eb4f8eb656e489bea5af633d808d80309330",
+    "contracts/abi/SetsunaUSDCFactory.json": "442a4c5200a43f896d9ee2729b89e6d65abe95baadfe931fccfa139c9947750e",
+    "contracts/foundry.toml": "cb7f9fe3e894cc05bf113e2b21c06ea80cfe10db57687ceb3a08713220f48d0e",
+    "contracts/src/earn/AaveUSDCAdapter.sol": "51e70417942f01ebd95e39e3d41b20d7c86cb08c21656a4b095b53ca3bff77c1",
+    "contracts/src/earn/ILendingAdapter.sol": "5dd116751d616a4b7d0597f8191638b774ad2bb9e441122446bd073cadc5b4d8",
+    "contracts/src/earn/MorphoUSDCAdapter.sol": "8fc2b36e1472a8bea758348d75a814be5bc5a54f97600c1f4de9599a4e852a78",
+    "contracts/src/earn/SetsunaEarnVault.sol": "d7ac571dd3609651e3cc376dbcecf4339d366a8bf1615ee288c122131cc14bc2",
+    "contracts/src/earn/SetsunaUSDCFactory.sol": "c1958a3bfa8ab67543e1db3131960fedc300867372ba51c9e2f7004adde7ad87",
+    "contracts/src/earn/VenueInterfaces.sol": "c5617814297f4c932e1075402865c280fe9b0f54a0908fc9ed2d94b53fe32f92",
+    "contracts/test/EarnMarketsFork.t.sol": "3d0ba90c977e80e85debc6d0600627fd18de71dd811532011d771b7c2b1bf215",
+    "contracts/test/EarnMocks.sol": "ad7da36d606edb0b7955c173c94783a413688010dfd44217353ebd58e0eed4b6",
+    "contracts/test/SetsunaEarn.t.sol": "66b36bdc4024a2cd964284b51ed48cae625341ab637388bb7b8367766ce99774",
+    "contracts/test/SetsunaEarnFork.t.sol": "79674c93c67a08a3dae4c7f2ba1df967645a9adaf70ee179603dd8e1902259da",
+    "package.json": "55fe682c824f56ad4c40851523b49d52e43b7c1ab8b72cb156c2565e3d982abf",
+    "scripts/earn-keeper-core.mjs": "b47979627075ef9e5e39476fd6890c76014750978f04bf683f48ea2379fb15f8",
+    "scripts/earn-keeper-core.test.mjs": "d2ddbb7558bdb3de0c751e55053402f327cf1bcb407d2486b2d94a51076bb5e6",
+    "scripts/earn-keeper.mjs": "ae16845359e951240440af449b9bd3213420a5762c7b1bd160a1d4b7c1adada4",
+    "scripts/export-abis.mjs": "6cfc8e23563f7126a39db5f119eb86ba39172938eafe385e8af2837a3803c997"
+  },
+  "contractSizes": {
+    "SetsunaEarnVault": {
+      "runtimeBytes": 15116,
+      "creationBytes": 16569
+    },
+    "SetsunaUSDCFactory": {
+      "runtimeBytes": 1476,
+      "creationBytes": 34818
+    },
+    "EarnVaultDeployer": {
+      "runtimeBytes": 17140,
+      "creationBytes": 17185
+    },
+    "AaveAdapterDeployer": {
+      "runtimeBytes": 7948,
+      "creationBytes": 7986
+    },
+    "MorphoAdapterDeployer": {
+      "runtimeBytes": 7907,
+      "creationBytes": 7945
+    },
+    "AaveUSDCAdapter": {
+      "runtimeBytes": 6489,
+      "creationBytes": 7559
+    },
+    "MorphoUSDCAdapter": {
+      "runtimeBytes": 6372,
+      "creationBytes": 7563
+    }
+  },
+  "tests": {
+    "test/EarnMarketsFork.t.sol:EarnMarketsForkTest": {
+      "duration": "721ms 657\u00b5s",
+      "test_results": {
+        "testFork_AaveContractDepositsPartiallyWithdrawsAndFullyExits()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 291705
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 109\u00b5s 583ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_ContractMovesUSDCBetweenDifferentProtocols()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 334464
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 57\u00b5s 416ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_InterestAccruesAndCanBeWithdrawnAfterSevenSimulatedDays()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 354323
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 260\u00b5s 667ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_MorphoContractDepositsPartiallyWithdrawsAndFullyExits()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 157685
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "524\u00b5s 791ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_OnchainBaseRatesReactToNewSupply()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 355176
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 347\u00b5s 917ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    },
+    "test/PerplAccountProof.t.sol:PerplAccountProofTest": {
+      "duration": "731ms 441\u00b5s 250ns",
+      "test_results": {
+        "testFork_G1_ContractCreatesDepositsTradesAndIncreasesCollateral()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1002291
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 34\u00b5s 958ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    },
+    "test/PerplRisk.t.sol:PerplRiskTest": {
+      "duration": "3ms 906\u00b5s 583ns",
+      "test_results": {
+        "testInvalidVenueScalesAndResidueFailClosed()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 218143
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 242\u00b5s 834ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testKnownNotionalAndMarginFactorUnits()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 2162
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "709\u00b5s 208ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testLongAndShortResidueRepresentTheSameEffectiveEntry()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 2976
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "761\u00b5s 750ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testSubCnsMaintenanceRoundsUp()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1973
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "735\u00b5s 833ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    },
+    "test/SetsunaAccount.t.sol:SetsunaAccountTest": {
+      "duration": "43ms 619\u00b5s 625ns",
+      "test_results": {
+        "testCannotResetAnActivePolicyBudget()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 259191
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "68\u00b5s 83ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testCapCannotPayMarginWhenFeeWouldExceedIt()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 335202
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "160\u00b5s 958ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testConfiguredFeeCeilingLimitsActualPayout()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 394892
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "168\u00b5s 375ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testExecutionFailuresRollBackAllBalancesAndPolicy()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1050630
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "1ms 212\u00b5s 584ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFactoryBindsOwnerAndRejectsDuplicate()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 30488
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "19\u00b5s 250ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFeeTransferFailureRollsBackVenueDepositAndCollateral()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 427553
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "259\u00b5s",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFrozenAccountRefuses()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 279531
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "85\u00b5s 834ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFundingCountedExactlyOnce()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 327850
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "255\u00b5s 125ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFuzzCapAndReserveBoundEverySuccessfulRescue(uint256,uint256)": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Fuzz": {
+              "first_case": {
+                "calldata": "0x8c4d90d300000000000000000000000000000000000000000000000000000000000003b80000000000000000000000000000000000000000000000000000000005f5e100",
+                "gas": 422705,
+                "stipend": 21380
+              },
+              "runs": 256,
+              "mean_gas": 367724,
+              "median_gas": 401563,
+              "failed_corpus_replays": 0
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "37ms 399\u00b5s 375ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testInsolventReserveRefuses()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 276420
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "78\u00b5s 500ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testMinimumTopUpRefusesInsteadOfIncreasingSpend()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 331017
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "157\u00b5s 291ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testNoOutstandingOrdersAtArmOrRescue()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 342645
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "99\u00b5s 250ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testNoPartialTopUpWhenReserveIsInsufficient()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 354098
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "206\u00b5s 708ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testPermissionlessTopUpRestoresTargetAndCountsFeeInsideCap()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 468973
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "308\u00b5s 458ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testReentrantRescueCannotDoubleSpend()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 417729
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "170\u00b5s 625ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testRepeatedRescuesExhaustTheSameCumulativeBudget()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 576064
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "432\u00b5s 583ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testRestingTriggerAndWrongMarketOrdersRejected()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 274500
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "72\u00b5s 84ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testRevocationAndRearmingKeepSeparatePolicyHistory()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 545293
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "211\u00b5s 375ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testSameBlockSameSideSameSizeReopenDoesNotReusePolicy()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 288775
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "117\u00b5s 375ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testSnapshotIncludesEntryPriceResidue()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 298225
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "73\u00b5s 833ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testStaleInvalidAndFutureMarksRefuseWithoutFees()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 324744
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "149\u00b5s 333ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testTradingDepositAndWithdrawalLeaveReserveUntouched()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 347557
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "139\u00b5s 959ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testUnauthorizedCallsCannotSpendReserveOrChangePolicy()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 22141
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "25\u00b5s 708ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testVenueLiquidationRefusesWithoutTouchingReserve()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 304543
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "132\u00b5s 667ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testVenuePartialDeleverageFailsBinding()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 280818
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "71\u00b5s 875ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testWithdrawalPreservesSpentBudgetAndRefillDoesNotResetIt()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 450571
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0xc3f2c61c4836afeb9ae601c91f6fe661df3d634e": "keeper",
+            "0x10e951fa67b511d044803c7757da445ddf646f6d": "trader"
+          },
+          "duration": "235\u00b5s 625ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    },
+    "test/SetsunaEarn.t.sol:SetsunaEarnTest": {
+      "duration": "86ms 772\u00b5s 167ns",
+      "test_results": {
+        "testCooldownAndStaleObservationsRejectRebalance()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 677173
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "568\u00b5s 583ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testDepositAndRedemptionBoundsRevertAtomically()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 355696
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "392\u00b5s 708ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testDepositCapAndZeroShareEntryProtection()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 240629
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "231\u00b5s 958ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testDonationCannotInflateAllocationRate()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 473009
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "203\u00b5s 959ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFeeOnTransferDepositRejected()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 227333
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "76\u00b5s 167ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFuzzMovementBufferAndExposureLimits(uint256)": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Fuzz": {
+              "first_case": {
+                "calldata": "0xb100d0e90000000000000000000000000000000000000000000000000000000000093a80",
+                "gas": 576243,
+                "stipend": 21216
+              },
+              "runs": 257,
+              "mean_gas": 555071,
+              "median_gas": 555027,
+              "failed_corpus_replays": 0
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "82ms 722\u00b5s 125ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testGuardianCannotWithdrawAndCanOnlyStopNewExposure()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1502928
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 827\u00b5s 667ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testIlliquidVenuesStillPermitAvailableBufferWithdrawal()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1542090
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "3ms 19\u00b5s 750ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testInitializationCannotBeRepeatedOrAdaptersReplaced()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 21950
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "206\u00b5s 541ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testMarketSizeGateLeavesFortyPercentIdle()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1084617
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 314\u00b5s 916ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testNoArbitraryAllocationRecipientOrAdapterCalls()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 483097
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "303\u00b5s 916ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testProjectedRatesMustImproveBeforeDeploying()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 501052
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "276\u00b5s 375ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testPublicCallerReachesPublishedTargetsWithoutPayment()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1460800
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 648\u00b5s 125ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testRateChangeMovesBetweenProtocolsWithinGrossBudget()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1631029
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 930\u00b5s 42ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testRateSpikeCannotRedirectCapital()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 469314
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "190\u00b5s 500ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testRecognizedLossReducesBothDepositorsClaims()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1538085
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 715\u00b5s 250ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testReentrantAdapterCannotStartAnotherRebalance()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 594039
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "803\u00b5s 292ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testSilentWithdrawalRollsBackBurnAndVenueState()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1521609
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 912\u00b5s 583ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testTwoSpacedObservationsAndLaterBlockRequired()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 617285
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "315\u00b5s 250ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testUnexpectedAdapterLossRollsBackWholeRebalance()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 610645
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "280\u00b5s 625ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testValuationFailureUsesDisplayCacheButBlocksSharePricing()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1502109
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "2ms 400\u00b5s 959ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testVirtualSharesMakeSeedDonationAttackUnprofitable()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 326636
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "518\u00b5s 750ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    },
+    "test/SetsunaEarnFork.t.sol:SetsunaEarnForkTest": {
+      "duration": "731ms 405\u00b5s 791ns",
+      "test_results": {
+        "testForkAdaptersRejectAnUnrelatedCaller()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 19512
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "93\u00b5s 208ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testForkContractChoosesBothAllocationsAndUserFullyRedeems()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 5015783
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "10ms 745\u00b5s 584ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testForkDefaultFactoryPreservesMinimumMarketSizeRule()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 14170992
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "2ms 628\u00b5s 916ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testForkPartialWithdrawalThenFullExit()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 5213790
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "11ms 117\u00b5s 334ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testForkProjectedRatesMatchRatesAfterRealDeposits()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 643180
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "1ms 531\u00b5s 583ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testForkSevenDayAccrualViewMatchesActualSyncAndWithdrawal()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 5042194
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {},
+          "duration": "10ms 822\u00b5s 458ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    },
+    "test/SetsunaFork.t.sol:SetsunaForkTest": {
+      "duration": "733ms 477\u00b5s 584ns",
+      "test_results": {
+        "testFork_ActualAccountRescuesWithinCapThenRefusesHealthyPosition()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 642018
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "773\u00b5s 292ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_BothForwardingPathsRejectEvenAPrivilegedForwarder()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 493552
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "598\u00b5s 834ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_CapAndReserveWithdrawalDoNotResetSpentBudget()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 650095
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "809\u00b5s 541ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_G5_LiquidationBoundaryMatchesEntryBasedMaintenance()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 546945
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "761\u00b5s 291ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_G5_ShortLiquidationBoundaryMatchesEntryBasedMaintenance()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 1081521
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "1ms 835\u00b5s 917ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_InjectedSilentIncreaseFailureRollsBackNativeDeposit()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 459547
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "541\u00b5s 625ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_PartialIOCLeavesNoDelayedOrderAndRevokesPolicy()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 469791
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "531\u00b5s 125ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_SameBlockCloseReopenAndFlipInvalidateAuthorization()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 995554
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "1ms 370\u00b5s 750ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_StaleReferenceCannotSpendReserve()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 369153
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "432\u00b5s 875ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        },
+        "testFork_UnfillableFOKCannotLeaveAPartialPositionOrRestingOrder()": {
+          "status": "Success",
+          "reason": null,
+          "counterexample": null,
+          "logs": [],
+          "decoded_logs": [],
+          "kind": {
+            "Unit": {
+              "gas": 481773
+            }
+          },
+          "traces": [],
+          "labeled_addresses": {
+            "0x3c7e30e53a994941a373a4fab699ae1f78226b8f": "third-party-keeper"
+          },
+          "duration": "513\u00b5s 916ns",
+          "breakpoints": {},
+          "gas_snapshots": {}
+        }
+      },
+      "warnings": []
+    }
+  },
+  "executorTap": "TAP version 13\n# Subtest: valid rebalance takes priority over an observation that is also due\nok 1 - valid rebalance takes priority over an observation that is also due\n  ---\n  duration_ms: 0.460917\n  type: 'test'\n  ...\n# Subtest: stale/cooldown plan records a due observation; no spam before interval\nok 2 - stale/cooldown plan records a due observation; no spam before interval\n  ---\n  duration_ms: 0.060458\n  type: 'test'\n  ...\n# Subtest: unprofitable normal move is skipped, risk repair can proceed\nok 3 - unprofitable normal move is skipped, risk repair can proceed\n  ---\n  duration_ms: 0.051916\n  type: 'test'\n  ...\n# Subtest: all reads use one block and only known readiness errors are tolerated\nok 4 - all reads use one block and only known readiness errors are tolerated\n  ---\n  duration_ms: 0.689667\n  type: 'test'\n  ...\n# Subtest: signed hash and nonce are persisted before any broadcast; receipt verified\nok 5 - signed hash and nonce are persisted before any broadcast; receipt verified\n  ---\n  duration_ms: 3.691\n  type: 'test'\n  ...\n# Subtest: disk failure prevents broadcasting signed work\nok 6 - disk failure prevents broadcasting signed work\n  ---\n  duration_ms: 0.727667\n  type: 'test'\n  ...\n# Subtest: uncertain broadcast retains pending hash and prevents restart resubmission\nok 7 - uncertain broadcast retains pending hash and prevents restart resubmission\n  ---\n  duration_ms: 0.770458\n  type: 'test'\n  ...\n# Subtest: a restart reconciles a mined transaction without broadcasting again\nok 8 - a restart reconciles a mined transaction without broadcasting again\n  ---\n  duration_ms: 0.889666\n  type: 'test'\n  ...\n# Subtest: high gas price, high gas estimate and failed simulation cannot broadcast\nok 9 - high gas price, high gas estimate and failed simulation cannot broadcast\n  ---\n  duration_ms: 0.297083\n  type: 'test'\n  ...\n# Subtest: reverted receipt is recorded; success without expected event needs reconciliation\nok 10 - reverted receipt is recorded; success without expected event needs reconciliation\n  ---\n  duration_ms: 1.889542\n  type: 'test'\n  ...\n# Subtest: keeper gain floor is rechecked on the simulated plan\nok 11 - keeper gain floor is rechecked on the simulated plan\n  ---\n  duration_ms: 0.12725\n  type: 'test'\n  ...\n# Subtest: read-only mode never simulates or signs even when a rescue is ready\nok 12 - read-only mode never simulates or signs even when a rescue is ready\n  ---\n  duration_ms: 0.518208\n  type: 'test'\n  ...\n# Subtest: non-ready state and a changed simulation never send\nok 13 - non-ready state and a changed simulation never send\n  ---\n  duration_ms: 0.107833\n  type: 'test'\n  ...\n# Subtest: gas and fee ceilings are enforced before sending\nok 14 - gas and fee ceilings are enforced before sending\n  ---\n  duration_ms: 0.067958\n  type: 'test'\n  ...\n# Subtest: successful refusal receipt is not reported as a rescue\nok 15 - successful refusal receipt is not reported as a rescue\n  ---\n  duration_ms: 1.451083\n  type: 'test'\n  ...\n# Subtest: only this account's rescue event establishes a confirmed outcome\nok 16 - only this account's rescue event establishes a confirmed outcome\n  ---\n  duration_ms: 0.560708\n  type: 'test'\n  ...\n# Subtest: reverted transactions and unknown receipts do not become successful outcomes\nok 17 - reverted transactions and unknown receipts do not become successful outcomes\n  ---\n  duration_ms: 0.290042\n  type: 'test'\n  ...\n1..17\n# tests 17\n# suites 0\n# pass 17\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 475.067041\n",
+  "limitations": [
+    "No public Setsuna Earn deployment or Tenderly network",
+    "Default factory excludes the selected Morpho market; separate lower-threshold profile proves integration",
+    "Only two fixed adapters; Claude five-market research UI is not this contract portfolio",
+    "Rate checks are not a proof against sustained manipulation or observation griefing",
+    "No independently reviewed market-cash-relative or shared-collateral exposure model",
+    "No independent audit, production operations, MON vault, realized-yield index or deployed-vault UI integration",
+    "No first/only or superior net yield claim; see the competitor review",
+    "Frontend and physical-device suites were not rerun in this backend task"
+  ],
+  "finalFormatting": "forge fmt needed a second pass to normalize two catch blocks after the full test run; whitespace only. Formatting check and final non-test compilation passed; ABIs re-exported."
+}

@@ -1,0 +1,264 @@
+{
+  "author": "Codex",
+  "checkedAtUtc": "2026-09-30T05:28:05.447378+00:00",
+  "sourceCommit": "ff7a421adcfee3f4132af63cf93378d18d39a3ae",
+  "rpc": "https://sui-rpc.publicnode.com",
+  "latestCheckpoint": {
+    "sequenceNumber": "328548320",
+    "timestampMs": "1790745924877",
+    "epoch": "1266",
+    "digest": "7zSae2H6JjiPKfmf33X1yTrARzVd638gGJFuzPYu2X5L"
+  },
+  "scope": "Read-only inspection of the two vaults in the public manifest. Stored accounting is not a fresh mark-to-market TVL. No end-to-end transactions, audit, historical user count, or source/bytecode equivalence verification performed.",
+  "vaults": {
+    "samSUI": {
+      "outerObject": {
+        "objectId": "0x0f386c1f036d55b8d8d16b7a8738d6e51a5adf06707fbc236eb4fd3381bba6c1",
+        "version": "953958658",
+        "digest": "ELLDswhNimWzgSs2Fq7NtgZH6CdXoLVP54wqfPRyMWTz",
+        "previousTransaction": "EmSDyDaCWE5UrXnwfrAeQGxBSKUfsqwaKbp6KMSbigfA"
+      },
+      "innerObject": {
+        "objectId": "0xd72d39cb11025d9d88b8d5f46ee1433db3489ea01a8da4351718b0aca97e9d29",
+        "version": "953958658",
+        "digest": "9sC5XKnuajiK3LmwvTxU7dsBY7EbsEKzxXtUw9Qh9Ji5"
+      },
+      "state": {
+        "paused": false,
+        "decimals": 9,
+        "balance": "5007148",
+        "deployed_liquidity": {
+          "type": "0x99a1d666d9e4792bee2f34a2693aeab95a57b3c662da2e68574a03e929e60b0e::fixed18::Fixed18",
+          "fields": {
+            "value": "95135837000000000"
+          }
+        },
+        "exchange_rate": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::exchange_rate::ExchangeRate",
+          "fields": {
+            "coin_in": "100142979",
+            "sam": "99896638"
+          }
+        },
+        "fee_config": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::fee_config::FeeConfig",
+          "fields": {
+            "deposit": {
+              "type": "0x14844479546b92d12dc4c8476cbcb112b730d11341e01ee3a9f7146b88cfba77::bps::BPS",
+              "fields": {
+                "pos0": "0"
+              }
+            },
+            "protocol": {
+              "type": "0x14844479546b92d12dc4c8476cbcb112b730d11341e01ee3a9f7146b88cfba77::bps::BPS",
+              "fields": {
+                "pos0": "100"
+              }
+            },
+            "withdraw": {
+              "type": "0x14844479546b92d12dc4c8476cbcb112b730d11341e01ee3a9f7146b88cfba77::bps::BPS",
+              "fields": {
+                "pos0": "1"
+              }
+            }
+          }
+        },
+        "fees": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::fee_balances::FeeBalances<0x2::sui::SUI>",
+          "fields": {
+            "deposit": "0",
+            "protocol": "16762453",
+            "withdraw": "72959918"
+          }
+        },
+        "allocation_config": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::state_inner::AllocationConfig",
+          "fields": {
+            "idle_buffer_bps": "500",
+            "max_depth_bps": "5000",
+            "max_exposure_bps": "7000"
+          }
+        },
+        "incentive": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::state_inner::IncentiveStream<0x2::sui::SUI>",
+          "fields": {
+            "end_ms": "0",
+            "released": "0",
+            "reserve": "0",
+            "start_ms": "0",
+            "total": "0"
+          }
+        }
+      },
+      "lastOuterTransaction": {
+        "digest": "EmSDyDaCWE5UrXnwfrAeQGxBSKUfsqwaKbp6KMSbigfA",
+        "timestampMs": "1785263350915",
+        "status": {
+          "status": "success"
+        }
+      },
+      "readRequest": {
+        "method": "suix_getDynamicFieldObject",
+        "params": [
+          "0x0f386c1f036d55b8d8d16b7a8738d6e51a5adf06707fbc236eb4fd3381bba6c1",
+          {
+            "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::state::Key",
+            "value": {
+              "dummy_field": false
+            }
+          }
+        ]
+      }
+    },
+    "samUSDC": {
+      "outerObject": {
+        "objectId": "0x57b0fbc9b3d299015480b56ff7cee04b7191ac9c2f6a8f75f1044b4366b5b5ae",
+        "version": "953958749",
+        "digest": "3TD3oeCAogXe4ypvxFRCh7rHGYKVdCBPGwNrVNGJLatZ",
+        "previousTransaction": "BCmBNjjPxyzajX7QS6327A1uVnyieyy6x6bwCVtdBdyy"
+      },
+      "innerObject": {
+        "objectId": "0x1c99f584f9325e67a1c969e3855cade4857890f6152904e4249326ffdad5cc98",
+        "version": "953958749",
+        "digest": "53yjvQSztJhn52BYfHDrBhFqF4x4Uvd9eG1xLbkap5YC"
+      },
+      "state": {
+        "paused": false,
+        "decimals": 6,
+        "balance": "38755",
+        "deployed_liquidity": {
+          "type": "0x99a1d666d9e4792bee2f34a2693aeab95a57b3c662da2e68574a03e929e60b0e::fixed18::Fixed18",
+          "fields": {
+            "value": "736373000000000000"
+          }
+        },
+        "exchange_rate": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::exchange_rate::ExchangeRate",
+          "fields": {
+            "coin_in": "775124",
+            "sam": "768583"
+          }
+        },
+        "fee_config": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::fee_config::FeeConfig",
+          "fields": {
+            "deposit": {
+              "type": "0x14844479546b92d12dc4c8476cbcb112b730d11341e01ee3a9f7146b88cfba77::bps::BPS",
+              "fields": {
+                "pos0": "0"
+              }
+            },
+            "protocol": {
+              "type": "0x14844479546b92d12dc4c8476cbcb112b730d11341e01ee3a9f7146b88cfba77::bps::BPS",
+              "fields": {
+                "pos0": "100"
+              }
+            },
+            "withdraw": {
+              "type": "0x14844479546b92d12dc4c8476cbcb112b730d11341e01ee3a9f7146b88cfba77::bps::BPS",
+              "fields": {
+                "pos0": "1"
+              }
+            }
+          }
+        },
+        "fees": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::fee_balances::FeeBalances<0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC>",
+          "fields": {
+            "deposit": "0",
+            "protocol": "51571",
+            "withdraw": "72236"
+          }
+        },
+        "allocation_config": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::state_inner::AllocationConfig",
+          "fields": {
+            "idle_buffer_bps": "500",
+            "max_depth_bps": "5000",
+            "max_exposure_bps": "7000"
+          }
+        },
+        "incentive": {
+          "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::state_inner::IncentiveStream<0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC>",
+          "fields": {
+            "end_ms": "0",
+            "released": "0",
+            "reserve": "0",
+            "start_ms": "0",
+            "total": "0"
+          }
+        }
+      },
+      "lastOuterTransaction": {
+        "digest": "BCmBNjjPxyzajX7QS6327A1uVnyieyy6x6bwCVtdBdyy",
+        "timestampMs": "1785263373089",
+        "status": {
+          "status": "success"
+        }
+      },
+      "readRequest": {
+        "method": "suix_getDynamicFieldObject",
+        "params": [
+          "0x57b0fbc9b3d299015480b56ff7cee04b7191ac9c2f6a8f75f1044b4366b5b5ae",
+          {
+            "type": "0x6f3c9ce6b1f496974066ab37640eb09017a6b9d392138039021db4e4e4c6032c::state::Key",
+            "value": {
+              "dummy_field": false
+            }
+          }
+        ]
+      }
+    }
+  },
+  "serviceResponses": [
+    {
+      "url": "https://api.usesam.xyz/health",
+      "status": 503,
+      "data": {
+        "ok": false,
+        "network": "mainnet",
+        "indexer": true,
+        "reasons": [
+          "indexer: stale 5477504s"
+        ]
+      }
+    },
+    {
+      "url": "https://api.usesam.xyz/api/vaults",
+      "status": 500,
+      "data": {
+        "error": "internal error"
+      }
+    },
+    {
+      "url": "https://api.usesam.xyz/api/revenue",
+      "status": 500,
+      "data": {
+        "error": "internal error"
+      }
+    }
+  ],
+  "capabilityOwners": [
+    {
+      "objectId": "0x4ea043a6eba5ca370d5e6511b557869a68b57d1495736a730c77454f78b2dbfb",
+      "owner": {
+        "AddressOwner": "0x15788c285cf736b48659ee396604671b597539d532dc221b781c9f496e81af88"
+      },
+      "previousTransaction": "Fk2v5DhyhACETwfQeLeGfoDywJNQT9QNMJyanqeoGXbq"
+    },
+    {
+      "objectId": "0xa349975343ccbbc7af0d20d69f0c634858a89f75bcc4139030d8739148327fa4",
+      "owner": {
+        "AddressOwner": "0x15788c285cf736b48659ee396604671b597539d532dc221b781c9f496e81af88"
+      },
+      "previousTransaction": "yejdR3GB5zDu3y7fNYpmMq5tJK8to4XdwHoruQpr7Rf"
+    },
+    {
+      "objectId": "0x1c322a59becffeb170b29a2e375c949be7d149bd747cb0fb19a93c0dbc9fdb87",
+      "owner": {
+        "AddressOwner": "0x15788c285cf736b48659ee396604671b597539d532dc221b781c9f496e81af88"
+      },
+      "previousTransaction": "FU7qeQATyEwHtysKbaaufP6TenZxU5tc1TYroPR88jMZ"
+    }
+  ]
+}

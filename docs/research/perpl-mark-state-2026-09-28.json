@@ -1,0 +1,25 @@
+{
+  "observed_at_utc": "2026-09-28T12:17:55.304817+00:00",
+  "mode": "READ ONLY: eth_getBlockByNumber and eth_call; no transactions",
+  "rpc": "https://rpc.monad.xyz",
+  "exchange": "0x34b6552d57a35a1d042ccae1951bd1c370112a6f",
+  "abi_revision": "01b9910761755b0a0d9c710c1ede62ab937daa7d",
+  "method": "getPerpetualInfo(uint256)",
+  "perp_id": 1,
+  "block_number": 108749101,
+  "block_hash": "0x7ce374183bf2649f316a1bb1312074e9c37965995ecb60cdc947ab236bc67150",
+  "block_timestamp_raw": 1790597873,
+  "fields_raw": {
+    "refPriceMaxAgeSec": 60,
+    "markPNS": 832979,
+    "markTimestamp": 1790597858,
+    "lastTimestamp": 1790597873,
+    "oraclePNS": 833049,
+    "oracleTimestampSec": 1790597840,
+    "status": 4
+  },
+  "limitations": [
+    "ABI field presence and a pinned onchain read only. Timestamp units, update behavior and markPriceValid semantics still need source/fork validation.",
+    "No contract account flow, rescue outcome or lifecycle uniqueness test performed."
+  ]
+}
