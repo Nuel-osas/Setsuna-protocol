@@ -1,7 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
    Setsuna design system
-   Warm paper, deep ink, one ultramarine. Bricolage Grotesque for
-   display, Instrument Sans for interface, JetBrains Mono for numbers.
+   Base components; refresh.css supplies the ocean palette.
+   Google Inter for the interface, EB Garamond for editorial headings,
+   JetBrains Mono for code. Earn's type scale lives in typography.css.
    ────────────────────────────────────────────────────────────── */
 
 :root {
@@ -2940,8 +2941,8 @@ details p {
 .s-earn-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: 28px; align-items: start; margin: 32px 0; }
 .s-earn-overview { grid-column: 1; grid-row: 1; min-width: 0; }
 .s-earn-overview > .s-demo-funding { margin-top: 18px; }
-.s-card.s-earn-form { grid-column: 2; grid-row: 1; padding: 0; overflow: hidden; border-bottom: 5px solid var(--line-2); }
-.s-earn-mode { display: grid; grid-template-columns: 1fr 1fr; }
+.s-card.s-earn-form { grid-column: 2; grid-row: 1; padding: 0; border-bottom: 5px solid var(--line-2); }
+.s-earn-mode { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: var(--r-lg) var(--r-lg) 0 0; }
 .s-earn-mode button { border: 0; border-bottom: 3px solid var(--line); background: transparent; padding: 19px 12px; font: inherit; font-size: 16px; color: var(--muted); cursor: pointer; }
 .s-earn-mode button[aria-pressed="true"] { border-bottom-color: var(--tide); color: var(--ink); background: var(--blue-soft); }
 .s-earn-form-body { padding: 22px; }
@@ -2955,10 +2956,20 @@ details p {
 .s-earn-amount-row input:focus-visible { outline: 2px solid var(--tide); outline-offset: 4px; }
 .s-earn-amount-row input::placeholder { color: var(--faint); }
 .s-earn-picker, .s-earn-receipt-token { position: relative; display: inline-flex; gap: 8px; align-items: center; flex-shrink: 0; white-space: nowrap; font-size: 15px; }
-.s-earn-picker { background: var(--card); border: 1px solid var(--line-2); padding: 6px 10px 6px 6px; border-radius: 30px; }
-.s-earn-picker select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-.s-earn-picker:focus-within { outline: 2px solid var(--tide); outline-offset: 3px; }
-.s-earn-picker:has(select:disabled) { opacity: .55; }
+.s-earn-picker-trigger { display: inline-flex; align-items: center; gap: 8px; font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line-2); padding: 6px 10px 6px 6px; border-radius: 30px; cursor: pointer; min-height: 44px; }
+.s-earn-picker-trigger:hover:not(:disabled), .s-earn-picker-trigger[aria-expanded="true"] { border-color: var(--tide); }
+.s-earn-form .s-earn-picker-trigger:focus-visible { outline: 2px solid var(--tide); outline-offset: 3px; }
+.s-earn-picker-chevron { transition: transform .15s ease; color: var(--muted); }
+.s-earn-picker-trigger[aria-expanded="true"] .s-earn-picker-chevron { transform: rotate(180deg); }
+.s-earn-picker-menu { position: absolute; z-index: 5; top: calc(100% + 8px); right: 0; width: min(236px, calc(100vw - 76px)); padding: 8px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 36px #1426251f, 0 2px 6px #14262508; white-space: normal; }
+.s-earn-picker-menu[data-side="top"] { top: auto; bottom: calc(100% + 8px); }
+.s-earn-picker-heading { margin: 3px 8px 7px; font-size: 12px; font-weight: 500; line-height: 1.5; color: var(--muted); }
+.s-earn-picker-option { display: flex; align-items: center; gap: 10px; padding: 10px; min-height: 62px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; }
+.s-earn-picker-option[aria-selected="true"] { background: var(--blue-soft); }
+.s-earn-picker-option[data-active="true"] { border-color: var(--tide); }
+.s-earn-picker-copy { display: grid; gap: 2px; font-size: 14px; font-weight: 500; line-height: 1.4; }
+.s-earn-picker-copy small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.s-earn-picker-check { margin-left: auto; flex-shrink: 0; color: var(--tide); }
 .s-earn-token { display: inline-flex; align-items: center; justify-content: center; height: 30px; width: 30px; flex-shrink: 0; border-radius: 50%; color: white; font-size: 23px; font-weight: 500; background: #6e54ed; }
 .s-earn-token.is-usdc { background: #2775ca; }
 .s-earn-token.is-receipt { background: var(--tide); }

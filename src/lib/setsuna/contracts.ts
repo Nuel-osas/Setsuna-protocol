@@ -45,13 +45,15 @@ export const statuses = [
 export async function readSnapshot(
   d: Deployment,
   owner: Address,
+  atBlock?: bigint,
+  historyFloor?: bigint,
 ): Promise<Snapshot> {
   const c = clientFor(d);
   if ((await c.getChainId()) !== d.chainId)
     throw new Error(
       "The RPC is connected to a different network. Refresh before continuing.",
     );
-  const block = await c.getBlockNumber({ cacheTime: 0 });
+  const block = atBlock ?? (await c.getBlockNumber({ cacheTime: 0 }));
   const read = (
     address: Address,
     abi: Abi,
@@ -128,11 +130,13 @@ export async function readSnapshot(
     base.freeTrading = (info as { balanceCNS: bigint }).balanceCNS;
   }
   try {
-    const from = d.startBlock
+    const start = d.startBlock
       ? BigInt(d.startBlock)
       : block > BigInt(1000)
         ? block - BigInt(1000)
         : BigInt(0);
+    const from =
+      historyFloor !== undefined && historyFloor > start ? historyFloor : start;
     const logs = await c.getLogs({
       address: account,
       fromBlock: from,

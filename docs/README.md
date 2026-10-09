@@ -9,7 +9,7 @@ what was known when written; later implementation notes supersede their status.
 | Need | Document |
 |---|---|
 | Active public app, Railway fork, acceptance, explorer and recovery | [Public demo — Codex, 9 October](PUBLIC-DEMO.md) · [Open app](https://setsuna.finance/app/) |
-| Judge walkthrough, actual receipts and downloadable proof | [Public Evidence page](https://setsuna.finance/evidence/) · [Submission copy and manual-test worksheets](HACKATHON-COMPLETION.md#submission-copy--codex-draft-9-october) |
+| Judge walkthrough, actual receipts and proof records | [Submission copy and manual-test worksheets](HACKATHON-COMPLETION.md#submission-copy--codex-draft-9-october) · [Acceptance record](research/public-demo-2026-10-09.json) · [Rule proof](research/earn-rule-proof-2026-10-09.json) |
 | Captioned USDC deposit-to-withdrawal recording and transaction proof | [Web demo MP4](../brand/video/setsuna-web-demo-2026-10-09/Setsuna-Web-Demo.mp4) · [Recording proof](../brand/video/setsuna-web-demo-2026-10-09/recording-proof.json) |
 | Unified five-protocol USDC + MON + Spot + Perps demo and hosted worker setup | [Unified demo — Codex, 9 October](UNIFIED-DEMO.md) · [Local app](http://127.0.0.1:3016/app/) |
 | SAM-inspired public documentation, page structure, editing and browser checks | [Documentation website](DOCS-SITE.md) · [Local preview](http://127.0.0.1:3015/docs/) |

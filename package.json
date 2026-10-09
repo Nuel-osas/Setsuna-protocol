@@ -46,7 +46,9 @@
     "dev:usdc-five": "SETSUNA_DIST_DIR=.next-usdc-five SETSUNA_LOCAL_USDC=5 next dev --hostname 127.0.0.1 --port 3015",
     "check:usdc-five": "node scripts/check-usdc-v2.mjs --curvance",
     "contracts:test:usdc-five": "RUN_FORK=true forge test --root contracts --match-contract '(CurvanceUSDCAdapterTest|SetsunaUSDCFiveForkTest|SetsunaUSDCV2Test)' -vv",
-    "check:docs": "node scripts/check-docs.mjs"
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:portfolio": "node scripts/check-portfolio.mjs",
+    "test:portfolio": "node --test scripts/portfolio-math.test.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "0.2.0",

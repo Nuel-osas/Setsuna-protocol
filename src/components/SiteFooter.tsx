@@ -10,22 +10,21 @@ const cols = [
       ["/earn/", "Earn vaults"],
       ["/app/?tab=spot", "Spot"],
       ["/app/?tab=perps", "Perps"],
+      ["/portfolio/", "Portfolio"],
       ["/app/", "Open app"],
     ],
   ],
   [
-    "Trust",
+    "Resources",
     [
-      ["/security/", "Security & risks"],
-      ["/evidence/", "Evidence"],
       ["/earn/#rates", "Live rates"],
+      ["/docs/", "Documentation"],
+      ["/faq/", "FAQ"],
     ],
   ],
   [
-    "Help",
+    "Legal",
     [
-      ["/faq/", "FAQ"],
-      ["/docs/", "Documentation"],
       ["/privacy-policy/", "Privacy"],
       ["/terms-of-use/", "Preview terms"],
     ],
@@ -34,7 +33,12 @@ const cols = [
 
 export default function SiteFooter() {
   const path = usePathname();
-  if (path.startsWith("/app") || path === "/docs" || path.startsWith("/docs/"))
+  if (
+    path.startsWith("/app") ||
+    path.startsWith("/portfolio") ||
+    path === "/docs" ||
+    path.startsWith("/docs/")
+  )
     return null;
   return (
     <footer className="s-footer">

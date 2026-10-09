@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { erc4626Abi, formatUnits, type Address } from "viem";
 import { clientFor, useWallet } from "./WalletProvider";
 import { Mark } from "./Brand";
@@ -50,6 +50,214 @@ export function EarnToken({
         </svg>
       )}
     </span>
+  );
+}
+
+function EarnAssetPicker({
+  asset,
+  receipt,
+  disabled,
+  onSelect,
+}: {
+  asset: EarnAsset;
+  receipt: boolean;
+  disabled: boolean;
+  onSelect: (asset: EarnAsset) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(asset);
+  const [above, setAbove] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const listId = useId();
+  const expanded = open && !disabled;
+  const options = ["MON", "USDC"] as const;
+
+  useLayoutEffect(() => {
+    if (!expanded) return;
+    const place = () => {
+      const anchor = root.current?.getBoundingClientRect();
+      const height = menu.current?.offsetHeight;
+      if (anchor && height) {
+        const below = window.innerHeight - anchor.bottom - 12;
+        setAbove(below < height + 8 && anchor.top > below);
+      }
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [expanded]);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const dismiss = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [expanded]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [asset, receipt, disabled]);
+
+  function choose(next: EarnAsset) {
+    if (disabled) return;
+    setOpen(false);
+    onSelect(next);
+    // Selecting the other vault mounts its controller; keep keyboard focus on the picker.
+    requestAnimationFrame(() =>
+      document
+        .getElementById("earn-asset-trigger")
+        ?.focus({ preventScroll: true }),
+    );
+  }
+
+  return (
+    <div
+      className="s-earn-picker"
+      ref={root}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
+      <button
+        id="earn-asset-trigger"
+        type="button"
+        className="s-earn-picker-trigger"
+        role="combobox"
+        aria-label="Earn asset"
+        aria-haspopup="listbox"
+        aria-expanded={expanded}
+        aria-controls={expanded ? listId : undefined}
+        aria-activedescendant={expanded ? `${listId}-${active}` : undefined}
+        disabled={disabled}
+        onClick={() => {
+          setActive(asset);
+          setOpen(!expanded);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Tab") {
+            setOpen(false);
+            return;
+          }
+          if (event.key === "Escape") {
+            if (expanded) {
+              event.preventDefault();
+              event.stopPropagation();
+              setOpen(false);
+            }
+            return;
+          }
+          if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+            event.preventDefault();
+            setActive(
+              event.key === "Home"
+                ? "MON"
+                : event.key === "End"
+                  ? "USDC"
+                  : expanded
+                    ? active === "MON"
+                      ? "USDC"
+                      : "MON"
+                    : asset,
+            );
+            setOpen(true);
+          } else if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            if (expanded) choose(active);
+            else {
+              setActive(asset);
+              setOpen(true);
+            }
+          } else if (["m", "u", "s"].includes(event.key.toLowerCase())) {
+            event.preventDefault();
+            setActive(event.key.toLowerCase() === "u" ? "USDC" : "MON");
+            setOpen(true);
+          }
+        }}
+      >
+        <EarnToken asset={asset} receipt={receipt} />
+        <span>{receipt ? `sets${asset}` : asset}</span>
+        <svg
+          className="s-earn-picker-chevron"
+          width="14"
+          height="14"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="m4 6 4 4 4-4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {expanded && (
+        <div
+          className="s-earn-picker-menu"
+          ref={menu}
+          data-side={above ? "top" : "bottom"}
+        >
+          <p className="s-earn-picker-heading">
+            Select {receipt ? "receipt token" : "asset"}
+          </p>
+          <div id={listId} role="listbox" aria-label="Earn assets">
+            {options.map((token) => (
+              <div
+                key={token}
+                id={`${listId}-${token}`}
+                role="option"
+                aria-label={receipt ? `sets${token}` : token}
+                aria-selected={asset === token}
+                data-active={active === token}
+                className="s-earn-picker-option"
+                onPointerMove={() => setActive(token)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => choose(token)}
+              >
+                <EarnToken asset={token} receipt={receipt} />
+                <span className="s-earn-picker-copy">
+                  <span>{receipt ? `sets${token}` : token}</span>
+                  <small>
+                    {receipt
+                      ? `${token} vault shares`
+                      : token === "MON"
+                        ? "Monad"
+                        : "USD Coin"}
+                  </small>
+                </span>
+                {asset === token && (
+                  <svg
+                    className="s-earn-picker-check"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="m4.5 10 3.5 3.5 7.5-7.5"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -216,22 +424,12 @@ export default function EarnForm(p: Props) {
               disabled={locked}
               onChange={(e) => setInput(e.target.value)}
             />
-            <div className="s-earn-picker">
-              <EarnToken asset={asset} receipt={withdrawing} />
-              <span>{inputSymbol}</span>
-              <span aria-hidden="true">⌄</span>
-              <select
-                aria-label="Earn asset"
-                value={asset}
-                disabled={locked || !deployment}
-                onChange={(e) => setAsset(e.target.value as EarnAsset)}
-              >
-                <option value="MON">{withdrawing ? "setsMON" : "MON"}</option>
-                <option value="USDC">
-                  {withdrawing ? "setsUSDC" : "USDC"}
-                </option>
-              </select>
-            </div>
+            <EarnAssetPicker
+              asset={asset}
+              receipt={withdrawing}
+              disabled={locked || !deployment}
+              onSelect={setAsset}
+            />
           </div>
           <p className="s-earn-balance">
             {address

@@ -634,7 +634,7 @@ export default function SpotApp() {
       </div>
       <footer className="db-footer">
         <div>
-          <Link href="/security/">Security</Link>
+          <Link href="/docs/">Docs</Link>
           <Link href="/terms-of-use/">Terms</Link>
           <Link href="/privacy-policy/">Privacy</Link>
         </div>

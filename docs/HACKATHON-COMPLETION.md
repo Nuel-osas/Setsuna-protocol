@@ -13,7 +13,7 @@
 - [x] Cloud restart preserves user/seed balances, shares, nonces and all 25 receipts; workers resume.
 - [x] Updated public docs and a Codex-attributed deployment/operations handoff.
 - [x] Public MON/USDC decision panels show contract previews, recorded rate inputs and accurate reasons for waiting; events link to the fork explorer.
-- [x] Public judge guide and downloadable transaction/rule evidence at https://setsuna.finance/evidence/.
+- [x] Judge walkthrough and transaction/rule records retained in the submission notes and `docs/research/`. **9 October, Codex:** Emmanuel requested deletion of the Security and Evidence pages; their removal is local pending a separately authorized deployment.
 - [x] Draft submission copy, recording script and real-wallet/user-trial worksheets below.
 - [x] Captioned public web-demo recording with a new signed 100-USDC deposit/full withdrawal and zero remaining vault shares.
 - [ ] Real wallet-extension and physical-device checks; independent user trials.

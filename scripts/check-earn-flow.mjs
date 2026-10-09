@@ -13,6 +13,7 @@ import {
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import {
+  pickEarnAsset,
   selectEarnAsset,
   openEarnWithdrawal,
   useAvailableEarnShares,
@@ -212,7 +213,8 @@ try {
       await deposit.click();
       await page.waitForFunction(
         () =>
-          document.querySelector('select[aria-label="Earn asset"]')?.disabled,
+          document.querySelector('[role="combobox"][aria-label="Earn asset"]')
+            ?.disabled,
       );
       assert.equal(await button("Switch to withdraw").isDisabled(), true);
       assert.equal(
@@ -250,11 +252,11 @@ try {
       "",
     );
     // The asset picker preserves withdrawal mode and never offers a cross-asset conversion.
-    await page.getByLabel("Earn asset", { exact: true }).selectOption(other);
+    await pickEarnAsset(page, other);
     await page
       .getByLabel(`sets${other} shares to withdraw`, { exact: true })
       .waitFor();
-    await page.getByLabel("Earn asset", { exact: true }).selectOption(asset);
+    await pickEarnAsset(page, asset);
     await useAvailableEarnShares(page);
     await quoteReady();
     await button(`Withdraw ${asset}`).click();

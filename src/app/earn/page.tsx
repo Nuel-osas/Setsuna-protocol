@@ -40,8 +40,8 @@ export default function Page() {
           <Link className="s-btn is-primary" href="/app/">
             Open Earn
           </Link>
-          <Link className="s-btn is-quiet" href="/security/">
-            Read the risks
+          <Link className="s-btn is-quiet" href="/docs/getting-started/deposit/">
+            How Earn works
           </Link>
         </div>
       </header>

@@ -1,6 +1,13 @@
 // Shared browser interactions for the unified Earn card.
+export async function pickEarnAsset(page, asset) {
+  await page.getByRole("combobox", { name: "Earn asset", exact: true }).click();
+  await page
+    .getByRole("option", { name: new RegExp(`^(sets)?${asset}$`) })
+    .click();
+}
+
 export async function selectEarnAsset(page, asset) {
-  await page.getByLabel("Earn asset", { exact: true }).selectOption(asset);
+  await pickEarnAsset(page, asset);
   await page
     .getByRole("group", { name: "Earn action", exact: true })
     .getByRole("button", { name: "Deposit", exact: true })

@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans, EB_Garamond, JetBrains_Mono } from "next/font/google";
+import { Inter, EB_Garamond, JetBrains_Mono } from "next/font/google";
 import "@/styles/setsuna.css";
 import "@/styles/refresh.css";
 import "@/styles/terminal.css";
 import "@/styles/spot.css";
+import "@/styles/typography.css";
+import "@/styles/portfolio.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
@@ -13,7 +15,7 @@ const display = EB_Garamond({
   variable: "--f-editorial",
   display: "swap",
 });
-const sans = Instrument_Sans({
+const sans = Inter({
   subsets: ["latin"],
   variable: "--f-sans",
   display: "swap",

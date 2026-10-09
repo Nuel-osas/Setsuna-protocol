@@ -215,8 +215,8 @@ export default function Home() {
               Good automation starts with limits you can inspect. The vault
               enforces them onchain.
             </p>
-            <Link className="m-button m-button-glass" href="/security/">
-              Read the rules & risks <span aria-hidden="true">↗</span>
+            <Link className="m-button m-button-glass" href="/docs/how-it-works/rebalancing/">
+              Read the allocation rules <span aria-hidden="true">↗</span>
             </Link>
             <div className="m-principles-mark">
               <FlowSculpture />

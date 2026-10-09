@@ -1,5 +1,27 @@
 # Setsuna build status
 
+## Security and Evidence pages deleted — Codex, 9 October 2026 — local only
+
+At Emmanuel's request, deleted both page routes and their public evidence-download copies. Removed the header/footer entries and replaced remaining Home, Earn and Spot links with appropriate documentation links. The public-facing fork-probe table, including its Codex/Claude credits, is removed; internal research records remain available. Archived source/download copies are in `.local/retired-pages/20261009T185243Z`. Updated the internal documentation index and completion checklist. Removed obsolete generated-route type includes that referenced the deleted pages; the current production build, including TypeScript, passes. Eleven browser/HTTP checks confirmed both routes and downloads return 404, remaining page links work, and mobile navigation fits. Evidence: `.local/page-removal/1791572017111/result.json`. No push or deployment; the live website awaits a separately authorized release.
+
+## Portfolio and wallet balances — Codex, 9 October 2026 — local only
+
+Added **http://127.0.0.1:3018/portfolio/** and a fourth app tab. The connected account sees MON, USDC and AUSD wallet balances, setsMON/setsUSDC shares and redeemable underlying value, available withdrawals, the current base APR, Perps collateral/reserve/open-position equity and P&L, and owner-filtered recent activity. Deposit/withdraw links open the correct asset and action in the unified Earn card. Client navigation preserves the wallet connection; balances refresh every 15 seconds and on request.
+
+Holdings are shown per asset, without an unverified USD conversion. Wallet and protocol balances are pinned to one block; Earn shares are counted at underlying value, Spot funds stay in wallet totals, and settled Perps P&L is not counted twice. Unknown valuations show unavailable rather than zero. Account changes clear the previous owner's data. Activity is limited to 24 events in the most recent 2,000 blocks.
+
+Seven accounting tests and nine read-only browser scenarios passed, including independent local-fork balance checks, account switching, navigation, 320px/390px layouts, RPC failure/recovery and explicitly controlled long/short position fixtures. TypeScript and the local production build passed. Browser evidence: `.local/portfolio/1791570696484/result.json`; run `npm run test:portfolio` and `npm run check:portfolio` against the active local demo. No transactions, push or deployment. This is Codex's implementation and handoff; the public website is unchanged.
+
+## Earn asset dropdown — Codex, 9 October 2026 — local only
+
+Replaced the operating-system select menu with a Setsuna-styled dropdown: token icons, asset names, receipt-token labels during withdrawal, a selected checkmark, and matching Google Inter typography. Added keyboard selection, Escape/Tab/outside dismissal, focus restoration after switching vaults, and automatic upward placement when the viewport has insufficient room below. Updated the shared browser interaction helper. TypeScript and six read-only browser checks passed, including 320px/390px layouts. Evidence: `.local/earn-picker/1791567245190/result.json`. No push or deployment.
+
+## Google Fonts and Earn typography — Codex, 9 October 2026 — local only
+
+The shared interface now loads Google Inter through `next/font/google`, replacing Instrument Sans. Earn uses a consistent sans-serif hierarchy: 600-weight headings, 500-weight controls and amounts, 400-weight body copy, 12px minimum captions, and tabular numerals. The Earn heading no longer switches to Garamond; marketing's editorial headings and documentation's Geist body retain their existing roles. The type scale is in `src/styles/typography.css`.
+
+TypeScript and the local production build passed. Seven read-only browser checks verified the actual loaded Inter face, desktop styling, 320px/390px Earn layouts and mobile Homepage/Spot/Perps/Docs overflow. Evidence: `.local/typography/1791565777838/result.json`. Review at http://127.0.0.1:3018/app/. Nothing was pushed or deployed, in accordance with Emmanuel's instruction.
+
 ## Unified Earn card — Codex, 9 October 2026 — local only
 
 **User direction:** follow SAM's asset-selection flow and **do not push**. MON and USDC now share one transaction card, with an asset dropdown inside the amount field, Deposit/Withdraw controls, exact onchain output previews, Max, and matching position/allocation details. Their independent vault contracts and transaction routes are unchanged. Switching assets clears inputs and stale quotes; transaction confirmation locks the selector and action switch. MON Max leaves 0.1 MON for gas. Mobile places the transaction card first.
