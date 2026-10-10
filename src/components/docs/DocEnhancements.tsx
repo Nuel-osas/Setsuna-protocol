@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Mark } from "@/components/setsuna/Brand";
+import TokenIcon from "@/components/setsuna/TokenIcon";
 import type { DocHeading } from "@/lib/docs/catalog";
 
 export function DocActions({ source }: { source: string }) {
@@ -75,7 +76,9 @@ export function DocActions({ source }: { source: string }) {
           </>
         )}
       </svg>
-      <span aria-live="polite" aria-atomic="true">{message}</span>
+      <span aria-live="polite" aria-atomic="true">
+        {message}
+      </span>
     </button>
   );
 }
@@ -131,8 +134,12 @@ export function VaultIllustration() {
       <div className="sd-flow">
         <div className="sd-flow-node">
           <span className="sd-token-pair">
-            <b>M</b>
-            <b>$</b>
+            <b>
+              <TokenIcon asset="MON" size={18} />
+            </b>
+            <b>
+              <TokenIcon asset="USDC" size={22} />
+            </b>
           </span>
           <strong>One deposit</strong>
           <small>MON or USDC</small>

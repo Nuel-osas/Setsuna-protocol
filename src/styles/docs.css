@@ -1,41 +1,26 @@
 /* Setsuna documentation: isolated from marketing and trading styles. */
 .sd-shell {
-  --sd-bg: #ffffff;
-  --sd-panel: #f8fafb;
-  --sd-ink: #172e34;
-  --sd-text: #3d434c;
-  --sd-muted: #73858c;
-  --sd-line: #e6edef;
-  --sd-blue: #3e63c9;
-  --sd-tint: #edf3fc;
-  --sd-ocean: #17485c;
-  --sd-header: rgba(255, 255, 255, 0.95);
+  --sd-bg: transparent;
+  --sd-panel: rgba(255, 255, 255, 0.05);
+  --sd-ink: #fff;
+  --sd-text: rgba(255, 255, 255, 0.7);
+  --sd-muted: rgba(255, 255, 255, 0.5);
+  --sd-line: rgba(255, 255, 255, 0.12);
+  --sd-blue: #a3b2ff;
+  --sd-tint: rgba(165, 177, 235, 0.1);
+  --sd-ocean: #a3b2ff;
+  --sd-header: rgba(22, 26, 34, 0.9);
   --sd-sidebar: 264px;
-  --tide: #4d70cf;
-  --paper-2: #f1f5f7;
+  --tide: #a3b2ff;
+  --paper-2: rgba(255, 255, 255, 0.05);
   --line: var(--sd-line);
   min-height: 100vh;
   background: var(--sd-bg);
   color: var(--sd-text);
-  color-scheme: light;
+  color-scheme: dark;
   font-family: var(--f-docs), var(--f-sans), sans-serif;
   font-size: 15px;
   line-height: 1.75;
-}
-.sd-shell[data-theme="dark"] {
-  --sd-bg: #111d25;
-  --sd-panel: #16252e;
-  --sd-ink: #e4eef1;
-  --sd-text: #b4c7cf;
-  --sd-muted: #8da6b1;
-  --sd-line: #293c46;
-  --sd-blue: #95b4ff;
-  --sd-tint: #21334e;
-  --sd-ocean: #b7dceb;
-  --sd-header: rgba(17, 29, 37, 0.96);
-  --tide: #95b4ff;
-  --paper-2: #21313e;
-  color-scheme: dark;
 }
 .sd-shell ::selection {
   background: #cadef9;
@@ -1147,6 +1132,6 @@
   .sd-shell {
     --sd-bg: white;
     --sd-ink: black;
-    --sd-text: #333;
+    --sd-text: rgba(255, 255, 255, 0.7);
   }
 }

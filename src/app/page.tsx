@@ -3,6 +3,8 @@ import AuroraHero from "@/components/setsuna/AuroraHero";
 import VaultFlow from "@/components/setsuna/VaultFlow";
 import FlowSculpture from "@/components/setsuna/FlowSculpture";
 import { Mark } from "@/components/setsuna/Brand";
+import TokenIcon from "@/components/setsuna/TokenIcon";
+import { ProtocolLabel } from "@/components/setsuna/ProtocolIcon";
 
 const questions = [
   [
@@ -37,12 +39,17 @@ export default function Home() {
       >
         <span>Built around Monad’s markets</span>
         <div>
-          <b>Neverland</b>
-          <b className="m-euler-word">Euler</b>
-          <b>
-            Kuru<span>↗</span>
-          </b>
-          <b className="m-perpl-word">perpl</b>
+          {[
+            "Aave",
+            "Morpho",
+            "Euler",
+            "Neverland",
+            "Curvance",
+            "Kuru",
+            "Perpl",
+          ].map((name) => (
+            <ProtocolLabel key={name} name={name} size={28} />
+          ))}
         </div>
         <p>Protocol integrations · independent venues</p>
       </section>
@@ -113,9 +120,13 @@ export default function Home() {
               <i aria-hidden="true">↗</i>
             </div>
             <div className="m-product-art m-art-spot" aria-hidden="true">
-              <div className="m-swap-coin m-swap-mon">M</div>
+              <div className="m-swap-coin m-swap-mon">
+                <TokenIcon asset="MON" size={54} />
+              </div>
               <span className="m-swap-arrows">⇄</span>
-              <div className="m-swap-coin m-swap-usdc">$</div>
+              <div className="m-swap-coin m-swap-usdc">
+                <TokenIcon asset="USDC" size={88} />
+              </div>
             </div>
             <h3>Make your next move.</h3>
             <p>
@@ -215,7 +226,10 @@ export default function Home() {
               Good automation starts with limits you can inspect. The vault
               enforces them onchain.
             </p>
-            <Link className="m-button m-button-glass" href="/docs/how-it-works/rebalancing/">
+            <Link
+              className="m-button m-button-glass"
+              href="/docs/how-it-works/rebalancing/"
+            >
               Read the allocation rules <span aria-hidden="true">↗</span>
             </Link>
             <div className="m-principles-mark">

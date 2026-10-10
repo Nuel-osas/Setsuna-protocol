@@ -1,4 +1,5 @@
 "use client";
+import TokenIcon from "./TokenIcon";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import FlowSculpture from "./FlowSculpture";
@@ -48,8 +49,8 @@ export default function AuroraHero() {
         <div className="m-hero-grid" aria-hidden="true" />
         <div className="m-hero-copy">
           <span className="m-kicker">
-            <i className="m-monad-symbol" /> Built on Monad <span>•</span> Made
-            for your next move
+            <TokenIcon asset="MON" size={14} /> Built on Monad <span>•</span>{" "}
+            Made for your next move
           </span>
           <h1 id="hero-title">
             Put your assets
@@ -76,11 +77,16 @@ export default function AuroraHero() {
           <div className="m-orbit m-orbit-two" />
           <FlowSculpture />
           <span className="m-asset-tag m-asset-mon">
-            <i className="m-token m-token-mon">M</i> MON <span>→ setsMON</span>
+            <i className="m-token m-token-mon">
+              <TokenIcon asset="MON" size={20} />
+            </i>{" "}
+            MON <span>→ setsMON</span>
           </span>
           <span className="m-asset-tag m-asset-usdc">
-            <i className="m-token m-token-usdc">$</i> USDC{" "}
-            <span>→ setsUSDC</span>
+            <i className="m-token m-token-usdc">
+              <TokenIcon asset="USDC" size={28} />
+            </i>{" "}
+            USDC <span>→ setsUSDC</span>
           </span>
         </div>
         <div className="m-hero-bottom">

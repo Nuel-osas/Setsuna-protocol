@@ -1,0 +1,188 @@
+{
+  "source": "https://www.bucketprotocol.io/",
+  "studiedOn": "2026-10-10",
+  "author": "Codex",
+  "purpose": "Bucket visual reference for Setsuna; SAM remains the Earn flow reference. Research only.",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "routes": [
+    "/",
+    "/earn/stable",
+    "/earn/leverage",
+    "/borrow",
+    "/market",
+    "/dashboard",
+    "/but"
+  ],
+  "coverageLimits": [
+    "Public/disconnected states only; no terms accepted, wallet connected or transactions submitted.",
+    "External Farm, Documents and Legacy applications were not studied.",
+    "Some initial screenshots contain loading placeholders.",
+    "D-j-View captured the root SPA but failed offline verification; live route inspections supplement it."
+  ],
+  "tokens": {
+    "background": {
+      "method": "Pixel samples from Bucket main-bg.png, not named CSS tokens",
+      "navy": "#05163A",
+      "centre": "#161A22",
+      "charcoal": "#080A0F"
+    },
+    "surfaces": {
+      "card": "rgba(255,255,255,0.05)",
+      "subtle": "rgba(255,255,255,0.03)",
+      "selected": "rgba(255,255,255,0.10)",
+      "border": "rgba(255,255,255,0.12)",
+      "modalBase": "#2B303D"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "muted": "rgba(255,255,255,0.50)",
+      "accent": "#A3B2FF",
+      "warning": "#F1C145",
+      "danger": "#FF5C5A"
+    },
+    "cards": {
+      "savingsTint": "rgba(114,169,144,0.10)",
+      "savingsHover": "rgba(114,169,144,0.20)",
+      "leverageTint": "rgba(165,177,235,0.10)",
+      "radiusPx": 16,
+      "shadow": "0 4px 56px rgba(0,0,0,0.20)",
+      "backdropBlurPx": 16
+    },
+    "typography": {
+      "observedFamily": "TTInterphasesPro",
+      "recommendedSetsunaFamily": "Inter (Google Fonts)",
+      "commonWeights": [
+        400,
+        500
+      ],
+      "bodyPx": 16,
+      "labelsPx": 14,
+      "captionPx": 12,
+      "overviewHeadingDesktopPx": 50,
+      "overviewHeadingMobilePx": 32,
+      "overviewHeadingWeight": 500,
+      "overviewHeadingDesktopLineHeightPx": 40,
+      "note": "Do not copy the tight heading line-height for wrapping text. PP Writer Italic is a loaded asset, not an observed rendered app face."
+    },
+    "spacingPx": [
+      8,
+      12,
+      16,
+      24,
+      32
+    ],
+    "radiiPx": {
+      "card": 16,
+      "largeButton": 12,
+      "smallControl": 8,
+      "tokenPill": 9999
+    },
+    "layout": {
+      "headerHeightPx": 64,
+      "pageMaxWidthPx": 1200,
+      "savingsMainWidthPx": 600,
+      "savingsAsideWidthPx": 364,
+      "columnGapPx": 24,
+      "panelPaddingDesktopPx": 24,
+      "panelPaddingMobilePx": 16,
+      "primaryButtonDesktopHeightPx": 64,
+      "primaryButtonMobileHeightPx": 56,
+      "mobileBottomNavHeightPx": 74
+    },
+    "motion": {
+      "commonDurationMs": 400,
+      "commonEasing": "cubic-bezier(0.4,0,0.2,1)",
+      "someButtonHoverScale": 1.05,
+      "someButtonPressScale": 0.95,
+      "floatingSwapHoverScale": 1.1,
+      "cardHover": "Tint change; no measured card scaling."
+    }
+  },
+  "components": [
+    {
+      "name": "App shell",
+      "observed": "Full-height dark canvas, 64px header, central navigation, footer metrics.",
+      "setsuna": "Simple header and existing destinations; original ocean CSS gradient."
+    },
+    {
+      "name": "Vault cards",
+      "observed": "Two tinted product cards, token marks, brief benefits, large rate and CTA.",
+      "setsuna": "setsMON and setsUSDC cards with current onchain figures."
+    },
+    {
+      "name": "Amount form",
+      "observed": "Deposit/Withdraw tabs, amount, balance, asset pill, 25/50/75/Max, estimate disclosure, white CTA.",
+      "setsuna": "Keep shared asset switcher and existing transaction logic; preserve MON gas reserve."
+    },
+    {
+      "name": "Token picker",
+      "observed": "Centered dialog, selected-row tint, icon, symbol, full name, address and close control.",
+      "setsuna": "Supported MON/USDC selection; keyboard access and focus restoration."
+    },
+    {
+      "name": "Settings",
+      "observed": "Compact slippage dialog with input and preset chips.",
+      "setsuna": "Use the component pattern where a setting actually applies; do not add slippage to pure vault actions without a need."
+    },
+    {
+      "name": "Performance",
+      "observed": "APR line chart, gradient fill, dashed average, 7D/30D/90D controls.",
+      "setsuna": "Only recorded share-value/asset history; unavailable data is labelled."
+    },
+    {
+      "name": "Allocation/route",
+      "observed": "Compact arrow diagram, key-value metrics, collapsible details.",
+      "setsuna": "Real adapter allocations and explanatory details in quiet panels."
+    },
+    {
+      "name": "Market cards/table",
+      "observed": "Category chips, list/grid toggle, token-first headings, subdued row surfaces.",
+      "setsuna": "Apply visual hierarchy to protocol and portfolio data as appropriate."
+    },
+    {
+      "name": "Portfolio/history",
+      "observed": "Disconnected connect panel and tabbed history dialog.",
+      "setsuna": "Keep actual position, wallet-balance and accounting data; connected Bucket layout not observed."
+    },
+    {
+      "name": "Swap",
+      "observed": "Compact bottom-right desktop drawer with paired amount panels, token pills, direction switch and white action.",
+      "setsuna": "Component inspiration; preserve existing Spot/Perps product flows."
+    },
+    {
+      "name": "Mobile navigation",
+      "observed": "Compact header, menu overlay, stacked cards, fixed bottom tabs, almost full-width token dialog.",
+      "setsuna": "Earn/Spot/Perps/Portfolio; reserve bottom spacing and respect safe areas."
+    },
+    {
+      "name": "Risk/position controls",
+      "observed": "Borrow/leverage sliders, coloured risk scales, position panels and info disclosures.",
+      "setsuna": "Visual reference only; no added borrowing product implied."
+    }
+  ],
+  "localEvidence": ".local/design-review/bucket-2026-10-10/",
+  "capture": {
+    "tool": "D-j-View",
+    "pages": 1,
+    "resources": 42,
+    "downloadBytes": 6847808,
+    "downloadFailures": 0,
+    "offlineVerified": false
+  },
+  "implementationNotes": [
+    "Keep Setsuna Wave Lift identity and Google Inter.",
+    "Recreate surfaces/gradients in maintainable CSS; reference screenshots are not production assets.",
+    "Use real Setsuna rates and historical data.",
+    "Check contrast, focus visibility, keyboard control and reduced-motion behaviour during implementation.",
+    "No application code changes or push performed for this study."
+  ]
+}

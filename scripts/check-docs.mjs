@@ -123,7 +123,10 @@ try {
     /idle underlying/,
   );
   await page.screenshot({ path: `${out}/math-desktop.png`, fullPage: true });
-  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.evaluate(() =>
+    localStorage.setItem("setsuna.docs.theme", "light"),
+  );
   assert.equal(
     await page.locator(".sd-shell").getAttribute("data-theme"),
     "dark",
@@ -134,7 +137,16 @@ try {
     "dark",
   );
   await page.screenshot({ path: `${out}/dark-desktop.png`, fullPage: true });
-  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  assert.equal(
+    await page.getByRole("button", { name: /Switch to .* theme/ }).count(),
+    0,
+  );
+  assert.equal(
+    await page
+      .locator(".sd-shell")
+      .evaluate((el) => getComputedStyle(el).colorScheme),
+    "dark",
+  );
   await page.goto(base + "/docs/", { waitUntil: "networkidle" });
   await page.screenshot({
     path: `${out}/introduction-desktop.png`,
@@ -223,7 +235,7 @@ try {
       "search body text and no-results state",
       "Ctrl+K, arrow keys, Enter and Escape",
       "positive/negative share-value example and invalid inputs",
-      "dark theme persists after reload",
+      "dark theme stays active with light system and saved preferences",
       "desktop and 390px mobile without document overflow",
       "mobile navigation closes after route change",
       "existing homepage and Earn app navigation preserved",

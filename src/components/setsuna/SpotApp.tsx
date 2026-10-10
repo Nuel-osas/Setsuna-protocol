@@ -1,4 +1,6 @@
 "use client";
+import TokenIcon from "./TokenIcon";
+import { ProtocolLabel } from "./ProtocolIcon";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { encodeFunctionData, erc20Abi, formatUnits, type Hex } from "viem";
 import { clientFor, useWallet } from "./WalletProvider";
@@ -402,7 +404,10 @@ export default function SpotApp() {
                   setError("");
                 }}
               />
-              <span>{inToken}</span>
+              <span className="s-token-label">
+                <TokenIcon asset={inToken} size={18} />
+                {inToken}
+              </span>
             </div>
           </label>
           <div
@@ -518,7 +523,8 @@ export default function SpotApp() {
             <p>The Max shortcut keeps 0.1 MON in your wallet for gas.</p>
           </details>
           <div className="db-powered">
-            <span className="db-status-dot" /> Routed through Kuru · Monad
+            <span className="db-status-dot" /> Routed through{" "}
+            <ProtocolLabel name="Kuru" size={14} /> · Monad
           </div>
         </section>
         <section className="db-account" aria-label="Spot account activity">

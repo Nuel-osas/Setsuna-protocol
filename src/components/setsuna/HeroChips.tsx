@@ -1,11 +1,17 @@
 "use client";
 import { pct, useEarn } from "./useEarn";
+import { ProtocolLabel } from "./ProtocolIcon";
 
 /** Live readings floating over the hero photo. */
 export default function HeroChips() {
   const { data, failed } = useEarn();
   const ok = data && !failed;
-  const top = ok ? [...data.destinations].filter((d) => d.eligible).sort((a, b) => b.weight - a.weight).slice(0, 3) : [];
+  const top = ok
+    ? [...data.destinations]
+        .filter((d) => d.eligible)
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 3)
+    : [];
   return (
     <div className="s-chips" aria-hidden="true">
       <div className="s-chip is-a">
@@ -20,7 +26,7 @@ export default function HeroChips() {
         <ul>
           {top.map((d) => (
             <li key={d.key}>
-              <span>{d.protocol}</span>
+              <ProtocolLabel name={d.protocol} size={16} />
               <b>{pct(d.weight, 0)}</b>
             </li>
           ))}

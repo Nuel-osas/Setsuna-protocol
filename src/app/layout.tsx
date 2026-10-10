@@ -6,6 +6,9 @@ import "@/styles/terminal.css";
 import "@/styles/spot.css";
 import "@/styles/typography.css";
 import "@/styles/portfolio.css";
+import "@/styles/earn-vaults.css";
+import "@/styles/bucket-theme.css";
+import "@/styles/logos.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
@@ -35,8 +38,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#061416",
-  colorScheme: "light",
+  themeColor: "#080a0f",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

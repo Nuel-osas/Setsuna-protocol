@@ -9,6 +9,8 @@ import {
 import { useWallet } from "./WalletProvider";
 import { LiveCandles } from "./LiveCandles";
 import type { TradingReading } from "./useTradingMarket";
+import TokenIcon from "./TokenIcon";
+import { ProtocolLabel } from "./ProtocolIcon";
 
 export function MarketStrip({
   kind,
@@ -29,11 +31,16 @@ export function MarketStrip({
     <header className="t-market-strip">
       <div className="t-pair">
         <span className={`t-coin ${spot ? "is-mon" : "is-btc"}`}>
-          {spot ? "M" : "₿"}
+          <TokenIcon asset={spot ? "MON" : "BTC"} size={spot ? 24 : 33} />
         </span>
         <div>
           <h1>{spot ? "MON / USDC" : "BTC / AUSD"}</h1>
-          <span>{spot ? "Kuru · Spot" : "Perpl · Perpetual"}</span>
+          <span>
+            <ProtocolLabel
+              name={spot ? "Kuru · Spot" : "Perpl · Perpetual"}
+              size={14}
+            />
+          </span>
         </div>
         <span className="t-market-tag">{spot ? "SPOT" : "PERP"}</span>
       </div>

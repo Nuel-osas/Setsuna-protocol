@@ -17,23 +17,23 @@ body:has(.db-spot) {
   --t-buy: #00ce82;
   --t-sell: #ff4b55;
   --t-panel: #030303;
-  background: #030303;
+  background: var(--b-surface);
 }
 body:has(.db-spot) .s-header {
   height: 56px;
   padding: 0 16px;
-  background: #030303;
-  border-color: #252525;
+  background: var(--b-surface);
+  border-color: var(--b-line);
 }
 body:has(.db-spot) .s-header .s-wordmark {
   font-size: 23px;
 }
 body:has(.db-spot) .s-header .s-mark {
-  color: #2978ff;
+  color: var(--b-accent);
 }
 body:has(.db-spot) .s-header .s-btn {
-  background: #246df4;
-  border-color: #246df4;
+  background: var(--b-surface);
+  border-color: var(--b-line);
   border-radius: 2px;
   min-height: 34px;
   color: white;
@@ -56,11 +56,11 @@ body:has(.db-spot) .t-shell > .s-tabs button {
   padding: 3px 10px;
   font-size: 15px;
   font-weight: 500;
-  color: #ededed;
+  color: var(--b-text);
 }
 body:has(.db-spot) .t-shell > .s-tabs button.is-on {
-  color: #3182ff;
-  background: #091c3b;
+  color: var(--b-accent);
+  background: var(--b-surface-hover);
   border-radius: 3px;
 }
 body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
@@ -68,7 +68,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-spot.t-terminal.s-app {
   padding-top: 56px;
-  background: #030303;
+  background: var(--b-surface);
   min-height: 100dvh;
 }
 .db-spot button,
@@ -98,18 +98,18 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   flex-wrap: wrap;
   gap: 12px;
   padding: 8px 14px;
-  background: #07101d;
-  border-bottom: 1px solid #183259;
+  background: var(--b-surface);
+  border-bottom: 1px solid var(--b-line);
   font-size: 11px;
-  color: #9dabc0;
+  color: var(--b-secondary);
 }
 .db-network-banner .t-environment {
   margin: 0;
   font-size: 11px;
-  color: #86b4ff;
+  color: var(--b-accent);
 }
 .db-network-banner .t-environment i {
-  background: #3483ff;
+  background: var(--b-surface);
 }
 .db-workspace {
   display: grid;
@@ -135,7 +135,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   align-items: center;
   flex-shrink: 0;
   gap: 8px;
-  border: 1px solid #3c3c3c;
+  border: 1px solid var(--b-line);
   padding: 7px 9px;
   height: 32px;
 }
@@ -146,7 +146,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   letter-spacing: -0.03em;
 }
 .db-pair-price {
-  border-left: 1px solid #434343;
+  border-left: 1px solid var(--b-line);
   padding-left: 8px;
   font:
     11px var(--f-mono),
@@ -179,14 +179,14 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   flex-direction: column;
   gap: 6px;
   font-size: 10px;
-  color: #8b8b8b;
+  color: var(--b-muted);
   white-space: nowrap;
 }
 .db-stat strong {
   font-family: var(--f-sans), sans-serif;
   font-size: 11px;
   font-weight: 500;
-  color: #f1f1f1;
+  color: var(--b-text);
 }
 .db-chart {
   grid-area: chart;
@@ -197,34 +197,34 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 .db-spot .t-chart-panel {
   height: 100%;
   min-height: 0;
-  background: #030303;
+  background: var(--b-surface);
 }
 .db-spot .t-panel-tabs {
   height: 36px;
   min-height: 36px;
   padding: 0 12px;
   gap: 16px;
-  border-bottom: 1px solid #171717;
+  border-bottom: 1px solid var(--b-line);
 }
 .db-spot .t-panel-tabs button {
   font-size: 12px;
-  color: #828282;
+  color: var(--b-muted);
 }
 .db-spot .t-panel-tabs button[aria-pressed="true"] {
-  color: #4c92ff;
+  color: var(--b-accent);
   border-color: transparent;
 }
 .db-spot .t-panel-tabs > span:not(.t-chart-source) {
-  color: #888;
+  color: var(--b-muted);
 }
 .db-spot .t-chart-source {
-  color: #6e6e6e;
+  color: var(--b-muted);
   font-size: 9px;
 }
 .db-spot .t-chart-tools {
   min-height: 28px;
   padding: 4px 12px;
-  color: #797979;
+  color: var(--b-muted);
 }
 .db-spot .t-chart-tools:has(+ .t-live-candles) {
   display: none;
@@ -236,36 +236,36 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   height: 36px;
 }
 .db-spot .t-candle-intervals button {
-  color: #898989;
+  color: var(--b-muted);
   padding: 4px 7px;
   font-size: 12px;
 }
 .db-spot .t-candle-intervals button[aria-pressed="true"] {
-  background: #081c37;
-  color: #3f8bfd;
+  background: var(--b-surface-hover);
+  color: var(--b-accent);
 }
 .db-spot .t-live-candles .t-chart-readout {
   padding: 4px 14px;
   min-height: 26px;
   gap: 8px;
   font-size: 10px;
-  color: #929292;
+  color: var(--b-muted);
 }
 .db-spot .t-chart-readout > span {
-  color: #b6b6b6;
+  color: var(--b-secondary);
 }
 .db-spot .t-chart-grid {
-  stroke: #242424;
+  stroke: var(--b-line);
   stroke-width: 0.7;
 }
 .db-spot .t-chart-panel svg text {
-  fill: #8b8b8b;
+  fill: var(--b-muted);
   font-size: 10px;
 }
 .db-spot .t-chart-panel > footer {
   padding: 8px 12px;
-  border-top: 1px solid #242424;
-  color: #858585;
+  border-top: 1px solid var(--b-line);
+  color: var(--b-muted);
   font-size: 9px;
 }
 .db-spot .t-chart-empty {
@@ -274,20 +274,20 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
       0deg,
       transparent,
       transparent 59px,
-      #1d1d1d 60px
+      var(--b-surface) 60px
     ),
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 99px,
-      #1d1d1d 100px
+      var(--b-surface) 100px
     );
-  color: #939393;
+  color: var(--b-muted);
 }
 .db-expand-chart {
   border: 0;
   background: transparent;
-  color: #909090;
+  color: var(--b-muted);
   padding: 3px;
   margin-left: auto;
   width: 24px;
@@ -329,7 +329,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   padding: 0;
   background: none;
   border: 0;
-  color: #7d7d7d;
+  color: var(--b-muted);
   font-weight: 500;
   font-size: 14px;
   line-height: 1.2;
@@ -337,17 +337,17 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-tabs button[aria-pressed="true"],
 .db-tabs .is-active {
-  color: #fff;
+  color: var(--b-text);
 }
 .db-tabs small {
   display: inline-grid;
   place-items: center;
   font-size: 10px;
-  background: #191919;
+  background: var(--b-surface);
   border-radius: 10px;
   padding: 3px 5px;
   margin-left: 3px;
-  color: #8a8a8a;
+  color: var(--b-muted);
 }
 .db-book-tools {
   display: flex;
@@ -358,33 +358,33 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-book-tools select {
   appearance: auto;
-  border: 1px solid #353535;
+  border: 1px solid var(--b-line);
   border-radius: 2px;
   font:
     10px var(--f-mono),
     monospace;
   padding: 4px;
-  background: #050505;
-  color: #e9e9e9;
+  background: var(--b-surface);
+  color: var(--b-text);
 }
 .db-small-segment {
   display: flex;
   padding: 2px;
   border-radius: 4px;
-  background: #0f0f0f;
+  background: var(--b-surface);
 }
 .db-small-segment button {
   border: 1px solid transparent;
-  color: #8a8a8a;
+  color: var(--b-muted);
   border-radius: 3px;
   padding: 3px 5px;
   font-size: 10px;
   background: transparent;
 }
 .db-small-segment button[aria-pressed="true"] {
-  color: #bcd3ff;
-  border-color: #3074e7;
-  background: #08162f;
+  color: var(--b-accent);
+  border-color: var(--b-line);
+  background: var(--b-surface-hover);
 }
 .db-book-filters {
   display: flex;
@@ -394,12 +394,12 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 .db-book-filters button {
   border: 0;
   background: none;
-  color: #777;
+  color: var(--b-muted);
   padding: 0;
   font-size: 10px;
 }
 .db-book-filters button[aria-pressed="true"] {
-  color: #b1cfff;
+  color: var(--b-accent);
 }
 .db-book-head,
 .db-book-row,
@@ -414,7 +414,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-book-head {
   min-height: 30px;
-  color: #8e8e8e;
+  color: var(--b-muted);
   font-size: 10px;
   flex-shrink: 0;
   padding: 0 4px;
@@ -445,10 +445,10 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   right: 0;
   top: 0;
   z-index: -1;
-  background: #00c98027;
+  background: var(--b-surface);
 }
 .db-book-row.is-sell i {
-  background: #ff303028;
+  background: rgba(255, 92, 90, 0.1);
 }
 .db-book-row > span:first-of-type,
 .db-trade-row > span:first-child {
@@ -465,13 +465,13 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   gap: 12px;
   height: 30px;
   flex-shrink: 0;
-  color: #999;
-  background: #0b0b0b;
+  color: var(--b-muted);
+  background: var(--b-surface);
   font-size: 11px;
 }
 .db-book-foot {
   font-size: 9px;
-  color: #656565;
+  color: var(--b-muted);
   padding: 8px 0;
   margin: 0;
 }
@@ -486,17 +486,17 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-trade-row time {
   font-size: 10px;
-  color: #999;
+  color: var(--b-muted);
 }
 .db-empty-small {
-  color: #848484;
+  color: var(--b-muted);
   font-size: 12px;
   line-height: 1.6;
   padding: 20px 8px;
 }
 .db-spot .db-ticket.t-ticket {
   grid-area: ticket;
-  background: #030303;
+  background: var(--b-surface);
   padding: 0 12px 24px;
   border: 0;
   border-bottom: 1px solid var(--line);
@@ -509,7 +509,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-tabs .db-unavailable {
   font-size: 14px;
-  color: #555;
+  color: var(--b-muted);
 }
 .db-tabs .db-unavailable small {
   display: none;
@@ -527,10 +527,10 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   flex: 1;
   min-height: 28px;
   height: 28px;
-  border: 1px solid #363636;
+  border: 1px solid var(--b-line);
   border-radius: 3px;
   padding: 0 5px;
-  color: #c6c6c6;
+  color: var(--b-secondary);
   font:
     10px var(--f-mono),
     monospace;
@@ -538,9 +538,9 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   background: none;
 }
 .db-spot .db-direction.s-segment button.is-on {
-  border-color: #2c77f3;
-  color: #fff;
-  background: #071632;
+  border-color: var(--b-line);
+  color: var(--b-text);
+  background: var(--b-surface-hover);
 }
 .db-available {
   display: flex;
@@ -548,10 +548,10 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   gap: 10px;
   margin: 0 0 27px;
   font-size: 11px;
-  color: #929292;
+  color: var(--b-muted);
 }
 .db-available strong {
-  color: #eee;
+  color: var(--b-text);
   font-weight: 500;
   font-size: 11px;
   overflow: hidden;
@@ -568,8 +568,8 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   font-size: 13px;
 }
 .db-input i {
-  border: 1px solid #303030;
-  color: #c1c1c1;
+  border: 1px solid var(--b-line);
+  color: var(--b-secondary);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 10px;
@@ -579,8 +579,8 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #545454;
-  background: #090909;
+  border: 1px solid var(--b-line);
+  background: var(--b-surface);
   height: 42px;
   padding: 0 10px;
   border-radius: 2px;
@@ -592,11 +592,11 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   border: 0;
   outline: 0;
   background: none;
-  color: #eee;
+  color: var(--b-text);
   font-size: 16px;
 }
 .db-input > div > span {
-  color: #747474;
+  color: var(--b-muted);
   font-size: 10px;
 }
 .db-fractions {
@@ -607,15 +607,15 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 .db-fractions button {
   flex: 1;
   padding: 4px 0;
-  color: #aaa;
+  color: var(--b-muted);
   font-size: 10px;
-  background: #060606;
-  border: 1px solid #252525;
+  background: var(--b-surface);
+  border: 1px solid var(--b-line);
   border-radius: 3px;
 }
 .db-fractions button:hover:not(:disabled) {
-  background: #0e1b30;
-  color: #abcaff;
+  background: var(--b-surface);
+  color: var(--b-accent);
 }
 .db-range {
   display: block;
@@ -636,22 +636,22 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   padding: 7px 0;
 }
 .db-review > div:nth-child(3) {
-  border-top: 1px solid #252525;
+  border-top: 1px solid var(--b-line);
 }
 .db-review dt {
-  color: #8e8e8e;
+  color: var(--b-muted);
 }
 .db-review dd {
   margin: 0;
-  color: #d3d3d3;
+  color: var(--b-secondary);
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 .db-spot .db-submit.s-btn {
   min-height: 40px;
   border-radius: 2px;
-  background: #246df4;
-  border: 1px solid #246df4;
+  background: var(--b-surface);
+  border: 1px solid var(--b-line);
   color: white;
   font:
     11px var(--f-mono),
@@ -666,21 +666,21 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-spot .db-quote.s-btn {
   border-radius: 2px;
-  border: 1px solid #3a3a3a;
-  background: #0b0b0b;
-  color: #ddd;
+  border: 1px solid var(--b-line);
+  background: var(--b-surface);
+  color: var(--b-text);
   min-height: 34px;
   font-size: 11px;
 }
 .db-ticket-note {
-  color: #8d8d8d;
+  color: var(--b-muted);
   font-size: 10px;
   line-height: 1.6;
   margin: 12px 0;
 }
 .db-execution-details {
   margin-top: 18px;
-  color: #818181;
+  color: var(--b-muted);
   font-size: 10px;
   line-height: 1.7;
 }
@@ -690,7 +690,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   cursor: pointer;
   list-style: none;
   padding: 8px 0;
-  border-top: 1px solid #202020;
+  border-top: 1px solid var(--b-line);
 }
 .db-execution-details p {
   margin: 8px 0;
@@ -701,14 +701,14 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   align-items: center;
   gap: 6px;
   font-size: 10px;
-  color: #707070;
+  color: var(--b-muted);
 }
 .db-status-dot {
   display: inline-block;
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #16866b;
+  background: var(--b-surface);
 }
 .db-account {
   grid-area: account;
@@ -719,7 +719,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-account > .db-tabs {
   padding: 0 12px;
-  border-bottom: 1px solid #171717;
+  border-bottom: 1px solid var(--b-line);
 }
 .db-account-empty {
   min-height: 150px;
@@ -733,19 +733,19 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 }
 .db-account-empty p {
   font-size: 12px;
-  color: #888;
+  color: var(--b-muted);
   margin: 0;
 }
 .db-account-empty > span {
   font-size: 11px;
-  color: #686868;
+  color: var(--b-muted);
 }
 .db-account-empty button {
   border: 0;
   border-radius: 2px;
   padding: 7px 12px;
-  background: #111;
-  color: #ddd;
+  background: var(--b-surface);
+  color: var(--b-text);
   font:
     10px var(--f-mono),
     monospace;
@@ -761,12 +761,12 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 16px;
-  border-bottom: 1px solid #161616;
+  border-bottom: 1px solid var(--b-line);
   font-size: 12px;
 }
 .db-balance-table .db-table-head,
 .db-receipts .db-table-head {
-  color: #757575;
+  color: var(--b-muted);
   font-size: 10px;
 }
 .db-balance-table strong,
@@ -774,7 +774,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   font-weight: 400;
 }
 .db-receipts code {
-  color: #777;
+  color: var(--b-muted);
   font-size: 10px;
 }
 .db-receipts .is-buy {
@@ -786,7 +786,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 .db-balance-table p {
   margin: 12px 16px;
   font-size: 10px;
-  color: #737373;
+  color: var(--b-muted);
 }
 .db-footer {
   min-height: 46px;
@@ -795,7 +795,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  color: #858585;
+  color: var(--b-muted);
   font-size: 10px;
 }
 .db-footer > div {
@@ -803,18 +803,18 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   gap: 12px;
 }
 .db-footer a {
-  color: #858585;
+  color: var(--b-muted);
   text-decoration: none;
 }
 .db-footer > span:nth-child(2) {
-  color: #ddd;
+  color: var(--b-text);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.04em;
 }
 .db-footer small {
-  color: #387ef4;
-  border: 1px solid #163c79;
+  color: var(--b-accent);
+  border: 1px solid var(--b-line);
   padding: 2px 4px;
   font-size: 8px;
   font-weight: 400;
@@ -949,18 +949,18 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
     gap: 24px;
     align-items: center;
     min-height: 46px;
-    border-bottom: 1px solid #1b1b1b;
+    border-bottom: 1px solid var(--b-line);
     padding: 0 14px;
   }
   .db-mobile-tabs button {
-    color: #777;
+    color: var(--b-muted);
     border: 0;
     background: none;
     padding: 0;
     font-size: 13px;
   }
   .db-mobile-tabs button[aria-pressed="true"] {
-    color: #fff;
+    color: var(--b-text);
   }
   .db-chart {
     height: 490px;
@@ -1044,8 +1044,8 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
     z-index: 75;
     max-height: calc(100dvh - 125px);
     overflow: auto;
-    background: #070707;
-    border: 1px solid #383838;
+    background: var(--b-surface);
+    border: 1px solid var(--b-line);
     padding: 0 16px 18px;
     box-shadow: 0 -20px 80px #000b;
   }
@@ -1053,7 +1053,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
     display: block;
     margin-left: auto;
     font-size: 25px;
-    color: #aaa;
+    color: var(--b-muted);
   }
   .db-mobile-trade-bar {
     display: flex;
@@ -1065,17 +1065,17 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
     z-index: 76;
     height: 61px;
     padding: 10px 12px;
-    background: #060606;
-    border-top: 1px solid #292929;
+    background: var(--b-surface);
+    border-top: 1px solid var(--b-line);
   }
   .db-mobile-trade-bar > span {
     font-size: 12px;
-    color: #999;
+    color: var(--b-muted);
   }
   .db-mobile-trade-bar button {
     flex: 1;
-    background: #246df4;
-    color: #fff;
+    background: var(--b-surface);
+    color: var(--b-text);
     border: 0;
     border-radius: 2px;
     padding: 12px;
@@ -1098,7 +1098,7 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0;
-  color: #818181;
+  color: var(--b-muted);
   line-height: 1.7;
 }
 .db-spot .db-execution-details summary::after {

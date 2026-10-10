@@ -1,0 +1,1364 @@
+/* Codex · Bucket visual system, 10 October 2026.
+   Measured colours and original public gradient assets from bucketprotocol.io.
+   This is the sole application theme; no system/light-theme fallback.
+   See docs/FRONTEND-REFRESH.md for sources and the local review boundary. */
+:root {
+  --b-bg: #080a0f;
+  --b-navy: #05163a;
+  --b-centre: #161a22;
+  --b-white: #fff;
+  --b-text: #fff;
+  --b-secondary: rgba(255, 255, 255, 0.7);
+  --b-muted: rgba(255, 255, 255, 0.5);
+  --b-faint: rgba(255, 255, 255, 0.3);
+  --b-surface: rgba(255, 255, 255, 0.05);
+  --b-surface-subtle: rgba(255, 255, 255, 0.03);
+  --b-surface-hover: rgba(255, 255, 255, 0.1);
+  --b-line: rgba(255, 255, 255, 0.12);
+  --b-accent: #a3b2ff;
+  --b-chart: #0047ff;
+  --b-green: #72a990;
+  --b-violet: #a5b1eb;
+  --b-green-tint: rgba(114, 169, 144, 0.1);
+  --b-violet-tint: rgba(165, 177, 235, 0.1);
+  --b-warning: #f1c145;
+  --b-danger: #ff5c5a;
+  --b-modal: #2b303d;
+}
+:root,
+body,
+body:has(.t-shell),
+body:has(.db-spot),
+.s-night,
+.s-footer,
+.s-header.is-over {
+  --paper: var(--b-bg);
+  --paper-2: var(--b-surface);
+  --card: var(--b-surface);
+  --ink: var(--b-text);
+  --ink-2: var(--b-secondary);
+  --muted: var(--b-muted);
+  --faint: var(--b-faint);
+  --line: var(--b-line);
+  --line-2: rgba(255, 255, 255, 0.2);
+  --blue: var(--b-accent);
+  --blue-2: var(--b-white);
+  --blue-soft: var(--b-violet-tint);
+  --tide: var(--b-accent);
+  --green: var(--b-green);
+  --green-soft: var(--b-green-tint);
+  --red: var(--b-danger);
+  --red-soft: rgba(255, 92, 90, 0.1);
+  --bg: var(--b-bg);
+  --fg: var(--b-text);
+  --t-panel: var(--b-surface-subtle);
+  --t-buy: var(--b-green);
+  --t-sell: var(--b-danger);
+  --r: 16px;
+  --r-lg: 16px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  color-scheme: dark;
+}
+html {
+  background: var(--b-bg);
+  color-scheme: dark;
+  scroll-padding-top: 88px;
+}
+body,
+body:has(.t-shell),
+body:has(.db-spot) {
+  background: var(--b-bg) url("/images/bucket-theme/main-bg.png") center / cover
+    fixed no-repeat;
+  color: var(--b-text);
+  min-height: 100svh;
+}
+::selection {
+  background: var(--b-accent);
+  color: var(--b-bg);
+}
+button,
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+input::placeholder {
+  color: var(--b-muted);
+}
+:is(button, a, input, select, summary):focus-visible {
+  outline-color: var(--b-accent);
+}
+.s-btn,
+.s-button,
+.s-wallet-option {
+  color: var(--b-text);
+  background: var(--b-surface);
+  border-color: transparent;
+  border-radius: 12px;
+  font-weight: 500;
+  transition:
+    background 0.4s var(--ease),
+    transform 0.4s var(--ease),
+    opacity 0.4s;
+}
+.s-btn:hover:not(:disabled),
+.s-wallet-option:hover:not(:disabled) {
+  background: var(--b-surface-hover);
+  border-color: transparent;
+  box-shadow: none;
+}
+.s-btn.is-primary,
+.s-button:not(.s-button-outline),
+.s-header .s-btn.is-primary,
+.s-header.is-over .s-btn.is-primary,
+.e-vault .s-earn-form .s-btn.is-primary {
+  background: var(--b-white);
+  border-color: transparent;
+  color: #000;
+  box-shadow: none;
+}
+.s-btn.is-primary:hover:not(:disabled),
+.s-button:not(.s-button-outline):hover:not(:disabled),
+.s-header .s-btn.is-primary:hover,
+.e-vault .s-earn-form .s-btn.is-primary:hover {
+  background: var(--b-white);
+  border-color: transparent;
+  color: #000;
+  box-shadow: none;
+}
+.s-card {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: none;
+}
+.s-input-box,
+.s-segment,
+.s-net {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+}
+.s-pill.is-safe {
+  color: var(--b-green);
+}
+.s-eyebrow::before {
+  background: var(--b-accent);
+}
+.s-page-head h1,
+.s-app-top h1,
+.s-app-top h1 em {
+  font-family: var(--f-sans), sans-serif;
+  font-weight: 500;
+}
+.s-page-head h1 em,
+.s-app-top h1 em,
+.s-unified-earn .s-app-top h1 em {
+  color: var(--b-accent);
+}
+.s-page {
+  padding-top: 128px;
+}
+
+/* Shared header and app navigation, including the existing trading terminals. */
+body .s-header,
+body:has(.t-shell) .s-header,
+body:has(.db-spot) .s-header {
+  display: flex;
+  top: 0;
+  left: 0;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  height: 64px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 0;
+  color: var(--b-text);
+  background: rgba(22, 26, 34, 0.5);
+  box-shadow: none;
+  backdrop-filter: blur(16px);
+}
+body .s-header .s-wordmark {
+  display: inline;
+  font-size: 28px;
+  font-weight: 500;
+}
+body .s-header .s-home {
+  flex-shrink: 0;
+}
+body .s-header > nav {
+  margin-inline: auto;
+}
+body .s-header .s-brand {
+  --tide: var(--b-white);
+}
+body .s-header .s-mark,
+body:has(.db-spot) .s-header .s-mark {
+  color: var(--b-white);
+}
+body .s-header nav a {
+  color: var(--b-muted);
+}
+body .s-header nav a:hover,
+body .s-header nav a[aria-current="page"] {
+  color: var(--b-text);
+}
+body .s-header.is-app > nav {
+  display: none;
+}
+body .s-header .s-header-end {
+  margin-left: auto;
+}
+body .s-header .s-btn,
+body:has(.t-shell) .s-header .s-btn,
+body:has(.db-spot) .s-header .s-btn {
+  min-height: 40px;
+  padding: 8px 14px;
+  background: var(--b-surface);
+  border: 0;
+  border-radius: 8px;
+  color: var(--b-text);
+  font:
+    400 14px var(--f-sans),
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+body .s-header .s-btn:hover {
+  background: var(--b-surface-hover);
+}
+body .s-header .s-menu {
+  border: 0;
+  border-radius: 8px;
+  background: var(--b-surface);
+}
+body .s-header .s-menu span,
+body .s-header.is-open .s-menu span {
+  background: var(--b-white);
+}
+body .s-app-shell > .s-tabs[aria-label="App sections"] {
+  position: fixed;
+  z-index: 65;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  width: auto;
+  max-width: none;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  gap: 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+body .s-app-shell > .s-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  min-width: 0;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--b-muted);
+  font:
+    500 16px var(--f-sans),
+    sans-serif;
+  box-shadow: none;
+}
+body .s-app-shell > .s-tabs button.is-on,
+body .s-app-shell > .s-tabs button:hover {
+  color: var(--b-white);
+  background: transparent;
+}
+body .s-app-shell > .s-tabs button::after {
+  display: none;
+}
+.b-tab-icon {
+  display: none;
+}
+body .s-app-shell > .s-app {
+  padding-top: 112px;
+}
+body .s-app-shell > .t-terminal.s-app {
+  padding-top: 64px;
+}
+
+/* Earn: same share-vault flow, Bucket's fully tinted cards and quieter typography. */
+.e-overview,
+.e-vault {
+  --e-line: var(--b-line);
+  --e-muted: var(--b-muted);
+  --e-green: var(--b-accent);
+  --e-blue: var(--b-accent);
+}
+.e-overview,
+.e-vault,
+.p-portfolio {
+  width: min(1200px, calc(100% - 64px));
+  max-width: 1200px;
+  padding-inline: 0;
+}
+.e-overview-heading {
+  align-items: flex-start;
+  margin: 12px 0 48px;
+}
+.e-kicker {
+  color: var(--b-muted);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+.e-overview-heading h1 {
+  font-size: clamp(36px, 4.2vw, 56px);
+  letter-spacing: -0.04em;
+}
+.e-overview-heading h1 span {
+  color: var(--b-secondary);
+}
+.e-overview-heading p {
+  color: var(--b-muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.e-environment {
+  background: var(--b-surface);
+  border: 0;
+  border-radius: 8px;
+  color: var(--b-secondary);
+}
+.e-vault-cards {
+  gap: 16px;
+}
+.e-vault-card {
+  border: 0;
+  border-radius: 16px;
+  background: var(--b-violet-tint)
+    url("/images/bucket-theme/leverage-card-bg.png") center / cover;
+  box-shadow: 0 4px 56px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px);
+  transition: background-color 0.4s var(--ease);
+}
+.e-vault-card.is-usdc {
+  background: var(--b-green-tint) url("/images/bucket-theme/stable-card-bg.png")
+    center / cover;
+}
+.e-vault-card:hover {
+  background-color: rgba(165, 177, 235, 0.2);
+}
+.e-vault-card.is-usdc:hover {
+  background-color: rgba(114, 169, 144, 0.2);
+}
+.e-card-banner,
+.e-vault-card.is-usdc .e-card-banner {
+  background: transparent;
+  padding: 32px 32px 20px;
+  min-height: 0;
+}
+.e-card-token h3 {
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.e-card-token > div > span {
+  color: var(--b-secondary);
+  font-size: 14px;
+}
+.e-card-tag {
+  border: 0;
+  color: var(--b-secondary);
+  background: var(--b-surface);
+}
+.e-card-body {
+  padding: 0 32px 32px;
+}
+.e-card-body > p {
+  color: var(--b-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 44px;
+}
+.e-card-rate {
+  margin-top: 30px;
+  margin-bottom: 26px;
+}
+.e-card-rate strong {
+  font-size: 64px;
+  color: var(--b-white);
+  letter-spacing: -0.045em;
+}
+.e-card-rate > div > span,
+.e-rate-note {
+  color: var(--b-secondary);
+}
+.e-card-facts {
+  border-color: var(--b-line);
+}
+.e-card-facts dt,
+.e-sources > span {
+  color: var(--b-muted);
+}
+.e-card-facts dd,
+.e-sources p {
+  color: var(--b-secondary);
+}
+.e-sources {
+  min-height: 42px;
+}
+.e-view-vault {
+  background: var(--b-white);
+  color: #000;
+  border: 0;
+  border-radius: 12px;
+  font-size: 16px;
+  min-height: 56px;
+}
+.e-view-vault:hover {
+  background: var(--b-white);
+  color: #000;
+}
+.e-panel {
+  border: 0;
+  border-radius: 16px;
+  background: var(--b-surface);
+  padding: 24px;
+}
+.e-panel.e-advanced {
+  padding: 0;
+}
+.e-compare .s-table-wrap {
+  margin-top: 20px;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid var(--b-line);
+  box-shadow: inset 0 1px 0 var(--b-surface);
+  backdrop-filter: blur(20px);
+}
+.e-compare .s-table-wrap th,
+.e-compare .s-table-wrap td {
+  padding: 20px;
+  border-color: var(--b-line);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.e-compare .s-table-wrap thead {
+  background: var(--b-surface);
+}
+.e-compare .s-table-wrap thead th {
+  padding-block: 16px;
+  background: transparent;
+  border-bottom: 1px solid var(--b-line);
+  color: var(--b-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+.e-compare .s-table-wrap tbody td {
+  color: var(--b-text);
+}
+.e-compare .e-table-token {
+  font-size: 14px;
+  font-weight: 500;
+}
+.e-compare .s-table-wrap td.e-positive {
+  color: var(--b-accent);
+  font-weight: 500;
+}
+.e-compare .s-table-wrap th:last-child,
+.e-compare .s-table-wrap td:last-child {
+  text-align: right;
+}
+.e-compare .s-table-wrap a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-weight: 500;
+}
+.e-compare tbody tr:hover {
+  background: var(--b-surface-subtle);
+}
+.e-section-head h2,
+.e-vault .e-sticky h2 {
+  font-weight: 500;
+}
+.e-section-head > span {
+  color: var(--b-muted);
+}
+.e-vault-heading h1 {
+  font-weight: 500;
+}
+.e-vault-grid {
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 24px;
+}
+.e-sticky {
+  top: 88px;
+  gap: 16px;
+}
+.e-vault-content {
+  gap: 16px;
+}
+.e-stats {
+  padding: 16px 0 20px;
+}
+.e-stats dd {
+  font-size: 28px;
+}
+.e-vault .s-earn-form {
+  border: 0;
+  border-radius: 16px;
+  background: var(--b-surface);
+  box-shadow: none;
+}
+.e-vault .s-earn-form .s-earn-mode,
+.s-earn-form .s-earn-mode {
+  margin: 24px 24px 0;
+  padding: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  gap: 4px;
+}
+.s-earn-form .s-earn-mode button {
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 10px 6px;
+  font-weight: 400;
+}
+.e-vault .s-earn-form .s-earn-mode button[aria-pressed="true"],
+.s-earn-form .s-earn-mode button[aria-pressed="true"] {
+  background: var(--b-surface-hover);
+  color: var(--b-white);
+  border: 0;
+  font-weight: 500;
+}
+.e-vault .s-earn-form-body,
+.s-earn-form-body {
+  padding: 8px 24px 24px;
+}
+.e-vault .s-earn-amount-panel,
+.s-earn-amount-panel {
+  border: 0;
+  border-radius: 16px;
+  background:
+    radial-gradient(
+      100% 100% at 0% 0%,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.02)
+    ),
+    var(--b-surface);
+  padding: 20px 16px;
+}
+.s-earn-amount-panel.is-output {
+  background: var(--b-surface);
+}
+.s-earn-panel-label {
+  color: var(--b-muted);
+  font-weight: 400;
+  font-size: 12px;
+  gap: 8px;
+}
+.s-earn-balance-inline {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--b-muted);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.e-vault .s-earn-amount-row input,
+.e-vault .s-earn-amount-row output {
+  font-size: 32px;
+  color: var(--b-white);
+}
+.s-earn-amount-row input::placeholder {
+  color: var(--b-muted);
+}
+.e-vault .s-earn-picker-trigger,
+.s-earn-picker-trigger {
+  background: var(--b-surface-hover);
+  border: 0;
+  min-height: 40px;
+  color: var(--b-white);
+  font-size: 16px;
+}
+.s-earn-picker-trigger:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+.e-vault .s-earn-receipt-token {
+  font-size: 14px;
+  color: var(--b-white);
+}
+.s-earn-picker-menu {
+  background: var(--b-modal);
+  border: 1px solid var(--b-line);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px #0005;
+}
+.s-earn-picker-option {
+  border-radius: 8px;
+}
+.s-earn-picker-option[aria-selected="true"],
+.s-earn-picker-option[data-active="true"] {
+  background: var(--b-surface-hover);
+}
+.s-earn-picker-copy small {
+  color: var(--b-muted);
+}
+.s-earn-picker-check {
+  color: var(--b-accent);
+}
+.s-earn-token.is-receipt {
+  background: var(--b-violet-tint);
+  color: var(--b-white);
+  border: 1px solid var(--b-line);
+}
+.s-earn-token.is-usdc.is-receipt {
+  background: var(--b-green-tint);
+}
+.e-underlying-badge {
+  border-color: var(--b-centre);
+  color: var(--b-white);
+}
+.s-earn-percentages {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.s-earn-percentages button {
+  min-height: 32px;
+  min-width: 48px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--b-surface);
+  color: var(--b-white);
+  font:
+    400 12px var(--f-sans),
+    sans-serif;
+  cursor: pointer;
+}
+.s-earn-percentages button:hover:not(:disabled) {
+  background: var(--b-surface-hover);
+}
+.s-earn-percentages button:disabled {
+  color: var(--b-muted);
+  cursor: not-allowed;
+}
+.s-earn-direction {
+  margin: 4px 0;
+}
+.s-earn-direction button {
+  background: var(--b-modal);
+  border-color: var(--b-modal);
+  color: var(--b-white);
+}
+.e-vault .s-earn-form .s-btn.is-primary,
+.s-earn-form .s-btn.is-primary {
+  min-height: 56px;
+  font-size: 16px;
+  border-radius: 12px;
+}
+.s-earn-form-facts dd {
+  color: var(--b-white);
+}
+.s-earn-form-hint {
+  color: var(--b-warning);
+}
+.e-chart-controls button {
+  border: 0;
+  border-radius: 8px;
+  background: var(--b-surface-subtle);
+  font-weight: 400;
+}
+.e-chart-controls button[aria-pressed="true"] {
+  background: var(--b-surface-hover);
+  color: var(--b-white);
+  border-color: transparent;
+}
+.e-venue {
+  background: var(--b-surface-subtle);
+  border-color: var(--b-line);
+  border-radius: 12px;
+}
+.e-venue-mark {
+  background: var(--b-surface-hover);
+  color: var(--b-white);
+  font-weight: 500;
+}
+.e-venue:nth-child(5) .e-venue-mark,
+.e-venue:last-child .e-venue-mark {
+  color: var(--b-white);
+}
+.e-venue-status,
+.e-earnings {
+  border-color: var(--b-line);
+}
+.e-sticky .s-demo-funding {
+  padding: 20px;
+  background: var(--b-surface);
+  border: 0;
+}
+.e-advanced-body .s-earn-decision {
+  border-color: var(--b-line);
+}
+.e-chart-value strong {
+  font-weight: 500;
+}
+
+/* Wallet and confirmation dialogs share Bucket's dark overlay and panel tones. */
+.s-modal {
+  background: rgba(43, 48, 61, 0.95);
+  color: var(--b-text);
+  border: 1px solid var(--b-line);
+  border-radius: 16px;
+  padding: 24px;
+}
+.s-modal h2 {
+  font-size: 26px;
+  font-weight: 500;
+}
+.s-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+.s-modal-close {
+  background: var(--b-surface-hover);
+  color: var(--b-white);
+  border: 0;
+}
+.s-modal .s-wallet-option {
+  background: var(--b-surface);
+  color: var(--b-white);
+  border-color: transparent;
+}
+.s-modal .s-wallet-option:hover {
+  background: var(--b-surface-hover);
+}
+
+/* Portfolio and wallet balances. */
+.p-portfolio :is(h1, h2, h3) {
+  font-weight: 500;
+}
+.p-total,
+.p-section,
+.p-connect {
+  border: 0;
+  border-radius: 16px;
+  background: var(--b-surface);
+}
+.p-total:first-child {
+  background: var(--b-green-tint);
+  border: 0;
+}
+.p-connect {
+  background: var(--b-surface);
+}
+.p-connect-mark {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+  color: var(--b-white);
+  border-radius: 16px;
+}
+.p-section-note {
+  background: var(--b-surface-subtle);
+}
+.p-ausd-icon {
+  background: var(--b-surface-hover);
+  border-color: var(--b-line);
+  color: var(--b-white);
+}
+.p-alert,
+.p-inline-warning {
+  background: rgba(241, 193, 69, 0.1);
+  color: var(--b-warning);
+  border-color: rgba(241, 193, 69, 0.2);
+}
+.p-environment i {
+  background: var(--b-warning);
+}
+.p-account-note svg {
+  color: var(--b-accent);
+}
+.p-activity-icon.is-perps {
+  background: var(--b-violet-tint);
+  color: var(--b-accent);
+}
+.p-rate {
+  color: var(--b-accent);
+  background: var(--b-violet-tint);
+}
+
+/* Marketing and informational pages inherit the same dark canvas. */
+.m-home h2,
+.m-home h2 em {
+  font-family: var(--f-sans), sans-serif;
+  font-weight: 500;
+}
+.m-home h2 em {
+  color: var(--b-secondary);
+}
+.m-section-label,
+.m-venues > span,
+.m-venues > p,
+.m-flow-wallet > span,
+.m-flow-vault > span,
+.m-flow-markets > span,
+.m-flow-markets div > span,
+.m-product-note,
+.m-how-grid article > span,
+.m-how-grid p,
+.m-answers summary > span,
+.m-answers details > p {
+  color: var(--b-muted);
+}
+.m-venues b,
+.m-intro > p,
+.m-heading-row > p,
+.m-flow-caption p,
+.m-product-top,
+.m-product-top i,
+.m-product > p,
+.m-product-spot .m-product-top,
+.m-product-spot > p,
+.m-product-perps .m-product-top,
+.m-product-perps > p {
+  color: var(--b-secondary);
+}
+.m-flow-demo,
+.m-product {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+  border-radius: 16px;
+  box-shadow: none;
+}
+.m-flow-toolbar .m-section-label {
+  color: var(--b-muted);
+}
+.m-asset-switch {
+  background: var(--b-surface);
+}
+.m-asset-switch button {
+  color: var(--b-muted);
+}
+.m-asset-switch button[aria-pressed="true"] {
+  background: var(--b-surface-hover);
+  color: var(--b-white);
+  box-shadow: none;
+}
+.m-flow-core,
+.m-flow-markets > div {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+  color: var(--b-white);
+  box-shadow: none;
+}
+.m-flow-markets i {
+  color: var(--b-accent);
+  background: var(--b-violet-tint);
+  flex-shrink: 0;
+}
+.m-flow-markets .m-protocol-logo {
+  background: transparent;
+}
+.m-flow-line {
+  background: var(--b-line);
+}
+.m-flow-line::after {
+  border-color: var(--b-secondary);
+}
+.m-flow-line i {
+  background: var(--b-accent);
+}
+.m-flow-caption,
+.m-product-link,
+.m-how-grid article > span,
+.m-answers details,
+.m-answers details:first-child {
+  border-color: var(--b-line);
+}
+.m-flow-caption a,
+.m-questions .m-text-link {
+  color: var(--b-accent);
+}
+.m-product-earn {
+  background: var(--b-green-tint) url("/images/bucket-theme/stable-card-bg.png")
+    center / cover;
+}
+.m-product-spot {
+  background: var(--b-violet-tint)
+    url("/images/bucket-theme/leverage-card-bg.png") center / cover;
+}
+.m-product-perps {
+  background: var(--b-surface);
+}
+.m-stack {
+  border-color: var(--b-line);
+}
+.m-stack-back,
+.m-stack-middle {
+  background: var(--b-modal);
+  box-shadow: none;
+}
+.m-stack-front {
+  background: var(--b-centre);
+  color: var(--b-accent);
+  box-shadow: inset 0 0 0 5px var(--b-surface);
+}
+.m-price-label {
+  background: var(--b-modal);
+  color: var(--b-secondary);
+  border-color: var(--b-line);
+}
+.m-price-label b {
+  color: var(--b-green);
+}
+.m-hero-frame {
+  background: transparent;
+  color: var(--b-white);
+}
+.m-aurora::before {
+  background:
+    radial-gradient(
+      ellipse at 45% 94%,
+      rgba(165, 177, 235, 0.2),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 81% 83%,
+      rgba(114, 169, 144, 0.2),
+      transparent 45%
+    );
+}
+.m-aurora i {
+  background: var(--b-violet-tint);
+}
+.m-aurora i:nth-child(2) {
+  background: var(--b-green-tint);
+}
+.m-aurora i:nth-child(3) {
+  background: var(--b-violet-tint);
+}
+.m-principles,
+.m-final,
+.s-footer {
+  background: var(--b-surface-subtle);
+  color: var(--b-text);
+}
+.m-principles::after {
+  background: radial-gradient(ellipse, var(--b-green-tint), transparent 65%);
+}
+.m-final-halo {
+  background: var(--b-violet);
+}
+.m-principles .m-section-label,
+.m-principles-copy > p,
+.m-principle-list p,
+.m-principle-list .m-risk-note,
+.m-final .m-section-label,
+.m-final > p,
+.s-footer-grid p,
+.s-footer nav h4,
+.s-footer-base {
+  color: var(--b-muted);
+}
+.m-principles h2 em,
+.m-final h2 em,
+.s-footer nav a {
+  color: var(--b-secondary);
+}
+.m-principle-list article,
+.s-footer,
+.s-footer-base {
+  border-color: var(--b-line);
+}
+.m-principle-list article > strong,
+.m-final > .s-mark,
+.s-footer .s-mark {
+  color: var(--b-white);
+}
+.m-footer-word {
+  color: var(--b-surface);
+}
+.m-button-light {
+  background: var(--b-white);
+  color: #000;
+}
+.m-button-light:hover {
+  background: var(--b-white);
+  box-shadow: none;
+}
+.m-button-outline,
+.m-button-glass {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+  color: var(--b-white);
+}
+.m-button-outline:hover,
+.m-button-glass:hover {
+  background: var(--b-surface-hover);
+}
+
+/* Documentation remains dark from SSR and on client-side navigation. */
+body .sd-shell {
+  color-scheme: dark;
+  --sd-text: rgba(255, 255, 255, 0.7);
+}
+body .sd-shell ::selection {
+  background: var(--b-accent);
+  color: var(--b-bg);
+}
+body .sd-vault-illustration {
+  background: var(--b-violet-tint);
+  border-color: var(--b-line);
+  color: var(--b-white);
+}
+body .sd-flow-vault {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+  box-shadow: none;
+}
+body .sd-flow-label,
+body .sd-flow-node small,
+body .sd-flow-vault small {
+  color: var(--b-muted);
+}
+body .sd-flow-vault .s-mark {
+  color: var(--b-accent);
+}
+body .sd-flow-line {
+  background: var(--b-line);
+}
+body .sd-flow-line::after {
+  border-color: var(--b-line);
+}
+body .sd-yield-glyph {
+  background: var(--b-green-tint);
+  color: var(--b-green);
+}
+body .sd-shell dialog {
+  background: var(--b-modal);
+  border-color: var(--b-line);
+}
+body .sd-shell dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+body .sd-open-app {
+  background: var(--b-white);
+  color: #000;
+}
+
+@media (max-width: 1050px) {
+  .e-vault-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 16px;
+  }
+  .e-card-banner {
+    padding: 24px 24px 18px;
+  }
+  .e-vault-card.is-usdc .e-card-banner {
+    padding: 24px 24px 18px;
+  }
+  .e-card-body {
+    padding: 0 24px 24px;
+  }
+  .e-card-token h3 {
+    font-size: 32px;
+  }
+}
+@media (max-width: 820px) {
+  .e-vault-grid {
+    display: flex;
+  }
+  body .s-app-shell > .s-tabs[aria-label="App sections"] {
+    gap: 12px;
+  }
+  body .s-header,
+  body:has(.t-shell) .s-header,
+  body:has(.db-spot) .s-header {
+    padding-inline: 16px;
+  }
+  body .s-header .s-wordmark {
+    font-size: 24px;
+  }
+}
+@media (max-width: 700px) {
+  .e-overview,
+  .e-vault,
+  .p-portfolio {
+    width: calc(100% - 32px);
+    padding-bottom: 110px;
+  }
+  body .s-app-shell > .s-app {
+    padding-top: 88px;
+  }
+  body .s-app-shell > .t-terminal.s-app {
+    padding-top: 64px;
+    padding-bottom: 96px;
+  }
+  body .s-app-shell > .s-tabs[aria-label="App sections"] {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    height: calc(74px + env(safe-area-inset-bottom));
+    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+    gap: 0;
+    background: rgba(8, 10, 15, 0.95);
+    border-top: 1px solid var(--b-surface);
+    backdrop-filter: blur(16px);
+  }
+  body .s-app-shell > .s-tabs button {
+    height: 62px;
+    padding: 6px 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .b-tab-icon {
+    display: block;
+  }
+  body .s-header .s-btn,
+  body:has(.t-shell) .s-header .s-btn,
+  body:has(.db-spot) .s-header .s-btn {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  body .s-header.is-app .s-menu {
+    display: none;
+  }
+  body .s-header.is-open nav {
+    background: var(--b-centre);
+    border-color: var(--b-line);
+    color: var(--b-white);
+    top: 64px;
+  }
+  body .s-header.is-open nav a {
+    color: var(--b-secondary);
+  }
+  .e-overview-heading {
+    margin-bottom: 32px;
+  }
+  .e-overview-heading h1 {
+    font-size: 36px;
+  }
+  .e-overview-heading p {
+    font-size: 14px;
+  }
+  .e-vault-cards {
+    gap: 16px;
+  }
+  .e-card-banner,
+  .e-vault-card.is-usdc .e-card-banner {
+    padding: 24px 20px 16px;
+  }
+  .e-card-body {
+    padding: 0 20px 24px;
+  }
+  .e-card-token h3 {
+    font-size: 32px;
+  }
+  .e-card-token > .s-earn-token {
+    width: 44px;
+    height: 44px;
+  }
+  .e-card-token > div > span {
+    font-size: 12px;
+  }
+  .e-card-rate strong {
+    font-size: 52px;
+  }
+  .e-card-tag {
+    display: none;
+  }
+  .e-card-body > p {
+    font-size: 14px;
+  }
+  .e-card-rate {
+    margin-top: 24px;
+  }
+  .e-panel {
+    padding: 20px;
+  }
+  .e-vault .s-earn-form .s-earn-mode,
+  .s-earn-form .s-earn-mode {
+    margin: 16px 16px 0;
+  }
+  .e-vault .s-earn-form-body,
+  .s-earn-form-body {
+    padding: 8px 16px 16px;
+  }
+  .e-vault .s-earn-amount-row input,
+  .e-vault .s-earn-amount-row output {
+    font-size: 30px;
+  }
+  .e-stats dd {
+    font-size: 23px;
+  }
+  .e-vault-heading h1 {
+    font-size: 32px;
+  }
+  .e-vault .s-earn-form .s-btn.is-primary {
+    min-height: 56px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Shared palette on trading screens; their market/book/order hierarchy is retained. */
+body:has(.db-spot) .t-shell > .s-tabs button,
+body:has(.db-spot) .t-shell > .s-tabs button.is-on {
+  color: var(--b-muted);
+  background: transparent;
+  border-radius: 0;
+}
+body:has(.db-spot) .t-shell > .s-tabs button.is-on {
+  color: var(--b-white);
+}
+.db-spot.t-terminal.s-app {
+  background: transparent;
+}
+.t-workspace.s-app-grid {
+  background: transparent;
+}
+.t-workspace > * {
+  border-bottom: 1px solid var(--b-line);
+}
+.t-chart-panel,
+.t-book,
+.t-terminal .s-card,
+.t-terminal .t-ticket,
+.db-spot .t-chart-panel,
+.db-spot .db-ticket.t-ticket {
+  background: var(--b-surface);
+}
+.db-spot .db-ticket.t-ticket {
+  border-left: 1px solid var(--b-line);
+}
+.t-terminal .s-input-box,
+.db-input > div {
+  background: var(--b-surface);
+  border: 1px solid var(--b-line);
+  border-radius: 8px;
+}
+.t-terminal .s-btn,
+.db-spot .db-quote.s-btn {
+  border: 0;
+  background: var(--b-surface);
+  border-radius: 8px;
+  color: var(--b-white);
+}
+.t-terminal .s-btn.is-primary,
+.t-terminal .s-btn.is-primary:hover,
+.t-terminal .s-btn.t-buy-action,
+.t-terminal .s-btn.t-sell-action,
+.db-spot .db-submit.s-btn,
+.db-mobile-trade-bar button {
+  background: var(--b-white);
+  border-color: transparent;
+  color: #000;
+  border-radius: 8px;
+}
+.t-terminal .s-segment {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: var(--b-line);
+  border-radius: 8px;
+}
+.t-terminal .s-segment button.is-on {
+  background: var(--b-green-tint);
+  color: var(--b-green);
+}
+.t-terminal .s-segment button.is-sell.is-on,
+.t-perps .s-segment button:nth-child(2).is-on,
+.t-perps .s-segment button:nth-child(3).is-on {
+  background: rgba(255, 92, 90, 0.1);
+  color: var(--b-danger);
+}
+.db-spot .db-direction.s-segment button {
+  border-radius: 8px;
+}
+.db-spot .db-direction.s-segment button.is-on {
+  background: var(--b-surface-hover);
+  border-color: transparent;
+  color: var(--b-white);
+}
+.db-book-row i {
+  background: var(--b-green-tint);
+}
+.db-book-row.is-sell i {
+  background: rgba(255, 92, 90, 0.1);
+}
+.db-status-dot,
+.db-network-banner .t-environment i,
+.t-environment i,
+.t-data-dot::before {
+  background: var(--b-green);
+}
+body:has(.t-shell) .s-modal {
+  background: rgba(43, 48, 61, 0.95);
+  border-color: var(--b-line);
+  color: var(--b-text);
+}
+body:has(.t-shell) .s-modal .s-btn.is-primary {
+  background: var(--b-white);
+  border-color: transparent;
+  color: #000;
+}
+.t-terminal .s-switch {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+}
+.t-terminal .s-switch i {
+  background: var(--b-muted);
+}
+.t-terminal .s-switch.is-on {
+  background: var(--b-violet-tint);
+}
+.t-terminal .s-switch.is-on i {
+  background: var(--b-accent);
+}
+@media (max-width: 700px) {
+  body:has(.db-spot) .t-shell > .s-tabs[aria-label="App sections"] {
+    top: auto;
+    bottom: 0;
+    height: calc(74px + env(safe-area-inset-bottom));
+    background: rgba(8, 10, 15, 0.95);
+    border-top: 1px solid var(--b-surface);
+  }
+  body:has(.db-spot) .t-shell > .s-tabs button {
+    height: 62px;
+  }
+  .db-mobile-trade-bar {
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    background: var(--b-centre);
+  }
+  .db-spot[data-trade-open="true"] .db-ticket {
+    background: var(--b-modal);
+    bottom: calc(74px + env(safe-area-inset-bottom));
+  }
+  body .db-spot.t-terminal.s-app {
+    padding-bottom: 160px;
+  }
+}

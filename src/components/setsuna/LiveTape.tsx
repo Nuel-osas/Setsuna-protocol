@@ -1,7 +1,14 @@
 "use client";
 import { pct, useEarn } from "./useEarn";
+import { ProtocolLabel } from "./ProtocolIcon";
 
-const facts = ["Native USDC", "Base rates, no incentives", "10% kept as cash", "60% cap per market", "0% Setsuna fee"];
+const facts = [
+  "Native USDC",
+  "Base rates, no incentives",
+  "10% kept as cash",
+  "60% cap per market",
+  "0% Setsuna fee",
+];
 
 /** A moving tape of every destination's live base rate, plus the standing limits. */
 export default function LiveTape() {
@@ -16,14 +23,23 @@ export default function LiveTape() {
       }));
   const items = [
     ...rates,
-    ...(data?.block && !failed ? [{ key: "block", label: "Monad block", value: Number(data.block).toLocaleString("en-US"), off: false }] : []),
+    ...(data?.block && !failed
+      ? [
+          {
+            key: "block",
+            label: "Monad block",
+            value: Number(data.block).toLocaleString("en-US"),
+            off: false,
+          },
+        ]
+      : []),
     ...facts.map((f) => ({ key: f, label: f, value: "", off: false })),
   ];
   const run = (hidden: boolean) => (
     <ul aria-hidden={hidden || undefined}>
       {items.map((i) => (
         <li key={i.key} className={i.off ? "is-off" : ""}>
-          {i.label}
+          <ProtocolLabel name={i.label} size={16} />
           {i.value && <b>{i.value}</b>}
         </li>
       ))}

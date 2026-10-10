@@ -79,24 +79,6 @@ export default function DocsShell({
   const searchInput = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  useEffect(() => {
-    try {
-      if (localStorage.getItem("setsuna.docs.theme") === "dark")
-        setTheme("dark");
-    } catch {
-      /* Optional browser preference. */
-    }
-  }, []);
-  function toggleTheme() {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    try {
-      localStorage.setItem("setsuna.docs.theme", next);
-    } catch {
-      /* Optional browser preference. */
-    }
-  }
   function openSearch() {
     menu.current?.close();
     setQuery("");
@@ -149,7 +131,7 @@ export default function DocsShell({
     return `${from ? "…" : ""}${doc.text.slice(from, from + 140)}…`;
   }
   return (
-    <div className="sd-shell" data-theme={theme}>
+    <div className="sd-shell" data-theme="dark">
       <header className="sd-header">
         <Link href="/docs/" className="sd-logo" aria-label="Setsuna Docs home">
           <Brand />
@@ -165,14 +147,6 @@ export default function DocsShell({
           <Link href="/" className="sd-website">
             Website ↗
           </Link>
-          <button
-            className="sd-theme"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-            title={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-          >
-            {theme === "light" ? "☼" : "☾"}
-          </button>
           <Link href="/app/" className="sd-open-app">
             Open app <span aria-hidden="true">↗</span>
           </Link>

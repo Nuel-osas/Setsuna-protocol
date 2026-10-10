@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { TradingReading } from "./useTradingMarket";
 import { marketNumber, type Level } from "@/lib/setsuna/market-view";
 import type { SpotTrade } from "@/lib/setsuna/live-market";
+import TokenIcon from "./TokenIcon";
 
 export function SpotSummary({ reading }: { reading?: TradingReading }) {
   const bid = reading?.bids[0]?.price,
@@ -12,8 +13,12 @@ export function SpotSummary({ reading }: { reading?: TradingReading }) {
     <header className="db-summary">
       <div className="db-pair">
         <span className="db-token-pair">
-          <i>M</i>
-          <i>$</i>
+          <i>
+            <TokenIcon asset="MON" size={12} />
+          </i>
+          <i>
+            <TokenIcon asset="USDC" size={16} />
+          </i>
         </span>
         <h1>MON/USDC</h1>
         <span className="db-pair-price">${marketNumber(reading?.price)}</span>
