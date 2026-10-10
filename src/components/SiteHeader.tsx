@@ -9,7 +9,10 @@ import { productLinks } from "@/lib/setsuna/site";
 
 export default function SiteHeader() {
   const path = usePathname();
-  const app = path.startsWith("/app") || path.startsWith("/portfolio");
+  const app =
+    path.startsWith("/app") ||
+    path.startsWith("/portfolio") ||
+    path.startsWith("/earn");
   const wallet = useWallet();
   const [open, setOpen] = useState(false);
   const [over, setOver] = useState(path === "/");

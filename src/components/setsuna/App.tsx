@@ -5,6 +5,7 @@ import { useSetsuna } from "./useSetsuna";
 import DemoFunding from "./DemoFunding";
 import MarginRunway from "./MarginRunway";
 import { Mark } from "./Brand";
+import TokenIcon from "./TokenIcon";
 import { useTradingMarket } from "./useTradingMarket";
 import {
   MarketStrip,
@@ -90,7 +91,10 @@ function Input({
           onChange={(e) => set(e.target.value)}
           aria-label={label}
         />
-        <i>{unit}</i>
+        <i className="s-token-label">
+          {unit === "AUSD" && <TokenIcon asset="AUSD" size={18} />}
+          {unit}
+        </i>
       </span>
       {hint && <small>{hint}</small>}
     </label>

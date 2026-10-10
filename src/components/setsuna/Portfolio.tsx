@@ -5,13 +5,11 @@ import { formatUnits } from "viem";
 import { useWallet } from "./WalletProvider";
 import { usePortfolio } from "./usePortfolio";
 import { Mark } from "./Brand";
+import EarnEarnings from "./EarnEarnings";
 import { EarnToken } from "./EarnForm";
+import TokenIcon from "./TokenIcon";
 import { shortAddress } from "@/lib/setsuna/format";
-import {
-  ausdTotal,
-  earnTotal,
-  positionEquity,
-} from "@/lib/setsuna/portfolio-math";
+import { positionEquity } from "@/lib/setsuna/portfolio-math";
 import type { PortfolioAsset } from "@/lib/setsuna/portfolio";
 
 function amount(value: bigint | undefined, decimals: number, digits = 5) {
@@ -22,11 +20,11 @@ function amount(value: bigint | undefined, decimals: number, digits = 5) {
   return number.toLocaleString("en-US", { maximumFractionDigits: digits });
 }
 const earnLink = (asset: "MON" | "USDC", action = "deposit") =>
-  `/app/?asset=${asset}&action=${action}`;
+  `/earn/${asset.toLowerCase()}/?action=${action}`;
 function Token({ asset }: { asset: PortfolioAsset }) {
   return asset === "AUSD" ? (
     <span className="p-ausd-icon" aria-hidden="true">
-      A
+      <TokenIcon asset="AUSD" size={28} />
     </span>
   ) : (
     <EarnToken asset={asset} />
@@ -71,13 +69,6 @@ export default function Portfolio() {
   const openPosition = !!position && position.lotLNS > BigInt(0);
   const pnl = openPosition
     ? position.deltaPnlCNS + position.premiumPnlCNS
-    : undefined;
-  const totals = data
-    ? {
-        MON: earnTotal(data.wallet.MON, data.earn.MON),
-        USDC: earnTotal(data.wallet.USDC, data.earn.USDC),
-        AUSD: ausdTotal(data.wallet.AUSD, data.perps),
-      }
     : undefined;
   const partial =
     !!data &&
@@ -190,39 +181,40 @@ export default function Portfolio() {
           )}
           {partial && (
             <p className="p-alert" role="status">
-              Some balances could not be valued. Their totals show “—” until a
+              Some balances could not be valued. Missing values show “—” until a
               fresh reading is available.
             </p>
           )}
-          <section className="p-totals" aria-label="Holdings by asset">
-            {(["MON", "USDC", "AUSD"] as const).map((asset) => (
-              <article className="p-total" key={asset}>
-                <div className="p-total-label">
-                  <Token asset={asset} />
-                  <span>{asset} holdings</span>
-                </div>
-                <strong
-                  data-testid={`portfolio-total-${asset.toLowerCase()}`}
-                  title={
-                    totals?.[asset] === undefined
-                      ? undefined
-                      : formatUnits(totals[asset]!, asset === "MON" ? 18 : 6)
-                  }
-                >
-                  {amount(totals?.[asset], asset === "MON" ? 18 : 6)}
-                  <small>{asset}</small>
-                </strong>
-                <p>
-                  {asset === "AUSD"
-                    ? "Wallet + trading equity + reserve"
-                    : `Wallet + sets${asset} value`}
-                </p>
-              </article>
-            ))}
+          <section className="p-totals" aria-label="Wallet balances by asset">
+            {(["MON", "USDC", "AUSD"] as const).map((asset) => {
+              const state = data?.wallet[asset];
+              const balance =
+                state?.status === "ready" ? state.data : undefined;
+              return (
+                <article className="p-total" key={asset}>
+                  <div className="p-total-label">
+                    <Token asset={asset} />
+                    <span>{asset} balance</span>
+                  </div>
+                  <strong
+                    data-testid={`portfolio-balance-${asset.toLowerCase()}`}
+                    title={
+                      balance === undefined
+                        ? undefined
+                        : formatUnits(balance, asset === "MON" ? 18 : 6)
+                    }
+                  >
+                    {amount(balance, asset === "MON" ? 18 : 6)}
+                    <small>{asset}</small>
+                  </strong>
+                  <p>Available in your wallet</p>
+                </article>
+              );
+            })}
           </section>
           <p className="p-total-note">
-            Balances are shown in their own assets. Earn shares are counted at
-            their underlying value; Spot uses your wallet balance.
+            Deposited funds are shown separately in Earn positions and your
+            Perps account.
           </p>
 
           <div className="p-grid">
@@ -328,6 +320,12 @@ export default function Portfolio() {
                               </dd>
                             </div>
                           </dl>
+                          <EarnEarnings
+                            asset={asset}
+                            shares={holding?.shares}
+                            worth={holding?.worth}
+                            block={data.block}
+                          />
                           <div className="p-position-actions">
                             <Link href={earnLink(asset)}>
                               Deposit <span aria-hidden="true">↗</span>

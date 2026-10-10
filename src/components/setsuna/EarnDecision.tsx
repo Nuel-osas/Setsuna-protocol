@@ -1,4 +1,5 @@
 import { formatUnits } from "viem";
+import { ProtocolLabel } from "./ProtocolIcon";
 import {
   earnDecision,
   type EarnDecisionSnapshot,
@@ -88,7 +89,9 @@ export default function EarnDecision({
               <tbody>
                 {destinations.map((name, i) => (
                   <tr key={name}>
-                    <th>{name}</th>
+                    <th>
+                      <ProtocolLabel name={name} />
+                    </th>
                     <td>{apr(s.observations[0]?.rates[i])}</td>
                     <td>{apr(s.observations[1]?.rates[i])}</td>
                     <td>{apr(s.rates[i])}</td>
@@ -119,7 +122,9 @@ export default function EarnDecision({
               <tbody>
                 {destinations.map((name, i) => (
                   <tr key={name}>
-                    <th>{name}</th>
+                    <th>
+                      <ProtocolLabel name={name} />
+                    </th>
                     <td>{amount(p.target[i])}</td>
                     <td>{amount(p.withdrawals[i])}</td>
                     <td>{amount(p.deposits[i])}</td>

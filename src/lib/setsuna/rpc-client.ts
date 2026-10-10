@@ -1,0 +1,33 @@
+import { createPublicClient, defineChain, http } from "viem";
+import type { Deployment } from "./types";
+
+export const chainFor = (d: Deployment) =>
+  defineChain({
+    id: d.chainId,
+    name: d.name,
+    nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
+    rpcUrls: { default: { http: [d.rpc] } },
+  });
+
+const makeClient = (d: Deployment) =>
+  createPublicClient({
+    chain: chainFor(d),
+    transport: http(d.rpc, {
+      timeout: 12_000,
+      retryCount: 0,
+      // The restricted demo gateway accepts at most 20 JSON-RPC calls per request.
+      // This changes transport only: eth_call is still executed at its requested block.
+      batch: { batchSize: 20, wait: 10 },
+    }),
+  });
+const clients = new Map<string, ReturnType<typeof makeClient>>();
+export function clientFor(d: Deployment) {
+  const key = `${d.chainId}:${d.rpc}`;
+  let client = clients.get(key);
+  if (!client) {
+    client = makeClient(d);
+    clients.set(key, client);
+    if (clients.size > 16) clients.delete(clients.keys().next().value!);
+  }
+  return client;
+}

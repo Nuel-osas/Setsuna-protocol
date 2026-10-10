@@ -293,19 +293,32 @@ try {
   // A failed quote must not leave an older estimate actionable.
   await page.route("**/api/rpc/**", async (route) => {
     const body = route.request().postDataJSON();
-    if (
-      body?.method === "eth_call" &&
-      body.params?.[0]?.data?.startsWith("0xef8b30f7")
-    )
-      return route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: body.id,
-          error: { code: -32000, message: "Controlled quote outage" },
-        }),
-      });
-    return route.continue();
+    const calls = Array.isArray(body) ? body : [body];
+    const failedIds = new Set(
+      calls
+        .filter(
+          (call) =>
+            call?.method === "eth_call" &&
+            call.params?.[0]?.data?.startsWith("0xef8b30f7"),
+        )
+        .map((call) => call.id),
+    );
+    if (!failedIds.size) return route.continue();
+    // Preserve unrelated reads in the same transport batch.
+    const response = await route.fetch();
+    const payload = await response.json();
+    const replace = (reply) =>
+      failedIds.has(reply.id)
+        ? {
+            jsonrpc: "2.0",
+            id: reply.id,
+            error: { code: -32000, message: "Controlled quote outage" },
+          }
+        : reply;
+    return route.fulfill({
+      response,
+      json: Array.isArray(payload) ? payload.map(replace) : replace(payload),
+    });
   });
   await page.getByLabel("Amount of USDC", { exact: true }).fill("2");
   await page

@@ -36,6 +36,7 @@ export default function SiteFooter() {
   if (
     path.startsWith("/app") ||
     path.startsWith("/portfolio") ||
+    path.startsWith("/earn") ||
     path === "/docs" ||
     path.startsWith("/docs/")
   )

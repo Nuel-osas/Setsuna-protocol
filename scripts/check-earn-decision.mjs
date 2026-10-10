@@ -95,6 +95,7 @@ await page.route("**/api/rpc/**", async (route) => {
 async function open(asset) {
   await page.goto(`${base}/app/`, { waitUntil: "domcontentloaded" });
   await selectEarnAsset(page, asset);
+  await page.locator(".e-advanced > summary").click();
   const panel = page.getByRole("region", {
     name: `${asset} allocation decision`,
   });

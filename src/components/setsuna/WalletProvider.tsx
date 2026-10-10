@@ -9,10 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import {
-  createPublicClient,
   createWalletClient,
   custom,
-  defineChain,
   http,
   getAddress,
   type Address,
@@ -24,18 +22,9 @@ import type { Secp256k1SigningSession } from "@category-labs/mera";
 import type { Deployment } from "@/lib/setsuna/types";
 import { message, shortAddress } from "@/lib/setsuna/format";
 import Brand from "./Brand";
-export const chainFor = (d: Deployment) =>
-  defineChain({
-    id: d.chainId,
-    name: d.name,
-    nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
-    rpcUrls: { default: { http: [d.rpc] } },
-  });
-export const clientFor = (d: Deployment) =>
-  createPublicClient({
-    chain: chainFor(d),
-    transport: http(d.rpc, { timeout: 12_000, retryCount: 0 }),
-  });
+import { readDeployment } from "@/lib/setsuna/deployment-client";
+import { chainFor, clientFor } from "@/lib/setsuna/rpc-client";
+export { chainFor, clientFor };
 type Provider = EIP1193Provider & {
   on?: (event: string, listener: (...args: unknown[]) => void) => void;
   removeListener?: (
@@ -43,7 +32,45 @@ type Provider = EIP1193Provider & {
     listener: (...args: unknown[]) => void,
   ) => void;
 };
-type Choice = { name: string; uuid: string; provider: Provider };
+type Choice = { name: string; uuid: string; icon?: string; provider: Provider };
+
+function WalletIcon({ name, icon }: { name?: string; icon?: string }) {
+  const [failed, setFailed] = useState<string>();
+  // Keep Phantom's official mark available even without an announced icon.
+  const src = /^phantom(?: wallet)?$/i.test(name ?? "")
+    ? "/images/wallets/phantom.svg"
+    : icon?.startsWith("data:image/")
+      ? icon
+      : undefined;
+  return (
+    <span className="s-wallet-icon" aria-hidden="true">
+      {src && failed !== src ? (
+        <img
+          src={src}
+          alt=""
+          width={28}
+          height={28}
+          onError={() => setFailed(src)}
+        />
+      ) : (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M20 8V5a2 2 0 0 0-2-2L5 6a3 3 0 0 0-2 3v10a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H6a2 2 0 0 1-2-2" />
+          <path d="M21 12h-5a2 2 0 0 0 0 4h5" />
+          <circle cx="17" cy="14" r=".75" fill="currentColor" stroke="none" />
+        </svg>
+      )}
+    </span>
+  );
+}
 type WalletState = {
   deployment?: Deployment;
   address?: Address;
@@ -93,11 +120,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => {
     let alive = true;
-    fetch("/api/deployment/", { cache: "no-store" })
-      .then((r) => {
-        if (!r.ok) throw new Error("Deployment unavailable");
-        return r.json();
-      })
+    readDeployment()
       .then((d) => {
         if (alive) setDeployment(d);
       })
@@ -110,16 +133,23 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const add = (event: Event) => {
       const { info, provider: p } = (
         event as CustomEvent<{
-          info: { name: string; uuid: string };
+          info: { name: string; uuid: string; icon?: string };
           provider: Provider;
         }>
       ).detail;
       if (info && p)
-        setChoices((old) =>
-          old.some((v) => v.provider === p)
-            ? old
-            : [...old, { name: info.name, uuid: info.uuid, provider: p }],
-        );
+        setChoices((old) => {
+          const choice = {
+            name: info.name,
+            uuid: info.uuid,
+            icon: typeof info.icon === "string" ? info.icon : undefined,
+            provider: p,
+          };
+          // A late announcement can upgrade the generic injected-wallet entry.
+          return old.some((v) => v.provider === p)
+            ? old.map((v) => (v.provider === p ? choice : v))
+            : [...old, choice];
+        });
     };
     window.addEventListener("eip6963:announceProvider", add);
     window.dispatchEvent(new Event("eip6963:requestProvider"));
@@ -283,7 +313,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       !wallet ||
       !address ||
       !deployment ||
-      (!deployment.factory && !deployment.earnMON && !deployment.earnUSDC && !deployment.spot)
+      (!deployment.factory &&
+        !deployment.earnMON &&
+        !deployment.earnUSDC &&
+        !deployment.spot)
     )
       throw new Error("Connect an account to an available deployment first.");
     if (
@@ -441,8 +474,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                   disabled={busy || !deployment}
                   onClick={() => void connect("wallet", c)}
                 >
-                  {c.name}
-                  <span>↗</span>
+                  <span className="s-wallet-choice">
+                    <WalletIcon name={c.name} icon={c.icon} />
+                    <span>{c.name}</span>
+                  </span>
+                  <span aria-hidden="true">↗</span>
                 </button>
               ))
             ) : (
@@ -457,7 +493,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 disabled={busy}
                 onClick={() => void connect("demo")}
               >
-                Try the local demo account <span>→</span>
+                <span className="s-wallet-choice">
+                  <WalletIcon />
+                  <span>Try the local demo account</span>
+                </span>
+                <span aria-hidden="true">→</span>
               </button>
             )}
             <p className="s-small">

@@ -2,10 +2,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mark } from "./Brand";
+import ProtocolIcon from "./ProtocolIcon";
+import TokenIcon from "./TokenIcon";
 
 export default function VaultFlow() {
   const [asset, setAsset] = useState<"MON" | "USDC">("MON");
   const mon = asset === "MON";
+  const destinations = mon
+    ? ["Neverland", "Euler"]
+    : ["Aave", "Morpho", "Euler", "Neverland", "Curvance"];
   return (
     <div className="m-flow-demo">
       <div className="m-flow-toolbar">
@@ -30,8 +35,9 @@ export default function VaultFlow() {
         <div className="m-flow-wallet">
           <div
             className={`m-token m-token-large ${mon ? "m-token-mon" : "m-token-usdc"}`}
+            aria-hidden="true"
           >
-            {mon ? "M" : "$"}
+            <TokenIcon asset={asset} size={mon ? 34 : 54} />
           </div>
           <strong>Your {asset}</strong>
           <span>You choose the amount.</span>
@@ -51,18 +57,19 @@ export default function VaultFlow() {
         </div>
         <div className="m-flow-markets">
           <span>Approved destinations</span>
+          {destinations.map((name) => (
+            <div key={name}>
+              <i className="m-protocol-logo" aria-hidden="true">
+                <ProtocolIcon name={name} />
+              </i>
+              <strong>{name}</strong>
+              <span>Lending</span>
+            </div>
+          ))}
           <div>
-            <i>{mon ? "N" : "A"}</i>
-            <strong>{mon ? "Neverland" : "Aave"}</strong>
-            <span>Lending</span>
-          </div>
-          <div>
-            <i>{mon ? "E" : "M"}</i>
-            <strong>{mon ? "Euler" : "Morpho"}</strong>
-            <span>Lending</span>
-          </div>
-          <div>
-            <i>↙</i>
+            <i aria-hidden="true">
+              <ProtocolIcon name="Cash buffer" size={18} />
+            </i>
             <strong>Cash buffer</strong>
             <span>Liquidity</span>
           </div>

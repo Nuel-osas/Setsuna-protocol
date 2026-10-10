@@ -33,7 +33,7 @@ const depositors = await client.getContractEvents({
   address: d.earnUSDC.vault,
   abi: erc4626Abi,
   eventName: "Deposit",
-  fromBlock: floor,
+  fromBlock: BigInt(d.earnUSDC.startBlock),
   toBlock: latest,
 });
 let owner;
@@ -122,65 +122,76 @@ await page.addInitScript(
   { owner },
 );
 await page.route("**/api/rpc/**", async (route) => {
-  const request = route.request().postDataJSON();
-  if (request.method === "eth_getLogs") logQueries.push(request.params[0]);
-  const call = request.params?.[0];
-  const selector = call?.data?.slice(0, 10);
-  const usdcFailure =
-    fixture === "balance-failure" &&
-    request.method === "eth_call" &&
-    call.to.toLowerCase() === d.earnUSDC.asset.toLowerCase() &&
-    selector === toFunctionSelector("balanceOf(address)");
-  const blockFailure =
-    fixture === "block-failure" && request.method === "eth_getBlockByNumber";
-  let result;
-  if (usdcFailure || blockFailure) {
-    result = {
-      error: { code: -32000, message: "Controlled read-only failure" },
-    };
-  } else if (
-    fixture.startsWith("position-") &&
-    request.method === "eth_call" &&
-    call.to.toLowerCase() === d.exchange.toLowerCase()
-  ) {
-    if (selector === toFunctionSelector("getPositionV2(uint256,uint256)")) {
-      const long = fixture === "position-long";
+  const payload = route.request().postDataJSON();
+  const requests = Array.isArray(payload) ? payload : [payload];
+  const replacements = new Map();
+  for (const request of requests) {
+    if (request.method === "eth_getLogs") logQueries.push(request.params[0]);
+    const call = request.params?.[0];
+    const selector = call?.data?.slice(0, 10);
+    const usdcFailure =
+      fixture === "balance-failure" &&
+      request.method === "eth_call" &&
+      call.to.toLowerCase() === d.earnUSDC.asset.toLowerCase() &&
+      selector === toFunctionSelector("balanceOf(address)");
+    const blockFailure =
+      fixture === "block-failure" && request.method === "eth_getBlockByNumber";
+    let result;
+    if (usdcFailure || blockFailure) {
       result = {
-        result: encodeFunctionResult({
-          abi: exchangeAbi,
-          functionName: "getPositionV2",
-          result: [
-            {
-              ...positionResult[0],
-              positionType: long ? 0 : 1,
-              lotLNS: 1000n,
-              depositCNS: 50000000n,
-              pricePNS: 800000n,
-              deltaPnlCNS: long ? 7000000n : -7000000n,
-              premiumPnlCNS: 1000000n,
-            },
-            positionResult[1],
-            true,
-          ],
-        }),
+        error: { code: -32000, message: "Controlled read-only failure" },
       };
+    } else if (
+      fixture.startsWith("position-") &&
+      request.method === "eth_call" &&
+      call.to.toLowerCase() === d.exchange.toLowerCase()
+    ) {
+      if (selector === toFunctionSelector("getPositionV2(uint256,uint256)")) {
+        const long = fixture === "position-long";
+        result = {
+          result: encodeFunctionResult({
+            abi: exchangeAbi,
+            functionName: "getPositionV2",
+            result: [
+              {
+                ...positionResult[0],
+                positionType: long ? 0 : 1,
+                lotLNS: 1000n,
+                depositCNS: 50000000n,
+                pricePNS: 800000n,
+                deltaPnlCNS: long ? 7000000n : -7000000n,
+                premiumPnlCNS: 1000000n,
+              },
+              positionResult[1],
+              true,
+            ],
+          }),
+        };
+      }
+      if (selector === toFunctionSelector("getAccountById(uint256)"))
+        result = {
+          result: encodeFunctionResult({
+            abi: exchangeAbi,
+            functionName: "getAccountById",
+            result: { ...accountInfo, balanceCNS: 300000000n },
+          }),
+        };
     }
-    if (selector === toFunctionSelector("getAccountById(uint256)"))
-      result = {
-        result: encodeFunctionResult({
-          abi: exchangeAbi,
-          functionName: "getAccountById",
-          result: { ...accountInfo, balanceCNS: 300000000n },
-        }),
-      };
+    if (result)
+      replacements.set(request.id, {
+        jsonrpc: "2.0",
+        id: request.id,
+        ...result,
+      });
   }
-  if (result)
-    return route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ jsonrpc: "2.0", id: request.id, ...result }),
-    });
-  return route.continue();
+  if (!replacements.size) return route.continue();
+  const response = await route.fetch();
+  const replies = await response.json();
+  const replace = (reply) => replacements.get(reply.id) ?? reply;
+  return route.fulfill({
+    response,
+    json: Array.isArray(replies) ? replies.map(replace) : replace(replies),
+  });
 });
 const settle = () =>
   page.waitForFunction(() => {
@@ -191,7 +202,7 @@ const connect = async () => {
   await page
     .getByRole("button", { name: "Connect account", exact: true })
     .click();
-  await page.getByRole("button", { name: "Browser wallet" }).click();
+  await page.getByRole("button", { name: /Browser wallet/ }).click();
   await settle();
 };
 const refresh = async () => {
@@ -269,6 +280,12 @@ try {
         .innerText(),
       display(wallet, decimals),
     );
+    assert.equal(
+      await page
+        .getByTestId(`portfolio-balance-${asset.toLowerCase()}`)
+        .getAttribute("title"),
+      formatUnits(wallet, decimals),
+    );
     if (asset !== "AUSD") {
       const m = d[`earn${asset}`];
       const shares = await read(
@@ -285,16 +302,17 @@ try {
         [shares],
         block,
       );
-      assert.equal(
-        await page
-          .getByTestId(`portfolio-total-${asset.toLowerCase()}`)
-          .getAttribute("title"),
-        formatUnits(wallet + worth, decimals),
-      );
+      if (shares > 0n)
+        assert.equal(
+          await page
+            .getByTestId(`portfolio-earn-${asset.toLowerCase()}`)
+            .innerText(),
+          `${display(worth, decimals)} ${asset}`,
+        );
     }
   }
   checks.push(
-    "Live local-fork wallet balances and Earn totals match independent reads at the displayed block",
+    "Wallet summary cards match wallet balances; deposited value appears separately in Earn positions",
   );
   const earnQueries = logQueries.filter((q) =>
     [d.earnMON.vault, d.earnUSDC.vault]
@@ -323,7 +341,7 @@ try {
     .getByRole("article", { name: "setsUSDC position" })
     .getByRole("link", { name: "Withdraw" })
     .click();
-  await page.waitForURL("**/app/?asset=USDC&action=withdraw");
+  await page.waitForURL("**/earn/usdc/?action=withdraw");
   await page.waitForFunction(() =>
     document
       .querySelector('[aria-label="Earn asset"]')
@@ -370,7 +388,7 @@ try {
   fixture = "balance-failure";
   await refresh();
   assert.equal(
-    await page.getByTestId("portfolio-total-usdc").getAttribute("title"),
+    await page.getByTestId("portfolio-balance-usdc").getAttribute("title"),
     null,
   );
   assert.match(
@@ -378,12 +396,12 @@ try {
     /Unavailable/,
   );
   assert.ok(
-    await page.getByTestId("portfolio-total-mon").getAttribute("title"),
+    await page.getByTestId("portfolio-balance-mon").getAttribute("title"),
   );
   fixture = "live";
   await refresh();
   assert.ok(
-    await page.getByTestId("portfolio-total-usdc").getAttribute("title"),
+    await page.getByTestId("portfolio-balance-usdc").getAttribute("title"),
   );
   checks.push(
     "A failed USDC balance read shows unavailable, preserves independent MON reads, and recovers",
@@ -407,7 +425,7 @@ try {
     "0",
   );
   assert.equal(
-    await page.getByTestId("portfolio-total-usdc").getAttribute("title"),
+    await page.getByTestId("portfolio-balance-usdc").getAttribute("title"),
     "0",
   );
   await page.getByRole("heading", { name: "Nothing earning yet" }).waitFor();
@@ -431,21 +449,16 @@ try {
     [accountId],
     perpsBlock,
   );
-  const [pos] = await read(
-    d.exchange,
-    exchangeAbi,
-    "getPositionV2",
-    [BigInt(d.perpId), accountId],
-    perpsBlock,
-  );
-  const equity =
-    pos.lotLNS > 0n ? pos.depositCNS + pos.deltaPnlCNS + pos.premiumPnlCNS : 0n;
   assert.equal(
-    await page.getByTestId("portfolio-total-ausd").getAttribute("title"),
-    formatUnits(wallet + reserve + info.balanceCNS + equity, 6),
+    await page.getByTestId("portfolio-balance-ausd").getAttribute("title"),
+    formatUnits(wallet, 6),
+  );
+  assert.deepEqual(
+    await page.locator(".p-perps-balances dd").allTextContents(),
+    [`${display(info.balanceCNS, 6)} AUSD`, `${display(reserve, 6)} AUSD`],
   );
   checks.push(
-    "Existing Perps account AUSD total matches wallet, reserve, free balance and position equity",
+    "AUSD wallet card excludes trading funds; the Perps account shows free balance and reserve separately",
   );
   for (const side of ["long", "short"]) {
     fixture = `position-${side}`;
@@ -459,11 +472,13 @@ try {
       await position.innerText(),
       side === "long" ? /\+8 AUSD/ : /-6 AUSD/,
     );
-    const value =
-      wallet + reserve + 300000000n + (side === "long" ? 58000000n : 44000000n);
     assert.equal(
-      await page.getByTestId("portfolio-total-ausd").getAttribute("title"),
-      formatUnits(value, 6),
+      await page.getByTestId("portfolio-balance-ausd").getAttribute("title"),
+      formatUnits(wallet, 6),
+    );
+    assert.match(
+      await position.innerText(),
+      side === "long" ? /58 AUSD/ : /44 AUSD/,
     );
   }
   await page.screenshot({

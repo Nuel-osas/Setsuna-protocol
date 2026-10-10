@@ -1,5 +1,6 @@
 "use client";
 import { pct, usd, useEarn } from "./useEarn";
+import { ProtocolLabel } from "./ProtocolIcon";
 
 const tones = ["var(--blue)", "#4F60FF", "#8A96FF", "#C2C8FF"];
 
@@ -7,21 +8,40 @@ const tones = ["var(--blue)", "#4F60FF", "#8A96FF", "#C2C8FF"];
 export default function AllocationRibbon() {
   const { data, failed } = useEarn();
   const all = data?.destinations ?? [];
-  const rows = all.filter((d) => d.weight > 0).sort((a, b) => b.weight - a.weight);
+  const rows = all
+    .filter((d) => d.weight > 0)
+    .sort((a, b) => b.weight - a.weight);
   const skipped = all.filter((d) => d.weight === 0);
   const buffer = (data?.idlePct ?? 10) / 100;
   return (
-    <figure className="s-ribbon" aria-label="How setsUSDC would split a deposit today">
+    <figure
+      className="s-ribbon"
+      aria-label="How setsUSDC would split a deposit today"
+    >
       <div className="s-ribbon-top">
         <span className="s-eyebrow">If you deposited today</span>
         <span className="s-ribbon-live">
           <i />
-          {failed ? "Rates unavailable" : data ? "Live from Monad mainnet" : "Loading"}
+          {failed
+            ? "Rates unavailable"
+            : data
+              ? "Live from Monad mainnet"
+              : "Loading"}
         </span>
       </div>
-      <div className="s-ribbon-bar" role="img" aria-label={rows.map((r) => `${r.protocol} ${pct(r.weight, 0)}`).join(", ") + `, cash ${pct(buffer, 0)}`}>
+      <div
+        className="s-ribbon-bar"
+        role="img"
+        aria-label={
+          rows.map((r) => `${r.protocol} ${pct(r.weight, 0)}`).join(", ") +
+          `, cash ${pct(buffer, 0)}`
+        }
+      >
         {rows.map((r, i) => (
-          <span key={r.key} style={{ flexGrow: r.weight, background: tones[i % tones.length] }} />
+          <span
+            key={r.key}
+            style={{ flexGrow: r.weight, background: tones[i % tones.length] }}
+          />
         ))}
         <span className="is-cash" style={{ flexGrow: buffer }} />
       </div>
@@ -30,7 +50,7 @@ export default function AllocationRibbon() {
           <li key={r.key}>
             <b style={{ background: tones[i % tones.length] }} />
             <span className="s-ribbon-name">
-              {r.protocol}
+              <ProtocolLabel name={r.protocol} size={18} />
               <small>
                 {r.name} · {usd(r.supplyUsd)}
               </small>
@@ -43,7 +63,7 @@ export default function AllocationRibbon() {
           <li key={r.key} className="is-skipped">
             <b />
             <span className="s-ribbon-name">
-              {r.protocol}
+              <ProtocolLabel name={r.protocol} size={18} />
               <small>{r.reason}</small>
             </span>
             <span className="s-ribbon-apy">{pct(r.apr)}</span>
@@ -53,8 +73,12 @@ export default function AllocationRibbon() {
         <li>
           <b className="is-cash" />
           <span className="s-ribbon-name">
-            Held as cash
-            <small>{data && data.idlePct > data.bufferPct ? `${data.bufferPct}% buffer + unplaced` : "For instant withdrawals"}</small>
+            <ProtocolLabel name="Held as cash" size={18} />
+            <small>
+              {data && data.idlePct > data.bufferPct
+                ? `${data.bufferPct}% buffer + unplaced`
+                : "For instant withdrawals"}
+            </small>
           </span>
           <span className="s-ribbon-apy">0.00%</span>
           <span className="s-ribbon-w">{pct(buffer, 0)}</span>

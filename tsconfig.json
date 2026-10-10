@@ -38,7 +38,12 @@
     "next.config.ts",
     ".next-earn-flow/dev/types/**/*.ts",
     ".next-portfolio-build/types/**/*.ts",
-    ".next-portfolio-build/dev/types/**/*.ts"
+    ".next-portfolio-build/dev/types/**/*.ts",
+    ".next-earn-redesign-build/types/**/*.ts",
+    ".next-earn-redesign-build/dev/types/**/*.ts",
+    ".next-bucket-check/types/**/*.ts",
+    ".next-bucket-check/dev/types/**/*.ts",
+    ".next-earn-flow/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

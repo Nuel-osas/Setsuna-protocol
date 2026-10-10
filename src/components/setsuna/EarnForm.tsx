@@ -4,6 +4,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { erc4626Abi, formatUnits, type Address } from "viem";
 import { clientFor, useWallet } from "./WalletProvider";
 import { Mark } from "./Brand";
+import TokenIcon from "./TokenIcon";
 
 export type EarnAsset = "MON" | "USDC";
 export type EarnMode = "deposit" | "withdraw";
@@ -17,12 +18,13 @@ export const earnAmount = (
   value: bigint | undefined,
   decimals: number,
   digits = 5,
-) =>
-  value === undefined
-    ? "—"
-    : Number(formatUnits(value, decimals)).toLocaleString("en-US", {
-        maximumFractionDigits: digits,
-      });
+) => {
+  if (value === undefined) return "—";
+  const number = Number(formatUnits(value, decimals));
+  if (number !== 0 && Math.abs(number) < 10 ** -digits)
+    return `${number < 0 ? "−" : ""}<${(10 ** -digits).toFixed(digits)}`;
+  return number.toLocaleString("en-US", { maximumFractionDigits: digits });
+};
 
 export function EarnToken({
   asset,
@@ -37,17 +39,14 @@ export function EarnToken({
       className={`s-earn-token is-${asset.toLowerCase()} ${receipt ? "is-receipt" : ""}`}
     >
       {receipt ? (
-        <Mark size={24} />
-      ) : asset === "USDC" ? (
-        "$"
+        <>
+          <Mark size={24} />
+          <span className="e-underlying-badge">
+            <TokenIcon asset={asset} size={12} />
+          </span>
+        </>
       ) : (
-        <svg width="23" height="23" viewBox="0 0 24 24">
-          <path
-            fill="currentColor"
-            fillRule="evenodd"
-            d="M12 2C9 2 2 9 2 12s7 10 10 10 10-7 10-10S15 2 12 2Zm0 5c-1.4 0-5 3.6-5 5s3.6 5 5 5 5-3.6 5-5-3.6-5-5-5Z"
-          />
-        </svg>
+        <TokenIcon asset={asset} size={asset === "MON" ? 22 : 30} />
       )}
     </span>
   );
@@ -394,20 +393,12 @@ export default function EarnForm(p: Props) {
             <label htmlFor="earn-amount">
               {withdrawing ? "You redeem" : "You deposit"}
             </label>
-            <button
-              type="button"
-              className="s-earn-max"
-              disabled={
-                !address || !p.healthy || locked || maximum <= BigInt(0)
-              }
-              onClick={() =>
-                setInput(
-                  formatUnits(maximum, withdrawing ? shareDecimals : decimals),
-                )
-              }
-            >
-              Max
-            </button>
+            <span className="s-earn-balance-inline">
+              Balance{" "}
+              {address
+                ? `${earnAmount(withdrawing ? p.shares : p.walletBalance, withdrawing ? shareDecimals : decimals)} ${inputSymbol}`
+                : "—"}
+            </span>
           </div>
           <div className="s-earn-amount-row">
             <input
@@ -431,11 +422,32 @@ export default function EarnForm(p: Props) {
               onSelect={setAsset}
             />
           </div>
-          <p className="s-earn-balance">
-            {address
-              ? `Balance: ${earnAmount(withdrawing ? p.shares : p.walletBalance, withdrawing ? shareDecimals : decimals)} ${inputSymbol}`
-              : "Connect to see your balance"}
-          </p>
+          <div
+            className="s-earn-percentages"
+            role="group"
+            aria-label="Amount shortcuts"
+          >
+            {[25, 50, 75, 100].map((percent) => (
+              <button
+                key={percent}
+                type="button"
+                className={percent === 100 ? "s-earn-max" : undefined}
+                disabled={
+                  !address || !p.healthy || locked || maximum <= BigInt(0)
+                }
+                onClick={() =>
+                  setInput(
+                    formatUnits(
+                      (maximum * BigInt(percent)) / BigInt(100),
+                      withdrawing ? shareDecimals : decimals,
+                    ),
+                  )
+                }
+              >
+                {percent === 100 ? "Max" : `${percent}%`}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="s-earn-direction">
           <button

@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { pct, usd, useEarn } from "./useEarn";
+import { ProtocolLabel } from "./ProtocolIcon";
+import TokenIcon from "./TokenIcon";
 
 export default function EarnRates({
   compact = false,
@@ -45,7 +47,10 @@ export default function EarnRates({
                 onChange={(e) => setAmount(e.target.value)}
                 aria-label="Deposit amount in USDC"
               />
-              <i>USDC</i>
+              <i className="s-token-label">
+                <TokenIcon asset="USDC" size={18} />
+                USDC
+              </i>
             </span>
             <em>
               ≈{" "}
@@ -74,7 +79,7 @@ export default function EarnRates({
             {(data?.destinations ?? []).map((d) => (
               <tr key={d.key} className={d.eligible ? "" : "is-off"}>
                 <th>
-                  {d.protocol} · {d.name}
+                  <ProtocolLabel name={`${d.protocol} · ${d.name}`} />
                   <a
                     className="s-addr"
                     href={`https://monadvision.com/address/${d.address}`}
@@ -98,7 +103,7 @@ export default function EarnRates({
             ))}
             <tr className="is-buffer">
               <th>
-                Held as cash
+                <ProtocolLabel name="Held as cash" />
                 <span className="s-addr">
                   {data && data.idlePct > data.bufferPct
                     ? `${data.bufferPct}% buffer, plus what the caps leave unplaced`
