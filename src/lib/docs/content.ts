@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { cache } from "react";
 import { Marked } from "marked";
 import { docs, type DocHeading, type SearchEntry } from "./catalog";
+import { protocolLogo } from "@/lib/setsuna/logos";
 
 const escape = (text: string) =>
   text
@@ -43,6 +44,17 @@ export const getDoc = cache(async (slug: string) => {
       },
       code({ text, lang }) {
         return `<div class="sd-code"><div class="sd-code-top"><span>${escape(lang || "Formula")}</span><button type="button" data-copy-code aria-label="Copy code">Copy</button></div><pre><code>${escape(text)}</code></pre></div>`;
+      },
+      tablecell({ tokens, header, align }) {
+        const content = this.parser.parseInline(tokens);
+        const label = content.replace(/<[^>]*>/g, "").trim();
+        const src = !header && protocolLogo(label);
+        const tag = header ? "th" : "td";
+        const alignment = align ? ` align="${escape(align)}"` : "";
+        const cell = src
+          ? `<span class="s-protocol-label"><img class="s-protocol-icon" data-protocol="${escape(label)}" src="${src}" alt="" aria-hidden="true" width="20" height="20" loading="lazy" />${content}</span>`
+          : content;
+        return `<${tag}${alignment}>${cell}</${tag}>`;
       },
     },
   });

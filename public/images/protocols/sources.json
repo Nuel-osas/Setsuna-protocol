@@ -1,0 +1,47 @@
+{
+  "retrievedAt": "2026-10-10T21:44:52.560Z",
+  "assets": [
+    {
+      "protocol": "aave",
+      "source": "https://aave.com/images/icon-aave.png",
+      "file": "aave-icon.png",
+      "sha256": "46709f2157edb25ac0de6e529730b98e9c585588be4ecec24ef71d4953bc6ebf"
+    },
+    {
+      "protocol": "curvance",
+      "source": "https://www.curvance.com/favicon.svg",
+      "file": "curvance.svg",
+      "sha256": "05c6f89c5f52cbfcf92301e77ba1ec3394e8db1fe1fd381d7e6f9f08e3d41075"
+    },
+    {
+      "protocol": "euler",
+      "source": "https://www.euler.finance/icon.svg",
+      "file": "euler.svg",
+      "sha256": "6df412e38e3f4b8236fbcd0b0cfcd405192a45810faffa8f7cff1a16228fc47e"
+    },
+    {
+      "protocol": "kuru",
+      "source": "https://www.kuru.io/svg/symbol.svg",
+      "file": "kuru.svg",
+      "sha256": "848a3ff5855f10a1024370914cf0005387c4fe7bc5b14b5040ba82b80f02f747"
+    },
+    {
+      "protocol": "morpho",
+      "source": "https://brand.morpho.org/_next/static/media/Morpho-logo-symbol-darkmode.0xx-r6pbtyke7.svg?dpl=dpl_8j3HZb4oTzHspjBGhEN6CBNn5JxF",
+      "file": "morpho.svg",
+      "sha256": "241c1130ba02825de4436fe049ca003dce32d4ac80f10494e5cf7aa80efe4de5"
+    },
+    {
+      "protocol": "neverland",
+      "source": "https://neverland.money/assets/brand/logomark.svg",
+      "file": "neverland.svg",
+      "sha256": "24f72a672a0cfeb1d6a91199350e3d17e021a28fd43e19f8259eaac0a4b213ff"
+    },
+    {
+      "protocol": "perpl",
+      "source": "https://perpl.xyz/assets/webclip-Cvh3rcxK.svg",
+      "file": "perpl.svg",
+      "sha256": "28ba72f498983c24f8e3f42c0d58c423f6b037cdc69ceebfa9a58df9e26e58e5"
+    }
+  ]
+}

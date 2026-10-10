@@ -1,0 +1,32 @@
+{
+  "retrievedAt": "2026-10-10T22:02:15.279Z",
+  "assets": [
+    {
+      "name": "AUSD",
+      "file": "/images/tokens/ausd.svg",
+      "source": "https://dsvxs4ecepqgj.cloudfront.net/tokens/AUSD/logo.svg",
+      "sha256": "948fc6e899e04755e96507200860130569980d1bd135904f74e7d13d388bcadb"
+    },
+    {
+      "name": "BTC",
+      "file": "/images/tokens/bitcoin.png",
+      "source": "https://bitcoin.org/img/icons/logo_ios.png",
+      "sha256": "70a39ca6f8a889fa58da5c6c2489a18552d91e3e16b90be73442c947bd48c043"
+    },
+    {
+      "name": "MON",
+      "file": "/images/tokens/monad.svg",
+      "source": "https://www.monad.xyz/brand-and-media-kit",
+      "note": "Official logomark path, rendered white on the existing purple token background.",
+      "sha256": "7eec06b76e66d897fc362d9c5107809723106a3b4071cd987ac86fd3bb59dc92"
+    },
+    {
+      "name": "USDC",
+      "file": "/images/tokens/usdc.svg",
+      "source": "https://www.circle.com/pressroom",
+      "download": "https://6778953.fs1.hubspotusercontent-na1.net/hubfs/6778953/Pressroom/brandkit/logo-downloads/usdc.zip",
+      "archiveEntry": "Token Logo/USDC Token.svg",
+      "sha256": "fe4f9d5f34ef4ebeb5d80e1f5ff63dcaf5a0d5495f4adf206e4c3011d1f5c57d"
+    }
+  ]
+}

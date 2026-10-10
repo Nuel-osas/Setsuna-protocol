@@ -1,0 +1,73 @@
+.s-protocol-label,
+.s-token-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  vertical-align: middle;
+  max-width: 100%;
+}
+.s-protocol-label > span {
+  min-width: 0;
+}
+.s-protocol-icon {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.s-protocol-icon[data-protocol^="Perpl"] {
+  filter: invert(1);
+}
+.m-venues > div {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px 32px;
+  max-width: 1280px;
+}
+.m-venues > div > .s-protocol-label {
+  gap: 10px;
+  font-size: clamp(15px, 1.5vw, 20px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: var(--b-secondary);
+}
+.e-sources p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.s-earn-token.is-usdc:not(.is-receipt),
+.p-ausd-icon {
+  background: transparent;
+  border: 0;
+}
+.sd-table .s-protocol-label {
+  white-space: nowrap;
+}
+.sd-prose .s-protocol-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+.t-pair .s-protocol-label > span {
+  margin-top: 0;
+}
+.s-wallet-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  text-align: left;
+}
+.s-wallet-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  color: var(--b-secondary);
+}
+.s-wallet-icon img {
+  display: block;
+  object-fit: contain;
+  border-radius: 7px;
+}
