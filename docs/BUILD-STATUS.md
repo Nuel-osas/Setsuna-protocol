@@ -1,5 +1,194 @@
 # Setsuna build status
 
+## Portfolio balances and wallet icons — Codex, 11 October 2026 — local only
+
+The Portfolio headline cards now show wallet balances, with deposits shown
+separately in Earn and Perps. Emmanuel's USDC card previously combined 660 USDC
+in the wallet with roughly 340 USDC in Earn, making it look as though the deposit
+had not reduced the wallet balance. The live browser check now confirms 660 in
+both wallet displays and 340.00024 USDC in the Earn position. This changes what
+the headline reports; it does not alter chain accounting. Unrelated styling
+changes from the initial interpretation were reverted.
+
+Wallet choices now display extension-announced icons, with a generic icon for
+missing or broken images. Late announcements update an existing injected entry.
+Phantom explicitly uses the unchanged official ghost SVG served from
+`public/images/wallets/phantom.svg`; provenance is in the adjacent `sources.json`.
+TypeScript and targeted read-only browser checks passed at desktop, 390px and
+320px, including icon loading/fallback and the corrected live USDC balance.
+Evidence: `.local/portfolio-consistency/result.json` and `phantom-official.png`.
+The broader Portfolio suite initially stopped on a transient backend RPC 503;
+it is not counted as a pass. No transactions, push or deployment.
+
+## Earn loading fixed — Codex, 10 October 2026 — local only
+
+Emmanuel requested fixing the delay before vault values appear. Public APR,
+assets, share value and allocation now load before wallet limits, strategy details
+and chart history. The two overview vaults load independently. RPC reads share
+clients and travel in batches of at most 20, matching the existing restricted
+gateway. Public figures share a 10-second cache; historical chart samples share
+a 60-second cache. Deployment fetches are deduplicated and successful server
+configuration checks are reused for 10 seconds. Failed reads are not cached.
+Wallet balances, transaction quotes and withdrawal limits still use fresh reads;
+completed actions invalidate public figures and refresh the full snapshot.
+Polling skips an outstanding read, and older reads cannot overwrite action results.
+
+Measured locally against the restored Railway fork:
+
+| Page | Previous time to figures | Updated time | API requests before figures |
+| --- | --- | --- | --- |
+| Earn overview | 18.6 s | 5.4 s | 73 → 3 |
+| USDC detail | 59.1 s | 2.0 s | 254 → 3 |
+| MON detail | Not measured | 1.9 s | 3 |
+
+Each page used a fresh browser context; the detail measurements benefited from
+the server configuration cache. Overview-to-USDC navigation reused public data
+and displayed figures in 95 ms. These are measured timings, not a latency SLA.
+Evidence: `.local/loading-profile/profile.json` (before) and
+`.local/earn-loading/1791672285178/result.json` (after).
+
+Production build, TypeScript and 18 focused tests passed. Browser acceptance
+passed six signed synthetic-fund transactions covering deposits and complete
+withdrawals for both assets, approval rejection, quote failure/recovery, and
+390px/320px layouts (`.local/earn-flow/1791672349412/result.json`). A controlled
+22-second detail read left public figures visible after 1.9 seconds and did not
+start an overlapping poll. A separate MON outage left USDC figures available
+and MON unavailable, without inventing a zero rate
+(`.local/earn-loading/resilience-result.json`).
+
+Review at **http://127.0.0.1:3018/earn/**. No push or frontend deployment;
+`setsuna.finance` has not received these changes.
+
+## Hosted backend recovered — Codex, 10 October 2026
+
+Emmanuel authorized recovering Railway and using it for the local frontend.
+Railway had stopped after worker RPC timeouts on 9 October. Its final Perps
+fixture transaction succeeded, but the timeout left a pending journal without
+the returned hash. A normal restart restored the fork, then stopped on that
+unresolved journal. In a temporary maintenance container, backed up the chain
+snapshot and journal, verified the successful receipt, exact calldata/event and
+next owner nonce, and reconciled transaction
+`0xacedba67cb51300de45e82f39a1099874005566c184f6851dc24d1dab0d800cb`.
+The reconciliation did not modify chain state or resubmit that transaction.
+
+Railway release `ae4244bb-87bb-42b1-aabc-80e75dcbccfb` restores the existing fork,
+contract addresses and three workers. Both `setsuna.finance` and the local app
+return the verified five-protocol demo configuration. All 25 original acceptance
+receipts retain their block hashes and events. Desktop overview, both vault detail
+pages and the 390px overview display real fork values: approximately 10 MON at
+5.05% base APR and 160.28 USDC at 4.82% at verification. These are variable demo
+rates and synthetic assets. No browser errors or mobile overflow were observed.
+No new user transaction acceptance was performed.
+
+Local review remains **http://127.0.0.1:3018/earn/**. Ignored `.env.local` now uses
+the Railway RPC and cloud manifest; corrected the manifest's dotenv encoding in
+ignored `.env.hosted-demo` as well. Private URLs remain server-only. No local
+Anvil instance was started, no Git push occurred, and the new frontend design was
+not published. Evidence: `.local/hosted-recovery-2026-10-10/`; server backup:
+`/data/setsuna/recovery-2026-10-10/`. The original timeout cause is not yet isolated;
+the fail-closed worker behavior and manual restart policy remain in place.
+
+## Logos throughout the site — Codex, 10 October 2026 — local only
+
+Emmanuel requested logos everywhere, explicitly including the real USDC logo.
+Added a shared token/protocol asset registry and reusable icon/label components.
+Circle's unchanged USDC token SVG comes from its official pressroom brand kit.
+MON, USDC, AUSD and BTC now use image assets instead of letter/currency-symbol
+placeholders in the hero, product illustrations, Earn selectors and receipt
+badges, Spot/Perps headers, Portfolio and documentation illustrations. Protocol
+logos appear in the integration strip, Earn summaries, allocation/rate tables,
+decision details and developer documentation tables; shared research components
+use the same registry. Receipt tokens retain Setsuna's Wave Lift mark with their
+underlying asset's real logo. Plain explanatory prose remains readable.
+
+Assets are served locally with provenance and hashes in
+`public/images/{tokens,protocols}/sources.json`; AUSD is from Kuru's token assets.
+Production build/TypeScript, 20 page checks across desktop and 390px mobile, and
+the existing 22-page docs suite passed. All checked logos loaded, no letter-icon
+placeholders or document overflow remained, and no browser errors occurred.
+Evidence: `.local/sitewide-logos/`. The local fork is still offline, so these are
+visual/navigation checks, not new transaction acceptance. No push or deployment.
+
+## Protocol logos — Codex, 10 October 2026 — local only
+
+Replaced protocol initials in the landing-page vault flow and Earn allocation
+cards with official Aave, Morpho, Euler, Neverland and Curvance assets. USDC's
+landing illustration now shows all five destinations; MON retains Neverland and
+Euler. Cash uses a wallet icon. Source URLs and file hashes are recorded in
+`public/images/protocols/sources.json`. Aave uses its supplied app icon for contrast
+on the dark surface. TypeScript, formatting and eight browser checks passed,
+including MON/USDC switching at 1440px, 390px and 320px and both Earn allocation
+views. Screenshots and review: `.local/protocol-logo-review/`. No push or deployment.
+
+## Local Anvil disk-growth fix — Codex, 10 October 2026 — local only
+
+Confirmed the current app on 3018 uses fork 18614 by matching its latest block
+hash. Disabled idle interval mining on older USDC forks 18612/18613 and restored
+transaction-triggered mining after confirming empty transaction pools. Repeated
+checks showed both stopped advancing and the active fork remained unchanged.
+Existing history directories total approximately 79 GB; no caches were deleted
+and no existing process was stopped or restarted.
+
+Added `--prune-history 128` to all four local demo launchers, including the unified
+acceptance runner, to bound in-memory state history and prevent disk snapshots on
+future launches. A 520-block isolated Anvil check preserved current/recent state,
+receipts and event logs with zero history-cache files; an unpruned control wrote
+four files. All four scripts passed syntax checks and the diff passed whitespace
+checks. Older chart samples can be unavailable after pruning. Full integration
+tests were not rerun. [Details and evidence](UNIFIED-DEMO.md#local-fork-disk-usage--codex-10-october-2026).
+No push, hosted deployment change or real-fund transaction.
+
+## Earn comparison table polish — Codex, 10 October 2026 — local only
+
+At Emmanuel's request, replaced the black table header with a translucent glass
+surface, a subtle gradient and 20px backdrop blur. Fixed the cramped header padding,
+set labels and values to 14px Inter, increased contrast, highlighted APR in lavender,
+and clarified the action as “View vault”. Added table header scopes. Desktop and
+390px browser review confirmed transparent header cells, active blur and no page
+overflow; the table scrolls horizontally on mobile. Evidence:
+`.local/bucket-refresh/glass-table/`. No transaction logic changes, push or deployment.
+
+## Bucket dark palette applied — Codex, 10 October 2026 — local review only
+
+Emmanuel requested Bucket's exact palette and no light theme. Review at
+**http://127.0.0.1:3018/earn/**. Added the measured shared palette and original public
+background gradients; restyled Earn cards/forms/charts, Portfolio, wallet dialogs,
+navigation, marketing, Docs and trading surfaces. SAM-inspired Earn flow, Google
+Inter, Wave Lift identity and execution logic remain. Earn adds 25/50/75/Max amount
+shortcuts; app navigation moves to a fixed bottom bar on mobile. Docs renders dark
+immediately and has no light-theme toggle.
+
+Build/TypeScript passed, six signed synthetic-fund Earn transactions and six flow
+scenarios passed, five app routes passed at four screen widths, percentage shortcuts
+and exact colour tokens were checked, and all 22 documentation pages plus existing
+search/copy/navigation checks passed. No page errors or document overflow observed.
+No new trading execution test, push, deployment or real-fund transaction.
+[Implementation, sources, evidence and rollback](FRONTEND-REFRESH.md#bucket-dark-theme-implemented--codex-10-october-2026--local-only).
+
+## Bucket visual-system study — Codex, 10 October 2026 — research only
+
+Emmanuel selected Bucket Protocol for colours and components. Inspected its public
+Earn overview, savings, leverage, borrow, market, dashboard and staking screens at
+desktop/mobile sizes, plus forms, dialogs, asset selectors, charts, market views,
+navigation and the Swap panel. Recorded measured colours, typography, spacing,
+radii and interaction patterns. Bucket is the primary visual reference for the
+next Earn styling pass; SAM remains the flow reference. Keep Google Inter and the
+Setsuna identity. [Research and implementation mapping](FRONTEND-REFRESH.md#current-reference-bucket-protocol--codex-10-october-2026).
+
+No application source changes, transactions, push or deployment in this study.
+The prior local Earn redesign remains available at http://127.0.0.1:3018/earn/.
+Authenticated Bucket screens were not inspected. D-j-View captured public assets
+but failed offline verification; use the live-browser screenshots as the visual
+record. This is Codex's research handoff for Claude, not implementation approval.
+
+## SAM-inspired Earn flow — Codex, 10 October 2026 — local review only
+
+Emmanuel approved the Earn redesign for review and explicitly said **do not push**. Review at **http://127.0.0.1:3018/earn/**. Earn now opens with setsMON/setsUSDC comparison cards. `/earn/mon/` and `/earn/usdc/` show vault stats, recorded share-value/total-asset charts, personal position and earnings, allocation cards, and a persistent Deposit/Withdraw card with the existing asset dropdown. Detailed allocation decisions and public controls are expandable. Legacy `/app/?asset=...&action=...` links still work. The wallet persists through client navigation. Receipt tokens now carry an underlying-asset badge; Inter typography and the ocean palette are retained.
+
+Portfolio positions now show total deposits, withdrawals and net earnings in each underlying asset. Earnings use owner-filtered events from the manifest deployment block, reconcile shares against the current balance, and remain unknown for external share transfers, incomplete history or unavailable valuation. Queries are paginated with an incremental, block-hash-checked in-memory cache. More than 100,000 uncached blocks requires an indexer and shows unavailable. Performance uses up to 13 historical block samples, excludes empty vault samples, labels archive-state gaps and refreshes every minute. This local RPC has pruned some early state, so charts currently show partial recorded history. No invented 7/30-day APY, aggregate USD conversion or sample yields are shown.
+
+Validation passed: production build and TypeScript; 12 accounting tests; 6 Earn flow scenarios including 6 signed transactions for both asset deposit/withdraw round trips, rejection and quote-error recovery; 9 Portfolio scenarios; 8 allocation-decision scenarios; and desktop/320px/390px redesign navigation checks. Proofs: `.local/earn-flow/1791614151815/result.json`, `.local/portfolio/1791614336187/result.json`, `.local/earn-decision/1791614443430/result.json`, `.local/earn-redesign/1791614415472/result.json`. Previous authoring source is archived in `.local/earn-redesign-backup/20261010/source-before.tar.gz`; `changes.json` beside it lists modified/new paths for a targeted rollback. Contract action code and Spot/Perps screens were retained. No push, deployment or real-fund transaction. This is Codex's implementation and handoff for local review.
+
 ## Security and Evidence pages deleted — Codex, 9 October 2026 — local only
 
 At Emmanuel's request, deleted both page routes and their public evidence-download copies. Removed the header/footer entries and replaced remaining Home, Earn and Spot links with appropriate documentation links. The public-facing fork-probe table, including its Codex/Claude credits, is removed; internal research records remain available. Archived source/download copies are in `.local/retired-pages/20261009T185243Z`. Updated the internal documentation index and completion checklist. Removed obsolete generated-route type includes that referenced the deleted pages; the current production build, including TypeScript, passes. Eleven browser/HTTP checks confirmed both routes and downloads return 404, remaining page links work, and mobile navigation fits. Evidence: `.local/page-removal/1791572017111/result.json`. No push or deployment; the live website awaits a separately authorized release.

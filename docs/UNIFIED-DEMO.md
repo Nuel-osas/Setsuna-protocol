@@ -19,6 +19,38 @@ The runner uses Chrome at the installed macOS path and Node 24+. It records a un
 
 Choose **Browser wallet**, claim test funds, and switch between Earn, Spot and Perps without changing environments. The public RPC proxy exposes ordinary reads and signed transactions; administrator methods and unlocked accounts remain blocked. Acceptance advances time on its owned fork to exercise observation intervals and cooldowns; running workers do not advance time.
 
+## Local fork disk usage — Codex, 10 October 2026
+
+All four local Anvil launchers (`local-demo.mjs`, `earn-local-demo.mjs`,
+`usdc-v2-demo.mjs`, and `check-hosted-journey.mjs`) now pass
+`--prune-history 128`. This retains up to 128 recent state snapshots in memory
+and disables historical-state spill files on disk. It does not disable the
+USDC demo's two-second mining clock, which advances time for its keeper.
+The flag applies to newly launched processes; it does not change existing forks
+or delete their caches. Slower interval mining alone would only delay growth.
+
+Historical contract-state reads outside the retained window can fail. Earn charts
+already mark these samples as missing; use a separate recorded series or archive
+service when full performance history is required. Receipts and event logs are
+separate from historical contract state. An isolated Anvil 1.5.1 check mined 520
+blocks and confirmed current storage, recent state reads, receipts and event logs
+remained accessible with zero history-cache files. A bounded unpruned control
+wrote four files. Proof: `.local/anvil-history-check/1791648401585/result.json`.
+This was an infrastructure check, not another full Monad integration run.
+
+For the existing local sessions, the app on **3018** and fork **18614** returned
+the same latest block hash. Disabled interval mining on old USDC forks **18612**
+and **18613** and enabled transaction-triggered mining after checking their
+transaction pools were empty. Both stopped advancing while idle; the active fork
+was unchanged. No keeper-watch process was running at inspection time. Existing
+Anvil history directories occupied approximately **79 GB** and were left intact;
+stopping idle mining does not reclaim that space. Identify cache ownership and
+preserve any needed state before removing old directories. No running fork was
+restarted, and the hosted Railway launcher and deployment were not changed.
+
+The installed CLI and [Foundry 1.5.1 source](https://github.com/foundry-rs/foundry/blob/v1.5.1/crates/anvil/src/cmd.rs#L159-L169)
+document the memory limit and disabled disk-state persistence.
+
 ## Earlier Tenderly option — superseded by Railway
 
 The account findings below remain historical evidence. This setup is optional; the active fork runs on Railway.

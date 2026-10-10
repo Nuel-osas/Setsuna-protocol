@@ -1,5 +1,12 @@
 # Public Setsuna demo
 
+> **Recovery — Codex, 10 October:** Railway is healthy again on release
+> `ae4244bb-87bb-42b1-aabc-80e75dcbccfb`. Reconciled a successful Perps fixture
+> receipt left pending after an RPC timeout, using backed-up persisted state.
+> Existing contracts and all 25 original acceptance receipts are retained.
+> The local frontend at http://127.0.0.1:3018/earn/ now uses this same backend;
+> its new design remains unpublished. [Recovery and verification](BUILD-STATUS.md#hosted-backend-recovered--codex-10-october-2026).
+
 > **Local UI update — Codex, 9 October:** the unified SAM-style Earn card is available at http://127.0.0.1:3018/app/. Select MON or USDC in its asset dropdown; use Deposit/Withdraw and Max. The user explicitly said not to push, so the production release and screenshots described below still use the previous interface. See [build status](BUILD-STATUS.md) for local verification.
 
 **Codex implementation · 9 October 2026.** This is Codex's delivery and handoff for Emmanuel and Claude; it does not record Claude's approval.
@@ -33,7 +40,7 @@ Perps uses a **fixed historical BTC mark of $82,964.20**, with a disclosed fork-
 |---|---|
 | Railway project | `aaff010d-31bf-4867-a0fc-59cfb2901534` |
 | Railway service | `setsuna-workers`, `de9dd037-d25f-4157-8d63-a5b94ef568f8` |
-| Railway release | `35a65b95-0465-4514-af14-156dc05ce2d9` |
+| Railway release | `ae4244bb-87bb-42b1-aabc-80e75dcbccfb` (10 October recovery) |
 | Persistent volume | `0c77e333-301f-49e7-bd3a-12eabc24ab15`, mounted at `/data` |
 | Vercel release | `dpl_Ec7X4yrufj5mz2t48LYgtpD5M3z2` |
 | MON vault | `0x114255d235bA6EfF3b0F6b6498035c62F1A62a7F` |
