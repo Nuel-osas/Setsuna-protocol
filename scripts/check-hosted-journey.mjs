@@ -98,6 +98,9 @@ try {
     "--timestamp",
     String(sourceBlock.timestamp),
     "--silent",
+    // Applies to kept demos too: recent states in memory, no disk snapshots.
+    "--prune-history",
+    "128",
   ]);
   const c = createPublicClient({ transport: http(rpc, { retryCount: 0 }) });
   for (let i = 0; i < 60; i++) {

@@ -28,8 +28,10 @@ const pinned = await upstreamClient.getBlock({ blockNumber: pinnedBlock });
 if (pinned.hash !== pinnedHash) throw new Error("Pinned block hash differs from reviewed evidence");
 
 const log = await open(new URL("../.local/anvil.log", import.meta.url), "w");
+// Keep recent state reads without spilling full fork snapshots to disk.
 const anvil = spawn("anvil", ["--fork-url", upstream, "--fork-block-number", String(pinnedBlock),
   "--chain-id", "31337", "--host", "127.0.0.1", "--port", String(port), "--silent",
+  "--prune-history", "128",
   "--gas-limit", "1000000000", "--timestamp", String(pinned.timestamp)], { cwd: root, stdio: ["ignore", log.fd, log.fd] });
 let spawnError;
 anvil.on("error", (error) => { spawnError = error; });

@@ -192,6 +192,9 @@ async function main() {
       "--gas-limit",
       "1000000000",
       "--quiet",
+      // Keep recent state reads without spilling full fork snapshots to disk.
+      "--prune-history",
+      "128",
       "--cache-path",
       `${stateDir}/rpc-cache`,
       ...(resumes

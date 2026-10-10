@@ -66,6 +66,9 @@ const anvil = spawn(
     "--port",
     String(port),
     "--silent",
+    // Keep recent state reads without spilling full fork snapshots to disk.
+    "--prune-history",
+    "128",
     "--gas-limit",
     "1000000000",
     "--timestamp",

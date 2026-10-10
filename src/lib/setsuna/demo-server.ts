@@ -1,6 +1,8 @@
 import { createPublicClient, http, parseAbi } from "viem";
 import { demoConfig, venues } from "./demo-config";
 import { validateUSDCEarn } from "./usdc-deployment";
+import { createReadCache } from "./read-cache";
+import type { Deployment } from "./types";
 export function demoRPC() {
   const rpc = process.env.SETSUNA_DEMO_RPC_URL;
   if (!rpc) throw new Error("No demo RPC configured");
@@ -16,12 +18,23 @@ export function demoRPC() {
     throw new Error("Demo RPC must use HTTPS");
   return rpc;
 }
-export async function validatedDemo(origin: string) {
+const validations = createReadCache<Deployment>(10_000, 8);
+export function validatedDemo(origin: string) {
+  const rpc = demoRPC();
   const raw = process.env.SETSUNA_DEMO_MANIFEST;
   if (!raw) throw new Error("No demo manifest configured");
+  return validations.read(JSON.stringify([origin, rpc, raw]), () =>
+    validateDemo(origin, raw, rpc),
+  );
+}
+async function validateDemo(origin: string, raw: string, rpc: string) {
   const d = demoConfig(raw, `${origin}/api/rpc/`);
   const c = createPublicClient({
-    transport: http(demoRPC(), { timeout: 8000, retryCount: 0 }),
+    transport: http(rpc, {
+      timeout: 8000,
+      retryCount: 0,
+      batch: { batchSize: 20, wait: 10 },
+    }),
   });
   if ((await c.getChainId()) !== d.chainId)
     throw new Error("Demo RPC chain mismatch");
