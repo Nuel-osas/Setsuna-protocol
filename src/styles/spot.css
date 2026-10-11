@@ -1119,3 +1119,23 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
     font-size: 10px;
   }
 }
+
+/* Fit the book to its panel: the best asks stay beside the spread and deeper
+   levels are clipped, instead of overflowing over the column headings. The
+   stacked layouts at 1000px and below keep their own grid and scrolling. */
+@media (min-width: 1001px) {
+  .db-book-body {
+    overflow: hidden;
+  }
+  .db-book-body > .db-asks,
+  .db-book-body > :last-child {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .db-book-body > .db-asks {
+    justify-content: flex-end;
+  }
+}
