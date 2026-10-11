@@ -6,7 +6,8 @@ import { setTimeout as delay } from "node:timers/promises";
 const interval = Number(process.env.EARN_KEEPER_INTERVAL_SECONDS ?? "15");
 if (!Number.isInteger(interval) || interval < 15 || interval > 300)
   throw new Error("EARN_KEEPER_INTERVAL_SECONDS must be between 15 and 300");
-let stopping = false;
+let stopping = false,
+  failures = 0;
 const abort = new AbortController();
 for (const signal of ["SIGINT", "SIGTERM"])
   process.once(signal, () => {
@@ -26,15 +27,16 @@ while (!stopping) {
     child.once("error", reject);
     child.once("exit", (code) => resolve(code ?? 1));
   });
-  if (code !== 0) {
+  // Each run reconciles its persisted journal before choosing an action, so a
+  // retry never resubmits a transaction. Back off instead of halting the demo.
+  failures = code === 0 ? 0 : failures + 1;
+  if (failures)
     console.error(
-      "Executor halted. Inspect pending state and RPC health before restarting; no automatic resubmission.",
+      `Executor run failed (${failures} in a row); retrying after backoff. No automatic resubmission.`,
     );
-    process.exitCode = 1;
-    break;
-  }
+  const wait = failures ? Math.min(300, interval * 2 ** failures) : interval;
   if (!stopping)
-    await delay(interval * 1000, undefined, { signal: abort.signal }).catch(
+    await delay(wait * 1000, undefined, { signal: abort.signal }).catch(
       () => {},
     );
 }
