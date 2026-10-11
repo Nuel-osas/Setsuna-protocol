@@ -27,7 +27,7 @@ export default function Page() {
       <header className="s-page-head is-split">
         <div>
           <span className="s-eyebrow">
-            Trade &amp; protect · in development
+            Trade &amp; protect · public demo
           </span>
           <h1>
             Your next move. <em>Spot or Perps.</em>
@@ -47,9 +47,9 @@ export default function Page() {
             </Link>
           </div>
           <p className="s-footnote">
-            Available in the local fork demo with synthetic funds. The Perps
-            demo uses a disclosed historical-price fixture. Public trading is
-            closed.
+            Available in the public demo with free test funds on a Monad
+            mainnet fork. The Perps demo uses a disclosed historical-price
+            fixture.
           </p>
         </div>
         <InstantChart />
