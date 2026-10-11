@@ -8,6 +8,10 @@ import {SetsunaMONGateway} from "../src/earn/SetsunaMONGateway.sol";
 
 /// @dev Script-only fork factory. The production factory still requires chain 143.
 contract LocalMONFactory is SetsunaMONFactory {
+    constructor(address feeRecipient_, uint256 performanceFeeBps_)
+        SetsunaMONFactory(feeRecipient_, performanceFeeBps_)
+    {}
+
     function _checkChain() internal view override {
         if (block.chainid != 31337) {
             revert WrongChain();
@@ -20,7 +24,8 @@ contract LocalEarnDemo is Script {
         require(block.chainid == 31337, "LOCAL_FORK_ONLY");
         address owner = vm.envAddress("DEMO_OWNER");
         vm.startBroadcast(owner);
-        LocalMONFactory factory = new LocalMONFactory();
+        LocalMONFactory factory =
+            new LocalMONFactory(vm.envOr("SETSUNA_TREASURY", owner), vm.envOr("SETSUNA_EARN_FEE_BPS", uint256(200)));
         (SetsunaMONVault vault, SetsunaMONGateway gateway) = factory.createVault();
         vm.stopBroadcast();
         string memory key = "setsmon-demo";

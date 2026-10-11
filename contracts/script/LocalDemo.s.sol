@@ -19,7 +19,7 @@ contract LocalDemo is Script {
         require(AUSD.balanceOf(trader) == 10_000e6, "AUSD fixture layout changed");
 
         vm.startBroadcast(trader);
-        SetsunaFactory factory = new SetsunaFactory(VENUE, AUSD, 1);
+        SetsunaFactory factory = new SetsunaFactory(VENUE, AUSD, 1, vm.envOr("SETSUNA_TREASURY", msg.sender), 100);
         SetsunaAccount account = SetsunaAccount(factory.createAccount());
         AUSD.approve(address(account), 1_200e6);
         account.initialize(1_000e6);
