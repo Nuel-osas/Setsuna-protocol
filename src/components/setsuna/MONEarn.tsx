@@ -12,7 +12,6 @@ import { clientFor, useWallet } from "./WalletProvider";
 import EarnForm, { type EarnControls } from "./EarnForm";
 import { message } from "@/lib/setsuna/format";
 import EarnVaultLayout from "./EarnVaultLayout";
-import DemoFunding from "./DemoFunding";
 import EarnDecision from "./EarnDecision";
 import { earnDecision } from "@/lib/setsuna/earn-decision";
 import {
@@ -70,7 +69,7 @@ export default function MONEarn(controls: EarnControls) {
         setReadError(
           d?.mode === "mainnet"
             ? "Could not read the setsMON vault on Monad mainnet. Transactions are disabled until it can be read."
-            : "Could not read the setsMON vault. Transactions are disabled until the fork is available.",
+            : "Could not read the setsMON vault. Transactions are disabled until the connection recovers.",
         );
       }
     } finally {
@@ -340,9 +339,6 @@ export default function MONEarn(controls: EarnControls) {
           onSubmit={(action) => void act(action)}
         />
       }
-      funding={
-        <DemoFunding onFunded={refresh} disabled={!!busy || !!pending} />
-      }
       risk={
         <p className="s-footnote">
           Target cash buffer ≥10% · venue exposure ≤60% · gross movement ≤10%
@@ -430,10 +426,8 @@ export default function MONEarn(controls: EarnControls) {
                 </ol>
               )}
               <p className="s-footnote">
-                Latest 10 vault events from the last 2,000 blocks.{" "}
-                {d?.mode === "mainnet"
-                  ? "These are Monad mainnet transactions."
-                  : "Fork hashes are on the demo fork and are not mainnet transactions."}
+                Latest 10 vault events from the last 2,000 blocks. These are
+                Monad mainnet transactions.
               </p>
             </details>
           )}

@@ -7,7 +7,7 @@ export type ReferenceMarket = TradingReading & {
   openInterest?: number;
 };
 
-/** The venue's live mainnet market, shown beside a fork whose own book never moves. */
+/** The venue's live mainnet market data. */
 export function useReferenceMarket(kind: "spot" | "perps", enabled = true) {
   const [market, setMarket] = useState<ReferenceMarket>();
   useEffect(() => {

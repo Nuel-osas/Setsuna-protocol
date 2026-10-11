@@ -23,7 +23,6 @@ import { useTradingMarket } from "./useTradingMarket";
 import { MarketChart } from "./TradingMarket";
 import { SpotBook, SpotSummary } from "./SpotMarketPanels";
 import Link from "next/link";
-import DemoFunding from "./DemoFunding";
 import { amount, message, shortAddress } from "@/lib/setsuna/format";
 
 const show = (value: bigint | undefined, decimals: number) =>
@@ -73,7 +72,7 @@ export default function SpotApp() {
       setSnapshot(undefined);
       setQuote(undefined);
       setReadError(
-        "Could not read the Spot market. Transactions are disabled until the fork reconnects.",
+        "Could not read the Spot market. Transactions are disabled until the connection recovers.",
       );
     }
   }, [d, address]);
@@ -296,20 +295,14 @@ export default function SpotApp() {
       <div className="db-network-banner">
         <span className="t-environment">
           <i />
-          {d?.mode === "local"
-            ? "Local fork · test funds"
-            : d?.mode === "demo"
-              ? "Demo · test funds"
-              : d?.mode === "mainnet"
-                ? "Monad mainnet · real funds"
-                : "Mainnet · view only"}
+          {d?.mode === "mainnet"
+            ? "Monad mainnet · real funds"
+            : "Mainnet · view only"}
         </span>
         <span>
-          {d?.mode === "preview"
-            ? "Live Kuru markets. Public trading is not open yet."
-            : d?.mode === "mainnet"
-              ? "Swaps execute on Kuru at live prices with your own funds. Setsuna's contracts are unaudited; trade small."
-              : "Prices, quotes and fills use the connected demo fork."}
+          {d?.mode === "mainnet"
+            ? "Swaps execute on Kuru at live prices with your own funds. Setsuna's contracts are unaudited; trade small."
+            : "Live Kuru markets. Trading is unavailable until mainnet contracts are configured."}
         </span>
       </div>
       {readError && (
@@ -370,10 +363,6 @@ export default function SpotApp() {
           onView={setBookTab}
         />
         <section className="db-ticket t-ticket" aria-label="Spot order ticket">
-          <DemoFunding
-            onFunded={refresh}
-            disabled={!!busy || !!pending || limitLocked}
-          />
           <div className="db-tabs db-order-tabs">
             <OrderTypeSwitch
               value={orderKind}
@@ -554,7 +543,7 @@ export default function SpotApp() {
               )}
               {!d?.spot && (
                 <p className="db-ticket-note">
-                  Explore live markets. Public swaps open when the demo
+                  Explore live markets. Public swaps open when the mainnet
                   deployment is connected.
                 </p>
               )}

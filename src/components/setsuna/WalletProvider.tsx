@@ -74,7 +74,7 @@ function WalletIcon({ name, icon }: { name?: string; icon?: string }) {
 type WalletState = {
   deployment?: Deployment;
   address?: Address;
-  kind?: "mera" | "wallet" | "demo";
+  kind?: "mera" | "wallet";
   chainId?: number;
   openConnect: () => void;
   disconnect: () => void;
@@ -189,7 +189,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     else dialog.current?.close();
   }, [open]);
   async function connect(
-    mode: "create" | "recover" | "demo" | "wallet",
+    mode: "create" | "recover" | "wallet",
     choice?: Choice,
   ) {
     if (!deployment) return;
@@ -244,30 +244,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           chain,
           transport: http(deployment.rpc),
         });
-      } else if (mode === "demo") {
-        if (
-          deployment.mode !== "local" ||
-          deployment.chainId !== 31337 ||
-          !["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)
-        )
-          throw new Error(
-            "Demo accounts are available only on the local fork.",
-          );
-        const pub = clientFor(deployment);
-        if ((await pub.getChainId()) !== 31337)
-          throw new Error("Wrong local network.");
-        wallet = createWalletClient({ chain, transport: http(deployment.rpc) });
-        const accounts = await wallet.getAddresses();
-        nextAddress = getAddress(deployment.owner!);
-        if (
-          !accounts.some((a) => a.toLowerCase() === nextAddress.toLowerCase())
-        )
-          throw new Error("Demo account unavailable. Restart the local demo.");
-        wallet = createWalletClient({
-          account: nextAddress,
-          chain,
-          transport: http(deployment.rpc),
-        });
       } else {
         if (!choice) throw new Error("Choose an installed wallet.");
         provider.current = choice.provider;
@@ -297,7 +273,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       client.current = wallet;
       setAddress(nextAddress);
       setChainId(nextChain);
-      setKind(mode === "wallet" ? "wallet" : mode === "demo" ? "demo" : "mera");
+      setKind(mode === "wallet" ? "wallet" : "mera");
       setOpen(false);
     } catch (e) {
       pendingSession?.end();
@@ -442,13 +418,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         {address ? (
           <>
             <h2>Your account</h2>
-            <p>
-              {kind === "mera"
-                ? "Mera passkey"
-                : kind === "demo"
-                  ? "Local demo account"
-                  : "Connected wallet"}
-            </p>
+            <p>{kind === "mera" ? "Mera passkey" : "Connected wallet"}</p>
             <code className="s-address">{address}</code>
             <p className="s-small">
               {deployment?.name} · {shortAddress(address)}
@@ -512,19 +482,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                 enable its extension.
               </p>
             )}
-            {deployment?.mode === "local" && (
-              <button
-                className="s-wallet-option s-demo-option"
-                disabled={busy}
-                onClick={() => void connect("demo")}
-              >
-                <span className="s-wallet-choice">
-                  <WalletIcon />
-                  <span>Try the local demo account</span>
-                </span>
-                <span aria-hidden="true">→</span>
-              </button>
-            )}
             <p className="s-small">
               Connecting does not move funds. You review transactions before
               signing.
@@ -542,8 +499,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * Spot and Perps run on Monad mainnet while Earn stays on the demo fork. Inside
- * this scope the same account sees the mainnet deployment and sends there.
+ * Spot and Perps use their Monad mainnet contract configuration.
  */
 export function TradingScope({ children }: { children: ReactNode }) {
   const wallet = useWallet();
@@ -564,19 +520,12 @@ export function TradingScope({ children }: { children: ReactNode }) {
 }
 
 /**
- * Earn on Monad mainnet (capped beta) or on the demo fork with test funds. The
- * mainnet vaults are the default whenever they are configured.
+ * Earn uses its Monad mainnet vault configuration.
  */
-export function EarnScope({
-  network,
-  children,
-}: {
-  network: "mainnet" | "demo";
-  children: ReactNode;
-}) {
+export function EarnScope({ children }: { children: ReactNode }) {
   const wallet = useWallet();
   const mainnet = wallet.deployment?.earnMainnet;
-  if (!mainnet || network === "demo") return <>{children}</>;
+  if (!mainnet) return <>{children}</>;
   return (
     <Context.Provider
       value={{

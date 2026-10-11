@@ -34,7 +34,7 @@ export function usePortfolio() {
             key,
             loading: false,
             error:
-              "Portfolio data is unavailable. Check the demo connection and refresh.",
+              "Portfolio data is unavailable. Check the network connection and refresh.",
           });
       } finally {
         reading = false;

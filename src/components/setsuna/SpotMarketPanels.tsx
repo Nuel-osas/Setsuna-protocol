@@ -248,7 +248,7 @@ export function SpotBook({
             {!live ? (
               <p className="db-empty-small">
                 Market-wide trade history is available in the mainnet preview.
-                Your fork swap receipts appear below.
+                Your swap receipts appear below.
               </p>
             ) : error ? (
               <p className="db-empty-small" role="status">

@@ -134,13 +134,7 @@ export default function Portfolio() {
       <div className="p-environment">
         <span>
           <i />
-          {d?.mode === "mainnet"
-            ? "Monad mainnet · real funds"
-            : d?.trading
-              ? "Earn: Monad fork · Trade: Monad mainnet"
-              : d?.mode === "demo" || d?.mode === "local"
-                ? "Monad fork · synthetic funds"
-                : "Preview"}
+          {d?.mode === "mainnet" ? "Monad mainnet · real funds" : "Preview"}
         </span>
         {address && (
           <span aria-live="polite">
@@ -476,12 +470,6 @@ export default function Portfolio() {
                     ) : (
                       <p className="p-state p-no-position">
                         No open BTC position.
-                      </p>
-                    )}
-                    {d?.perplFixture && !d.trading && (
-                      <p className="p-section-note">
-                        Demo P&amp;L uses the fork’s fixed historical BTC mark,
-                        not a live market price.
                       </p>
                     )}
                   </>

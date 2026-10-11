@@ -1,11 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type {
-  IChartApi,
-  IPriceLine,
-  ISeriesApi,
-  UTCTimestamp,
-} from "lightweight-charts";
+import type { IChartApi, ISeriesApi, UTCTimestamp } from "lightweight-charts";
 import type { Candle } from "@/lib/setsuna/live-market";
 import { compactNumber, marketNumber } from "@/lib/setsuna/market-view";
 
@@ -15,20 +10,13 @@ const UP = "#3fb68b",
 
 /**
  * Venue candles with volume, drawn by TradingView's open-source chart. Data is
- * the venue's own mainnet trade history; `forkMark` marks where demo orders fill.
+ * the venue's own mainnet trade history.
  */
-export function ProChart({
-  kind,
-  forkMark,
-}: {
-  kind: "spot" | "perps";
-  forkMark?: number;
-}) {
+export function ProChart({ kind }: { kind: "spot" | "perps" }) {
   const host = useRef<HTMLDivElement>(null);
   const chart = useRef<IChartApi>(null);
   const candleSeries = useRef<ISeriesApi<"Candlestick">>(null);
   const volumeSeries = useRef<ISeriesApi<"Histogram">>(null);
-  const markLine = useRef<IPriceLine>(null);
   const [ready, setReady] = useState(false);
   const [interval, setIntervalChoice] = useState<Interval>("1h");
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -113,7 +101,6 @@ export function ProChart({
       disposed = true;
       chart.current?.remove();
       chart.current = null;
-      markLine.current = null;
     };
   }, [digits]);
 
@@ -182,23 +169,6 @@ export function ProChart({
     );
     chart.current?.timeScale().fitContent();
   }, [candles, ready]);
-
-  useEffect(() => {
-    const series = candleSeries.current;
-    if (!ready || !series) return;
-    if (markLine.current) series.removePriceLine(markLine.current);
-    markLine.current =
-      forkMark && Number.isFinite(forkMark)
-        ? series.createPriceLine({
-            price: forkMark,
-            color: "#a3b2ff",
-            lineWidth: 1,
-            lineStyle: 2,
-            axisLabelVisible: true,
-            title: spot ? "Fork book" : "Fork mark",
-          })
-        : null;
-  }, [forkMark, ready, spot]);
 
   const shown = hover ?? candles.at(-1);
   const change = shown ? (shown.close / shown.open - 1) * 100 : undefined;

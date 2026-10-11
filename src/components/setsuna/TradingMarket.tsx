@@ -16,12 +16,10 @@ import { ProtocolLabel } from "./ProtocolIcon";
 export function MarketStrip({
   kind,
   reading,
-  local,
   reference,
 }: {
   kind: "spot" | "perps";
   reading?: TradingReading;
-  local: boolean;
   reference?: ReferenceMarket;
 }) {
   const { deployment } = useWallet();
@@ -59,11 +57,7 @@ export function MarketStrip({
             )}
           </div>
           <div className="t-stat t-stat-keep">
-            <span>
-              {deployment?.mode === "mainnet"
-                ? "Mark price"
-                : "Fork mark · fills"}
-            </span>
+            <span>Mark price</span>
             <strong>{marketNumber(reading?.price, 1)}</strong>
           </div>
           <div className="t-stat t-stat-optional">
@@ -105,15 +99,9 @@ export function MarketStrip({
       )}
       <span className="t-environment">
         <i />
-        {local
-          ? "Local fork"
-          : deployment?.mode === "demo"
-            ? "Demo · test funds"
-            : deployment?.mode === "mainnet"
-              ? "Monad mainnet · real funds"
-              : reading?.network === "monad-mainnet"
-                ? "Mainnet · view only"
-                : "Market preview"}
+        {deployment?.mode === "mainnet"
+          ? "Monad mainnet · real funds"
+          : "Mainnet · view only"}
       </span>
     </header>
   );
@@ -310,29 +298,19 @@ function PriceChart({ points }: { points: Observation[] }) {
 export function MarketChart({
   kind,
   reading,
-  observations,
   error,
-  fixture,
   defaultView,
 }: {
   kind: "spot" | "perps";
   reading?: TradingReading;
-  observations: Observation[];
   error: string;
-  fixture?: boolean;
   defaultView?: "price" | "depth";
 }) {
   const chartRef = useRef<HTMLElement>(null);
   const { deployment } = useWallet();
-  const live = deployment?.mode === "preview";
-  // A fork's markets never move on their own. Chart the venue's actual mainnet
-  // trades as a labelled reference; quotes, marks and fills stay on the fork.
-  const reference = deployment?.mode === "demo";
-  const candles = live || reference || deployment?.mode === "mainnet";
   const [view, setView] = useState(
     defaultView ?? (kind === "spot" ? "depth" : "price"),
   );
-  const [window, setWindow] = useState(60);
   return (
     <section className="t-chart-panel" aria-label="Market chart" ref={chartRef}>
       <div className="t-panel-tabs">
@@ -372,52 +350,22 @@ export function MarketChart({
             </svg>
           </button>
         )}
-        <span className="t-chart-source">
-          {live || deployment?.mode === "mainnet"
-            ? "Monad mainnet"
-            : reference && view === "price"
-              ? "Monad mainnet · reference"
-              : fixture
-                ? "Historical mark fixture"
-                : "Connected fork"}
-        </span>
+        <span className="t-chart-source">Monad mainnet</span>
       </div>
-      <div className="t-chart-tools" hidden={view === "price" && candles}>
-        {view === "price" ? (
-          <>
-            <span>Observations</span>
-            <div role="group" aria-label="Chart sample window">
-              {[30, 60, 180].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setWindow(n)}
-                  aria-pressed={window === n}
-                >
-                  {n} samples
-                </button>
-              ))}
-            </div>
-          </>
-        ) : (
-          <>
-            <span>Resting CLOB liquidity</span>
-            <span>12 levels per side · MON</span>
-          </>
-        )}
-      </div>
-      {view === "price" && candles ? (
-        <ProChart
-          kind={kind}
-          forkMark={reference ? reading?.price : undefined}
-        />
+      {view === "depth" && (
+        <div className="t-chart-tools">
+          <span>Resting CLOB liquidity</span>
+          <span>12 levels per side · MON</span>
+        </div>
+      )}
+      {view === "price" ? (
+        <ProChart kind={kind} />
       ) : error ? (
         <div className="t-chart-empty" role="status">
           {error}
         </div>
-      ) : view === "depth" ? (
-        <Depth bids={reading?.bids ?? []} asks={reading?.asks ?? []} />
       ) : (
-        <PriceChart points={observations.slice(-window)} />
+        <Depth bids={reading?.bids ?? []} asks={reading?.asks ?? []} />
       )}
       <footer>
         <span>
@@ -425,13 +373,7 @@ export function MarketChart({
             ? "Cumulative size · AMM liquidity excluded"
             : deployment?.mode === "mainnet"
               ? `Live ${kind === "spot" ? "Kuru" : "Perpl"} mainnet trades · orders execute on Monad mainnet`
-              : reference
-                ? kind === "spot"
-                  ? "Live mainnet reference · demo swaps quote and fill on the fork's order book"
-                  : "Live mainnet reference · demo orders use the fork's fixed mark and book"
-                : live
-                  ? "Historical trades · current candle may be incomplete"
-                  : "Observed in this session · 8s sampling · no invented history"}
+              : "Historical trades · current candle may be incomplete"}
         </span>
         <span className="t-data-dot">{reading ? "Connected" : "Waiting"}</span>
       </footer>
@@ -502,7 +444,7 @@ export function OrderBook({
       {!reading && <p className="t-empty">Waiting for the order book…</p>}
       <p className="t-book-note">
         {source?.includes("reference")
-          ? "Live mainnet book for reference. Demo orders fill on the fork."
+          ? "Live Perpl mainnet order book."
           : source
             ? "Perpl's live mainnet book. Fill-or-kill orders execute against it."
             : "Resting orders only. The execution quote is authoritative."}
@@ -511,13 +453,7 @@ export function OrderBook({
   );
 }
 
-export function PerpsMarketInfo({
-  reading,
-  fixture,
-}: {
-  reading?: TradingReading;
-  fixture?: boolean;
-}) {
+export function PerpsMarketInfo({ reading }: { reading?: TradingReading }) {
   return (
     <section
       className="t-book t-perps-info"
@@ -528,7 +464,7 @@ export function PerpsMarketInfo({
         <span>BTC</span>
       </header>
       <div className="t-mark-tile">
-        <span>{fixture ? "Fixed historical mark" : "Observed mark"}</span>
+        <span>Observed mark</span>
         <strong>{marketNumber(reading?.price, 2)}</strong>
         <span>USD per BTC</span>
       </div>
@@ -557,8 +493,8 @@ export function PerpsMarketInfo({
       <div className="t-info-note">
         <span>Market depth</span>
         <p>
-          This fork uses a historical fixture; the live Perpl book belongs to
-          mainnet. Orders are simulated before signing.
+          Orders settle on Perpl on Monad mainnet and are simulated before
+          signing.
         </p>
       </div>
       <div className="t-info-note">

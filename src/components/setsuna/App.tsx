@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatUnits } from "viem";
 import { useSetsuna } from "./useSetsuna";
-import DemoFunding from "./DemoFunding";
 import MarginRunway from "./MarginRunway";
 import { Mark } from "./Brand";
 import TokenIcon from "./TokenIcon";
@@ -160,10 +159,7 @@ const pct = (bps: number) => `${(bps / 100).toFixed(0)}%`;
 export default function App() {
   const s = useSetsuna();
   const terminal = useTradingMarket("perps");
-  const reference = useReferenceMarket(
-    "perps",
-    s.d?.mode === "demo" || s.d?.mode === "mainnet",
-  );
+  const reference = useReferenceMarket("perps", s.d?.mode === "mainnet");
   const {
     d,
     address,
@@ -239,26 +235,18 @@ export default function App() {
         <MarketStrip
           kind="perps"
           reading={terminal.reading}
-          local={d?.mode === "local"}
           reference={reference}
         />
         {d?.mode === "preview" && (
           <p className="t-demo-note">
-            Live Monad market data · trading opens when the demo deployment is
-            connected.
+            Live Monad market data · trading opens when the mainnet deployment
+            is connected.
           </p>
         )}
         {d?.mode === "mainnet" && (
           <p className="t-fork-note">
             Monad mainnet: orders execute on Perpl at live prices with your own
             AUSD. Setsuna’s contracts are unaudited; trade small.
-          </p>
-        )}
-        {d?.perplFixture && (
-          <p className="t-fork-note">
-            Chart, book and 24h stats are live Perpl mainnet data. Demo orders
-            fill on the fork at a fixed historical mark; Perpl’s oracle guard is
-            disabled only on this fork.
           </p>
         )}
 
@@ -299,7 +287,7 @@ export default function App() {
         )}
 
         <div className="s-app-grid t-workspace">
-          <MarketChart kind="perps" {...terminal} fixture={!!d?.perplFixture} />
+          <MarketChart kind="perps" {...terminal} />
           {d?.mode === "preview" ? (
             <OrderBook kind="perps" reading={terminal.reading} />
           ) : reference ? (
@@ -313,10 +301,7 @@ export default function App() {
               }
             />
           ) : (
-            <PerpsMarketInfo
-              reading={terminal.reading}
-              fixture={!!d?.perplFixture}
-            />
+            <PerpsMarketInfo reading={terminal.reading} />
           )}
           <div className="s-col">
             <Card
@@ -392,14 +377,8 @@ export default function App() {
                     </div>
                   )}
                   <p className="s-footnote">
-                    Mark is read from Perpl
-                    {d?.perplFixture
-                      ? " using the local historical-price fixture"
-                      : d?.mode === "local"
-                        ? " at a pinned historical block"
-                        : ""}
-                    . Setsuna cannot guarantee a top-up lands before
-                    liquidation.
+                    Mark is read from Perpl. Setsuna cannot guarantee a top-up
+                    lands before liquidation.
                   </p>
                   {market && (
                     <ClosePosition
@@ -484,10 +463,6 @@ export default function App() {
                 </span>
               }
             >
-              <DemoFunding
-                onFunded={s.refresh}
-                disabled={s.busy || !!s.unknownHash || !!s.review}
-              />
               <OrderTypeSwitch
                 value={orderKind}
                 onChange={setOrderKind}
@@ -1019,9 +994,7 @@ export default function App() {
         <p className="s-small">
           {s.wallet.kind === "mera"
             ? "Signs with your passkey session."
-            : s.wallet.kind === "demo"
-              ? "Uses an unlocked local test account and synthetic funds."
-              : "Your wallet will ask you to approve."}{" "}
+            : "Your wallet will ask you to approve."}{" "}
           Every call is simulated before it is signed.
         </p>
       </dialog>

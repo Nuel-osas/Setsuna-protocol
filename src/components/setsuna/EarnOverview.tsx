@@ -203,7 +203,7 @@ export default function EarnOverview() {
       <p className="e-demo-note">
         {d?.mode === "mainnet"
           ? "Live on Monad mainnet as a capped beta with real funds; Setsuna's contracts are unaudited; deposit only what you can afford to lose. "
-          : "Public demo on a hosted Monad mainnet fork using free test funds. "}
+          : "Preview only. Deposits require configured mainnet vaults. "}
         Base APR reflects the current allocation, including idle cash; it is not
         a promised return. <Link href="/docs/">Learn how Setsuna works ↗</Link>
       </p>

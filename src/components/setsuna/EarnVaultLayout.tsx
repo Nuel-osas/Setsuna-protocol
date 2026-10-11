@@ -37,7 +37,7 @@ function EarnNetworkNote() {
     <p className="e-demo-note">
       {d?.mode === "mainnet"
         ? "Monad mainnet with real funds. Capped beta: setsUSDC holds at most 2,000 USDC and setsMON 25,000 MON. Setsuna's contracts are unaudited; deposit only what you can afford to lose."
-        : "This is a Monad mainnet fork with synthetic funds. Rates, balances and transactions all come from the same demo environment."}
+        : "Preview only. Deposits are unavailable until the mainnet vaults are configured."}
     </p>
   );
 }
@@ -48,9 +48,7 @@ export function EarnEnvironment() {
       <i />
       {d?.mode === "mainnet"
         ? "Monad mainnet · Capped beta"
-        : d?.earnMON || d?.earnUSDC
-          ? "Monad fork · Demo funds"
-          : "Preview · Deposits closed"}
+        : "Preview · Deposits closed"}
     </span>
   );
 }
@@ -153,7 +151,6 @@ export default function EarnVaultLayout({
   snapshot,
   form,
   alerts,
-  funding,
   advanced,
   risk,
   controls,
@@ -163,7 +160,6 @@ export default function EarnVaultLayout({
   snapshot?: MONSnapshot | USDCSnapshot;
   form: ReactNode;
   alerts: ReactNode;
-  funding: ReactNode;
   advanced: ReactNode;
   risk: ReactNode;
   controls?: ReactNode;
@@ -316,7 +312,6 @@ export default function EarnVaultLayout({
         <aside className="e-vault-sidebar">
           <div className="e-sticky">
             {form}
-            {funding}
             <EarnNetworkNote />
           </div>
         </aside>
