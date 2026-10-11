@@ -14,6 +14,71 @@ export type EarnPoint = {
   assets: bigint;
 };
 
+const accountingEvent = parseAbi([
+  "event AccountingUpdated(uint256 assets, uint256 idle)",
+]);
+const ZERO = "0x0000000000000000000000000000000000000000";
+const SAMPLES = 13;
+
+/** OpenZeppelin ERC-4626 convertToAssets(unit) with the vault's 6-decimal share offset. */
+export function sharePrice(nav: bigint, supply: bigint, unit: bigint) {
+  return (unit * (nav + BigInt(1))) / (supply + BigInt(1_000_000));
+}
+
+type Log = { block: bigint; index: number };
+type Replayed = { block: bigint; price: bigint; assets: bigint };
+/**
+ * Replays mint/burn transfers and AccountingUpdated in log order. The vault
+ * emits AccountingUpdated before minting on deposit and after burning on
+ * withdraw, so each emitted NAV is paired with the supply in force at that point.
+ */
+export function replayAccounting(
+  mints: (Log & { from: string; to: string; value: bigint })[],
+  updates: (Log & { assets: bigint })[],
+  unit: bigint,
+) {
+  const events = [
+    ...mints.map((e) => ({ ...e, kind: "supply" as const })),
+    ...updates.map((e) => ({ ...e, kind: "nav" as const })),
+  ].sort((a, b) =>
+    a.block === b.block ? a.index - b.index : a.block < b.block ? -1 : 1,
+  );
+  let supply = BigInt(0);
+  const points: Replayed[] = [];
+  for (const e of events) {
+    if (e.kind === "supply") {
+      if (e.from === ZERO) supply += e.value;
+      if (e.to === ZERO) supply -= e.value;
+      // An emptied vault reprices its next shares against leftover dust, so
+      // prices on either side are not comparable. Chart the current period only.
+      if (supply === BigInt(0)) points.length = 0;
+    } else if (supply > BigInt(0)) {
+      const point = {
+        block: e.block,
+        price: sharePrice(e.assets, supply, unit),
+        assets: e.assets,
+      };
+      // Keep the last accounting state of each block.
+      if (points.at(-1)?.block === e.block) points[points.length - 1] = point;
+      else points.push(point);
+    }
+  }
+  return points;
+}
+
+/** Evenly spaced picks that always keep the first and last point. */
+export function downsample<T>(items: T[], count: number) {
+  if (items.length <= count) return items;
+  return [
+    ...new Set(
+      Array.from(
+        { length: count },
+        (_, i) => (i * (items.length - 1)) / (count - 1),
+      ).map(Math.round),
+    ),
+  ].map((i) => items[i]);
+}
+
 // Sample actual archived state. A failed/empty-vault sample is a gap, never a fabricated value.
 async function loadEarnPerformance(d: Deployment, asset: "MON" | "USDC") {
   const m = asset === "MON" ? d.earnMON : d.earnUSDC;
