@@ -953,19 +953,6 @@ export default function App() {
             )}
           </div>
         </div>
-
-        <footer className="s-app-foot">
-          <span>
-            {account
-              ? `Setsuna account ${shortAddress(account)}`
-              : "You own your account and your funds."}
-          </span>
-          <button className="s-link" onClick={s.wallet.openConnect}>
-            {address
-              ? `${s.wallet.kind === "mera" ? "Passkey" : s.wallet.kind === "demo" ? "Demo account" : "Wallet"} · ${shortAddress(address)}`
-              : "Connect"}
-          </button>
-        </footer>
       </main>
 
       <dialog
