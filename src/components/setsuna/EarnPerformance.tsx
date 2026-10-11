@@ -25,7 +25,8 @@ export default function EarnPerformance({
   const key = `${d?.rpc}:${d?.chainId}:${asset === "MON" ? d?.earnMON?.vault : d?.earnUSDC?.vault}`;
   const current = state?.key === key ? state : undefined;
   useEffect(() => {
-    if (!d || !enabled) return;
+    // Fetch alongside the vault snapshot; `enabled` only gates what is shown.
+    if (!d) return;
     let cancelled = false,
       running = false;
     const load = () => {
@@ -42,15 +43,15 @@ export default function EarnPerformance({
           running = false;
         });
     };
-    const initial = setTimeout(load, 250);
+    const initial = setTimeout(load, 0);
     const timer = setInterval(load, 60_000);
     return () => {
       cancelled = true;
       clearTimeout(initial);
       clearInterval(timer);
     };
-  }, [d, asset, key, enabled]);
-  const data = current?.data;
+  }, [d, asset, key]);
+  const data = enabled ? current?.data : undefined;
   const points = data?.points ?? [];
   const decimals = asset === "MON" ? 18 : 6;
   const values = points.map((p) => Number(formatUnits(p[metric], decimals)));
