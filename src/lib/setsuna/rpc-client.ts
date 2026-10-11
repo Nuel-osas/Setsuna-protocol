@@ -12,6 +12,17 @@ export const chainFor = (d: Deployment) =>
     name: d.name,
     nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
     rpcUrls: { default: { http: [d.rpc] } },
+    // Monad mainnet's public endpoints count every call against a per-second
+    // limit, so concurrent reads are folded into Multicall3 there.
+    ...(d.chainId === 143
+      ? {
+          contracts: {
+            multicall3: {
+              address: "0xcA11bde05977b3631167028862bE2a173976CA11" as const,
+            },
+          },
+        }
+      : {}),
   });
 
 /**
@@ -40,6 +51,7 @@ const rememberChainId =
 const makeClient = (d: Deployment) =>
   createPublicClient({
     chain: chainFor(d),
+    ...(d.chainId === 143 ? { batch: { multicall: { wait: 16 } } } : {}),
     transport: rememberChainId(
       http(d.rpc, {
         timeout: 12_000,
