@@ -28,8 +28,8 @@ Quotes and execution must use the same connected environment. The workspace repo
 
 Spot changes your asset exposure. Swapping MON for USDC does not automatically deposit that USDC into Earn; supplying it is a separate action.
 
-## Current demo scope
+## Network
 
-Both swap directions are available in the [public demo](/app/) using synthetic funds on the hosted Monad fork. Select **Get test funds** after connecting. Earn, Spot and Perps share that environment, while vault shares, wallet assets and trading collateral remain separate balances. Transactions do not spend your mainnet funds.
+Spot runs on **Monad mainnet**. [Trade](/trade/?mode=spot) swaps MON and USDC on Kuru's live MON/USDC book with your own funds; test funds from Earn's demo fork cannot be used here. Setsuna takes 0.10% of each swap's output. Its contracts are unaudited; trade small.
 
 For the selected market address and demo setup, see [networks and contracts](/docs/developers/contracts/).

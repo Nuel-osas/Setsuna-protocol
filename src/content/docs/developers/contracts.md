@@ -1,31 +1,40 @@
-Venue addresses identify protocol deployments on Monad. Setsuna's own demo contracts are deployed on its separate synthetic-fund fork; a venue address is not a mainnet Setsuna deposit address.
+Venue addresses identify protocol deployments on Monad. Setsuna's Spot and Perps contracts are deployed on Monad mainnet; its Earn vaults are deployed on a separate synthetic-fund fork. A venue address is not a Setsuna deposit address.
 
 ## Environments
 
-| Environment                   | Chain ID | Current scope                                            |
-| ----------------------------- | -------- | -------------------------------------------------------- |
-| Monad mainnet                 | 143      | Source of protocol state and public market reads         |
-| Local five-protocol USDC fork | 31337    | Synthetic-fund Earn transactions; source block 111560409 |
+| Environment | Chain ID | Current scope |
+| --- | --- | --- |
+| Monad mainnet | 143 | Spot (Kuru) and Perps (Perpl) with real funds; public market reads |
+| Public Railway fork | 31337 | Earn (setsUSDC, setsMON) and test funding; source block 111560409 |
+| Local five-protocol USDC fork | 31337 | Synthetic-fund Earn transactions; source block 111560409 |
 | Unified local demo | 31337 | setsUSDC, setsMON, Spot and Perps together; source block 111560409 |
-| Local combined trading fork   | 31337    | setsMON, Spot and Perps with a historical Perpl fixture  |
-| Public Railway fork | 31337 | Earn, Spot, Perps and test funding; source block 111560409 |
 
 Separate forks may share chain IDs and deployment addresses while holding different state. Always pair the RPC endpoint with its deployment manifest. The public fork runs on Railway and does not depend on Tenderly.
 
-## Public demo contracts
+## Mainnet trading contracts
 
-RPC: `https://setsuna-metropolis.vercel.app/api/rpc/`. [Explorer](https://setsuna-workers-production.up.railway.app/) · [Validated deployment manifest](/api/deployment/).
+Deployed at Monad block 112443702. Each address is fixed at construction; there is no admin. Fees go to the fixed treasury `0x6915aEf0947F4daD61aeF39Fe0f546A03190c92C`.
+
+| Component | Address on Monad mainnet (143) | Fee |
+| --- | --- | --- |
+| Spot gateway (Kuru MON/USDC) | `0x978BdBaD035F1cdf47e10915c0ceC4A94C3fC17D` | 0.10% of swap output |
+| Spot limit-order factory | `0xd0643451a10Ab33DEA53F1A64e94760770Be1E18` | None |
+| Perpl account factory (BTC) | `0x00206Efbf5C49B61f2701a20d86329df4C3aB50D` | 1% of each protection top-up |
+
+These contracts are unaudited. Trade small.
+
+## Public Earn demo contracts
+
+RPC: `https://setsuna.finance/api/rpc/`. [Explorer](https://setsuna-workers-production.up.railway.app/) · [Validated deployment manifest](/api/deployment/).
 
 | Component | Address on demo chain 31337 |
 | --- | --- |
-| setsMON vault | `0x114255d235bA6EfF3b0F6b6498035c62F1A62a7F` |
-| Native MON gateway | `0x5d479d7fe413Eb2Ed54741B8d914afE8cf9780f0` |
-| setsUSDC vault | `0x55EcE31A7fC5f99460a1F3970d60Dd701B7E8021` |
-| Spot gateway | `0xAD4602705646996Ae3AACe83f7C8d478A59ca5Ae` |
-| Perpl account factory | `0x97F26EB913812C8008016633144af437a54870Fb` |
+| setsMON vault | `0x38b1e5aEAf56c7Ac94A3B845225e9563c042D3A9` |
+| Native MON gateway | `0xdF81D5CF0df4AD9EBa60C083Ae43f3be440ab5bF` |
+| setsUSDC vault | `0x08dCeC65aA27A00964dFa954faEf92ffF27F3b82` |
 | Bounded faucet | `0x3a2aaAA478F1b827C24E91a7E612fdCaA3c18dDF` |
 
-These addresses are for the public demo only. Do not send mainnet assets to them. Explorer receipts prove execution on this fork.
+Both vaults take 2% of yield, never principal, for the same treasury. These addresses are for the public demo only. Do not send mainnet assets to them. Explorer receipts prove execution on this fork.
 
 ## Underlying assets
 

@@ -36,8 +36,6 @@ Protection cannot be armed while an order remains open: a later fill could chang
 
 > A protection cap limits additional reserve spending. It does not cap total trading losses, remove liquidation risk or guarantee that a rescue transaction lands in time.
 
-## Demo price fixture
+## Network
 
-The tested trading environment uses synthetic funds and a disclosed **historical Perpl price fixture** with a fork-only oracle configuration change. It demonstrates the transaction workflow; it is not evidence of autonomous protection in live mainnet price conditions.
-
-The [public demo](/app/) supports AUSD funding, BTC long/short trades, closing positions and withdrawing available collateral on the hosted fork. **Get test funds** provides synthetic AUSD; the demo uses a fixed historical BTC mark of **$82,964.20**. These transactions do not affect mainnet balances. Read [the current environments](/docs/developers/contracts/) for the network and deployed contracts.
+Perps runs on **Monad mainnet**. [Trade](/trade/?mode=perps) opens BTC positions on Perpl at live prices with your own AUSD; test funds from Earn's demo fork cannot be used here. Each protection top-up pays Setsuna 1% of the amount added, inside your cap. Setsuna's contracts are unaudited; trade small. Read [the current environments](/docs/developers/contracts/) for the deployed contracts.

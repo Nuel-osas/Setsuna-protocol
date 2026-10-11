@@ -1,6 +1,8 @@
 ## Is Setsuna live on Monad mainnet?
 
-The public app is an executable demo on a Railway-hosted fork of Monad mainnet, with synthetic funds and continuously running workers. It is not a Monad mainnet launch. Use **Get test funds** after connecting your wallet. The source snapshot is block 111560409; Perps uses a fixed historical BTC price of $82,964.20.
+Partly. **Spot and Perps run on Monad mainnet**: swaps settle on Kuru and BTC perps on Perpl at live prices, with your own funds. Setsuna's contracts are unaudited; trade small.
+
+**Earn runs on a Railway-hosted fork of Monad mainnet** with synthetic funds and continuously running keepers. Use **Get test funds** after connecting your wallet. The vaults allocate across the real Aave, Morpho, Euler, Neverland and Curvance contracts as they exist on the fork.
 
 ## What are setsMON and setsUSDC?
 
