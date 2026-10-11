@@ -5,7 +5,7 @@ export const faqs = [
   ],
   [
     "Where does my USDC go?",
-    "setsUSDC has five fixed destinations: Aave, Morpho, Euler, Neverland and Curvance. setsMON has two: Neverland and Euler. The cash target is 10%, each venue is capped at 60%, a market below 250,000 units of the vault’s asset gets no new money, and setsUSDC never supplies more than 10% of a market’s available cash. The public demo runs on a Monad mainnet fork with free test funds.",
+    "setsUSDC has five fixed destinations: Aave, Morpho, Euler, Neverland and Curvance. setsMON has two: Neverland and Euler. The cash target is 10%, each venue is capped at 60%, a market below 250,000 units of the vault’s asset gets no new money, and setsUSDC never supplies more than 10% of a market’s available cash. Live on Monad mainnet as a capped beta: 2,000 USDC and 25,000 MON.",
   ],
   [
     "Can I withdraw at any time?",

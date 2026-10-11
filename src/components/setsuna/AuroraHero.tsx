@@ -91,7 +91,7 @@ export default function AuroraHero() {
         </div>
         <div className="m-hero-bottom">
           <span>
-            <i /> Development preview · local demo available
+            <i /> Live on Monad mainnet · Capped beta
           </span>
           <a href="#flow" aria-label="Discover Setsuna">
             Scroll to discover <span aria-hidden="true">↓</span>

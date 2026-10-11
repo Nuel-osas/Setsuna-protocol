@@ -118,7 +118,7 @@ export function DocContents({ headings }: { headings: DocHeading[] }) {
       <div className="sd-toc-help">
         <span>Keep exploring</span>
         <Link href="/docs/getting-started/faq/">Questions? Start here ↗</Link>
-        <Link href="/docs/developers/local-demo/">Try the local demo ↗</Link>
+        <Link href="/earn/">Open the app ↗</Link>
       </div>
     </aside>
   );

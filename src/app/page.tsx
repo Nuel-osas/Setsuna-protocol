@@ -25,7 +25,7 @@ const questions = [
   ],
   [
     "Can I try it today?",
-    "Yes. Earn runs on a hosted fork of Monad mainnet: claim free test MON and USDC in the app and deposit into vaults that allocate across the real Aave, Morpho, Euler, Neverland and Curvance contracts, with no real funds. Spot and Perps run on Monad mainnet itself, on Kuru and Perpl at live prices with your own funds. Setsuna’s contracts are unaudited, so trade small. The app shows its environment before you transact.",
+    "Yes. Everything runs on Monad mainnet with real funds. Earn is a capped beta: setsUSDC holds at most 2,000 USDC and setsMON 25,000 MON, allocated across the live Aave, Morpho, Euler, Neverland and Curvance markets. Spot and Perps trade on Kuru and Perpl at live prices. Setsuna’s contracts are unaudited, so start small.",
   ],
 ];
 
@@ -163,8 +163,8 @@ export default function Home() {
           </Link>
         </div>
         <p className="m-product-note">
-          <i /> Try Earn with free test funds on a Monad mainnet fork. Spot and
-          Perps trade on Monad mainnet with real funds.
+          <i /> Live on Monad mainnet with real funds. Earn is a capped beta;
+          Setsuna&rsquo;s contracts are unaudited.
         </p>
       </section>
 

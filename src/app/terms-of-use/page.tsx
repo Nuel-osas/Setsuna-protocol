@@ -16,9 +16,9 @@ export default function Page() {
       <article className="s-prose">
         <h2>About this build</h2>
         <p>
-          Setsuna is a hackathon development preview for testing capped
-          automated margin top-ups. It is not a production trading service or a
-          completed security audit. Use the local demo with synthetic funds.
+          Setsuna is a hackathon build running on Monad mainnet with real funds.
+          Earn is a capped beta, and no Setsuna contract has completed a
+          security audit. Use only amounts you can afford to lose.
         </p>
         <h2>What a policy authorizes</h2>
         <p>
