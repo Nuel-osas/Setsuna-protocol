@@ -20,6 +20,10 @@ export default function PrivyRoot({ children }: { children: ReactNode }) {
         appearance: { theme: "dark", accentColor: "#8b8cff" },
         embeddedWallets: {
           ethereum: { createOnLogin: "users-without-wallets" },
+          // Every write already passes Setsuna's own review step. Privy's
+          // confirmation modal would also open beneath the native review
+          // dialog's top layer, where it cannot be clicked.
+          showWalletUIs: false,
         },
         defaultChain: monad,
         supportedChains: [monad],
