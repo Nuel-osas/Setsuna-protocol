@@ -350,6 +350,48 @@ export default function MONEarn(controls: EarnControls) {
           and governance risk; MON’s market price also varies.
         </p>
       }
+      controls={
+        m && (
+          <>
+            <p className="s-footnote">
+              Vault <code>{m.vault}</code>
+              <br />
+              Read at block {snapshot?.block.toString() ?? "—"}. Anyone may
+              trigger the fixed rules. The configured demo executor checks
+              periodically.
+            </p>
+            <div className="s-mon-actions">
+              <button
+                className="s-btn is-small"
+                disabled={
+                  !address ||
+                  !ready ||
+                  !snapshot ||
+                  snapshot.timestamp <
+                    snapshot.observations[1].timestamp + BigInt(300)
+                }
+                onClick={() => void act("observeRates")}
+              >
+                Record protocol rates
+              </button>
+              <button
+                className="s-btn is-small"
+                disabled={
+                  !address || !ready || !earnDecision(snapshot).canRebalance
+                }
+                onClick={() => void act("rebalance")}
+              >
+                Rebalance vault
+              </button>
+            </div>
+            <p className="s-footnote">
+              Transactions are simulated before signing. A rebalance also needs
+              fresh observations and an eligible move that improves projected
+              income or repairs a breached limit.
+            </p>
+          </>
+        )
+      }
       advanced={
         <>
           {" "}
@@ -362,43 +404,7 @@ export default function MONEarn(controls: EarnControls) {
           )}
           {m && (
             <details className="s-mon-details">
-              <summary>Vault activity and public controls</summary>
-              <p className="s-footnote">
-                Vault <code>{m.vault}</code>
-                <br />
-                Read at block {snapshot?.block.toString() ?? "—"}. Anyone may
-                trigger the fixed rules. The configured demo executor checks
-                periodically.
-              </p>
-              <div className="s-mon-actions">
-                <button
-                  className="s-btn is-small"
-                  disabled={
-                    !address ||
-                    !ready ||
-                    !snapshot ||
-                    snapshot.timestamp <
-                      snapshot.observations[1].timestamp + BigInt(300)
-                  }
-                  onClick={() => void act("observeRates")}
-                >
-                  Record protocol rates
-                </button>
-                <button
-                  className="s-btn is-small"
-                  disabled={
-                    !address || !ready || !earnDecision(snapshot).canRebalance
-                  }
-                  onClick={() => void act("rebalance")}
-                >
-                  Rebalance vault
-                </button>
-              </div>
-              <p className="s-footnote">
-                Transactions are simulated before signing. A rebalance also
-                needs fresh observations and an eligible move that improves
-                projected income or repairs a breached limit.
-              </p>
+              <summary>Vault activity</summary>
               {snapshot?.historyUnavailable ? (
                 <p>Activity could not be loaded.</p>
               ) : (
