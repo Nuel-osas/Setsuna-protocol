@@ -680,6 +680,87 @@
   },
   {
     "type": "function",
+    "name": "getOrder",
+    "inputs": [
+      {
+        "name": "perpId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "orderId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "order",
+        "type": "tuple",
+        "internalType": "struct IPerplExchange.Order",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "orderType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "priceONS",
+            "type": "uint24",
+            "internalType": "uint24"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint40",
+            "internalType": "uint40"
+          },
+          {
+            "name": "recycleFeeRaw",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "expiryBlock",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "leverageHdths",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "orderId",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "prevOrderId",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "nextOrderId",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxNegPnlCollatBPS",
+            "type": "uint16",
+            "internalType": "uint16"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getOrderLocks",
     "inputs": [
       {

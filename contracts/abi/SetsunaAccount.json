@@ -21,9 +21,45 @@
         "name": "perpId_",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "protocolFeeRecipient_",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "protocolFeeBps_",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "MAX_OPEN_ORDERS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_PROTOCOL_FEE_BPS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -92,6 +128,19 @@
         "internalType": "uint256"
       }
     ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "cancelOrder",
+    "inputs": [
+      {
+        "name": "orderId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -251,6 +300,76 @@
   },
   {
     "type": "function",
+    "name": "getOpenOrders",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "orders",
+        "type": "tuple[]",
+        "internalType": "struct IPerplExchange.Order[]",
+        "components": [
+          {
+            "name": "accountId",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "orderType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "priceONS",
+            "type": "uint24",
+            "internalType": "uint24"
+          },
+          {
+            "name": "lotLNS",
+            "type": "uint40",
+            "internalType": "uint40"
+          },
+          {
+            "name": "recycleFeeRaw",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "expiryBlock",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "leverageHdths",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "orderId",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "prevOrderId",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "nextOrderId",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxNegPnlCollatBPS",
+            "type": "uint16",
+            "internalType": "uint16"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getPolicy",
     "inputs": [
       {
@@ -342,6 +461,19 @@
   },
   {
     "type": "function",
+    "name": "orderTypesVersion",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
     "name": "owner",
     "inputs": [],
     "outputs": [
@@ -410,6 +542,11 @@
             "internalType": "uint256"
           },
           {
+            "name": "protocolFeeCNS",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
             "name": "spendableCNS",
             "type": "uint256",
             "internalType": "uint256"
@@ -440,6 +577,32 @@
             "internalType": "uint256"
           }
         ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "protocolFeeBps",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "protocolFeeRecipient",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "stateMutability": "view"
@@ -562,6 +725,50 @@
   },
   {
     "type": "event",
+    "name": "LimitOrderCancelled",
+    "inputs": [
+      {
+        "name": "orderId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LimitOrderPlaced",
+    "inputs": [
+      {
+        "name": "orderId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "side",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "pricePNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "lotLNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "OrderSubmitted",
     "inputs": [
       {
@@ -659,6 +866,31 @@
       },
       {
         "name": "usedCNS",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ProtocolFeePaid",
+    "inputs": [
+      {
+        "name": "policyId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "feeCNS",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"

@@ -23,11 +23,16 @@ for (const name of [
   "NeverlandMONAdapter",
   "EulerMONAdapter",
   "SetsunaSpot",
+  "SetsunaSpotOrders",
+  "SetsunaSpotOrderAccount",
   "SetsunaDemoFaucet",
 ]) {
   const artifact = JSON.parse(
     await readFile(
-      new URL(`contracts/out/${name}.sol/${name}.json`, root),
+      new URL(
+        `contracts/out/${name === "SetsunaSpotOrderAccount" ? "SetsunaSpotOrders" : name}.sol/${name}.json`,
+        root,
+      ),
       "utf8",
     ),
   );
