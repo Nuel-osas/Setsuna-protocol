@@ -49,7 +49,7 @@ export async function readPortfolio(d: Deployment, owner: Address) {
   const block = await client.getBlock();
   const at = { blockNumber: block.number };
   const floor =
-    block.number > BigInt(2000) ? block.number - BigInt(2000) : BigInt(0);
+    block.number > BigInt(9_999) ? block.number - BigInt(9_999) : BigInt(0);
   const from = (start?: string) =>
     start && BigInt(start) > floor ? BigInt(start) : floor;
   const balance = (token?: Address) =>

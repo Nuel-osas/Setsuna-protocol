@@ -69,7 +69,7 @@ export async function readSpot(d: Deployment, owner?: Address) {
   let historyUnavailable = false;
   const start = BigInt(s.startBlock),
     floor =
-      block.number > BigInt(2000) ? block.number - BigInt(2000) : BigInt(0);
+      block.number > BigInt(9_999) ? block.number - BigInt(9_999) : BigInt(0);
   const events = owner
     ? await c
         .getContractEvents({

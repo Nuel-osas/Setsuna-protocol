@@ -29,7 +29,8 @@ export function mainnetTrading(raw = process.env.SETSUNA_MAINNET_TRADING) {
     mode: "mainnet",
     chainId: 143,
     name: "Monad",
-    rpc: "https://rpc.monad.xyz",
+    // rpc2 answers 10,000-block log ranges; rpc.monad.xyz stops at 100.
+    rpc: "https://rpc2.monad.xyz",
     collateral: venues.collateral,
     exchange: venues.exchange,
     perpId: 1,

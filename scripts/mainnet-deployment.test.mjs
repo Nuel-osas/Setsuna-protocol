@@ -46,7 +46,7 @@ test("Earn and trading retain their mainnet contracts and contain no fork fields
   assert.equal(d.earnMON.vault, earn.monVault);
   assert.equal(d.factory, trading.perplFactory);
   assert.equal(d.spot.ordersFactory, trading.spotOrdersFactory);
-  assert.equal(d.trading.rpc, "https://rpc.monad.xyz");
+  assert.equal(d.trading.rpc, "https://rpc2.monad.xyz");
   assert.equal(d.earnMainnet.rpc, "https://rpc2.monad.xyz");
   assert.doesNotMatch(
     JSON.stringify(d),
@@ -94,7 +94,7 @@ test("invalid configuration disables only the affected product", () => {
 test("retired local RPC override cannot redirect mainnet trading", (t) => {
   mockEnv(t, "SETSUNA_MAINNET_TRADING_RPC", "http://127.0.0.1:8545");
   const d = mainnetDeployment("", JSON.stringify(trading));
-  assert.equal(d.rpc, "https://rpc.monad.xyz");
+  assert.equal(d.rpc, "https://rpc2.monad.xyz");
 });
 
 test("keeper rejects demo manifests and non-mainnet chain IDs before execution", async (t) => {

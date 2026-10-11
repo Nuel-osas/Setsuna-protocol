@@ -161,8 +161,10 @@ export async function readSnapshot(
       : block > BigInt(1000)
         ? block - BigInt(1000)
         : BigInt(0);
-    const from =
-      historyFloor !== undefined && historyFloor > start ? historyFloor : start;
+    // Public Monad RPCs answer at most 10,000 blocks of logs per request.
+    const recent = block > BigInt(9_999) ? block - BigInt(9_999) : BigInt(0);
+    const floor = historyFloor ?? recent;
+    const from = floor > start ? floor : start;
     const logs = await c.getLogs({
       address: account,
       fromBlock: from,
