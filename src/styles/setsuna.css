@@ -3088,3 +3088,49 @@ details p {
 .s-account-menu > .is-danger {
   color: #ff7a7a;
 }
+
+/* Transaction confirmations */
+.s-toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 80;
+  display: grid;
+  gap: 8px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.s-toast {
+  all: unset;
+  box-sizing: border-box;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--b-modal, #0d1018);
+  border: 1px solid rgba(61, 220, 151, 0.35);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  color: var(--b-text, #e8eaf0);
+  font-size: 13px;
+  line-height: 1.45;
+  animation: s-toast-in 180ms ease-out;
+}
+.s-toast i {
+  flex: none;
+  font-style: normal;
+  color: var(--b-green, #3ddc97);
+}
+@keyframes s-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s-toast {
+    animation: none;
+  }
+}

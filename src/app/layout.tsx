@@ -12,6 +12,7 @@ import "@/styles/logos.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
+import Toaster from "@/components/setsuna/Toaster";
 import PrivyRoot from "@/components/setsuna/PrivyRoot";
 
 const display = EB_Garamond({
@@ -62,6 +63,7 @@ export default function RootLayout({
             <SiteHeader />
             {children}
             <SiteFooter />
+            <Toaster />
           </WalletProvider>
         </PrivyRoot>
       </body>

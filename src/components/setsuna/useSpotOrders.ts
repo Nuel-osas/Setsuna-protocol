@@ -1,4 +1,5 @@
 "use client";
+import { useNoticeToast } from "./Toaster";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { encodeFunctionData, erc20Abi, zeroAddress, type Hex } from "viem";
 import { clientFor, useWallet } from "./WalletProvider";
@@ -21,6 +22,7 @@ export function useSpotOrders(
   const [pending, setPending] = useState<Hex>();
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  useNoticeToast(notice);
   const [readError, setReadError] = useState("");
   const epoch = useRef(0),
     running = useRef(false);

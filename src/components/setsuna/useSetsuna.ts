@@ -7,6 +7,7 @@
  * connected owner, simulated by WalletProvider.send before signing, and an
  * unknown confirmation blocks further writes until reconciled.
  */
+import { useNoticeToast } from "./Toaster";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   encodeFunctionData,
@@ -58,6 +59,7 @@ export function useSetsuna() {
   const [readError, setReadError] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  useNoticeToast(notice);
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<Review>();
   const [busy, setBusy] = useState(false);

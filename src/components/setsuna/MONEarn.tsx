@@ -1,5 +1,6 @@
 "use client";
 
+import { useNoticeToast } from "./Toaster";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { encodeFunctionData, erc20Abi, parseUnits, type Hex } from "viem";
 import {
@@ -37,6 +38,7 @@ export default function MONEarn(controls: EarnControls) {
   const [readError, setReadError] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  useNoticeToast(notice);
   const [amount, setAmount] = useState("");
   const [exitShares, setExitShares] = useState("");
   const [busy, setBusy] = useState("");

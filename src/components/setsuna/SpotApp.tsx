@@ -1,4 +1,5 @@
 "use client";
+import { useNoticeToast } from "./Toaster";
 import OrderTypeSwitch from "./OrderTypeSwitch";
 import { useSpotOrders } from "./useSpotOrders";
 import {
@@ -53,6 +54,7 @@ export default function SpotApp() {
   const [readError, setReadError] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  useNoticeToast(notice);
   const [pending, setPending] = useState<Hex>();
   const epoch = useRef(0);
   const pendingKey =
