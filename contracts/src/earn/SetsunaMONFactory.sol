@@ -11,10 +11,17 @@ import {IAaveEarnPool, IAaveEarnData} from "./VenueInterfaces.sol";
 
 contract MONVaultDeployer {
     address private immutable factory = msg.sender;
+    address private immutable feeRecipient;
+    uint256 private immutable performanceFeeBps;
+
+    constructor(address feeRecipient_, uint256 performanceFeeBps_) {
+        feeRecipient = feeRecipient_;
+        performanceFeeBps = performanceFeeBps_;
+    }
 
     function create(IERC20 asset, address guardian) external returns (SetsunaMONVault) {
         require(msg.sender == factory);
-        return new SetsunaMONVault(asset, guardian, 25_000 ether, 250_000 ether);
+        return new SetsunaMONVault(asset, guardian, 25_000 ether, 250_000 ether, feeRecipient, performanceFeeBps);
     }
 
     function initialize(SetsunaMONVault vault, ILendingAdapter[2] calldata venues) external {
@@ -60,8 +67,10 @@ contract SetsunaMONFactory {
         address eulerAdapter
     );
 
-    constructor() {
-        _vaultDeployer = new MONVaultDeployer();
+    /// @param feeRecipient_ Fixed treasury for every vault this factory creates.
+    /// @param performanceFeeBps_ Fixed share of yield, at most MAX_PERFORMANCE_FEE_BPS.
+    constructor(address feeRecipient_, uint256 performanceFeeBps_) {
+        _vaultDeployer = new MONVaultDeployer(feeRecipient_, performanceFeeBps_);
         _adapterDeployer = new MONAdapterDeployer();
     }
 
