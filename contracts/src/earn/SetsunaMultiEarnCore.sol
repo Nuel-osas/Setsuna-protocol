@@ -331,7 +331,9 @@ abstract contract SetsunaMultiEarnCore is SetsunaPerformanceFee, ReentrancyGuard
     {
         IERC20 token = IERC20(asset());
         uint256 beforeNav = totalAssets();
-        for (uint256 i; i < adapters.length && token.balanceOf(address(this)) < assets; ++i) {
+        uint256[] memory order = _withdrawalOrder();
+        for (uint256 k; k < order.length && token.balanceOf(address(this)) < assets; ++k) {
+            uint256 i = order[k];
             uint256 available;
             try adapters[i].availableLiquidity() returns (uint256 value) {
                 available = value;
@@ -359,6 +361,30 @@ abstract contract SetsunaMultiEarnCore is SetsunaPerformanceFee, ReentrancyGuard
         uint256 afterNav = _refresh();
         if (afterNav + assets + ROUNDING_BUDGET < beforeNav) {
             revert AccountingLoss();
+        }
+    }
+
+    /// @notice Withdrawal order: disabled destinations first, then lowest current
+    /// supply rate first, so redemptions leave the best-paying positions in place.
+    /// A destination whose rate cannot be read is treated as the lowest.
+    function _withdrawalOrder() internal view returns (uint256[] memory order) {
+        uint256 n = adapters.length;
+        order = new uint256[](n);
+        uint256[] memory rank = new uint256[](n);
+        for (uint256 i; i < n; ++i) {
+            order[i] = i;
+            if (!disabled[i]) {
+                try adapters[i].supplyApr(0) returns (uint256 rate) {
+                    rank[i] = rate == type(uint256).max ? rate : rate + 1;
+                } catch {}
+            }
+        }
+        for (uint256 i = 1; i < n; ++i) {
+            uint256 j = i;
+            while (j > 0 && rank[order[j - 1]] > rank[order[j]]) {
+                (order[j - 1], order[j]) = (order[j], order[j - 1]);
+                --j;
+            }
         }
     }
 
