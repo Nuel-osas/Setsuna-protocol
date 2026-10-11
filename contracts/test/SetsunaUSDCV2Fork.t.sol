@@ -18,7 +18,7 @@ contract SetsunaUSDCV2ForkTest is Test {
         vm.createSelectFork(vm.envOr("MONAD_RPC_URL", string("https://rpc.monad.xyz")), FORK_BLOCK);
         assertEq(block.chainid, 143);
         assertEq(block.timestamp, 1791436247);
-        vault = (new SetsunaUSDCV2Factory(new USDCV2VaultDeployer(address(0), 0))).createVault();
+        vault = (new SetsunaUSDCV2Factory(new USDCV2VaultDeployer(address(0), 0, 25_000e6))).createVault();
         deal(address(USDC), alice, 10_000e6);
         vm.prank(alice);
         USDC.approve(address(vault), type(uint256).max);

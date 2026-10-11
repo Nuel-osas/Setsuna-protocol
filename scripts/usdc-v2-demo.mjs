@@ -161,6 +161,7 @@ try {
     process.env.SETSUNA_TREASURY ??
       "0x000000000000000000000000000000000000fEE0",
     200n,
+    25_000n * 10n ** 6n,
   ]);
   const factory = await deploy("SetsunaUSDCV2Factory", "SetsunaUSDCV2Factory", [
     holder,

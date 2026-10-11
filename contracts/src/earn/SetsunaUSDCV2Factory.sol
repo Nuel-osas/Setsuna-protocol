@@ -15,15 +15,18 @@ contract USDCV2VaultDeployer {
     /// @notice Fixed for every vault this deployer creates; no setter exists.
     address public immutable feeRecipient;
     uint256 public immutable performanceFeeBps;
+    /// @notice Total-deposit ceiling for every vault this deployer creates; the vault bounds it.
+    uint256 public immutable depositCap;
 
-    constructor(address feeRecipient_, uint256 performanceFeeBps_) {
+    constructor(address feeRecipient_, uint256 performanceFeeBps_, uint256 depositCap_) {
         feeRecipient = feeRecipient_;
         performanceFeeBps = performanceFeeBps_;
+        depositCap = depositCap_;
     }
 
     function create(address asset, address guardian) external returns (SetsunaUSDCVault) {
         SetsunaUSDCVault vault = new SetsunaUSDCVault(
-            IERC20(asset), guardian, 25_000e6, 250_000e6, feeRecipient, performanceFeeBps
+            IERC20(asset), guardian, depositCap, 250_000e6, feeRecipient, performanceFeeBps
         );
         creators[address(vault)] = msg.sender;
         return vault;

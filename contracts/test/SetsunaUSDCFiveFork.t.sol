@@ -30,7 +30,7 @@ contract SetsunaUSDCFiveForkTest is Test {
         assertEq(
             blockhash(FORK_BLOCK - 1), 0x19ae1b058fd08d90d2ad7c126546e3c7783e9ce7d54d447f54a11c7e7312af57
         );
-        vault = (new SetsunaUSDCV2Factory(new USDCV2VaultDeployer(address(0), 0))).createFiveProtocolVault();
+        vault = (new SetsunaUSDCV2Factory(new USDCV2VaultDeployer(address(0), 0, 25_000e6))).createFiveProtocolVault();
         deal(address(USDC), alice, 10_000e6);
         vm.prank(alice);
         USDC.approve(address(vault), type(uint256).max);

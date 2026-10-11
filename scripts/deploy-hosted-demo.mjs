@@ -275,7 +275,7 @@ async function main() {
     const vaultDeployer = await deploy(
       "SetsunaUSDCV2Factory",
       "USDCV2VaultDeployer",
-      [treasury, EARN_FEE_BPS],
+      [treasury, EARN_FEE_BPS, 25_000n * 10n ** 6n],
     );
     const usdcFactory = await deploy(
       "SetsunaUSDCV2Factory",
