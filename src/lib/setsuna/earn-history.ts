@@ -79,7 +79,8 @@ export function downsample<T>(items: T[], count: number) {
   ].map((i) => items[i]);
 }
 
-// Sample actual archived state. A failed/empty-vault sample is a gap, never a fabricated value.
+// Share value comes from the vault's own events, so it survives state pruning
+// and restarts. The final point is a live read at the head block.
 async function loadEarnPerformance(d: Deployment, asset: "MON" | "USDC") {
   const m = asset === "MON" ? d.earnMON : d.earnUSDC;
   if (!m) throw new Error("Vault unavailable");
@@ -89,59 +90,86 @@ async function loadEarnPerformance(d: Deployment, asset: "MON" | "USDC") {
   const head = await client.getBlock();
   const start = BigInt(m.startBlock);
   if (start > head.number) throw new Error("History unavailable");
-  const blocks = [
-    ...new Set(
-      Array.from(
-        { length: 13 },
-        (_, i) => start + ((head.number - start) * BigInt(i)) / BigInt(12),
-      ),
-    ),
-  ];
-  let missing = 0;
-  const points: EarnPoint[] = [];
-  // Limit simultaneous RPC reads so the transaction card remains responsive.
-  for (let i = 0; i < blocks.length; i += 3) {
-    const samples = await Promise.all(
-      blocks.slice(i, i + 3).map(async (blockNumber) => {
-        try {
-          const [block, accounting, supply, price] = await Promise.all([
-            client.getBlock({ blockNumber }),
-            client.readContract({
-              address: m.vault,
-              abi: accountingAbi,
-              functionName: "accounting",
-              blockNumber,
-            }),
-            client.readContract({
-              address: m.vault,
-              abi: erc20Abi,
-              functionName: "totalSupply",
-              blockNumber,
-            }),
-            client.readContract({
-              address: m.vault,
-              abi: erc4626Abi,
-              functionName: "convertToAssets",
-              args: [BigInt(10) ** BigInt(asset === "MON" ? 24 : 12)],
-              blockNumber,
-            }),
-          ]);
-          if (!accounting[1]) throw new Error("Unhealthy valuation");
-          if (supply === BigInt(0)) return undefined;
-          return {
-            block: blockNumber,
-            timestamp: Number(block.timestamp),
-            price,
-            assets: accounting[0],
-          };
-        } catch {
-          missing++;
-          return undefined;
-        }
+  if (head.number - start > BigInt(200_000))
+    throw new Error("Full history requires indexing");
+  const unit = BigInt(10) ** BigInt(asset === "MON" ? 24 : 12);
+  // Head reads do not depend on the log scan; issue them in the same batch.
+  const live = Promise.all([
+    client.readContract({
+      address: m.vault,
+      abi: accountingAbi,
+      functionName: "accounting",
+      blockNumber: head.number,
+    }),
+    client.readContract({
+      address: m.vault,
+      abi: erc20Abi,
+      functionName: "totalSupply",
+      blockNumber: head.number,
+    }),
+    client.readContract({
+      address: m.vault,
+      abi: erc4626Abi,
+      functionName: "convertToAssets",
+      args: [unit],
+      blockNumber: head.number,
+    }),
+  ]);
+  live.catch(() => {}); // awaited below; avoid an unhandled rejection meanwhile
+  const mints: Parameters<typeof replayAccounting>[0] = [];
+  const updates: Parameters<typeof replayAccounting>[1] = [];
+  for (let fromBlock = start; fromBlock <= head.number;) {
+    const toBlock =
+      fromBlock + BigInt(4999) < head.number
+        ? fromBlock + BigInt(4999)
+        : head.number;
+    const at = { address: m.vault, fromBlock, toBlock, strict: true } as const;
+    const [transfers, accounting] = await Promise.all([
+      client.getContractEvents({ ...at, abi: erc20Abi, eventName: "Transfer" }),
+      client.getContractEvents({
+        ...at,
+        abi: accountingEvent,
+        eventName: "AccountingUpdated",
       }),
-    );
-    for (const point of samples) if (point) points.push(point);
+    ]);
+    for (const e of transfers)
+      if (e.args.from === ZERO || e.args.to === ZERO)
+        mints.push({
+          block: e.blockNumber,
+          index: e.logIndex,
+          from: e.args.from,
+          to: e.args.to,
+          value: e.args.value,
+        });
+    for (const e of accounting)
+      updates.push({
+        block: e.blockNumber,
+        index: e.logIndex,
+        assets: e.args.assets,
+      });
+    fromBlock = toBlock + BigInt(1);
   }
+  const replayed = downsample(
+    replayAccounting(mints, updates, unit).filter((p) => p.block < head.number),
+    SAMPLES - 1,
+  );
+  const [[accounting, supply, price], blocks] = await Promise.all([
+    live,
+    Promise.all(replayed.map((p) => client.getBlock({ blockNumber: p.block }))),
+  ]);
+  const points: EarnPoint[] = replayed.map((p, i) => ({
+    ...p,
+    timestamp: Number(blocks[i].timestamp),
+  }));
+  let missing = 0;
+  if (accounting[1] && supply > BigInt(0))
+    points.push({
+      block: head.number,
+      timestamp: Number(head.timestamp),
+      price,
+      assets: accounting[0],
+    });
+  else if (!accounting[1]) missing++;
   return { points, missing, block: head.number };
 }
 
