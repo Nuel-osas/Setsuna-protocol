@@ -73,6 +73,16 @@ async function main() {
   // No automatic overwrite/resume after an uncertain broadcast.
   await mkdir(dir, { mode: 0o700 });
   const owner = privateKeyToAccount(generatePrivateKey()).address;
+  // Fixed fee recipient for every vault, account and swap this deployment creates.
+  const treasury = process.env.SETSUNA_TREASURY;
+  if (
+    !/^0x[0-9a-fA-F]{40}$/.test(treasury ?? "") ||
+    /^0x0{40}$/i.test(treasury)
+  )
+    throw new Error("SETSUNA_TREASURY must be the fee recipient address");
+  const EARN_FEE_BPS = 200n, // 2% of yield
+    SPOT_FEE_BPS = 10n, // 0.10% of swap output
+    PERPS_FEE_BPS = 100n; // 1% of each top-up
   const keeperKey = generatePrivateKey(),
     keeper = privateKeyToAccount(keeperKey).address;
   const usdcKeeperKey = values.unified ? generatePrivateKey() : undefined;
@@ -170,7 +180,10 @@ async function main() {
     await save();
     return expected;
   }
-  const factory = await deploy("LocalEarnDemo.s", "LocalMONFactory");
+  const factory = await deploy("LocalEarnDemo.s", "LocalMONFactory", [
+    treasury,
+    EARN_FEE_BPS,
+  ]);
   const monFactory = await artifact("LocalEarnDemo.s", "LocalMONFactory");
   const createEntry = {
     operation: "createVault",
@@ -228,11 +241,16 @@ async function main() {
     exchange,
     ausd,
     1n,
+    treasury,
+    PERPS_FEE_BPS,
   ]);
   const spotGateway = await deploy("SetsunaSpot", "SetsunaSpot", [
     market,
     usdc,
+    treasury,
+    SPOT_FEE_BPS,
   ]);
+  const spotOrdersFactory = await deploy("SetsunaSpotOrders", "SetsunaSpotOrders", [market, "0x2A68ba1833cDf93fa9Da1EEbd7F46242aD8E90c5", usdc]);
   const manifest = {
     mode: "HOSTED_FORK_ONLY",
     syntheticFunding: true,
@@ -247,14 +265,17 @@ async function main() {
     euler: event.args.eulerAdapter,
     perplFactory,
     spotGateway,
+    spotOrdersFactory,
     ...(process.env.SETSUNA_DEMO_EXPLORER_URL
       ? { explorer: process.env.SETSUNA_DEMO_EXPLORER_URL }
       : {}),
+    earnFee: { bps: Number(EARN_FEE_BPS), recipient: treasury },
   };
   if (values.unified) {
     const vaultDeployer = await deploy(
       "SetsunaUSDCV2Factory",
       "USDCV2VaultDeployer",
+      [treasury, EARN_FEE_BPS],
     );
     const usdcFactory = await deploy(
       "SetsunaUSDCV2Factory",

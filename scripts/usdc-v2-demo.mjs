@@ -156,7 +156,12 @@ try {
       functionName,
     );
   }
-  const holder = await deploy("SetsunaUSDCV2Factory", "USDCV2VaultDeployer");
+  // Local demo: 2% of yield to SETSUNA_TREASURY, or a fixed placeholder recipient.
+  const holder = await deploy("SetsunaUSDCV2Factory", "USDCV2VaultDeployer", [
+    process.env.SETSUNA_TREASURY ??
+      "0x000000000000000000000000000000000000fEE0",
+    200n,
+  ]);
   const factory = await deploy("SetsunaUSDCV2Factory", "SetsunaUSDCV2Factory", [
     holder,
   ]);
