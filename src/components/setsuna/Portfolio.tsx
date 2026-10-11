@@ -134,11 +134,13 @@ export default function Portfolio() {
       <div className="p-environment">
         <span>
           <i />
-          {d?.trading
-            ? "Earn: Monad fork · Trade: Monad mainnet"
-            : d?.mode === "demo" || d?.mode === "local"
-              ? "Monad fork · synthetic funds"
-              : "Preview"}
+          {d?.mode === "mainnet"
+            ? "Monad mainnet · real funds"
+            : d?.trading
+              ? "Earn: Monad fork · Trade: Monad mainnet"
+              : d?.mode === "demo" || d?.mode === "local"
+                ? "Monad fork · synthetic funds"
+                : "Preview"}
         </span>
         {address && (
           <span aria-live="polite">

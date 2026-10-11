@@ -369,8 +369,7 @@ export default function USDCEarn(controls: EarnControls) {
               Vault <code>{m.vault}</code>
               <br />
               Read at block {snapshot?.block.toString() ?? "—"}. Anyone may
-              trigger the fixed rules. The configured demo executor checks
-              periodically.
+              trigger the fixed rules. Setsuna's keepers check periodically.
             </p>
             <div className="s-mon-actions">
               <button

@@ -132,11 +132,10 @@ export default function EarnRates({
         {data &&
           !failed &&
           `Read at Monad block ${data.block}, directly from ${data.source}. `}
-        Every destination passed a deposit and full withdrawal on a mainnet
-        fork. Rates move and are not promised; a large deposit lowers them. This
-        table is mainnet research, not the demo vault’s holdings. The{" "}
-        <a href="/app/">public demo</a> accepts synthetic USDC on its separate
-        fork and displays that environment’s rates and allocations.
+        Every destination passed a deposit and full withdrawal on a mainnet fork
+        before the capped mainnet vault launched. Rates move and are not
+        promised; a large deposit lowers them. The{" "}
+        <a href="/earn/usdc/">setsUSDC vault</a> shows its own live allocation.
       </p>
     </div>
   );

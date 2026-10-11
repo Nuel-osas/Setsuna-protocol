@@ -118,23 +118,29 @@ export default function AppShell() {
           </div>
         </div>
       )}
-      {tab === "earn" && deployment?.earnMainnet && (
-        <div className="t-trade-toolbar">
-          <span className="t-trade-heading">Earn</span>
-          <div className="t-trade-modes" role="group" aria-label="Earn network">
-            {(["mainnet", "demo"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={earnNetwork === value}
-                onClick={() => setEarnNetwork(value)}
-              >
-                {value === "mainnet" ? "Mainnet" : "Demo · test funds"}
-              </button>
-            ))}
+      {tab === "earn" &&
+        deployment?.earnMainnet &&
+        deployment.mode === "demo" && (
+          <div className="t-trade-toolbar">
+            <span className="t-trade-heading">Earn</span>
+            <div
+              className="t-trade-modes"
+              role="group"
+              aria-label="Earn network"
+            >
+              {(["mainnet", "demo"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={earnNetwork === value}
+                  onClick={() => setEarnNetwork(value)}
+                >
+                  {value === "mainnet" ? "Mainnet" : "Demo · test funds"}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       {tab === "earn" ? (
         <EarnScope network={earnNetwork}>
           {path.startsWith("/earn/mon") ||
@@ -147,7 +153,7 @@ export default function AppShell() {
           )}
         </EarnScope>
       ) : tab === "trade" ? (
-        // Spot and Perps settle on Monad mainnet; Earn stays on the demo fork.
+        // Spot and Perps settle on Monad mainnet.
         <TradingScope>
           {tradeMode === "spot" ? <SpotApp /> : <App />}
         </TradingScope>
