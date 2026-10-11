@@ -1,6 +1,6 @@
 import type { Address } from "viem";
 export type Deployment = {
-  mode: "local" | "demo" | "preview" | "mainnet";
+  mode: "preview" | "mainnet";
   chainId: number;
   name: string;
   rpc: string;
@@ -11,7 +11,6 @@ export type Deployment = {
   exchange: Address;
   perpId: number;
   startBlock?: string;
-  faucet?: Address;
   explorer?: string;
   spot?: {
     gateway: Address;
@@ -20,30 +19,23 @@ export type Deployment = {
     usdc: Address;
     startBlock: string;
   };
-  perplFixture?: {
-    mode: "FIXED_HISTORICAL_MARK";
-    markPNS: string;
-    oracleGuardDisabledOnFork: true;
-  };
   earnUSDC?: {
     vault: Address;
     asset: Address;
     adapters:
       | [Address, Address, Address, Address]
       | [Address, Address, Address, Address, Address];
-    forkBlock: string;
     startBlock: string;
   };
-  /** Spot and Perps on Monad mainnet, beside an Earn fork deployment. */
+  /** Spot and Perps contract configuration on Monad mainnet. */
   trading?: Deployment;
-  /** Capped setsUSDC and setsMON on Monad mainnet; the fork stays for test funds. */
+  /** Capped setsUSDC and setsMON on Monad mainnet. */
   earnMainnet?: Deployment;
   earnMON?: {
     vault: Address;
     gateway: Address;
     asset: Address;
     adapters: [Address, Address];
-    forkBlock: string;
     startBlock: string;
   };
 };

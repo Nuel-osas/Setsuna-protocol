@@ -1,5 +1,5 @@
 import { getAddress, isAddress, type Address } from "viem";
-import { venues } from "./demo-config";
+import { venues } from "./venues.ts";
 import type { Deployment } from "./types";
 
 /**
@@ -29,12 +29,7 @@ export function mainnetTrading(raw = process.env.SETSUNA_MAINNET_TRADING) {
     mode: "mainnet",
     chainId: 143,
     name: "Monad",
-    // Local verification can point at a loopback chain-143 fork; nothing else.
-    rpc: /^http:\/\/127\.0\.0\.1:\d+\/?$/.test(
-      process.env.SETSUNA_MAINNET_TRADING_RPC ?? "",
-    )
-      ? process.env.SETSUNA_MAINNET_TRADING_RPC!
-      : "https://rpc.monad.xyz",
+    rpc: "https://rpc.monad.xyz",
     collateral: venues.collateral,
     exchange: venues.exchange,
     perpId: 1,

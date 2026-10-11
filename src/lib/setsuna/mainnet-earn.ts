@@ -1,5 +1,5 @@
 import { getAddress, isAddress, type Address } from "viem";
-import { venues } from "./demo-config.ts";
+import { venues } from "./venues.ts";
 import type { Deployment } from "./types";
 
 /**
@@ -49,7 +49,6 @@ export function mainnetEarn(raw = process.env.SETSUNA_MAINNET_EARN) {
         Address,
         Address,
       ],
-      forkBlock: startBlock,
       startBlock,
     },
     earnMON: {
@@ -57,7 +56,6 @@ export function mainnetEarn(raw = process.env.SETSUNA_MAINNET_EARN) {
       gateway: address(m.monGateway),
       asset: venues.wmon,
       adapters: list(m.monAdapters, 2) as [Address, Address],
-      forkBlock: startBlock,
       startBlock,
     },
   } satisfies Deployment;
