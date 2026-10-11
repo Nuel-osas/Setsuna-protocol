@@ -108,7 +108,7 @@ try {
   });
   console.log("Deposit and exact approval verified");
   await page
-    .getByText("Vault activity and public controls", { exact: true })
+    .getByText("Vault activity", { exact: true })
     .click();
   const block = await c.getBlock();
   await c.request({
