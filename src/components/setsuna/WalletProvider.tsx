@@ -12,6 +12,7 @@ import {
   createWalletClient,
   custom,
   http,
+  formatEther,
   getAddress,
   type Address,
   type EIP1193Provider,
@@ -386,6 +387,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       throw new Error("No contract at this address. Refresh the target.");
     await pub.call({ account: address, to, data, value });
     const gas = await pub.estimateGas({ account: address, to, data, value });
+    // Embedded wallets report an empty gas balance only as a generic RPC
+    // error, so check it here and say what is missing.
+    const [balance, gasPrice] = await Promise.all([
+      pub.getBalance({ address }),
+      pub.getGasPrice(),
+    ]);
+    const needed = (gas * BigInt(120) * gasPrice) / BigInt(100) + value;
+    if (balance < needed)
+      throw new Error(
+        `Not enough MON for this transaction. It needs about ${formatEther(needed)} MON including gas; this wallet holds ${formatEther(balance)} MON.`,
+      );
     if (initialGeneration !== generation.current)
       throw new Error("Session changed. Reconnect before continuing.");
     const hash = await wallet.sendTransaction({

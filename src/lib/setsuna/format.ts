@@ -25,7 +25,11 @@ export function message(error: unknown) {
     name?: string;
     shortMessage?: string;
     message?: string;
+    details?: string;
   };
+  // Surface the wallet's own reason instead of viem's generic wrapper.
+  if (/unknown RPC error/i.test(e?.shortMessage ?? "") && e?.details)
+    return `Wallet error: ${e.details}`;
   if (e?.code === 4001 || /rejected|denied/i.test(e?.shortMessage ?? ""))
     return "Request cancelled. No action was completed.";
   if (e?.code === "PRF_UNAVAILABLE")

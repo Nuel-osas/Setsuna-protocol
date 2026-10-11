@@ -252,10 +252,7 @@ export function useSetsuna() {
         ask(
           "Create your Setsuna account",
           "Deploys an account that only your connected address owns. It holds your reserve and your Perpl trading account.",
-          [
-            ["Owner", shortAddress(address)],
-            ["Network", d.name],
-          ],
+          [["Owner", shortAddress(address)]],
           async () => {
             await send(d.factory!, factoryAbi, "createAccount");
             return "Account created. Add trading collateral to open your first position.";
