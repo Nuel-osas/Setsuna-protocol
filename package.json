@@ -48,10 +48,13 @@
     "contracts:test:usdc-five": "RUN_FORK=true forge test --root contracts --match-contract '(CurvanceUSDCAdapterTest|SetsunaUSDCFiveForkTest|SetsunaUSDCV2Test)' -vv",
     "check:docs": "node scripts/check-docs.mjs",
     "check:portfolio": "node scripts/check-portfolio.mjs",
-    "test:portfolio": "node --test scripts/portfolio-math.test.mjs"
+    "test:portfolio": "node --test scripts/portfolio-math.test.mjs",
+    "test:order-types": "node --test scripts/order-types.test.mjs",
+    "check:order-types": "node scripts/check-order-types.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "0.2.0",
+    "lightweight-charts": "^5.2.1",
     "marked": "18.1.0",
     "next": "16.3.6",
     "react": "19.3.0",
