@@ -18,7 +18,8 @@ export function demoRPC() {
     throw new Error("Demo RPC must use HTTPS");
   return rpc;
 }
-const validations = createReadCache<Deployment>(10_000, 8);
+// Contract links are immutable; revalidate each minute so an outage still shows.
+const validations = createReadCache<Deployment>(60_000, 8);
 export function validatedDemo(origin: string) {
   const rpc = demoRPC();
   const raw = process.env.SETSUNA_DEMO_MANIFEST;
