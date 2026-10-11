@@ -25,6 +25,16 @@ export async function GET(request: Request) {
     exchange: "0x34B6552d57a35a1D042CcAe1951BD1C370112a6F",
     perpId: 1,
   };
+  // Monad mainnet is the product: Earn, Spot and Perps settle there. The demo
+  // fork is no longer served once the mainnet vaults are configured.
+  const mainnet = mainnetDeployment();
+  if (mainnet)
+    return NextResponse.json(mainnet, {
+      headers: {
+        "Cache-Control":
+          "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
+      },
+    });
   if (process.env.SETSUNA_DEMO_MANIFEST) {
     try {
       const trading = mainnetTrading();
@@ -327,5 +337,26 @@ function mainnetProducts() {
     };
   } catch {
     return {};
+  }
+}
+
+/** One mainnet deployment: Earn vaults with the Spot and Perps contracts beside them. */
+function mainnetDeployment(): Deployment | undefined {
+  try {
+    const earn = mainnetEarn();
+    const trading = mainnetTrading();
+    if (!earn || !trading) return undefined;
+    return {
+      ...trading,
+      earnUSDC: earn.earnUSDC,
+      earnMON: earn.earnMON,
+      // Earn history needs rpc2's wider log ranges; trading reads work on either.
+      rpc: earn.rpc,
+      startBlock: trading.startBlock,
+      trading,
+      earnMainnet: earn,
+    };
+  } catch {
+    return undefined;
   }
 }
