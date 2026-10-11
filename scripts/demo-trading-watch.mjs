@@ -52,15 +52,29 @@ async function main() {
   process.on("SIGINT", () => {
     stopped = true;
   });
+  let failures = 0;
   do {
-    console.log(
-      JSON.stringify({
-        mode: "FIXED_HISTORICAL_MARK",
-        ...(await fixture.refresh()),
-      }),
-    );
+    try {
+      console.log(
+        JSON.stringify({
+          mode: "FIXED_HISTORICAL_MARK",
+          ...(await fixture.refresh()),
+        }),
+      );
+      failures = 0;
+    } catch (error) {
+      if (!values.watch) throw error;
+      failures++;
+      console.error(
+        JSON.stringify({
+          event: "fixture-refresh-failed",
+          failures,
+          error: String(error?.name ?? "Error"),
+        }),
+      );
+    }
     if (!values.watch || stopped) break;
-    await delay(15000);
+    await delay(failures ? Math.min(300_000, 15000 * 2 ** failures) : 15000);
   } while (!stopped);
 }
 main().catch(() => {
