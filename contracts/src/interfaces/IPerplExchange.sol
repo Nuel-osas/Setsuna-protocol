@@ -63,6 +63,20 @@ interface IPerplExchange {
         uint80 amountCNS;
     }
 
+    struct Order {
+        uint32 accountId;
+        uint8 orderType;
+        uint24 priceONS;
+        uint40 lotLNS;
+        uint16 recycleFeeRaw;
+        uint32 expiryBlock;
+        uint16 leverageHdths;
+        uint16 orderId;
+        uint16 prevOrderId;
+        uint16 nextOrderId;
+        uint16 maxNegPnlCollatBPS;
+    }
+
     struct PerpetualInfo {
         string name;
         string symbol;
@@ -144,6 +158,7 @@ interface IPerplExchange {
     function getMinAccountOpenCNS() external view returns (uint256 minAccountOpenCNS);
     function getMinimumSettleCNS() external view returns (uint256 minimumSettleCNS);
     function getOrderLocks(uint256 accountId) external view returns (OrderLock[] memory orderLocks);
+    function getOrder(uint256 perpId, uint256 orderId) external view returns (Order memory order);
     function getPerpetualInfo(uint256 perpId) external view returns (PerpetualInfo memory perpetualInfo);
     function getPositionV2(uint256 perpId, uint256 accountId)
         external
