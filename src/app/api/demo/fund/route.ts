@@ -12,6 +12,8 @@ import { clientIP, createRateLimit } from "@/lib/setsuna/rate-limit";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 const headers = { "Cache-Control": "no-store" };
+// The pool holds 100 claims for every judge; one network should not spend them all.
+const claimsPerIP = createRateLimit(3, 24 * 60 * 60 * 1000);
 const statusPerIP = createRateLimit(30, 60 * 1000);
 function address(value: unknown): value is Address {
   return typeof value === "string" && isAddress(value) && value !== zeroAddress;
@@ -71,6 +73,14 @@ export async function POST(request: Request) {
       { status: 400, headers },
     );
   }
+  if (!claimsPerIP(clientIP(request)))
+    return Response.json(
+      {
+        error:
+          "This network has claimed test funds several times today. Try again tomorrow.",
+      },
+      { status: 429, headers },
+    );
   let hash: `0x${string}` | undefined;
   try {
     const context = await faucetContext(origin, recipient);
