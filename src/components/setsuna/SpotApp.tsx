@@ -292,19 +292,18 @@ export default function SpotApp() {
       data-panel={marketTab}
       data-trade-open={mobileTrade}
     >
-      <div className="db-network-banner">
-        <span className="t-environment">
-          <i />
-          {d?.mode === "mainnet"
-            ? "Monad mainnet · real funds"
-            : "Mainnet · view only"}
-        </span>
-        <span>
-          {d?.mode === "mainnet"
-            ? "Swaps execute on Kuru at live prices with your own funds. Setsuna's contracts are unaudited; trade small."
-            : "Live Kuru markets. Trading is unavailable until mainnet contracts are configured."}
-        </span>
-      </div>
+      {d?.mode !== "mainnet" && (
+        <div className="db-network-banner">
+          <span className="t-environment">
+            <i />
+            Mainnet · view only
+          </span>
+          <span>
+            Live Kuru markets. Trading is unavailable until mainnet contracts
+            are configured.
+          </span>
+        </div>
+      )}
       {readError && (
         <p className="s-alert is-error" role="alert">
           {readError}

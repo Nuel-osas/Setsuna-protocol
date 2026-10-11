@@ -243,12 +243,6 @@ export default function App() {
             is connected.
           </p>
         )}
-        {d?.mode === "mainnet" && (
-          <p className="t-fork-note">
-            Monad mainnet: orders execute on Perpl at live prices with your own
-            AUSD. Setsuna’s contracts are unaudited; trade small.
-          </p>
-        )}
 
         {(s.readError ||
           (s.error && !s.review) ||
