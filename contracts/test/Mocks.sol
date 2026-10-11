@@ -49,6 +49,8 @@ contract MockPerpl {
     mapping(uint256 => E.PositionInfoV2) private positions;
     mapping(uint256 => bool) public forwarding;
     uint256 public lockCount;
+    uint16 private nextOrderId;
+    mapping(uint256 => E.Order) private orders;
     uint256 public markTimestamp;
     bool public markValid = true;
     uint256 public factor = 2500;
@@ -141,6 +143,23 @@ contract MockPerpl {
 
     function execOrder(E.OrderDesc memory order) external returns (E.OrderSignature memory) {
         uint256 id = idOf[msg.sender];
+        if (order.orderType == 4) {
+            require(orders[order.orderId].accountId == id, "foreign order");
+            delete orders[order.orderId];
+            --lockCount;
+            return E.OrderSignature(order.perpId, order.orderId);
+        }
+        if (!order.fillOrKill && !order.immediateOrCancel) {
+            uint16 orderId = ++nextOrderId;
+            E.Order storage resting = orders[orderId];
+            resting.accountId = uint32(id);
+            resting.orderId = orderId;
+            resting.orderType = order.orderType;
+            resting.priceONS = uint24(order.pricePNS);
+            resting.lotLNS = uint40(order.lotLNS);
+            ++lockCount;
+            return E.OrderSignature(order.perpId, orderId);
+        }
         if (order.orderType >= 2) {
             accounts[id].balanceCNS += positions[id].depositCNS;
             delete positions[id];
@@ -155,6 +174,19 @@ contract MockPerpl {
             accounts[id].balanceCNS -= 80e6;
         }
         return E.OrderSignature(order.perpId, 0);
+    }
+
+    function getOrder(uint256, uint256 id) external view returns (E.Order memory) {
+        return orders[id];
+    }
+
+    function setOrderRemaining(uint256 id, uint40 size) external {
+        if (size == 0) {
+            delete orders[id];
+            --lockCount;
+        } else {
+            orders[id].lotLNS = size;
+        }
     }
 
     function getAccountById(uint256 id) external view returns (E.AccountInfo memory) {
