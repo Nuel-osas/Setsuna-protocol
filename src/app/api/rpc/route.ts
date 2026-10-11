@@ -1,6 +1,7 @@
 import { createPublicClient, http } from "viem";
 import { demoConfig, validRPCPayload } from "@/lib/setsuna/demo-config";
 import { demoRPC } from "@/lib/setsuna/demo-server";
+import { createReadCache } from "@/lib/setsuna/read-cache";
 import { clientIP, createRateLimit } from "@/lib/setsuna/rate-limit";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -14,6 +15,7 @@ const headers = {
 // ample room for that while bounding scripted load on the single shared fork.
 const readsPerIP = createRateLimit(600, 60 * 1000);
 const sendsPerIP = createRateLimit(30, 60 * 1000);
+const chainIds = createReadCache<number>(60_000, 4);
 export function OPTIONS() {
   return new Response(null, { status: 204, headers });
 }
@@ -61,11 +63,12 @@ export async function POST(request: Request) {
         new URL("/api/rpc/", request.url).href,
       ),
       rpc = demoRPC();
-    const c = createPublicClient({
-      transport: http(rpc, { timeout: 6000, retryCount: 0 }),
-    });
-    if ((await c.getChainId()) !== d.chainId)
-      throw new Error("Wrong demo chain");
+    const chainId = await chainIds.read(rpc, () =>
+      createPublicClient({
+        transport: http(rpc, { timeout: 6000, retryCount: 0 }),
+      }).getChainId(),
+    );
+    if (chainId !== d.chainId) throw new Error("Wrong demo chain");
     const response = await fetch(rpc, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
