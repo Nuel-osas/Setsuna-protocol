@@ -125,9 +125,18 @@ export function liveSnapshot(kind: "spot" | "perps"): Promise<LiveMarket> {
       asks: perplLevels(depth.ask, config.price, config.size, false),
       observedAt: Math.min(finite(at.t), finite(tickerAt.t)),
       ...(previous > 0 ? { change24h: (last / previous - 1) * 100 } : {}),
+      // dva is 24 h price × size; oi is size. Both use the market precisions.
+      ...(Number.isFinite(Number(ticker.dva))
+        ? { volume24h: Number(ticker.dva) / 10 ** (config.price + config.size) }
+        : {}),
+      ...(Number.isFinite(Number(ticker.oi))
+        ? { openInterest: Number(ticker.oi) / 10 ** config.size }
+        : {}),
     };
   });
 }
+// About six days of hourly candles, matching a trading terminal's default view.
+const COUNT = 150;
 export function liveCandles(
   kind: "spot" | "perps",
   interval: "15m" | "1h" | "4h",
@@ -135,12 +144,12 @@ export function liveCandles(
   return cached(`candles-${kind}-${interval}`, 30000, async () => {
     const seconds = { "15m": 900, "1h": 3600, "4h": 14400 }[interval],
       end = Date.now(),
-      start = end - seconds * 1000 * 96;
+      start = end - seconds * 1000 * COUNT;
     const candles =
       kind === "spot"
         ? kuruCandles(
             await json(
-              `${KURU}/${MARKET}/trades/history?countback=96&from=${Math.floor(start / 1000)}&to=${Math.floor(end / 1000)}&resolution=${interval}&isDollar=false&inMarketCap=false`,
+              `${KURU}/${MARKET}/trades/history?countback=${COUNT}&from=${Math.floor(start / 1000)}&to=${Math.floor(end / 1000)}&resolution=${interval}&isDollar=false&inMarketCap=false`,
             ),
           )
         : perplCandles(
@@ -148,6 +157,7 @@ export function liveCandles(
               `${PERPL}/v1/market-data/1/candles/${seconds}/${start}-${end}`,
             ),
             (await perplConfig()).price,
+            (await perplConfig()).size,
           );
     return {
       network: "monad-mainnet",
@@ -155,7 +165,7 @@ export function liveCandles(
       interval,
       candles: candles
         .filter((c) => c.time <= end && c.time >= start - seconds * 1000)
-        .slice(-96),
+        .slice(-COUNT),
     };
   });
 }

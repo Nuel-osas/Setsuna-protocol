@@ -6,6 +6,8 @@ export type Candle = {
   high: number;
   low: number;
   close: number;
+  /** Traded in the candle: USD notional for Perpl, MON for Kuru. */
+  volume?: number;
 };
 export type SpotTrade = {
   price: number;
@@ -63,6 +65,9 @@ export type LiveMarket = {
   asks: Level[];
   observedAt: number;
   change24h?: number;
+  /** Perpl only: 24 h USD notional and open interest in BTC. */
+  volume24h?: number;
+  openInterest?: number;
 };
 export function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -128,11 +133,25 @@ function ordered(items: Candle[]) {
     throw new Error("Duplicate candles");
   return sorted;
 }
-export function perplCandles(input: unknown, decimals: number): Candle[] {
+const volume = (value: unknown, scale = 1) => {
+  const n = Number(value) / scale;
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+};
+export function perplCandles(
+  input: unknown,
+  decimals: number,
+  sizeDecimals?: number,
+): Candle[] {
   const r = record(input);
   if (!Array.isArray(r.d)) throw new Error("Invalid candles");
   return ordered(
-    r.d.map(record).map((c) => candle(c.t, c.o, c.h, c.l, c.c, 10 ** decimals)),
+    r.d.map(record).map((c) => ({
+      ...candle(c.t, c.o, c.h, c.l, c.c, 10 ** decimals),
+      // v is price × size in venue units: divide by both precisions for USD.
+      ...(sizeDecimals === undefined
+        ? {}
+        : { volume: volume(c.v, 10 ** (decimals + sizeDecimals)) }),
+    })),
   );
 }
 export function kuruCandles(input: unknown): Candle[] {
@@ -146,9 +165,11 @@ export function kuruCandles(input: unknown): Candle[] {
   const arrays = keys.map((k) => r[k] as unknown[]);
   if (arrays.some((a) => a.length !== arrays[0].length))
     throw new Error("Truncated candles");
+  const volumes =
+    Array.isArray(r.v) && r.v.length === arrays[0].length ? r.v : undefined;
   return ordered(
-    arrays[0].map((t, i) =>
-      candle(
+    arrays[0].map((t, i) => ({
+      ...candle(
         t,
         arrays[1][i],
         arrays[2][i],
@@ -158,6 +179,7 @@ export function kuruCandles(input: unknown): Candle[] {
         1000,
         false,
       ),
-    ),
+      ...(volumes ? { volume: volume(volumes[i]) } : {}),
+    })),
   );
 }
