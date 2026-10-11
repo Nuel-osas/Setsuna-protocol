@@ -383,12 +383,29 @@ export async function createDemoGateway({
                 );
             }
             // Commit a coherent durable snapshot before acknowledging a transaction or state mutation.
-            try {
-              await checkpoint(hashes);
-            } catch (error) {
-              closing = true;
-              fatal(error);
-              throw error;
+            // A transient export or disk error gets three more attempts before
+            // writes stop; the transaction is never acknowledged until one succeeds.
+            for (let attempt = 0; ; attempt++) {
+              try {
+                await checkpoint(hashes);
+                break;
+              } catch (error) {
+                console.error(
+                  JSON.stringify({
+                    event: "checkpoint-failed",
+                    attempt,
+                    error: String(error?.code ?? error?.message ?? error)
+                      .replace(/https?:\/\/[^\s"'<>]+/g, "[RPC endpoint]")
+                      .slice(0, 200),
+                  }),
+                );
+                if (attempt === 3) {
+                  closing = true;
+                  fatal(error);
+                  throw error;
+                }
+                await delay(2000 * 2 ** attempt);
+              }
             }
             return response;
           })
