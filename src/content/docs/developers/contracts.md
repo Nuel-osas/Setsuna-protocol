@@ -15,10 +15,12 @@ Deployed at Monad block 112443702. Each address is fixed at construction; there 
 | Component | Address on Monad mainnet (143) | Fee |
 | --- | --- | --- |
 | Spot gateway (Kuru MON/USDC) | `0x978BdBaD035F1cdf47e10915c0ceC4A94C3fC17D` | 0.10% of swap output |
-| Spot limit-order factory | `0xd0643451a10Ab33DEA53F1A64e94760770Be1E18` | None |
+| Spot limit-order factory | `0x323ad3cd45Cc366306B60878b59ED0d6C56EEfA4` | None |
 | Perpl account factory (BTC) | `0x00206Efbf5C49B61f2701a20d86329df4C3aB50D` | 1% of each protection top-up |
 
 These contracts are unaudited. Trade small.
+
+Every Setsuna contract listed on this page has its source verified on [Sourcify](https://sourcify.dev/), so its deployed bytecode can be matched to this repository.
 
 ## Mainnet Earn contracts
 
