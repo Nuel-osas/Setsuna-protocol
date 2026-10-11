@@ -7,16 +7,23 @@ import {
 } from "viem";
 import { confirmsDemoFunding, demoFaucetAbi } from "@/lib/setsuna/demo-faucet";
 import { faucetContext } from "@/lib/setsuna/faucet-server";
+import { clientIP, createRateLimit } from "@/lib/setsuna/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 const headers = { "Cache-Control": "no-store" };
+const statusPerIP = createRateLimit(30, 60 * 1000);
 function address(value: unknown): value is Address {
   return typeof value === "string" && isAddress(value) && value !== zeroAddress;
 }
 export async function GET(request: Request) {
   const url = new URL(request.url),
     recipient = url.searchParams.get("address");
+  if (!statusPerIP(clientIP(request)))
+    return Response.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429, headers },
+    );
   if (!address(recipient))
     return Response.json(
       { error: "Invalid wallet address" },
