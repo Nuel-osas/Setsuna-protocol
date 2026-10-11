@@ -7,7 +7,8 @@ import {
   type Observation,
 } from "@/lib/setsuna/market-view";
 import { useWallet } from "./WalletProvider";
-import { LiveCandles } from "./LiveCandles";
+import { ProChart } from "./ProChart";
+import type { ReferenceMarket } from "./useReferenceMarket";
 import type { TradingReading } from "./useTradingMarket";
 import TokenIcon from "./TokenIcon";
 import { ProtocolLabel } from "./ProtocolIcon";
@@ -16,10 +17,12 @@ export function MarketStrip({
   kind,
   reading,
   local,
+  reference,
 }: {
   kind: "spot" | "perps";
   reading?: TradingReading;
   local: boolean;
+  reference?: ReferenceMarket;
 }) {
   const { deployment } = useWallet();
   const spot = kind === "spot";
@@ -44,27 +47,73 @@ export function MarketStrip({
         </div>
         <span className="t-market-tag">{spot ? "SPOT" : "PERP"}</span>
       </div>
-      <div className="t-stat">
-        <span>{spot ? "Book midpoint" : "Mark price"}</span>
-        <strong>{marketNumber(reading?.price, spot ? 6 : 2)}</strong>
-      </div>
-      <div className="t-stat">
-        <span>{spot ? "CLOB spread" : "Collateral"}</span>
-        <strong>{spot ? marketNumber(spread) : "AUSD"}</strong>
-      </div>
-      <div className="t-stat t-stat-block">
-        <span>Read at block</span>
-        <strong>{reading?.block.toLocaleString("en-US") ?? "—"}</strong>
-      </div>
+      {reference && !spot ? (
+        <>
+          <div className="t-stat t-stat-hero">
+            <strong>{marketNumber(reference.price, 1)}</strong>
+            {reference.change24h !== undefined && (
+              <span className={reference.change24h >= 0 ? "is-up" : "is-down"}>
+                {reference.change24h >= 0 ? "+" : ""}
+                {reference.change24h.toFixed(2)}% · mainnet
+              </span>
+            )}
+          </div>
+          <div className="t-stat t-stat-keep">
+            <span>
+              {deployment?.mode === "mainnet"
+                ? "Mark price"
+                : "Fork mark · fills"}
+            </span>
+            <strong>{marketNumber(reading?.price, 1)}</strong>
+          </div>
+          <div className="t-stat t-stat-optional">
+            <span>Volume (24h)</span>
+            <strong>
+              {reference.volume24h !== undefined
+                ? `$${compactNumber(reference.volume24h)}`
+                : "—"}
+            </strong>
+          </div>
+          <div className="t-stat">
+            <span>Open interest</span>
+            <strong>
+              {reference.openInterest !== undefined
+                ? `${marketNumber(reference.openInterest, 2)} BTC`
+                : "—"}
+            </strong>
+          </div>
+          <div className="t-stat t-stat-block">
+            <span>Collateral</span>
+            <strong>AUSD</strong>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="t-stat">
+            <span>{spot ? "Book midpoint" : "Mark price"}</span>
+            <strong>{marketNumber(reading?.price, spot ? 6 : 2)}</strong>
+          </div>
+          <div className="t-stat">
+            <span>{spot ? "CLOB spread" : "Collateral"}</span>
+            <strong>{spot ? marketNumber(spread) : "AUSD"}</strong>
+          </div>
+          <div className="t-stat t-stat-block">
+            <span>Read at block</span>
+            <strong>{reading?.block.toLocaleString("en-US") ?? "—"}</strong>
+          </div>
+        </>
+      )}
       <span className="t-environment">
         <i />
         {local
           ? "Local fork"
           : deployment?.mode === "demo"
             ? "Demo · test funds"
-            : reading?.network === "monad-mainnet"
-              ? "Mainnet · view only"
-              : "Market preview"}
+            : deployment?.mode === "mainnet"
+              ? "Monad mainnet · real funds"
+              : reading?.network === "monad-mainnet"
+                ? "Mainnet · view only"
+                : "Market preview"}
       </span>
     </header>
   );
@@ -276,6 +325,10 @@ export function MarketChart({
   const chartRef = useRef<HTMLElement>(null);
   const { deployment } = useWallet();
   const live = deployment?.mode === "preview";
+  // A fork's markets never move on their own. Chart the venue's actual mainnet
+  // trades as a labelled reference; quotes, marks and fills stay on the fork.
+  const reference = deployment?.mode === "demo";
+  const candles = live || reference || deployment?.mode === "mainnet";
   const [view, setView] = useState(
     defaultView ?? (kind === "spot" ? "depth" : "price"),
   );
@@ -320,17 +373,17 @@ export function MarketChart({
           </button>
         )}
         <span className="t-chart-source">
-          {live
+          {live || deployment?.mode === "mainnet"
             ? "Monad mainnet"
-            : fixture
-              ? "Historical mark fixture"
-              : "Connected fork"}
+            : reference && view === "price"
+              ? "Monad mainnet · reference"
+              : fixture
+                ? "Historical mark fixture"
+                : "Connected fork"}
         </span>
       </div>
-      <div className="t-chart-tools">
-        {view === "price" && live ? (
-          <span>Venue trade history · UTC</span>
-        ) : view === "price" ? (
+      <div className="t-chart-tools" hidden={view === "price" && candles}>
+        {view === "price" ? (
           <>
             <span>Observations</span>
             <div role="group" aria-label="Chart sample window">
@@ -352,8 +405,11 @@ export function MarketChart({
           </>
         )}
       </div>
-      {view === "price" && live ? (
-        <LiveCandles kind={kind} />
+      {view === "price" && candles ? (
+        <ProChart
+          kind={kind}
+          forkMark={reference ? reading?.price : undefined}
+        />
       ) : error ? (
         <div className="t-chart-empty" role="status">
           {error}
@@ -367,9 +423,15 @@ export function MarketChart({
         <span>
           {view === "depth"
             ? "Cumulative size · AMM liquidity excluded"
-            : live
-              ? "Historical trades · current candle may be incomplete"
-              : "Observed in this session · 8s sampling · no invented history"}
+            : deployment?.mode === "mainnet"
+              ? `Live ${kind === "spot" ? "Kuru" : "Perpl"} mainnet trades · orders execute on Monad mainnet`
+              : reference
+                ? kind === "spot"
+                  ? "Live mainnet reference · demo swaps quote and fill on the fork's order book"
+                  : "Live mainnet reference · demo orders use the fork's fixed mark and book"
+                : live
+                  ? "Historical trades · current candle may be incomplete"
+                  : "Observed in this session · 8s sampling · no invented history"}
         </span>
         <span className="t-data-dot">{reading ? "Connected" : "Waiting"}</span>
       </footer>
@@ -380,9 +442,12 @@ export function MarketChart({
 export function OrderBook({
   reading,
   kind = "spot",
+  source,
 }: {
   reading?: TradingReading;
   kind?: "spot" | "perps";
+  /** Set when the book is a mainnet reference rather than the executing venue. */
+  source?: string;
 }) {
   const [side, setSide] = useState<"both" | "bids" | "asks">("both");
   const bids = reading?.bids.slice(0, side === "both" ? 8 : 16) ?? [],
@@ -412,7 +477,7 @@ export function OrderBook({
     <section className="t-book" aria-label="Order book">
       <header>
         <h2>Order book</h2>
-        <span>{kind === "spot" ? "MON" : "BTC"}</span>
+        <span>{source ?? (kind === "spot" ? "MON" : "BTC")}</span>
       </header>
       <div className="t-book-controls" role="group" aria-label="Book side">
         {(["both", "bids", "asks"] as const).map((s) => (
@@ -436,7 +501,11 @@ export function OrderBook({
       {side !== "asks" && <div>{rows(bids, true)}</div>}
       {!reading && <p className="t-empty">Waiting for the order book…</p>}
       <p className="t-book-note">
-        Resting orders only. The execution quote is authoritative.
+        {source?.includes("reference")
+          ? "Live mainnet book for reference. Demo orders fill on the fork."
+          : source
+            ? "Perpl's live mainnet book. Fill-or-kill orders execute against it."
+            : "Resting orders only. The execution quote is authoritative."}
       </p>
     </section>
   );
