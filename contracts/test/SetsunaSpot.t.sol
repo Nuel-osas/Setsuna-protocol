@@ -47,7 +47,7 @@ contract SetsunaSpotTest is Test {
     SpotMarketMock market;
     SetsunaSpot spot;
     function setUp() public {
-        token = new SpotToken(); market = new SpotMarketMock(token); spot = new SetsunaSpot(market, token);
+        token = new SpotToken(); market = new SpotMarketMock(token); spot = new SetsunaSpot(market, token, address(0), 0);
         token.mint(address(this), 10e6); token.mint(address(market), 100e6);
         token.approve(address(spot), 10e6);
         vm.deal(address(this), 10 ether); vm.deal(address(market), 10 ether);

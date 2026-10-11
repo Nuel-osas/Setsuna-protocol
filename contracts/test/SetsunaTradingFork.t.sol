@@ -15,7 +15,7 @@ contract SetsunaTradingForkTest is Test {
     function setUp() public {
         vm.skip(!vm.envOr("RUN_FORK", false));
         vm.createSelectFork(vm.envOr("MONAD_RPC_URL", string("https://rpc.monad.xyz")), 110_418_863);
-        account = SetsunaAccount(new SetsunaFactory(VENUE, AUSD, 1).createAccount());
+        account = SetsunaAccount(new SetsunaFactory(VENUE, AUSD, 1, address(0), 0).createAccount());
         vm.record(); AUSD.balanceOf(address(this));
         (bytes32[] memory slots,) = vm.accesses(address(AUSD));
         bytes32 slot = slots[slots.length - 1];

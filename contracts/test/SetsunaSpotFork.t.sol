@@ -13,7 +13,7 @@ contract SetsunaSpotForkTest is Test {
     function setUp() public {
         vm.skip(!vm.envOr("RUN_FORK", false));
         vm.createSelectFork(vm.envOr("MONAD_RPC_URL", string("https://rpc.monad.xyz")), 110_418_863);
-        spot = new SetsunaSpot(MARKET, USDC);
+        spot = new SetsunaSpot(MARKET, USDC, address(0), 0);
         vm.deal(address(this), 1_000 ether);
     }
     receive() external payable {}
@@ -66,7 +66,9 @@ contract SetsunaSpotForkTest is Test {
     function testFork_EmptyAUSDMarketDoesNotBecomeASuccessfulSwap() public {
         SetsunaSpot empty = new SetsunaSpot(
             IKuruSpotMarket(0x131A2e70A5b31a517A74b8c567149bc294470Da9),
-            IERC20(0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a)
+            IERC20(0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a),
+            address(0),
+            0
         );
         vm.expectRevert();
         empty.sellMON{value: 100 ether}(1, block.timestamp + 60);

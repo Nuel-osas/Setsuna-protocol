@@ -20,7 +20,7 @@ contract SetsunaForkTest is Test {
     function setUp() public {
         vm.skip(!vm.envOr("RUN_FORK", false));
         vm.createSelectFork(vm.envOr("MONAD_RPC_URL", string("https://rpc.monad.xyz")), PINNED_BLOCK);
-        SetsunaFactory factory = new SetsunaFactory(VENUE, AUSD, 1);
+        SetsunaFactory factory = new SetsunaFactory(VENUE, AUSD, 1, address(0), 0);
         account = SetsunaAccount(factory.createAccount());
         _dealAUSD(address(this), 10_000e6);
         AUSD.approve(address(account), type(uint256).max);

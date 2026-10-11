@@ -23,7 +23,7 @@ contract SetsunaAccountTest is Test {
         vm.roll(108_749_101);
         token = new MockAUSD();
         venue = new MockPerpl(token);
-        factory = new SetsunaFactory(E(address(venue)), IERC20(address(token)), 1);
+        factory = new SetsunaFactory(E(address(venue)), IERC20(address(token)), 1, address(0), 0);
         vm.prank(trader);
         account = SetsunaAccount(factory.createAccount());
         token.mint(trader, 10_000e6);
@@ -229,14 +229,14 @@ contract SetsunaAccountTest is Test {
         assertEq(uint256(_topUp()), uint256(SetsunaAccount.Status.OutstandingOrders));
     }
 
-    function testRestingTriggerAndWrongMarketOrdersRejected() public {
+    function testConflictingFlagsTriggerAndWrongMarketOrdersRejected() public {
         _arm();
         E.OrderDesc memory o = _order(0);
-        o.immediateOrCancel = false;
+        o.postOnly = true;
         vm.startPrank(trader);
         vm.expectRevert(SetsunaAccount.UnsupportedOrder.selector);
         account.executeOrder(o);
-        o.immediateOrCancel = true;
+        o.postOnly = false;
         o.orderType = 5;
         vm.expectRevert(SetsunaAccount.UnsupportedOrder.selector);
         account.executeOrder(o);
@@ -246,6 +246,67 @@ contract SetsunaAccountTest is Test {
         account.executeOrder(o);
         vm.stopPrank();
         assertTrue(account.getPolicy(1).active);
+    }
+
+    function testLimitRevokesProtectionAndCannotRearmUntilCleared() public {
+        _arm();
+        E.OrderDesc memory o = _order(0);
+        o.immediateOrCancel = false;
+        o.fillOrKill = false;
+        uint256 reserve = account.reserveCNS();
+        vm.startPrank(trader);
+        account.executeOrder(o);
+        assertFalse(account.getPolicy(1).active);
+        E.Order[] memory orders = account.getOpenOrders();
+        assertEq(orders.length, 1);
+        vm.expectRevert(
+            abi.encodeWithSelector(SetsunaAccount.CannotArm.selector, SetsunaAccount.Status.OutstandingOrders)
+        );
+        account.armPolicy(_config());
+        vm.stopPrank();
+        venue.setOrderRemaining(orders[0].orderId, 25);
+        assertEq(account.getOpenOrders()[0].lotLNS, 25);
+        vm.prank(keeper);
+        vm.expectRevert(SetsunaAccount.Unauthorized.selector);
+        account.cancelOrder(orders[0].orderId);
+        vm.prank(trader);
+        account.cancelOrder(orders[0].orderId);
+        assertEq(account.getOpenOrders().length, 0);
+        assertEq(account.reserveCNS(), reserve);
+        _arm();
+    }
+
+    function testFilledLimitsDisappearAndCannotBeCancelled() public {
+        E.OrderDesc memory o = _order(0);
+        o.immediateOrCancel = false;
+        o.fillOrKill = false;
+        vm.prank(trader);
+        account.executeOrder(o);
+        uint256 id = account.getOpenOrders()[0].orderId;
+        venue.setOrderRemaining(id, 0);
+        assertEq(account.getOpenOrders().length, 0);
+        vm.prank(trader);
+        vm.expectRevert(SetsunaAccount.UnsupportedOrder.selector);
+        account.cancelOrder(id);
+        vm.prank(trader);
+        account.executeOrder(o);
+        assertEq(account.getOpenOrders().length, 1);
+    }
+
+    function testRestingOrderCapacityRecoversAfterCancel() public {
+        E.OrderDesc memory o = _order(0);
+        o.immediateOrCancel = false;
+        o.fillOrKill = false;
+        vm.startPrank(trader);
+        for (uint256 i; i < 64; ++i) {
+            account.executeOrder(o);
+        }
+        vm.expectRevert(SetsunaAccount.UnsupportedOrder.selector);
+        account.executeOrder(o);
+        account.cancelOrder(account.getOpenOrders()[0].orderId);
+        account.executeOrder(o);
+        assertEq(account.getOpenOrders().length, 64);
+        vm.stopPrank();
     }
 
     function testUnauthorizedCallsCannotSpendReserveOrChangePolicy() public {
