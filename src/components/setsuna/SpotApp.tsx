@@ -145,22 +145,32 @@ export default function SpotApp() {
     quote.monToUSDC === monToUSDC &&
     snapshot.timestamp < quote.deadline;
 
-  async function getQuote() {
-    if (!d?.spot || !ready || !enough) return;
-    const current = epoch.current;
-    setBusy("Reading Kuru…");
-    setError("");
-    setNotice("");
-    setQuote(undefined);
-    try {
-      const q = await quoteSpot(d, monToUSDC, parsed);
-      if (epoch.current === current) setQuote(q);
-    } catch (e) {
-      if (epoch.current === current) setError(message(e));
-    } finally {
-      if (epoch.current === current) setBusy("");
-    }
-  }
+  // Quote automatically once the size settles, and again when a quote expires.
+  // A failed quote is not retried until the size, side or quote changes.
+  const [quoting, setQuoting] = useState(false);
+  const attempted = useRef("");
+  useEffect(() => {
+    if (!d?.spot || !ready || !enough || fresh) return;
+    const key = `${monToUSDC}:${parsed}:${quote?.deadline ?? ""}`;
+    if (attempted.current === key) return;
+    const timer = setTimeout(async () => {
+      attempted.current = key;
+      const current = epoch.current;
+      setQuoting(true);
+      try {
+        const q = await quoteSpot(d, monToUSDC, parsed);
+        if (epoch.current === current) {
+          setError("");
+          setQuote(q);
+        }
+      } catch (e) {
+        if (epoch.current === current) setError(message(e));
+      } finally {
+        if (epoch.current === current) setQuoting(false);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [d, ready, enough, fresh, monToUSDC, parsed, quote]);
 
   async function swap() {
     if (!d?.spot || !address || !ready || !fresh || !quote || !enough) return;
@@ -527,18 +537,14 @@ export default function SpotApp() {
               ) : (
                 <div className="db-submit-actions">
                   <button
-                    className="s-btn db-quote"
-                    disabled={!ready || !enough}
-                    onClick={() => void getQuote()}
-                  >
-                    Get quote
-                  </button>
-                  <button
                     className="s-btn is-primary db-submit"
                     disabled={!ready || !fresh || !enough}
                     onClick={() => void swap()}
                   >
-                    {busy || `Swap ${inToken} for ${outToken}`}
+                    {busy ||
+                      (enough && !fresh && quoting
+                        ? "Getting the live price…"
+                        : `Swap ${inToken} for ${outToken}`)}
                   </button>
                 </div>
               )}
@@ -558,9 +564,10 @@ export default function SpotApp() {
                   Execution details <span>⌄</span>
                 </summary>
                 <p>
-                  Quotes expire after two minutes of chain time. The full amount
-                  must execute above the minimum receive value or the
-                  transaction reverts. Gas is paid in MON.
+                  Prices refresh automatically and each quote expires after two
+                  minutes of chain time. The full amount must execute above the
+                  minimum receive value or the transaction reverts. Gas is paid
+                  in MON.
                 </p>
                 {!monToUSDC && (
                   <p>
