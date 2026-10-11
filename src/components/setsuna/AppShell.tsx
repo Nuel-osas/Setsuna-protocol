@@ -1,14 +1,34 @@
 "use client";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import EarnOverview from "./EarnOverview";
 import EarnApp from "./EarnApp";
 import App from "./App";
 import SpotApp from "./SpotApp";
 import Portfolio from "./Portfolio";
-import { TradingScope } from "./WalletProvider";
+import { EarnScope, TradingScope, useWallet } from "./WalletProvider";
 
 type Tab = "earn" | "trade" | "portfolio";
 type TradeMode = "spot" | "perps";
+type EarnNetwork = "mainnet" | "demo";
+const EARN_NETWORK_KEY = "setsuna.earn-network";
+
+/** Mainnet by default; the demo choice survives navigation between vault pages. */
+function useEarnNetwork() {
+  const [network, setNetwork] = useState<EarnNetwork>("mainnet");
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(EARN_NETWORK_KEY) === "demo") setNetwork("demo");
+    } catch {}
+  }, []);
+  const choose = (next: EarnNetwork) => {
+    setNetwork(next);
+    try {
+      localStorage.setItem(EARN_NETWORK_KEY, next);
+    } catch {}
+  };
+  return [network, choose] as const;
+}
 
 function TabIcon({ tab }: { tab: Tab }) {
   const paths = {
@@ -38,6 +58,8 @@ export default function AppShell() {
   const path = usePathname();
   const search = useSearchParams();
   const router = useRouter();
+  const { deployment } = useWallet();
+  const [earnNetwork, setEarnNetwork] = useEarnNetwork();
   const selected = search.get("tab");
   const tab: Tab =
     path.startsWith("/portfolio") || selected === "portfolio"
@@ -96,15 +118,34 @@ export default function AppShell() {
           </div>
         </div>
       )}
+      {tab === "earn" && deployment?.earnMainnet && (
+        <div className="t-trade-toolbar">
+          <span className="t-trade-heading">Earn</span>
+          <div className="t-trade-modes" role="group" aria-label="Earn network">
+            {(["mainnet", "demo"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={earnNetwork === value}
+                onClick={() => setEarnNetwork(value)}
+              >
+                {value === "mainnet" ? "Mainnet" : "Demo · test funds"}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {tab === "earn" ? (
-        path.startsWith("/earn/mon") ||
-        path.startsWith("/earn/usdc") ||
-        search.has("asset") ||
-        search.has("action") ? (
-          <EarnApp />
-        ) : (
-          <EarnOverview />
-        )
+        <EarnScope network={earnNetwork}>
+          {path.startsWith("/earn/mon") ||
+          path.startsWith("/earn/usdc") ||
+          search.has("asset") ||
+          search.has("action") ? (
+            <EarnApp />
+          ) : (
+            <EarnOverview />
+          )}
+        </EarnScope>
       ) : tab === "trade" ? (
         // Spot and Perps settle on Monad mainnet; Earn stays on the demo fork.
         <TradingScope>

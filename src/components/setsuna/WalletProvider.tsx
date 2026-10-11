@@ -562,3 +562,31 @@ export function TradingScope({ children }: { children: ReactNode }) {
     </Context.Provider>
   );
 }
+
+/**
+ * Earn on Monad mainnet (capped beta) or on the demo fork with test funds. The
+ * mainnet vaults are the default whenever they are configured.
+ */
+export function EarnScope({
+  network,
+  children,
+}: {
+  network: "mainnet" | "demo";
+  children: ReactNode;
+}) {
+  const wallet = useWallet();
+  const mainnet = wallet.deployment?.earnMainnet;
+  if (!mainnet || network === "demo") return <>{children}</>;
+  return (
+    <Context.Provider
+      value={{
+        ...wallet,
+        deployment: mainnet,
+        send: (to, data, onHash, value) =>
+          wallet.sendOn(mainnet, to, data, onHash, value),
+      }}
+    >
+      {children}
+    </Context.Provider>
+  );
+}
