@@ -65,7 +65,7 @@ export default function SiteFooter() {
       <div className="s-footer-base">
         <span>© 2026 Setsuna · Built on Monad</span>
         <span>
-          Development preview. Public deposits and trading are closed.
+          Public demo on a Monad mainnet fork with free test funds. Not audited.
         </span>
       </div>
       <div className="m-footer-word" aria-hidden="true">
