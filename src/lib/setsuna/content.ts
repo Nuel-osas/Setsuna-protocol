@@ -5,11 +5,11 @@ export const faqs = [
   ],
   [
     "Where does my USDC go?",
-    "Each vault has two fixed destinations: Aave and Morpho for setsUSDC, Neverland and Euler for setsMON. The cash target is 10%, each venue is capped at 60%, and the market-size floor is 250,000 units of that vault’s underlying asset. The chosen USDC Morpho market is below the floor in the recorded proof, so its target is zero. The setsMON app demo uses synthetic funds on a mainnet fork; public deposits are closed.",
+    "setsUSDC has five fixed destinations: Aave, Morpho, Euler, Neverland and Curvance. setsMON has two: Neverland and Euler. The cash target is 10%, each venue is capped at 60%, a market below 250,000 units of the vault’s asset gets no new money, and setsUSDC never supplies more than 10% of a market’s available cash. The public demo runs on a Monad mainnet fork with free test funds.",
   ],
   [
     "Can I withdraw at any time?",
-    "Redemption requires healthy valuation of both destinations and enough available cash: first from the buffer, then from lending markets. If there isn't enough available for your full amount, the withdrawal is refused rather than paying you less, and you can choose a smaller amount. Shares are never burned without paying you.",
+    "Redemption requires healthy valuation of every destination and enough available cash: first from the buffer, then from lending markets. If there isn't enough available for your full amount, the withdrawal is refused rather than paying you less, and you can choose a smaller amount. Shares are never burned without paying you.",
   ],
   [
     "What does it cost?",
