@@ -36,6 +36,8 @@ export type Deployment = {
   };
   /** Spot and Perps on Monad mainnet, beside an Earn fork deployment. */
   trading?: Deployment;
+  /** Capped setsUSDC and setsMON on Monad mainnet; the fork stays for test funds. */
+  earnMainnet?: Deployment;
   earnMON?: {
     vault: Address;
     gateway: Address;

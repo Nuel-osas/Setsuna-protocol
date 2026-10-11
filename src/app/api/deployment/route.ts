@@ -10,6 +10,7 @@ import { NextResponse } from "next/server";
 import type { Deployment } from "@/lib/setsuna/types";
 import { validatedDemo } from "@/lib/setsuna/demo-server";
 import { mainnetTrading } from "@/lib/setsuna/mainnet-trading";
+import { mainnetEarn } from "@/lib/setsuna/mainnet-earn";
 import { parseUSDCEarn, validateUSDCEarn } from "@/lib/setsuna/usdc-deployment";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
@@ -27,10 +28,12 @@ export async function GET(request: Request) {
   if (process.env.SETSUNA_DEMO_MANIFEST) {
     try {
       const trading = mainnetTrading();
+      const earnMainnet = mainnetEarn();
       return NextResponse.json(
         {
           ...(await validatedDemo(new URL(request.url).origin)),
           ...(trading ? { trading } : {}),
+          ...(earnMainnet ? { earnMainnet } : {}),
         },
         {
           // Every page waits on this; let the CDN answer while it revalidates.
@@ -41,8 +44,9 @@ export async function GET(request: Request) {
         },
       );
     } catch {
+      // A fork outage must not take down the mainnet products beside it.
       return NextResponse.json(
-        { ...preview, status: "demo-unavailable" },
+        { ...preview, ...mainnetProducts(), status: "demo-unavailable" },
         { headers: { "Cache-Control": "no-store" } },
       );
     }
@@ -219,7 +223,9 @@ export async function GET(request: Request) {
           startBlock: m.startBlock,
           spot: {
             gateway: m.spotGateway,
-            ...(isAddress(m.spotOrdersFactory) ? { ordersFactory: m.spotOrdersFactory } : {}),
+            ...(isAddress(m.spotOrdersFactory)
+              ? { ordersFactory: m.spotOrdersFactory }
+              : {}),
             market: m.spotMarket,
             usdc: m.usdc,
             startBlock: m.startBlock,
@@ -304,7 +310,22 @@ export async function GET(request: Request) {
       /* Stopped or stale demo never advertises signing access. */
     }
   }
-  return NextResponse.json(preview, {
-    headers: { "Cache-Control": "no-store" },
-  });
+  return NextResponse.json(
+    { ...preview, ...mainnetProducts() },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
+
+/** Spot, Perps and capped Earn on Monad mainnet, independent of the demo fork. */
+function mainnetProducts() {
+  try {
+    const trading = mainnetTrading();
+    const earnMainnet = mainnetEarn();
+    return {
+      ...(trading ? { trading } : {}),
+      ...(earnMainnet ? { earnMainnet } : {}),
+    };
+  } catch {
+    return {};
+  }
 }
