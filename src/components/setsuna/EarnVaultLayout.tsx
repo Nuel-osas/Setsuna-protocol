@@ -144,6 +144,7 @@ export default function EarnVaultLayout({
   funding,
   advanced,
   risk,
+  controls,
   destinations,
 }: {
   asset: EarnAsset;
@@ -153,6 +154,7 @@ export default function EarnVaultLayout({
   funding: ReactNode;
   advanced: ReactNode;
   risk: ReactNode;
+  controls?: ReactNode;
   destinations: string[];
 }) {
   const { address } = useWallet();
@@ -272,6 +274,22 @@ export default function EarnVaultLayout({
             snapshot={headlineSound ? headline : undefined}
             destinations={destinations}
           />
+          {controls && (
+            <section
+              className="e-panel e-controls"
+              aria-labelledby={`${asset.toLowerCase()}-controls-title`}
+            >
+              <h2 id={`${asset.toLowerCase()}-controls-title`}>
+                Anyone can rebalance
+              </h2>
+              <p>
+                No manager moves this vault. Any wallet can record protocol
+                rates or trigger a rebalance; the contract computes the moves
+                and refuses any that break its rules.
+              </p>
+              {controls}
+            </section>
+          )}
           <details className="e-panel e-advanced">
             <summary>
               Allocation rules & vault activity{" "}
