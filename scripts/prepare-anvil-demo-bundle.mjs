@@ -21,6 +21,7 @@ const files = [
     "demo-trading-watch",
     "deploy-hosted-demo",
     "deploy-demo-faucet",
+    "migrate-fee-vaults",
   ].map((n) => `scripts/${n}.mjs`),
   ...["demo-config", "usdc-deployment", "types"].map(
     (n) => `src/lib/setsuna/${n}.ts`,
@@ -31,6 +32,7 @@ const files = [
   "contracts/out/LocalEarnDemo.s.sol/LocalMONFactory.json",
   "contracts/out/SetsunaFactory.sol/SetsunaFactory.json",
   "contracts/out/SetsunaSpot.sol/SetsunaSpot.json",
+  "contracts/out/SetsunaSpotOrders.sol/SetsunaSpotOrders.json",
   "contracts/out/SetsunaUSDCV2Factory.sol/USDCV2VaultDeployer.json",
   "contracts/out/SetsunaUSDCV2Factory.sol/SetsunaUSDCV2Factory.json",
   "contracts/out/SetsunaDemoFaucet.sol/SetsunaDemoFaucet.json",
