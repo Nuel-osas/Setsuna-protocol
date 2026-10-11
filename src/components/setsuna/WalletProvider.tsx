@@ -84,6 +84,14 @@ type WalletState = {
     onHash?: (hash: Hex) => void,
     value?: bigint,
   ) => Promise<Hex>;
+  /** Same account, another deployment's network (see TradingScope). */
+  sendOn: (
+    target: Deployment,
+    to: Address,
+    data: Hex,
+    onHash?: (hash: Hex) => void,
+    value?: bigint,
+  ) => Promise<Hex>;
 };
 const Context = createContext<WalletState | null>(null);
 export function useWallet() {
@@ -301,31 +309,37 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setBusy(false);
     }
   }
-  async function send(
+  async function sendOn(
+    target: Deployment,
     to: Address,
     data: Hex,
     onHash?: (hash: Hex) => void,
     value = BigInt(0),
   ) {
-    const wallet = client.current;
+    const connected = client.current;
     const initialGeneration = generation.current;
     if (
-      !wallet ||
+      !connected ||
       !address ||
-      !deployment ||
-      (!deployment.factory &&
-        !deployment.earnMON &&
-        !deployment.earnUSDC &&
-        !deployment.spot)
+      (!target.factory && !target.earnMON && !target.earnUSDC && !target.spot)
     )
       throw new Error("Connect an account to an available deployment first.");
     if (
-      wallet.account &&
-      wallet.account.address.toLowerCase() !== address.toLowerCase()
+      connected.account &&
+      connected.account.address.toLowerCase() !== address.toLowerCase()
     )
       throw new Error("Session changed. Reconnect before continuing.");
-    const pub = clientFor(deployment);
-    if ((await pub.getChainId()) !== deployment.chainId)
+    // A passkey signs locally, so it can use any network's RPC directly.
+    const wallet: WalletClient =
+      kind !== "wallet" && connected.account
+        ? createWalletClient({
+            account: connected.account,
+            chain: chainFor(target),
+            transport: http(target.rpc),
+          })
+        : connected;
+    const pub = clientFor(target);
+    if ((await pub.getChainId()) !== target.chainId)
       throw new Error("RPC network changed. Transaction cancelled.");
     if (kind === "wallet") {
       const selected = await wallet.getAddresses();
@@ -333,28 +347,28 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         disconnect();
         throw new Error("Wallet account changed. Reconnect before continuing.");
       }
-      if ((await wallet.getChainId()) !== deployment.chainId) {
+      if ((await wallet.getChainId()) !== target.chainId) {
         try {
-          await wallet.switchChain({ id: deployment.chainId });
+          await wallet.switchChain({ id: target.chainId });
         } catch (e) {
           if ((e as { code?: number }).code !== 4902) throw e;
-          await wallet.addChain({ chain: chainFor(deployment) });
-          await wallet.switchChain({ id: deployment.chainId });
+          await wallet.addChain({ chain: chainFor(target) });
+          await wallet.switchChain({ id: target.chainId });
         }
-        if ((await wallet.getChainId()) !== deployment.chainId)
+        if ((await wallet.getChainId()) !== target.chainId)
           throw new Error("Switch to the configured network first.");
-        setChainId(deployment.chainId);
+        setChainId(target.chainId);
       }
     }
     if (!(await pub.getCode({ address: to })))
-      throw new Error("No contract at this address. Refresh the deployment.");
+      throw new Error("No contract at this address. Refresh the target.");
     await pub.call({ account: address, to, data, value });
     const gas = await pub.estimateGas({ account: address, to, data, value });
     if (initialGeneration !== generation.current)
       throw new Error("Session changed. Reconnect before continuing.");
     const hash = await wallet.sendTransaction({
       account: wallet.account ?? address,
-      chain: chainFor(deployment),
+      chain: chainFor(target),
       to,
       data,
       value,
@@ -376,6 +390,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
     return hash;
   }
+  const send = (
+    to: Address,
+    data: Hex,
+    onHash?: (hash: Hex) => void,
+    value?: bigint,
+  ) => {
+    if (!deployment)
+      throw new Error("Connect an account to an available deployment first.");
+    return sendOn(deployment, to, data, onHash, value);
+  };
   const openConnect = () => {
     setError("");
     setOpen(true);
@@ -390,6 +414,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         openConnect,
         disconnect,
         send,
+        sendOn,
       }}
     >
       {children}
@@ -512,6 +537,28 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           </p>
         )}
       </dialog>
+    </Context.Provider>
+  );
+}
+
+/**
+ * Spot and Perps run on Monad mainnet while Earn stays on the demo fork. Inside
+ * this scope the same account sees the mainnet deployment and sends there.
+ */
+export function TradingScope({ children }: { children: ReactNode }) {
+  const wallet = useWallet();
+  const trading = wallet.deployment?.trading;
+  if (!trading) return <>{children}</>;
+  return (
+    <Context.Provider
+      value={{
+        ...wallet,
+        deployment: trading,
+        send: (to, data, onHash, value) =>
+          wallet.sendOn(trading, to, data, onHash, value),
+      }}
+    >
+      {children}
     </Context.Provider>
   );
 }
