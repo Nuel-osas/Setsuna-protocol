@@ -1073,3 +1073,21 @@
 .e-advanced > summary > span {
   display: inline-block;
 }
+
+/* Public rebalance controls: visible, not buried in the advanced panel. */
+.e-controls h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.e-controls > p {
+  margin: 0 0 14px;
+  color: var(--e-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.e-controls .s-mon-actions {
+  flex-wrap: wrap;
+}
+.e-controls code {
+  overflow-wrap: anywhere;
+}
