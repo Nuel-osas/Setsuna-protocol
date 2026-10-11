@@ -13,7 +13,7 @@ export const faqs = [
   ],
   [
     "What does it cost?",
-    "No Setsuna fee in this version. Each lending market takes its own cut, already reflected in the supply rates shown.",
+    "Earn takes 2% of the yield your deposit earns, minted as vault shares when gains are recorded. There is no fee on deposits or withdrawals, and after a loss nothing is charged until the share value is back above its previous peak. Spot swaps on Monad mainnet pay 0.10% of the output, and Perps protection pays 1% of each margin top-up. Each lending market also takes its own cut, already reflected in the supply rates shown.",
   ],
   [
     "Is the rate guaranteed?",

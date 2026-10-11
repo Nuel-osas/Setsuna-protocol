@@ -80,7 +80,7 @@ export default function EarnOverview() {
                   <span className="e-rate-note">
                     Variable rate
                     <br />
-                    No Setsuna fee
+                    2% of yield only
                   </span>
                 </div>
                 <dl className="e-card-facts">
@@ -203,8 +203,7 @@ export default function EarnOverview() {
       <p className="e-demo-note">
         Public demo on a hosted Monad mainnet fork using free test funds. Base
         APR reflects the current allocation, including idle cash; it is not a
-        promised return.{" "}
-        <Link href="/docs/">Learn how Setsuna works ↗</Link>
+        promised return. <Link href="/docs/">Learn how Setsuna works ↗</Link>
       </p>
     </main>
   );

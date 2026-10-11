@@ -1,5 +1,39 @@
 # Spot and Perps completion / iOS handoff
 
+## Market and Limit update — Codex, 11 October 2026
+
+This is Codex's implementation and verification record for Emmanuel and Claude. It supersedes the older restrictions on resting orders below. No push or public/mainnet deployment was performed.
+
+- **Spot:** Market continues to use the existing MON/USDC swap gateway. Limit creates a separate `SetsunaSpotOrderAccount` per wallet through `SetsunaSpotOrders`. The account funds Kuru's margin balance, places a good-till-cancelled order, tracks remaining onchain size, cancels orders and withdraws free MON/USDC. Free funds are reused first. Each order caps wallet funding at the reviewed amount, even when a previous token approval is larger. Open orders are bounded to 64; ID discovery is bounded to 256 allocations per placement and filters by account ownership.
+- **Perps:** Market derives a price bound from the connected Perpl book and the user's slippage, then sends a fill-or-kill order. Limit permits resting orders and exposes cancellation. Open orders block protection; placement revokes an existing policy. Closing still lives in the position panel. The UI distinguishes total trading collateral, order locks and the free amount available for withdrawal.
+- **Balances:** Spot limit funds and proceeds remain in the user's Kuru trading account until reused or withdrawn. Both Spot and Portfolio display them separately from wallet assets. No Earn assets or protection reserve fund ordinary trades.
+- **Recovery:** Pending Spot-limit receipts persist across reloads, block both Spot modes and reconcile without a duplicate transaction. Context changes clear stale busy states and prevent an old Spot transaction callback from overwriting another wallet's pending state.
+
+### Verification and local preview
+
+103 non-fork Solidity tests, 10 real-protocol fork tests, TypeScript, the Next production build and the signed browser journey passed. Fork tests include partial fills on both venues, cancellation of the remaining size, withdrawals, ownership checks, the reviewed wallet-spend bound and protection blocking. The Perpl partial-fill test cancels historical best-bid orders on its isolated fork to create a controlled maker/taker match; it does not change venue storage or oracle settings.
+
+The browser proof uses newly deployed contracts and synthetic funds on an isolated fork of Monad block **110418863**. Its Perpl mark is a disclosed historical fixture. Evidence: `.local/order-types/1791717042520/result.json`; screenshots and deployment manifest are beside it. The final result includes Spot Market/Limit buys and sells, Perps Market/Limit, partial/full closes, order cancellation, withdrawals, pending-receipt recovery, mobile sizing and RPC failure handling.
+
+Preview: **http://127.0.0.1:3020/trade/**. The local RPC is on 18620, with pruning enabled; process IDs and the current run directory are in `.local/order-types/latest.json`. Only one new demo fork is kept. This preview does not update setsuna.finance.
+
+Reproduce with Node 24 and Foundry:
+
+```sh
+npm run contracts:build
+npm run test:order-types
+RUN_FORK=true forge test --root contracts --match-path test/OrderTypesFork.t.sol -vv
+npm run check:order-types
+# Keep a fresh, verified preview (requires ports 3020 and 18620 to be free):
+node scripts/check-order-types.mjs --keep-demo
+```
+
+### Deployment requirement
+
+Existing Perps accounts are immutable: enabling resting limits requires a new `SetsunaFactory` and new accounts. Existing positions, free collateral and reserves must be managed through the old deployment before migrating. Do not replace its manifest while users still need access to those accounts. Spot's new `spotOrdersFactory` manifest field is optional so old deployments continue to load and clearly report that limits are unavailable. The existing market gateway can remain usable alongside the new Spot order factory.
+
+Local, hosted-demo and prepared mainnet deployment scripts now include the new Spot factory. The mainnet script was edited only; it was not broadcast. Protocol references: [Kuru source at 2060bb2](https://github.com/Kuru-Labs/Kuru-contracts-dex-public/blob/2060bb2736080c175d80d568bfdb6226bb5abd04/contracts/OrderBook.sol), [Perpl exchange ABI at 78ce8a0](https://github.com/PerplFoundation/dex-sdk/blob/78ce8a06e39e2f9288792eba41aca5f3c08c1195/crates/sdk/abi/dex/Exchange.json). Perpl's onchain cancellation enum is 4, distinct from its REST enum.
+
 **Scope update — Codex, 9 October 2026:** Emmanuel has confirmed that native iOS is out of scope for this hackathon. The iOS handoff below is retained as a future reference, not an active milestone. The public web demo is now executable; use [PUBLIC-DEMO.md](PUBLIC-DEMO.md) for current deployments and [the current completion plan](HACKATHON-COMPLETION.md#current-scope-and-next-work--codex-9-october) for web verification and submission priorities. The 7 October preview-only status below is historical.
 
 **Codex · 7 October 2026.** Implementation notes for Emmanuel and Claude. This records Codex's changes; it does not imply Claude's approval. Scope: the synthetic-fund Monad fork demo. The public website remains a market preview until the hosted fork and workers are configured.

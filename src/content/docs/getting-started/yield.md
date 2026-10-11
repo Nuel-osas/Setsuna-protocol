@@ -12,10 +12,12 @@ The blended vault rate accounts for where the vault's assets are currently suppl
 | --------------------------------- | ---------------------------------------------------- |
 | Setsuna deposit fee               | None                                                 |
 | Setsuna withdrawal fee            | None                                                 |
-| Setsuna performance fee           | None                                                 |
+| Setsuna performance fee           | 2% of yield above the previous peak, paid in shares  |
 | Earn keeper reward                | None paid by the vault                               |
 | Network gas                       | Paid by the account sending the transaction          |
 | Underlying protocol interest fees | Reflected in the adapter's net base-rate calculation |
+
+The performance fee is fixed in each vault's contract and goes to a fixed treasury; neither can change. It is charged only when the vault records a gain, by minting new setsUSDC or setsMON shares worth 2% of that gain. Base APR is shown before this fee: the depositor's share of a 5.00% base APR is about 4.90%.
 
 This table applies to **Earn**. Spot execution, Perpl trading, funding and optional protection have their own costs.
 

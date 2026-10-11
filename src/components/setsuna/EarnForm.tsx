@@ -529,7 +529,7 @@ export default function EarnForm(p: Props) {
           <dl className="s-earn-form-facts">
             <div>
               <dt>Setsuna fee</dt>
-              <dd>None</dd>
+              <dd>2% of yield · none on deposits or withdrawals</dd>
             </div>
             <div>
               <dt>Slippage limit</dt>
