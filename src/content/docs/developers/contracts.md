@@ -24,15 +24,17 @@ Every Setsuna contract listed on this page has its source verified on [Sourcify]
 
 ## Mainnet Earn contracts
 
-Deployed at Monad block 112553267. setsUSDC is capped at 2,000 USDC and setsMON at 25,000 MON. Both take 2% of yield, never principal, for the treasury above. The guardian can only pause deposits or disable a destination; it cannot move funds. [Live deployment manifest](/api/deployment/).
+Deployed at Monad block 112600382. Withdrawals draw first from the lowest-yielding destination, so the best-paying positions stay in place. setsUSDC is capped at 2,000 USDC and setsMON at 25,000 MON. Both take 2% of yield, never principal, for the treasury above. The guardian can only pause deposits or disable a destination; it cannot move funds. [Live deployment manifest](/api/deployment/).
 
 | Component | Address on Monad mainnet (143) |
 | --- | --- |
-| setsUSDC vault | `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7` |
-| setsMON vault | `0x3F271AaD41D6064Be2A9245fE00Fa72606c5Fda1` |
-| Native MON gateway | `0x32BcA3c83968682173c8c5A05Ab8Fb927EE5D8d2` |
+| setsUSDC vault | `0x0a531817EEFB7b1FFD7c511c0817F58ac343CC67` |
+| setsMON vault | `0x408A8C85a3e15446885ADCc954575e7a918dFd33` |
+| Native MON gateway | `0x34fAFC57C6B086bC31a32693BDA0260c85Ff5BB3` |
 
 These contracts are unaudited. Deposit only what you can afford to lose.
+
+The first vaults (setsUSDC `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7`, setsMON `0x3F271AaD41D6064Be2A9245fE00Fa72606c5Fda1`) are retired: new deposits are permanently paused, and existing holders can still withdraw at any time.
 
 ## Underlying assets
 

@@ -7,7 +7,7 @@ The CLI is read-only by default. Inspect the deployed mainnet USDC vault:
 ```sh
 node scripts/earn-keeper.mjs \
   --multi --asset USDC \
-  --vault 0xAA5366660c3dDb3400f7083F21196Db125d6a2E7 \
+  --vault 0x0a531817EEFB7b1FFD7c511c0817F58ac343CC67 \
   --rpc https://rpc.monad.xyz
 ```
 
