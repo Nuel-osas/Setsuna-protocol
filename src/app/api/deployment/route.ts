@@ -27,7 +27,13 @@ export async function GET(request: Request) {
     try {
       return NextResponse.json(
         await validatedDemo(new URL(request.url).origin),
-        { headers: { "Cache-Control": "no-store" } },
+        {
+          // Every page waits on this; let the CDN answer while it revalidates.
+          headers: {
+            "Cache-Control":
+              "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
+          },
+        },
       );
     } catch {
       return NextResponse.json(
