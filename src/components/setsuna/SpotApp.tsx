@@ -1,4 +1,12 @@
 "use client";
+import OrderTypeSwitch from "./OrderTypeSwitch";
+import { useSpotOrders } from "./useSpotOrders";
+import {
+  SpotLimitTicket,
+  SpotOrderAlerts,
+  SpotOpenOrders,
+  SpotTradingBalances,
+} from "./SpotLimit";
 import TokenIcon from "./TokenIcon";
 import { ProtocolLabel } from "./ProtocolIcon";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -38,6 +46,7 @@ export default function SpotApp() {
   >("history");
   const [mobileTrade, setMobileTrade] = useState(false);
   const [snapshot, setSnapshot] = useState<SpotSnapshot>();
+  const [orderKind, setOrderKind] = useState<"market" | "limit">("market");
   const [monToUSDC, setDirection] = useState(true);
   const [input, setInput] = useState("100");
   const [quote, setQuote] = useState<SpotQuote>();
@@ -68,11 +77,14 @@ export default function SpotApp() {
       );
     }
   }, [d, address]);
+  const limit = useSpotOrders(!!busy || !!pending, refresh);
+  const limitLocked = limit.busy || !!limit.pending;
   useEffect(() => {
     epoch.current++;
     setSnapshot(undefined);
     setQuote(undefined);
     setPending(undefined);
+    setBusy("");
     setError("");
     setNotice("");
     if (pendingKey) {
@@ -91,8 +103,8 @@ export default function SpotApp() {
     };
   }, [refresh, pendingKey]);
 
-  function track(hash?: Hex) {
-    setPending(hash);
+  function track(hash?: Hex, generation = epoch.current) {
+    if (generation === epoch.current) setPending(hash);
     if (pendingKey)
       try {
         if (hash) localStorage.setItem(pendingKey, hash);
@@ -118,7 +130,13 @@ export default function SpotApp() {
       : (snapshot.usdc ?? BigInt(0)) >= parsed &&
         (snapshot.mon ?? BigInt(0)) >= BigInt(10) ** BigInt(17));
   const ready =
-    !!d?.spot && !!address && !!snapshot && !busy && !pending && !readError;
+    !!d?.spot &&
+    !!address &&
+    !!snapshot &&
+    !busy &&
+    !pending &&
+    !readError &&
+    !limitLocked;
   const fresh =
     quote &&
     snapshot &&
@@ -148,6 +166,7 @@ export default function SpotApp() {
     const current = epoch.current,
       q = quote,
       s = d.spot;
+    const trackCurrent = (hash?: Hex) => track(hash, current);
     const unchanged = () => {
       if (epoch.current !== current)
         throw new Error(
@@ -177,9 +196,9 @@ export default function SpotApp() {
               functionName: "approve",
               args: [s.gateway, q.input],
             }),
-            track,
+            trackCurrent,
           );
-          track();
+          trackCurrent();
           unchanged();
         }
       }
@@ -199,10 +218,10 @@ export default function SpotApp() {
       const hash = await wallet.send(
         s.gateway,
         data,
-        track,
+        trackCurrent,
         q.monToUSDC ? q.input : BigInt(0),
       );
-      track();
+      trackCurrent();
       unchanged();
       setQuote(undefined);
       setNotice(
@@ -217,10 +236,12 @@ export default function SpotApp() {
   }
   async function reconcile() {
     if (!d || !pending) return;
+    const current = epoch.current;
     setBusy("Checking receipt…");
     try {
       const r = await clientFor(d).getTransactionReceipt({ hash: pending });
-      track();
+      track(undefined, current);
+      if (epoch.current !== current) return;
       setQuote(undefined);
       setError("");
       setNotice(
@@ -230,11 +251,12 @@ export default function SpotApp() {
       );
       await refresh();
     } catch {
+      if (epoch.current !== current) return;
       setError(
         "Receipt is still unavailable. Do not repeat the transaction yet.",
       );
     } finally {
-      setBusy("");
+      if (epoch.current === current) setBusy("");
     }
   }
 
@@ -278,12 +300,16 @@ export default function SpotApp() {
             ? "Local fork · test funds"
             : d?.mode === "demo"
               ? "Demo · test funds"
-              : "Mainnet · view only"}
+              : d?.mode === "mainnet"
+                ? "Monad mainnet · real funds"
+                : "Mainnet · view only"}
         </span>
         <span>
           {d?.mode === "preview"
             ? "Live Kuru markets. Public trading is not open yet."
-            : "Prices, quotes and fills use the connected demo fork."}
+            : d?.mode === "mainnet"
+              ? "Swaps execute on Kuru at live prices with your own funds. Setsuna's contracts are unaudited; trade small."
+              : "Prices, quotes and fills use the connected demo fork."}
         </span>
       </div>
       {readError && (
@@ -313,6 +339,7 @@ export default function SpotApp() {
           </button>
         </p>
       )}
+      <SpotOrderAlerts orders={limit} />
       <div className="db-workspace">
         <SpotSummary reading={terminal.reading} />
         <div
@@ -343,15 +370,20 @@ export default function SpotApp() {
           onView={setBookTab}
         />
         <section className="db-ticket t-ticket" aria-label="Spot order ticket">
-          <DemoFunding onFunded={refresh} disabled={!!busy || !!pending} />
+          <DemoFunding
+            onFunded={refresh}
+            disabled={!!busy || !!pending || limitLocked}
+          />
           <div className="db-tabs db-order-tabs">
-            <span className="is-active">Market</span>
-            <span
-              className="db-unavailable"
-              title="Limit orders are not supported by the current Spot gateway"
-            >
-              Limit <small>Unavailable</small>
-            </span>
+            <OrderTypeSwitch
+              value={orderKind}
+              onChange={(kind) => {
+                setOrderKind(kind);
+                setQuote(undefined);
+              }}
+              disabled={!!busy || !!pending || limitLocked}
+              label="Spot order type"
+            />
             <button
               className="db-close-trade"
               aria-label="Close order form"
@@ -368,7 +400,7 @@ export default function SpotApp() {
             {[false, true].map((direction) => (
               <button
                 key={String(direction)}
-                disabled={!!busy || !!pending}
+                disabled={!!busy || !!pending || limitLocked}
                 className={monToUSDC === direction ? "is-on" : ""}
                 aria-label={direction ? "Sell MON" : "Buy MON"}
                 aria-pressed={monToUSDC === direction}
@@ -388,140 +420,168 @@ export default function SpotApp() {
               {inToken}
             </strong>
           </div>
-          <label className="db-input">
-            <span>
-              Size <i>{inToken}</i>
-            </span>
-            <div>
-              <input
-                aria-label="Spot amount"
-                inputMode="decimal"
-                value={input}
-                disabled={!!busy || !!pending}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  setQuote(undefined);
-                  setError("");
-                }}
-              />
-              <span className="s-token-label">
-                <TokenIcon asset={inToken} size={18} />
-                {inToken}
-              </span>
-            </div>
-          </label>
-          <div
-            className="db-fractions"
-            role="group"
-            aria-label="Use wallet balance"
-          >
-            {[0, 25, 50, 75, 100].map((n) => (
-              <button
-                key={n}
-                disabled={!snapshot || !address || !!busy || !!pending}
-                onClick={() => useFraction(n)}
-              >
-                {n === 100 ? "Max" : `${n}%`}
-              </button>
-            ))}
-          </div>
-          <input
-            className="db-range"
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            value={fraction}
-            aria-label="Trade balance percentage"
-            disabled={!snapshot || !address || !!busy || !!pending}
-            onChange={(e) => useFraction(Number(e.target.value))}
-          />
-          <dl className="db-review">
-            <div>
-              <dt>You pay</dt>
-              <dd>
-                {parsed > BigInt(0) ? show(parsed, monToUSDC ? 18 : 6) : "—"}{" "}
-                {inToken}
-              </dd>
-            </div>
-            <div>
-              <dt>You receive</dt>
-              <dd>
-                {show(quote?.output, monToUSDC ? 6 : 18)} {outToken}
-              </dd>
-            </div>
-            <div>
-              <dt>Minimum receive</dt>
-              <dd>
-                {show(quote?.minOut, monToUSDC ? 6 : 18)} {outToken}
-              </dd>
-            </div>
-            <div>
-              <dt>Max slippage</dt>
-              <dd>0.50%</dd>
-            </div>
-            <div>
-              <dt>Execution</dt>
-              <dd>Fill or kill</dd>
-            </div>
-            <div>
-              <dt>Quote block</dt>
-              <dd>{quote?.block?.toString() ?? "—"}</dd>
-            </div>
-          </dl>
-          {!address ? (
-            <button
-              className="s-btn is-primary is-wide db-submit"
-              onClick={openWallet}
-            >
-              Connect to swap
-            </button>
+          {orderKind === "limit" ? (
+            <SpotLimitTicket
+              key={`${d?.chainId}:${d?.spot?.ordersFactory}:${address}:${monToUSDC}`}
+              orders={limit}
+              market={snapshot}
+              isBuy={!monToUSDC}
+              connected={!!address}
+              connect={openWallet}
+            />
           ) : (
-            <div className="db-submit-actions">
-              <button
-                className="s-btn db-quote"
-                disabled={!ready || !enough}
-                onClick={() => void getQuote()}
+            <>
+              <label className="db-input">
+                <span>
+                  Size <i>{inToken}</i>
+                </span>
+                <div>
+                  <input
+                    aria-label="Spot amount"
+                    inputMode="decimal"
+                    value={input}
+                    disabled={!!busy || !!pending || limitLocked}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      setQuote(undefined);
+                      setError("");
+                    }}
+                  />
+                  <span className="s-token-label">
+                    <TokenIcon asset={inToken} size={18} />
+                    {inToken}
+                  </span>
+                </div>
+              </label>
+              <div
+                className="db-fractions"
+                role="group"
+                aria-label="Use wallet balance"
               >
-                Get quote
-              </button>
-              <button
-                className="s-btn is-primary db-submit"
-                disabled={!ready || !fresh || !enough}
-                onClick={() => void swap()}
-              >
-                {busy || `Swap ${inToken} for ${outToken}`}
-              </button>
-            </div>
+                {[0, 25, 50, 75, 100].map((n) => (
+                  <button
+                    key={n}
+                    disabled={!snapshot || !address || !!busy || !!pending}
+                    onClick={() => useFraction(n)}
+                  >
+                    {n === 100 ? "Max" : `${n}%`}
+                  </button>
+                ))}
+              </div>
+              <input
+                className="db-range"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={fraction}
+                aria-label="Trade balance percentage"
+                disabled={!snapshot || !address || !!busy || !!pending}
+                onChange={(e) => useFraction(Number(e.target.value))}
+              />
+              <dl className="db-review">
+                <div>
+                  <dt>You pay</dt>
+                  <dd>
+                    {parsed > BigInt(0)
+                      ? show(parsed, monToUSDC ? 18 : 6)
+                      : "—"}{" "}
+                    {inToken}
+                  </dd>
+                </div>
+                <div>
+                  <dt>You receive</dt>
+                  <dd>
+                    {show(quote?.output, monToUSDC ? 6 : 18)} {outToken}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Minimum receive</dt>
+                  <dd>
+                    {show(quote?.minOut, monToUSDC ? 6 : 18)} {outToken}
+                  </dd>
+                </div>
+                <div>
+                  <dt>
+                    Setsuna fee
+                    {quote?.feeBps
+                      ? ` · ${(Number(quote.feeBps) / 100).toFixed(2)}%`
+                      : ""}
+                  </dt>
+                  <dd>
+                    {quote
+                      ? `${show(quote.fee, monToUSDC ? 6 : 18)} ${outToken}`
+                      : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Max slippage</dt>
+                  <dd>0.50%</dd>
+                </div>
+                <div>
+                  <dt>Execution</dt>
+                  <dd>Fill or kill</dd>
+                </div>
+                <div>
+                  <dt>Quote block</dt>
+                  <dd>{quote?.block?.toString() ?? "—"}</dd>
+                </div>
+              </dl>
+              {!address ? (
+                <button
+                  className="s-btn is-primary is-wide db-submit"
+                  onClick={openWallet}
+                >
+                  Connect to swap
+                </button>
+              ) : (
+                <div className="db-submit-actions">
+                  <button
+                    className="s-btn db-quote"
+                    disabled={!ready || !enough}
+                    onClick={() => void getQuote()}
+                  >
+                    Get quote
+                  </button>
+                  <button
+                    className="s-btn is-primary db-submit"
+                    disabled={!ready || !fresh || !enough}
+                    onClick={() => void swap()}
+                  >
+                    {busy || `Swap ${inToken} for ${outToken}`}
+                  </button>
+                </div>
+              )}
+              {!d?.spot && (
+                <p className="db-ticket-note">
+                  Explore live markets. Public swaps open when the demo
+                  deployment is connected.
+                </p>
+              )}
+              {address && snapshot && !enough && (
+                <p className="db-ticket-note">
+                  Enter an amount within your balance. Keep 0.1 MON for gas.
+                </p>
+              )}
+              <details className="db-execution-details">
+                <summary>
+                  Execution details <span>⌄</span>
+                </summary>
+                <p>
+                  Quotes expire after two minutes of chain time. The full amount
+                  must execute above the minimum receive value or the
+                  transaction reverts. Gas is paid in MON.
+                </p>
+                {!monToUSDC && (
+                  <p>
+                    USDC may require an exact-amount approval. If the swap
+                    fails, that approval may remain.
+                  </p>
+                )}
+                <p>The Max shortcut keeps 0.1 MON in your wallet for gas.</p>
+              </details>
+            </>
           )}
-          {!d?.spot && (
-            <p className="db-ticket-note">
-              Explore live markets. Public swaps open when the demo deployment
-              is connected.
-            </p>
-          )}
-          {address && snapshot && !enough && (
-            <p className="db-ticket-note">
-              Enter an amount within your balance. Keep 0.1 MON for gas.
-            </p>
-          )}
-          <details className="db-execution-details">
-            <summary>
-              Execution details <span>⌄</span>
-            </summary>
-            <p>
-              Quotes expire after two minutes of chain time. The full amount
-              must execute above the minimum receive value or the transaction
-              reverts. Gas is paid in MON.
-            </p>
-            {!monToUSDC && (
-              <p>
-                USDC may require an exact-amount approval. If the swap fails,
-                that approval may remain.
-              </p>
-            )}
-            <p>The Max shortcut keeps 0.1 MON in your wallet for gas.</p>
-          </details>
           <div className="db-powered">
             <span className="db-status-dot" /> Routed through{" "}
             <ProtocolLabel name="Kuru" size={14} /> · Monad
@@ -539,7 +599,7 @@ export default function SpotApp() {
               aria-pressed={accountTab === "orders"}
               onClick={() => setAccountTab("orders")}
             >
-              Open orders <small>0</small>
+              Open orders <small>{limit.snapshot?.orders.length ?? "—"}</small>
             </button>
             <button
               aria-pressed={accountTab === "history"}
@@ -557,44 +617,42 @@ export default function SpotApp() {
               <button onClick={openWallet}>CONNECT WALLET</button>
             </div>
           ) : accountTab === "balances" ? (
-            <div className="db-balance-table">
-              <div className="db-table-head">
-                <span>Asset</span>
-                <span>Wallet balance</span>
-                <span>Available to trade</span>
-              </div>
-              {[
-                { token: "MON", value: snapshot?.mon, decimals: 18 },
-                { token: "USDC", value: snapshot?.usdc, decimals: 6 },
-              ].map(({ token, value, decimals }) => (
-                <div key={token}>
-                  <strong>{token}</strong>
-                  <span>{show(value, decimals)}</span>
-                  <span>
-                    {token === "MON" && value !== undefined
-                      ? show(
-                          value > BigInt(10) ** BigInt(17)
-                            ? value - BigInt(10) ** BigInt(17)
-                            : BigInt(0),
-                          18,
-                        )
-                      : show(value, decimals)}
-                  </span>
+            <>
+              <div className="db-balance-table">
+                <div className="db-table-head">
+                  <span>Asset</span>
+                  <span>Wallet balance</span>
+                  <span>Available to trade</span>
                 </div>
-              ))}
-              <p>
-                Spot uses your wallet tokens. Earn shares and Perpl AUSD
-                collateral remain separate.
-              </p>
-            </div>
+                {[
+                  { token: "MON", value: snapshot?.mon, decimals: 18 },
+                  { token: "USDC", value: snapshot?.usdc, decimals: 6 },
+                ].map(({ token, value, decimals }) => (
+                  <div key={token}>
+                    <strong>{token}</strong>
+                    <span>{show(value, decimals)}</span>
+                    <span>
+                      {token === "MON" && value !== undefined
+                        ? show(
+                            value > BigInt(10) ** BigInt(17)
+                              ? value - BigInt(10) ** BigInt(17)
+                              : BigInt(0),
+                            18,
+                          )
+                        : show(value, decimals)}
+                    </span>
+                  </div>
+                ))}
+                <p>
+                  Market swaps use your wallet tokens. Limit orders use the Spot
+                  trading balance below. Earn shares and Perpl AUSD collateral
+                  remain separate.
+                </p>
+              </div>
+              <SpotTradingBalances orders={limit} market={snapshot} />
+            </>
           ) : accountTab === "orders" ? (
-            <div className="db-account-empty">
-              <p>No open orders.</p>
-              <span>
-                Market swaps fill immediately or revert. Resting limit orders
-                are not available yet.
-              </span>
-            </div>
+            <SpotOpenOrders orders={limit} market={snapshot} />
           ) : snapshot?.history.length ? (
             <div className="db-receipts">
               <div className="db-table-head">
@@ -627,7 +685,10 @@ export default function SpotApp() {
                   ? "Receipts could not be loaded."
                   : "No swaps yet."}
               </p>
-              <span>Your confirmed swaps will appear here.</span>
+              <span>
+                Your confirmed market swaps will appear here. Check Open orders
+                and Balances for limit orders.
+              </span>
             </div>
           )}
         </section>

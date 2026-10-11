@@ -7,6 +7,7 @@ export const spotABI = parseAbi([
   "function buyMON(uint256 amount, uint256 minOut, uint256 deadline) returns(uint256)",
   "function market() view returns(address)",
   "function usdc() view returns(address)",
+  "function feeBps() view returns(uint256)",
   "event Swapped(address indexed owner, bool monToUSDC, uint256 amountIn, uint256 amountOut)",
 ]);
 export const kuruABI = parseAbi([
@@ -129,10 +130,24 @@ export async function quoteSpot(
   });
   if (result <= BigInt(0))
     throw new Error("No executable liquidity for this amount.");
+  // The gateway keeps a fixed share of the output; gateways deployed before
+  // the fee existed have no feeBps() and charge nothing.
+  const feeBps = await c
+    .readContract({
+      address: d.spot.gateway,
+      abi: spotABI,
+      functionName: "feeBps",
+      blockNumber: snapshot.block,
+    })
+    .catch(() => BigInt(0));
+  const fee = (result * feeBps) / BigInt(10_000);
+  const output = result - fee;
   return {
     input,
-    output: result,
-    minOut: (result * BigInt(995)) / BigInt(1000),
+    output,
+    fee,
+    feeBps,
+    minOut: (output * BigInt(995)) / BigInt(1000),
     monToUSDC,
     block: snapshot.block,
     deadline: snapshot.timestamp + BigInt(120),
