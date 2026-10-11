@@ -463,14 +463,14 @@ export default function App() {
                 disabled={s.busy || !!s.unknownHash || !!s.review}
                 label="Perps order type"
               />
-              <div className="s-segment" role="tablist">
+              <div className="s-segment t-side" role="tablist">
                 {["Long", "Short"].map((label, i) => (
                   <button
                     key={label}
                     role="tab"
                     disabled={s.busy || !!s.unknownHash}
                     aria-selected={side === i}
-                    className={side === i ? "is-on" : ""}
+                    className={`${i === 0 ? "is-long" : "is-short"}${side === i ? " is-on" : ""}`}
                     onClick={() => {
                       setSide(i);
                       setPrice(undefined);

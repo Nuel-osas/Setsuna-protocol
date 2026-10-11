@@ -1415,3 +1415,27 @@ body:has(.t-shell) .s-modal .s-input-box input {
 .db-limit-orders,.db-trading-balances{padding:16px 24px}
 .db-trading-balances h3{font-size:14px;font-weight:500;margin:4px 0 12px}
 .db-trading-balances .db-ticket-note{margin:12px 0}
+
+/* Long reads green and short reads red, matching Spot's buy and sell. */
+.t-terminal .s-segment.t-side button.is-long {
+  color: rgba(61, 220, 151, 0.7);
+}
+.t-terminal .s-segment.t-side button.is-short {
+  color: rgba(255, 107, 107, 0.7);
+}
+.t-terminal .s-segment.t-side button.is-long.is-on {
+  color: #3ddc97;
+  background: rgba(61, 220, 151, 0.14);
+  border: 1px solid rgba(61, 220, 151, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(61, 220, 151, 0.25),
+    0 0 18px rgba(61, 220, 151, 0.28);
+}
+.t-terminal .s-segment.t-side button.is-short.is-on {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.14);
+  border: 1px solid rgba(255, 107, 107, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(255, 107, 107, 0.25),
+    0 0 18px rgba(255, 107, 107, 0.28);
+}
