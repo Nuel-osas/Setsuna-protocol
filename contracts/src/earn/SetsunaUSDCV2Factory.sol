@@ -12,9 +12,19 @@ import {IAaveEarnPool, IAaveEarnData} from "./VenueInterfaces.sol";
 
 contract USDCV2VaultDeployer {
     mapping(address => address) private creators;
+    /// @notice Fixed for every vault this deployer creates; no setter exists.
+    address public immutable feeRecipient;
+    uint256 public immutable performanceFeeBps;
+
+    constructor(address feeRecipient_, uint256 performanceFeeBps_) {
+        feeRecipient = feeRecipient_;
+        performanceFeeBps = performanceFeeBps_;
+    }
 
     function create(address asset, address guardian) external returns (SetsunaUSDCVault) {
-        SetsunaUSDCVault vault = new SetsunaUSDCVault(IERC20(asset), guardian, 25_000e6, 250_000e6);
+        SetsunaUSDCVault vault = new SetsunaUSDCVault(
+            IERC20(asset), guardian, 25_000e6, 250_000e6, feeRecipient, performanceFeeBps
+        );
         creators[address(vault)] = msg.sender;
         return vault;
     }

@@ -14,7 +14,8 @@ contract EarnVaultDeployer {
 
     function create(IERC20 asset, address guardian) external returns (SetsunaEarnVault) {
         require(msg.sender == factory);
-        return new SetsunaEarnVault(asset, guardian, 25_000e6, 250_000e6);
+        // Legacy two-destination vault: kept fee-free; the fee applies to the current vaults.
+        return new SetsunaEarnVault(asset, guardian, 25_000e6, 250_000e6, address(0), 0);
     }
 
     function initialize(SetsunaEarnVault vault, ILendingAdapter[2] calldata adapters) external {
