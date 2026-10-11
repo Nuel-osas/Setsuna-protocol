@@ -31,14 +31,26 @@ const colors = [
   "var(--b-chart)",
   "var(--b-faint)",
 ];
+function EarnNetworkNote() {
+  const { deployment: d } = useWallet();
+  return (
+    <p className="e-demo-note">
+      {d?.mode === "mainnet"
+        ? "Monad mainnet with real funds. Capped beta: setsUSDC holds at most 2,000 USDC and setsMON 25,000 MON. Setsuna's contracts are unaudited; deposit only what you can afford to lose."
+        : "This is a Monad mainnet fork with synthetic funds. Rates, balances and transactions all come from the same demo environment."}
+    </p>
+  );
+}
 export function EarnEnvironment() {
   const { deployment: d } = useWallet();
   return (
     <span className="e-environment">
       <i />
-      {d?.earnMON || d?.earnUSDC
-        ? "Monad fork · Demo funds"
-        : "Preview · Deposits closed"}
+      {d?.mode === "mainnet"
+        ? "Monad mainnet · Capped beta"
+        : d?.earnMON || d?.earnUSDC
+          ? "Monad fork · Demo funds"
+          : "Preview · Deposits closed"}
     </span>
   );
 }
@@ -305,10 +317,7 @@ export default function EarnVaultLayout({
           <div className="e-sticky">
             {form}
             {funding}
-            <p className="e-demo-note">
-              This is a Monad mainnet fork with synthetic funds. Rates, balances
-              and transactions all come from the same demo environment.
-            </p>
+            <EarnNetworkNote />
           </div>
         </aside>
       </div>
