@@ -1,6 +1,7 @@
 import { createPublicClient, http } from "viem";
 import { demoConfig, validRPCPayload } from "@/lib/setsuna/demo-config";
 import { demoRPC } from "@/lib/setsuna/demo-server";
+import { clientIP, createRateLimit } from "@/lib/setsuna/rate-limit";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 const headers = {
@@ -9,6 +10,10 @@ const headers = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
+// One app tab polls a handful of batched reads every 15 s; these limits leave
+// ample room for that while bounding scripted load on the single shared fork.
+const readsPerIP = createRateLimit(600, 60 * 1000);
+const sendsPerIP = createRateLimit(30, 60 * 1000);
 export function OPTIONS() {
   return new Response(null, { status: 204, headers });
 }
@@ -36,6 +41,15 @@ export async function POST(request: Request) {
     } catch {
       return Response.json({ error: "Invalid JSON" }, { status: 400, headers });
     }
+    const ip = clientIP(request);
+    const sends = (Array.isArray(payload) ? payload : [payload]).some(
+      (p) => (p as { method?: unknown })?.method === "eth_sendRawTransaction",
+    );
+    if (!readsPerIP(ip) || (sends && !sendsPerIP(ip)))
+      return Response.json(
+        { error: "Too many requests. Try again in a minute." },
+        { status: 429, headers },
+      );
     // No impersonation, unsigned transactions, storage edits, or administrator methods.
     if (!validRPCPayload(payload))
       return Response.json(
