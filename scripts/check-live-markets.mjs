@@ -34,7 +34,7 @@ try{
   assert.equal(await page.locator('.t-stat strong').first().innerText(),'—');
   checks.push('Feed failure clears the displayed mark and book.');
   assert.equal((await page.request.get(`${base}/api/markets/?kind=invalid`)).status(),400);
-  assert.equal((await page.request.post(`${base}/api/rpc/`,{data:{jsonrpc:'2.0',id:1,method:'eth_sendTransaction',params:[]}})).status(),503);
+  assert.equal((await page.request.post(`${base}/api/rpc/`,{data:{jsonrpc:'2.0',id:1,method:'eth_sendTransaction',params:[]}})).status(),404);
   assert.deepEqual(errors,[]);
   await writeFile(`${out}/checks.json`,JSON.stringify({base,at:new Date().toISOString(),checks,errors},null,2));
   console.log(checks.join('\n'));

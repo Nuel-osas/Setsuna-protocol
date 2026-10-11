@@ -1,7 +1,7 @@
 **
 !package.json
 !package-lock.json
-!Dockerfile.workers
+!Dockerfile.keepers
 !scripts/
 !scripts/**
 !src/

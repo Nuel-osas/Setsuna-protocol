@@ -26,7 +26,7 @@ await page.addInitScript(() => {
     request: async ({ method }) => {
       if (["eth_accounts", "eth_requestAccounts"].includes(method))
         return ["0x6915aEf0947F4daD61aeF39Fe0f546A03190c92C"];
-      if (method === "eth_chainId") return "0x7a69";
+      if (method === "eth_chainId") return "0x8f";
       throw Error("Read-only review wallet");
     },
     on: (event, handler) => {

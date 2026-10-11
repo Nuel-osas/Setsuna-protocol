@@ -25,7 +25,6 @@ for (const name of [
   "SetsunaSpot",
   "SetsunaSpotOrders",
   "SetsunaSpotOrderAccount",
-  "SetsunaDemoFaucet",
 ]) {
   const artifact = JSON.parse(
     await readFile(
