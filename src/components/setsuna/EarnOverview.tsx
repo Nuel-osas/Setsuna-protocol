@@ -201,9 +201,9 @@ export default function EarnOverview() {
         ))}
       </section>
       <p className="e-demo-note">
-        Demo on a private Monad fork using synthetic funds. Base APR reflects
-        the current allocation, including idle cash; it is not a promised
-        return. Public deposits are closed.{" "}
+        Public demo on a hosted Monad mainnet fork using free test funds. Base
+        APR reflects the current allocation, including idle cash; it is not a
+        promised return.{" "}
         <Link href="/docs/">Learn how Setsuna works ↗</Link>
       </p>
     </main>
