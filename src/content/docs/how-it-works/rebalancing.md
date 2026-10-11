@@ -36,6 +36,6 @@ Under each Earn allocation table, **Why this allocation** explains the contract 
 
 Expand **Rate inputs used by the rule** to compare the two recorded rates with the current rate. When the contract returns a plan, its target amounts, proposed withdrawals and supplies, and positions after that move are shown separately. The full target can take several permitted rebalances to reach.
 
-Projected annual base income describes the whole vault and is not realized earnings. A preview is not a completed transaction or a promise of execution. **Vault activity and public controls** links recorded events to the demo explorer so you can inspect what actually happened.
+Projected annual base income describes the whole vault and is not realized earnings. A preview is not a completed transaction or a promise of execution. **Vault activity and public controls** links recorded events to Monadscan so you can inspect what actually happened.
 
 See [allocation and limits](/docs/math/allocation/) for a worked example.

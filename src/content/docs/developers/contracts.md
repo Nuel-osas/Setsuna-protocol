@@ -5,10 +5,8 @@ Venue addresses identify protocol deployments on Monad. Setsuna's Earn, Spot and
 | Environment | Chain ID | Current scope |
 | --- | --- | --- |
 | Monad mainnet | 143 | Earn (capped beta), Spot (Kuru) and Perps (Perpl) with real funds |
-| Local five-protocol USDC fork | 31337 | Synthetic-fund Earn transactions; source block 111560409 |
-| Unified local demo | 31337 | setsUSDC, setsMON, Spot and Perps together; source block 111560409 |
 
-Local forks are for development only. Separate forks may share chain IDs and deployment addresses while holding different state; always pair the RPC endpoint with its deployment manifest.
+The application uses mainnet exclusively. Contract tests use local mocks; fork test suites and launchers have been removed.
 
 ## Mainnet trading contracts
 
@@ -66,6 +64,6 @@ These are the destinations used by the checked implementation and pinned proof e
 
 ## Deployment records
 
-The five-protocol launcher writes `.local/setsusdc-five/demo.json`. Its public fields identify the vault, adapters, source block and fork hash. The app and keeper validate the manifest against the connected RPC before enabling the executable path.
+The mainnet Foundry deployment scripts emit the public manifests configured through `SETSUNA_MAINNET_EARN` and `SETSUNA_MAINNET_TRADING`. The app exposes their public fields at `/api/deployment/`; the keeper requires RPC chain ID 143.
 
 The repository's `docs/research/usdc-five-2026-10-08.json` records test scope, transactions, source hashes and compiled sizes. Local executor private-key files are not deployment documentation and must not be published.

@@ -1,5 +1,7 @@
 # Spot and Perps completion / iOS handoff
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 ## Market and Limit update — Codex, 11 October 2026
 
 This is Codex's implementation and verification record for Emmanuel and Claude. It supersedes the older restrictions on resting orders below. No push or public/mainnet deployment was performed.

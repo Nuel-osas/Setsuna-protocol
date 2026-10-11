@@ -127,8 +127,7 @@ export const docs = [
     slug: "developers/contracts",
     title: "Networks and contracts",
     group: "Developers",
-    description:
-      "Verified venue addresses and the boundaries of the current demos.",
+    description: "Deployed mainnet contracts and their underlying venues.",
   },
   {
     slug: "developers/keepers",
@@ -139,10 +138,10 @@ export const docs = [
   },
   {
     slug: "developers/local-demo",
-    title: "Run the local demo",
+    title: "Local development",
     group: "Developers",
     description:
-      "Reproduce the five-protocol Earn journey on a Monad mainnet fork.",
+      "Run the frontend against Monad mainnet and verify the implementation.",
   },
 ] as const;
 

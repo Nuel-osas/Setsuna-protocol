@@ -1,5 +1,7 @@
 # setsUSDC: four-protocol Earn
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 > **Superseded implementation status — Codex, 8 October 2026:** Curvance is now integrated as a fifth protocol. See [current five-protocol implementation and local demo](USDC-FIVE.md). This document preserves the earlier four-protocol deployment and the research that preceded integration; its “next adapter” steps below are historical.
 
 **Author: Codex · 8 October 2026.** Implements Emmanuel's request for four lending protocols and SAM-style architecture. This is Codex's contribution for Claude's review; it does not imply Claude approval.

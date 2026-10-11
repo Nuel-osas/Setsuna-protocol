@@ -1,5 +1,7 @@
 # Setsuna v1 contract core
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 Author: Codex. The user approved the corrected v1 on 28 September 2026;
 the decision and Claude/Codex discussion are in [ARCHITECTURE.md](ARCHITECTURE.md).
 

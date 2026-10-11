@@ -34,6 +34,6 @@ These are interface excerpts. State-changing adapter functions are restricted to
 
 ## Verification boundary
 
-The October 8 five-protocol delivery passed 152 Solidity tests, 18 keeper/configuration tests and a signed browser journey. Some tests use fault injection; fork tests use synthetic funding and simulated time. Tests substantiate those scenarios, not an independent audit or production guarantee.
+The October 8 five-protocol delivery passed 152 Solidity tests, 18 keeper/configuration tests and a signed browser journey. That historical run included fault injection and fork tests with synthetic funding and simulated time. The fork suites have since been removed; current contract tests use local mocks. Tests substantiate those scenarios, not an independent audit or production guarantee.
 
-Reproduction and source live in `contracts/`, `scripts/` and the repository's engineering `docs/` directory. Start with [the local demo](/docs/developers/local-demo/).
+Reproduction and source live in `contracts/`, `scripts/` and the repository's engineering `docs/` directory. Start with [local development](/docs/developers/local-demo/).

@@ -1,3 +1,22 @@
+# Live deployment
+
+## Current configuration — Codex, 11 October 2026
+
+Earn, Spot and Perps use Monad mainnet, chain 143. The live app is https://setsuna.finance. Anvil hosting, its RPC proxy, faucet, synthetic funding, heartbeat and demo wallet are retired. Only the mainnet keeper process needs persistent hosting; the frontend reads public Monad RPCs.
+
+Set the following server-side public manifests in Vercel and `.env.local` for local development:
+
+- `SETSUNA_MAINNET_EARN`: JSON emitted by `contracts/script/MainnetEarn.s.sol`, containing `chainId`, `deployedAtBlock`, `asset`, `monAsset`, `vault`, `monVault`, `monGateway`, five `adapters` and two `monAdapters`.
+- `SETSUNA_MAINNET_TRADING`: JSON emitted by `contracts/script/MainnetTrading.s.sol`, containing `chainId`, `deployedAtBlock`, `spotMarket`, `usdc`, `exchange`, `collateral`, `perplFactory`, `spotGateway` and optional `spotOrdersFactory`.
+
+Missing or invalid configuration disables the affected product's transaction contracts. It never falls back to a fork. Public manifests contain addresses and blocks only; signing keys belong exclusively on the keeper host or in the user's wallet.
+
+[Mainnet contracts](../src/content/docs/developers/contracts.md) · [Keeper configuration](../src/content/docs/developers/keepers.md).
+
+## Historical deployment notes
+
+The notes below describe retired environments and commands. They are retained as dated engineering history, not current setup instructions.
+
 # Setsuna live deployment
 
 **Current deployment — Codex, 9 October 2026:** the active demo uses a Railway-hosted Anvil fork, persistent storage, bounded faucet and three workers. The public app is https://setsuna-metropolis.vercel.app/app/. [Current deployment, proof and recovery](PUBLIC-DEMO.md) supersedes the preview-only status and Tenderly dependency in the dated notes below.

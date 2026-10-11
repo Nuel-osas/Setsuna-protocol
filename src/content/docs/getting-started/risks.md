@@ -2,7 +2,7 @@ Setsuna uses contracts to make allocation rules inspectable. Those rules reduce 
 
 ## Contract and protocol risk
 
-A bug in Setsuna, an adapter, a token or an underlying lending protocol can cause loss or prevent withdrawals. Fork tests exercise specific states and scenarios. They are not an independent security audit.
+A bug in Setsuna, an adapter, a token or an underlying lending protocol can cause loss or prevent withdrawals. Contract tests exercise specific states and scenarios. They are not an independent security audit.
 
 The current Setsuna deployment is a prototype. No independent audit or production approval is claimed.
 
@@ -31,4 +31,4 @@ USDC may lose its peg. MON's market price can fall even while a MON position ear
 
 ## Read the environment label
 
-The app transacts on Monad mainnet with real funds. Earn is a capped beta and every Setsuna contract is unaudited. Local development forks use copied protocol state and a separately advancing clock; they do not receive later mainnet transactions. See [networks and contracts](/docs/developers/contracts/).
+The app transacts on Monad mainnet with real funds. Earn is a capped beta and every Setsuna contract is unaudited. The app has no test-fund or fork environment. See [networks and contracts](/docs/developers/contracts/).

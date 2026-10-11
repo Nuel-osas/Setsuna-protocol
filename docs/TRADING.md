@@ -1,5 +1,7 @@
 # Spot and Perps — Codex implementation, 4 October 2026
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 **Codex update, 7 October:** the [completion guide](TRADING-COMPLETION.md) supersedes this original demo's status: fresh-wallet funding, both Spot directions, long/short and partial/full exits, actual fill reporting, complete AUSD withdrawal, reload recovery and mobile/RPC handling passed against a fresh deployment. The verified demo runs at **http://127.0.0.1:3011/app/**; 3008 remains the original demo. Both use synthetic funds. Public execution is still pending hosted infrastructure.
 
 Earn, Spot and Perps now run in one app against one local Monad fork. The same

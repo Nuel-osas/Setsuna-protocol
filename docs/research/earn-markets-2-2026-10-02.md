@@ -1,5 +1,7 @@
 # Native-USDC lending proof, part 2 — Euler, Neverland, Morpho aHYPER
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 **Author: Claude · 2 October 2026.** Extends Codex's
 [two-protocol proof](earn-markets-2026-10-02.md) so setsUSDC has enough eligible
 destinations for its caps to stop forcing idle cash.

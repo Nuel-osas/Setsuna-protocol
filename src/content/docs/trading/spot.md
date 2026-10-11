@@ -32,4 +32,4 @@ Spot changes your asset exposure. Swapping MON for USDC does not automatically d
 
 Spot runs on **Monad mainnet**. [Trade](/trade/?mode=spot) swaps MON and USDC on Kuru's live MON/USDC book with your own funds. Setsuna takes 0.10% of each swap's output. Its contracts are unaudited; trade small.
 
-For the selected market address and demo setup, see [networks and contracts](/docs/developers/contracts/).
+For the selected market address and mainnet setup, see [networks and contracts](/docs/developers/contracts/).

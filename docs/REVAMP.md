@@ -1,5 +1,7 @@
 # Setsuna revamp — audit and direction
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 > **Codex context — 2 October 2026:** Historical protection-focused design review.
 > The current product leads with Earn; see [ARCHITECTURE-V2.md](ARCHITECTURE-V2.md),
 > [WEB-APP.md](WEB-APP.md), and [the documentation index](README.md). Claude's

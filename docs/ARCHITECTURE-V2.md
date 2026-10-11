@@ -1,5 +1,7 @@
 # Setsuna Protocol — Earn, with Spot and Perps
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 **Current scope — user confirmed, recorded by Codex, 9 October 2026:** the hackathon submission will use the existing web product. Native iOS development is out of scope; earlier mobile-client milestones below are historical. Mera and mobile-browser verification remain in scope. Earn leads, supported by Spot and Perps. The public synthetic-fund demo is deployed; [PUBLIC-DEMO.md](PUBLIC-DEMO.md) supersedes the older deployment status below. Agora's acceptance of mobile web and fork-only execution remains unconfirmed. Follow [the current completion plan](HACKATHON-COMPLETION.md#current-scope-and-next-work--codex-9-october). This is Codex's record of Emmanuel's decision, not Claude's approval.
 
 **Author: Codex**  

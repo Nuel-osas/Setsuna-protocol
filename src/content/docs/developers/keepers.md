@@ -2,17 +2,16 @@ The Earn keeper observes a vault and submits its public actions when the contrac
 
 ## Read before executing
 
-The CLI is read-only by default. To inspect a locally running five-protocol USDC vault, substitute the vault address from its manifest:
+The CLI is read-only by default. Inspect the deployed mainnet USDC vault:
 
 ```sh
 node scripts/earn-keeper.mjs \
   --multi --asset USDC \
-  --vault YOUR_LOCAL_VAULT_ADDRESS \
-  --rpc http://127.0.0.1:18613 \
-  --demo-manifest .local/setsusdc-five/demo.json
+  --vault 0xAA5366660c3dDb3400f7083F21196Db125d6a2E7 \
+  --rpc https://rpc.monad.xyz
 ```
 
-The placeholder is intentional. Use the actual address from your own deployment. Omitting the demo manifest selects the production-chain validation path, which requires chain ID 143.
+The RPC must report chain ID 143. Demo manifests and synthetic-fund execution are no longer supported.
 
 ## What the worker checks
 
@@ -26,11 +25,11 @@ Execution requires an explicit `--execute` flag, a positive gas-price ceiling an
 
 A worker with an execution error halts for inspection. Review the saved state and receipt before restarting; do not start multiple independent workers for the same signer without shared locking state.
 
-## Local demo setup
+## Mainnet service
 
-`npm run usdc:demo:five` creates and funds a dedicated synthetic-fund executor on its owned local fork, then starts the watcher. No production wallet key is needed for that launcher.
+`scripts/start-mainnet-keepers.mjs` supervises a MON keeper and a USDC keeper. Configure `SETSUNA_MAINNET_EARN`, `MONAD_RPC_URL`, `SETSUNA_MAINNET_MON_KEEPER_PRIVATE_KEY`, `SETSUNA_MAINNET_USDC_KEEPER_PRIVATE_KEY` and `SETSUNA_KEEPER_STATE_DIR` on the worker host only. Each signer needs real MON for gas. Keep the two signing keys distinct and separate from the treasury key.
 
-An automatic cash-buffer repair was confirmed in the October 8 demo across all five destinations. That record establishes local execution. On October 11, separate MON and USDC keepers began running against the mainnet vaults, each with its own dedicated gas wallet; neither holds the treasury key. They retain the same observation intervals, cooldowns and transaction journals, and reconcile any pending receipt before acting again.
+Use `Dockerfile.keepers` and `railway.json` for hosting. Mount durable storage at the journal directory. `/health` reports process liveness; successful onchain receipts are the evidence of completed observations and rebalances. No Anvil process or chain-state volume is needed.
 
 ## Earn and protection are different
 

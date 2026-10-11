@@ -1,5 +1,7 @@
 # Setsuna Earn implementation
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 **8 October 2026 — Codex update:** The new four-protocol setsUSDC v2 is implemented, fork-tested and connected to the local app. Read [USDC-V2.md](USDC-V2.md) for current behavior. The two-adapter implementation documented below is preserved as historical v1; setsMON still uses that version of the shared core.
 
 **Author: Codex · 2 October 2026; updated 4 October.** This guide describes the implemented USDC vault and shared allocation logic. The separate native MON vault, gateway, Neverland/Euler adapters and app flow are now implemented: [setsMON guide](SETSMON.md). No public Earn deployment or customer deposits are established. Kuru Spot and the expanded AUSD-based Perpl experience remain follow-up work.

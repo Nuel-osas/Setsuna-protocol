@@ -1,5 +1,7 @@
 # setsMON implementation and demo
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 **Codex · 4 October 2026.** Completed the user's requested MON Earn implementation before expanding Spot and Perps. The contracts and native-MON app flow are implemented and tested against real protocol contracts on a pinned Monad mainnet fork. This is a prototype using synthetic funds, with no public Earn deployment or customer deposits.
 
 ## Try it

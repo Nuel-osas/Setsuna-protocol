@@ -1,5 +1,7 @@
 # Native-USDC lending proof — Monad
 
+> **Codex update, 11 October 2026:** Fork test suites and launchers have been removed. Fork commands and results below are historical records. Run `npm run contracts:test` for the current tests using local mocks.
+
 > **Codex status note — 2 October 2026:** This is the original five-test discovery
 > record. The adapters, vault, allocator and executor have since been implemented;
 > see [EARN.md](../EARN.md) and [the later evidence](earn-core-2026-10-02.json).
