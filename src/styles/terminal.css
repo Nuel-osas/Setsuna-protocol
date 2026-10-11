@@ -593,6 +593,16 @@ body:has(.t-shell) .s-header .s-btn {
 .t-ticket {
   grid-area: ticket;
 }
+.t-order-kind { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 1px solid var(--b-line); }
+.t-order-kind button { border: 0; border-bottom: 2px solid transparent; padding: 12px 16px; background: transparent; color: var(--b-muted); font: 500 14px var(--f-sans), sans-serif; cursor: pointer; }
+.t-order-kind button[aria-pressed="true"] { color: var(--b-accent); border-bottom-color: var(--b-accent); }
+.t-order-kind button:disabled { opacity: .5; cursor: not-allowed; }
+.t-open-orders { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--b-line); }
+.t-open-orders h3 { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.t-open-orders h3 small { color: var(--b-muted); }
+.t-open-order { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--b-line); font-size: 12px; }
+.t-open-order small { display: block; color: var(--b-muted); margin-top: 5px; }
+@media (max-width: 700px) { .t-open-order { flex-wrap: wrap; } }
 .t-terminal .t-ticket {
   background: var(--b-surface);
   padding: 18px 16px;
@@ -1293,3 +1303,115 @@ body:has(.t-shell) .s-modal .s-input-box input {
 .t-candle-intervals {
   flex-shrink: 0;
 }
+
+/* Terminal-style candles: full-height chart with a compact OHLC legend. */
+.t-pro-chart {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+.t-pro-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+.t-pro-tools [role="group"] {
+  display: flex;
+  gap: 2px;
+}
+.t-pro-tools button {
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--b-muted, rgba(255, 255, 255, 0.5));
+  font: 500 12px var(--f-mono), ui-monospace, monospace;
+  cursor: pointer;
+}
+.t-pro-tools button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--b-text, #fff);
+}
+.t-pro-legend {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.6);
+  font: 12px var(--f-mono), ui-monospace, monospace;
+}
+.t-pro-legend b {
+  color: var(--b-text, #fff);
+  font-weight: 500;
+}
+.t-pro-legend .is-up,
+.t-stat .is-up {
+  color: var(--t-buy);
+}
+.t-pro-legend .is-down,
+.t-stat .is-down {
+  color: var(--t-sell);
+}
+.t-pro-canvas {
+  flex: 1;
+  min-height: 0;
+}
+.t-pro-chart .t-chart-empty {
+  position: absolute;
+  inset: 38px 0 0;
+}
+.t-chart-tools[hidden] {
+  display: none;
+}
+.t-perps .t-chart-panel,
+.t-perps .t-book {
+  height: 560px;
+}
+.t-stat-hero strong {
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.t-stat-hero span {
+  font-size: 11px;
+}
+.t-fork-note {
+  margin: 0;
+  padding: 7px 22px;
+  border-bottom: 1px solid var(--line);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+}
+@media (max-width: 900px) {
+  .t-pro-legend span:nth-child(n + 4) {
+    display: none;
+  }
+  .t-perps .t-chart-panel {
+    height: 420px;
+  }
+}
+/* Where demo orders fill must stay visible at every width; volume can go. */
+@media (max-width: 1150px) {
+  .t-market-strip .t-stat.t-stat-keep {
+    display: flex;
+  }
+  .t-market-strip .t-stat-optional {
+    display: none;
+  }
+}
+
+/* Limit orders share the dark trading surface. */
+.db-order-tabs .t-order-kind{flex:1;margin:0}
+.db-spot .db-order-tabs .t-order-kind button{flex:1;padding:12px 16px;border-bottom:2px solid transparent;line-height:1.2}
+.db-spot .db-order-tabs .t-order-kind button[aria-pressed="true"]{color:var(--b-accent);border-bottom-color:var(--b-accent)}
+.db-limit-ticket{display:grid;gap:12px}
+.db-limit-review{display:grid;gap:12px;padding-top:8px}
+.db-limit-orders,.db-trading-balances{padding:16px 24px}
+.db-trading-balances h3{font-size:14px;font-weight:500;margin:4px 0 12px}
+.db-trading-balances .db-ticket-note{margin:12px 0}
