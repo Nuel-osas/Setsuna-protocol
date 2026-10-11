@@ -289,6 +289,34 @@ async function main() {
       faucet: manifest.faucet,
     });
   }
+  // Earn vaults gained a fixed 2% performance fee after the first hosted
+  // deployment. Deployed vaults are immutable, so the fee versions are added
+  // beside them once, before the public RPC and keepers start.
+  if (resumes && manifest.earnFee?.bps !== 200) {
+    if (!process.env.SETSUNA_TREASURY) {
+      console.error(
+        "SETSUNA_TREASURY unset; keeping the existing fee-free Earn vaults.",
+      );
+    } else {
+      const migration = owned(
+        process.execPath,
+        [
+          "scripts/migrate-fee-vaults.mjs",
+          "--state-dir",
+          stateDir,
+          "--local-admin",
+        ],
+        { ...process.env, SETSUNA_DEMO_ADMIN_RPC_URL: adminRPC },
+      );
+      if ((await migration.exited).code !== 0 || stopping)
+        throw new Error("Fee vault migration incomplete");
+      manifest = JSON.parse(
+        await readFile(`${deploymentDir}/manifest.json`, "utf8"),
+      );
+      reviewedDemoFork(manifest);
+      await gateway.checkpoint();
+    }
+  }
   available = true;
   const mon = parseEnv(await readFile(`${deploymentDir}/keeper.env`, "utf8"));
   const usdc = parseEnv(
@@ -351,7 +379,7 @@ async function main() {
   }
   if (!ready || stopping) throw new Error("Worker startup failed");
   console.log(
-    "Hosted Setsuna demo ready: persistent fork, three workers, restricted RPC and explorer.",
+    "Hosted Setsuna demo ready: persistent fork, two Earn keepers, restricted RPC and explorer.",
   );
   await Promise.race([anvil.exited, workers.exited]);
   await stop(process.exitCode === 1);
