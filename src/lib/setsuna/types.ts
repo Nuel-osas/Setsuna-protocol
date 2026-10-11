@@ -1,6 +1,6 @@
 import type { Address } from "viem";
 export type Deployment = {
-  mode: "local" | "demo" | "preview";
+  mode: "local" | "demo" | "preview" | "mainnet";
   chainId: number;
   name: string;
   rpc: string;
@@ -15,6 +15,7 @@ export type Deployment = {
   explorer?: string;
   spot?: {
     gateway: Address;
+    ordersFactory?: Address;
     market: Address;
     usdc: Address;
     startBlock: string;
@@ -33,6 +34,8 @@ export type Deployment = {
     forkBlock: string;
     startBlock: string;
   };
+  /** Spot and Perps on Monad mainnet, beside an Earn fork deployment. */
+  trading?: Deployment;
   earnMON?: {
     vault: Address;
     gateway: Address;
@@ -61,6 +64,8 @@ export type Quote = {
   policyId: bigint;
   amountCNS: bigint;
   feeCNS: bigint;
+  /** Setsuna's fixed share of a top-up; zero on accounts created before the fee. */
+  protocolFeeCNS?: bigint;
   spendableCNS: bigint;
   maintenanceCNS: bigint;
   equityCNS: bigint;
@@ -82,6 +87,17 @@ export type Market = {
   lotDecimals: bigint;
   markPNS: bigint;
   markTimestamp: bigint;
+  basePricePNS?: bigint;
+  maxBidPriceONS?: bigint;
+  minAskPriceONS?: bigint;
+};
+export type PerpsOrder = {
+  orderId: number;
+  accountId: number;
+  orderType: number;
+  priceONS: number;
+  lotLNS: bigint;
+  leverageHdths: number;
 };
 export type Activity = {
   hash: string;
@@ -90,6 +106,9 @@ export type Activity = {
   detail: string;
 };
 export type Snapshot = {
+  readAt?: number;
+  orderTypesVersion?: bigint;
+  openOrders?: PerpsOrder[];
   account?: Address;
   walletBalance: bigint;
   reserve: bigint;
@@ -100,6 +119,8 @@ export type Snapshot = {
   position?: Position;
   market?: Market;
   freeTrading?: bigint;
+  tradingBalance?: bigint;
+  lockedTrading?: bigint;
   activity: Activity[];
   historyUnavailable: boolean;
   block: bigint;

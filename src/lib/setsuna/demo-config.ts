@@ -68,6 +68,9 @@ export function demoConfig(raw: string, publicRPC: string): Deployment {
     ...(explorer ? { explorer } : {}),
     spot: {
       gateway: address(m.spotGateway),
+      ...(m.spotOrdersFactory
+        ? { ordersFactory: address(m.spotOrdersFactory) }
+        : {}),
       market: venues.market,
       usdc: venues.usdc,
       startBlock,

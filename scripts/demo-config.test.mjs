@@ -27,6 +27,30 @@ test("hosted config publishes only reviewed fields and its restricted RPC", () =
   assert.equal(d.rpc, "https://setsuna.example/api/rpc/");
   assert.equal(JSON.stringify(d).includes("never-forward-this"), false);
 });
+test("Spot order factory is optional for old deployments and validated when present", () => {
+  assert.equal(
+    demoConfig(JSON.stringify(manifest), "https://setsuna.example/api/rpc/")
+      .spot.ordersFactory,
+    undefined,
+  );
+  assert.equal(
+    demoConfig(
+      JSON.stringify({ ...manifest, spotOrdersFactory: address }),
+      "https://setsuna.example/api/rpc/",
+    ).spot.ordersFactory,
+    address,
+  );
+  for (const value of [
+    "bad-address",
+    "0x0000000000000000000000000000000000000000",
+  ])
+    assert.throws(() =>
+      demoConfig(
+        JSON.stringify({ ...manifest, spotOrdersFactory: value }),
+        "https://setsuna.example/api/rpc/",
+      ),
+    );
+});
 test("live chains, invalid contracts, and non-demo manifests fail closed", () => {
   for (const patch of [
     { chainId: 143 },

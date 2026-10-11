@@ -9,6 +9,7 @@ import {
 import { NextResponse } from "next/server";
 import type { Deployment } from "@/lib/setsuna/types";
 import { validatedDemo } from "@/lib/setsuna/demo-server";
+import { mainnetTrading } from "@/lib/setsuna/mainnet-trading";
 import { parseUSDCEarn, validateUSDCEarn } from "@/lib/setsuna/usdc-deployment";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
@@ -25,8 +26,12 @@ export async function GET(request: Request) {
   };
   if (process.env.SETSUNA_DEMO_MANIFEST) {
     try {
+      const trading = mainnetTrading();
       return NextResponse.json(
-        await validatedDemo(new URL(request.url).origin),
+        {
+          ...(await validatedDemo(new URL(request.url).origin)),
+          ...(trading ? { trading } : {}),
+        },
         {
           // Every page waits on this; let the CDN answer while it revalidates.
           headers: {
@@ -214,6 +219,7 @@ export async function GET(request: Request) {
           startBlock: m.startBlock,
           spot: {
             gateway: m.spotGateway,
+            ...(isAddress(m.spotOrdersFactory) ? { ordersFactory: m.spotOrdersFactory } : {}),
             market: m.spotMarket,
             usdc: m.usdc,
             startBlock: m.startBlock,
