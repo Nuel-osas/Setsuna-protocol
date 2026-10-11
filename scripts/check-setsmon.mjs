@@ -135,7 +135,7 @@ try {
     0n,
   );
   await page
-    .getByText("Vault activity and public controls", { exact: true })
+    .getByText("Vault activity", { exact: true })
     .click();
   assert.ok(
     await page
