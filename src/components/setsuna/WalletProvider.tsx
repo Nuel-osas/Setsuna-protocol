@@ -416,6 +416,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
               data,
               value: toHex(value),
               gas: toHex(gasLimit),
+              // Privy's embedded provider rejects requests without the chain.
+              chainId: toHex(target.chainId),
             },
           ],
         })) as Hex)
