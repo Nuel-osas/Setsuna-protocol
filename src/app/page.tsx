@@ -25,7 +25,7 @@ const questions = [
   ],
   [
     "Can I try it today?",
-    "Yes. The public demo runs on a hosted fork of Monad mainnet: claim free test MON, USDC and AUSD in the app, then deposit, swap and trade against the real Aave, Morpho, Euler, Neverland, Curvance, Kuru and Perpl contracts. No real funds are involved. The Perps demo uses a disclosed historical-price fixture; the app shows its environment before you transact.",
+    "Yes. Earn runs on a hosted fork of Monad mainnet: claim free test MON and USDC in the app and deposit into vaults that allocate across the real Aave, Morpho, Euler, Neverland and Curvance contracts, with no real funds. Spot and Perps run on Monad mainnet itself, on Kuru and Perpl at live prices with your own funds. Setsuna’s contracts are unaudited, so trade small. The app shows its environment before you transact.",
   ],
 ];
 
@@ -163,8 +163,8 @@ export default function Home() {
           </Link>
         </div>
         <p className="m-product-note">
-          <i /> Try all three in the public demo with free test funds on a
-          Monad mainnet fork.
+          <i /> Try Earn with free test funds on a Monad mainnet fork. Spot and
+          Perps trade on Monad mainnet with real funds.
         </p>
       </section>
 
