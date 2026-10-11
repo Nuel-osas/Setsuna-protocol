@@ -40,7 +40,7 @@ const adapterAbi = parseAbi([
 
 export async function readUSDC(d: Deployment, account?: Address) {
   const m = d.earnUSDC;
-  if (!m) throw new Error("setsUSDC demo unavailable");
+  if (!m) throw new Error("setsUSDC vault unavailable");
   const c = clientFor(d);
   if ((await c.getChainId()) !== d.chainId)
     throw new Error("Network changed. Refresh the app.");

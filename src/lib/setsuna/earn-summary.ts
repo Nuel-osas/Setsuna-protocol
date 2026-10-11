@@ -32,7 +32,6 @@ export function earnSummaryKey(d: Deployment, asset: SummaryAsset) {
     m?.asset,
     m?.adapters,
     m?.startBlock,
-    m?.forkBlock,
   ]);
 }
 const summaries = createReadCache<EarnSummary>(10_000);

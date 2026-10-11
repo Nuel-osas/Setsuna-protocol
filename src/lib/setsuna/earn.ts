@@ -6,8 +6,8 @@
  * (docs/research/earn-markets-2026-10-02.md), Euler, Neverland and Morpho
  * aHYPER/USDC by Claude (docs/research/earn-markets-2-2026-10-02.md).
  * Rates are BASE supply APR read from chain: no reward incentives, no curator
- * layer. This is the separate mainnet research view. Executable demo holdings
- * and the contract's allocation preview are read in usdc.ts from its fork.
+ * layer. This is the separate mainnet research view. Executable vault holdings
+ * and the contract's allocation preview are read in usdc.ts from Monad mainnet.
  */
 export const USDC = "0x754704Bc059F8C67012fEd69BC8A327a5aafb603" as const;
 

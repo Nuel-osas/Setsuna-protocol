@@ -36,7 +36,7 @@ const adapterAbi = parseAbi([
 
 export async function readMON(d: Deployment, account?: Address) {
   const m = d.earnMON;
-  if (!m) throw new Error("setsMON demo unavailable");
+  if (!m) throw new Error("setsMON vault unavailable");
   const c = clientFor(d);
   if ((await c.getChainId()) !== d.chainId)
     throw new Error("Network changed. Refresh the app.");

@@ -56,7 +56,7 @@ const makeClient = (d: Deployment) =>
       http(d.rpc, {
         timeout: 12_000,
         retryCount: 0,
-        // The restricted demo gateway accepts at most 20 JSON-RPC calls per request.
+        // Keep RPC batches bounded for public endpoint compatibility.
         // This changes transport only: eth_call is still executed at its requested block.
         batch: { batchSize: 20, wait: 10 },
       }),

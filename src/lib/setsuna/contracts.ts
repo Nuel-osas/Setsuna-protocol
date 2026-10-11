@@ -78,7 +78,7 @@ export async function readSnapshot(
   if (!d.factory) return base;
   if (!(await c.getCode({ address: d.factory, blockNumber: block })))
     throw new Error(
-      "Deployment is unavailable on this node. Restart the local demo and reload.",
+      "Deployment is unavailable on this node. Check the network connection and reload.",
     );
   const account = (await read(d.factory, factoryAbi, "accountOf", [
     owner,
