@@ -13,6 +13,7 @@ import {
   custom,
   http,
   formatEther,
+  toHex,
   getAddress,
   type Address,
   type EIP1193Provider,
@@ -400,14 +401,32 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       );
     if (initialGeneration !== generation.current)
       throw new Error("Session changed. Reconnect before continuing.");
-    const hash = await wallet.sendTransaction({
-      account: wallet.account ?? address,
-      chain: chainFor(target),
-      to,
-      data,
-      value,
-      gas: (gas * BigInt(120)) / BigInt(100),
-    });
+    const gasLimit = (gas * BigInt(120)) / BigInt(100);
+    // Browser and embedded wallets get a plain eth_sendTransaction. viem's
+    // fallback to wallet_sendTransaction hides the wallet's real error when an
+    // embedded provider forwards that method to a public RPC.
+    const injected = kind === "wallet" ? provider.current : null;
+    const hash: Hex = injected
+      ? ((await injected.request({
+          method: "eth_sendTransaction",
+          params: [
+            {
+              from: address,
+              to,
+              data,
+              value: toHex(value),
+              gas: toHex(gasLimit),
+            },
+          ],
+        })) as Hex)
+      : await wallet.sendTransaction({
+          account: wallet.account ?? address,
+          chain: chainFor(target),
+          to,
+          data,
+          value,
+          gas: gasLimit,
+        });
     onHash?.(hash);
     try {
       const receipt = await pub.waitForTransactionReceipt({
