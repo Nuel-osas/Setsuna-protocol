@@ -76,6 +76,7 @@ export default function Portfolio() {
       ...Object.values(data.wallet),
       ...Object.values(data.earn),
       data.perps,
+      data.spotOrders,
     ].some((value) => value.status === "unavailable") ||
       Object.values(data.earn).some(
         (value) => value.status === "ready" && !value.data.healthy,
@@ -347,7 +348,7 @@ export default function Portfolio() {
 
               <Section
                 title="Perps account"
-                note={<Link href="/app/?tab=perps">Open Perps ↗</Link>}
+                note={<Link href="/trade/?mode=perps">Open Perps ↗</Link>}
               >
                 {!data ? (
                   <p className="p-state">
@@ -369,7 +370,7 @@ export default function Portfolio() {
                       Your AUSD trading balance and BTC position will appear
                       here after you open a Setsuna Perps account.
                     </p>
-                    <Link className="s-btn is-small" href="/app/?tab=perps">
+                    <Link className="s-btn is-small" href="/trade/?mode=perps">
                       Explore Perps
                     </Link>
                   </Empty>
@@ -395,6 +396,14 @@ export default function Portfolio() {
                           {amount(perps.reserve, 6)} <small>AUSD</small>
                         </dd>
                       </div>
+                      {!!perps.lockedTrading && (
+                        <div>
+                          <dt>Locked by open orders</dt>
+                          <dd>
+                            {amount(perps.lockedTrading, 6)} <small>AUSD</small>
+                          </dd>
+                        </div>
+                      )}
                     </dl>
                     {openPosition ? (
                       <article
@@ -477,6 +486,59 @@ export default function Portfolio() {
             </div>
 
             <aside className="p-wallet-column">
+              {data?.spotOrders &&
+                data.spotOrders.status !== "not-configured" && (
+                  <Section
+                    title="Spot trading balances"
+                    note={
+                      data.spotOrders.status === "ready"
+                        ? `${data.spotOrders.data.count} open orders`
+                        : "Unavailable"
+                    }
+                  >
+                    {data.spotOrders.status === "ready" ? (
+                      <ul className="p-wallet-list">
+                        {(["MON", "USDC"] as const).map((asset) => (
+                          <li key={asset}>
+                            <Token asset={asset} />
+                            <span>
+                              <strong>{asset}</strong>
+                              <small>
+                                {amount(
+                                  data.spotOrders.status === "ready"
+                                    ? data.spotOrders.data[asset].locked
+                                    : undefined,
+                                  asset === "MON" ? 18 : 6,
+                                )}{" "}
+                                in open orders
+                              </small>
+                            </span>
+                            <span className="p-wallet-amount">
+                              {amount(
+                                data.spotOrders.status === "ready"
+                                  ? data.spotOrders.data[asset].free
+                                  : undefined,
+                                asset === "MON" ? 18 : 6,
+                              )}{" "}
+                              free
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="p-section-note">
+                        Trading balances could not be loaded.
+                      </p>
+                    )}
+                    <p className="p-section-note">
+                      These funds are held in your Spot account. Withdraw free
+                      funds from Trade → Spot → Balances.
+                    </p>
+                    <div className="p-wallet-actions">
+                      <Link href="/trade/?mode=spot">Manage Spot</Link>
+                    </div>
+                  </Section>
+                )}
               <Section title="In your wallet" note="Available assets">
                 <ul className="p-wallet-list">
                   {(["MON", "USDC", "AUSD"] as const).map((asset) => {
@@ -513,7 +575,7 @@ export default function Portfolio() {
                   <Link className="s-btn is-small" href="/app/">
                     Earn
                   </Link>
-                  <Link className="s-btn is-small" href="/app/?tab=spot">
+                  <Link className="s-btn is-small" href="/trade/?mode=spot">
                     Swap
                   </Link>
                 </div>

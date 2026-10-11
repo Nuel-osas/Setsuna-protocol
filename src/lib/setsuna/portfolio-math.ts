@@ -44,6 +44,9 @@ export function ausdTotal(
   if (p.accountId > BigInt(0) && (p.freeTrading === undefined || !p.position))
     return undefined;
   return (
-    wallet.data + p.reserve + (p.freeTrading ?? BigInt(0)) + positionEquity(p)
+    wallet.data +
+    p.reserve +
+    (p.tradingBalance ?? p.freeTrading ?? BigInt(0)) +
+    positionEquity(p)
   );
 }

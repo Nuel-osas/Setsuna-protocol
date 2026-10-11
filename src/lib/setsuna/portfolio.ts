@@ -3,11 +3,13 @@ import {
   erc4626Abi,
   formatUnits,
   parseAbi,
+  zeroAddress,
   type Address,
 } from "viem";
 import { clientFor } from "@/components/setsuna/WalletProvider";
 import { readSnapshot } from "./contracts";
-import { spotABI } from "./spot";
+import { spotABI, kuruABI } from "./spot";
+import { spotOrdersABI, kuruMargin } from "./spot-orders";
 import type { Deployment } from "./types";
 import type { EarnHolding, PortfolioRead } from "./portfolio-math";
 
@@ -218,6 +220,89 @@ export async function readPortfolio(d: Deployment, owner: Address) {
           })
         : Promise.resolve(absent),
     ]);
+  const tradeDeployment = d.trading ?? d;
+  const spotOrders = tradeDeployment.spot?.ordersFactory
+    ? await attempt(async () => {
+        const tc = clientFor(tradeDeployment),
+          s = tradeDeployment.spot!;
+        if ((await tc.getChainId()) !== tradeDeployment.chainId)
+          throw new Error("Wrong trading network");
+        const at = { blockNumber: await tc.getBlockNumber({ cacheTime: 0 }) };
+        const account = await tc.readContract({
+          address: s.ordersFactory!,
+          abi: spotOrdersABI,
+          functionName: "accountOf",
+          args: [owner],
+          ...at,
+        });
+        if (account === zeroAddress)
+          return {
+            MON: { free: BigInt(0), locked: BigInt(0) },
+            USDC: { free: BigInt(0), locked: BigInt(0) },
+            count: 0,
+          };
+        const [actualOwner, [, orders], mon, usdc, params] = await Promise.all([
+          tc.readContract({
+            address: account,
+            abi: spotOrdersABI,
+            functionName: "owner",
+            ...at,
+          }),
+          tc.readContract({
+            address: account,
+            abi: spotOrdersABI,
+            functionName: "getOpenOrders",
+            ...at,
+          }),
+          tc.readContract({
+            address: kuruMargin,
+            abi: spotOrdersABI,
+            functionName: "getBalance",
+            args: [account, zeroAddress],
+            ...at,
+          }),
+          tc.readContract({
+            address: kuruMargin,
+            abi: spotOrdersABI,
+            functionName: "getBalance",
+            args: [account, s.usdc],
+            ...at,
+          }),
+          tc.readContract({
+            address: s.market,
+            abi: kuruABI,
+            functionName: "getMarketParams",
+            ...at,
+          }),
+        ]);
+        if (actualOwner.toLowerCase() !== owner.toLowerCase())
+          throw new Error("Spot owner mismatch");
+        return {
+          MON: {
+            free: mon,
+            locked: orders
+              .filter((o) => !o.isBuy)
+              .reduce(
+                (total, o) => total + (o.size * BigInt(1e18)) / params[1],
+                BigInt(0),
+              ),
+          },
+          USDC: {
+            free: usdc,
+            locked: orders
+              .filter((o) => o.isBuy)
+              .reduce(
+                (total, o) =>
+                  total +
+                  (BigInt(o.price) * o.size * BigInt(1e6)) /
+                    (BigInt(params[0]) * params[1]),
+                BigInt(0),
+              ),
+          },
+          count: orders.length,
+        };
+      })
+    : absent;
   const earn = { MON: monEarn, USDC: usdcEarn };
   const activity = [
     ...Object.values(earn).flatMap((value) =>
@@ -260,6 +345,7 @@ export async function readPortfolio(d: Deployment, owner: Address) {
     wallet: { MON: monWallet, USDC: usdcWallet, AUSD: ausdWallet },
     earn,
     perps,
+    spotOrders,
     activity,
     historyUnavailable,
   };

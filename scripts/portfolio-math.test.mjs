@@ -109,3 +109,20 @@ test("negative position equity is not silently clamped away", () => {
   assert.equal(positionEquity(p), -8000000n);
   assert.equal(ausdTotal(ready(p.walletBalance), ready(p)), 412000000n);
 });
+test("order locks stay in Perps account value and are never counted twice", () => {
+  const p = snapshot({
+    tradingBalance: 300000000n,
+    freeTrading: 200000000n,
+    lockedTrading: 100000000n,
+  });
+  assert.equal(ausdTotal(ready(p.walletBalance), ready(p)), 465000000n);
+  const overLocked = snapshot({
+    tradingBalance: 300000000n,
+    freeTrading: 0n,
+    lockedTrading: 400000000n,
+  });
+  assert.equal(
+    ausdTotal(ready(overLocked.walletBalance), ready(overLocked)),
+    465000000n,
+  );
+});

@@ -5,7 +5,7 @@ import { readPortfolio, type PortfolioSnapshot } from "@/lib/setsuna/portfolio";
 
 export function usePortfolio() {
   const { deployment, address } = useWallet();
-  const key = `${deployment?.rpc}:${deployment?.chainId}:${deployment?.earnMON?.vault}:${deployment?.earnUSDC?.vault}:${deployment?.factory}:${deployment?.collateral}:${address}`;
+  const key = `${deployment?.rpc}:${deployment?.chainId}:${deployment?.earnMON?.vault}:${deployment?.earnUSDC?.vault}:${deployment?.factory}:${deployment?.collateral}:${deployment?.spot?.ordersFactory}:${deployment?.trading?.rpc}:${deployment?.trading?.spot?.ordersFactory}:${address}`;
   const [state, setState] = useState<{
     key: string;
     data?: PortfolioSnapshot;
