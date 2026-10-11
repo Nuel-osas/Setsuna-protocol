@@ -11,7 +11,7 @@ import {IPerplExchange} from "./interfaces/IPerplExchange.sol";
 import {PerplRisk} from "./PerplRisk.sol";
 
 /// @notice One owner, one Perpl market, one active capped margin policy.
-/// @dev No delegatecall, generic execution, delegated trading, resting orders or upgrades.
+/// @dev No delegatecall, generic execution, delegated trading or upgrades.
 contract SetsunaAccount is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -52,6 +52,7 @@ contract SetsunaAccount is ReentrancyGuard {
         uint256 policyId;
         uint256 amountCNS;
         uint256 feeCNS;
+        uint256 protocolFeeCNS;
         uint256 spendableCNS;
         uint256 maintenanceCNS;
         int256 equityCNS;
@@ -64,11 +65,17 @@ contract SetsunaAccount is ReentrancyGuard {
     IPerplExchange public immutable exchange;
     IERC20 public immutable collateral;
     uint256 public immutable perpId;
+    /// @notice Fixed Setsuna fee on each top-up, paid from the reserve to a fixed treasury.
+    uint256 public constant MAX_PROTOCOL_FEE_BPS = 500;
+    address public immutable protocolFeeRecipient;
+    uint256 public immutable protocolFeeBps;
     uint256 public accountId;
     uint256 public reserveCNS;
     uint256 public positionNonce;
     uint256 public currentPolicyId;
     mapping(uint256 => Policy) private _policies;
+    uint256[] private _orderIds;
+    uint256 public constant MAX_OPEN_ORDERS = 64;
 
     error Unauthorized();
     error InvalidConfiguration();
@@ -86,10 +93,13 @@ contract SetsunaAccount is ReentrancyGuard {
     event TradingDeposited(uint256 amountCNS);
     event TradingWithdrawn(uint256 amountCNS);
     event OrderSubmitted(uint256 indexed positionNonce, uint8 orderType, uint256 lotLNS);
+    event LimitOrderPlaced(uint256 indexed orderId, uint8 side, uint256 pricePNS, uint256 lotLNS);
+    event LimitOrderCancelled(uint256 indexed orderId);
     event PolicyArmed(uint256 indexed policyId, bytes32 binding, PolicyConfig config);
     event PolicyRevoked(uint256 indexed policyId, uint256 usedCNS);
     event CapChanged(uint256 indexed policyId, uint256 capCNS, uint256 usedCNS);
     event Refused(uint256 indexed policyId, Status reason);
+    event ProtocolFeePaid(uint256 indexed policyId, address indexed recipient, uint256 feeCNS);
     event ToppedUp(
         uint256 indexed policyId,
         address indexed rescuer,
@@ -106,11 +116,20 @@ contract SetsunaAccount is ReentrancyGuard {
         _;
     }
 
-    constructor(address owner_, IPerplExchange exchange_, IERC20 collateral_, uint256 perpId_) {
+    constructor(
+        address owner_,
+        IPerplExchange exchange_,
+        IERC20 collateral_,
+        uint256 perpId_,
+        address protocolFeeRecipient_,
+        uint256 protocolFeeBps_
+    ) {
         if (
             owner_ == address(0) || address(exchange_).code.length == 0
                 || address(collateral_).code.length == 0 || perpId_ == 0
                 || IERC20Metadata(address(collateral_)).decimals() != 6
+                || protocolFeeBps_ > MAX_PROTOCOL_FEE_BPS
+                || (protocolFeeBps_ != 0 && protocolFeeRecipient_ == address(0))
         ) {
             revert InvalidConfiguration();
         }
@@ -118,6 +137,8 @@ contract SetsunaAccount is ReentrancyGuard {
         exchange = exchange_;
         collateral = collateral_;
         perpId = perpId_;
+        protocolFeeRecipient = protocolFeeRecipient_;
+        protocolFeeBps = protocolFeeBps_;
     }
 
     function initialize(uint256 initialTradingCNS) external onlyOwner nonReentrant {
@@ -196,27 +217,91 @@ contract SetsunaAccount is ReentrancyGuard {
         emit TradingWithdrawn(amountCNS);
     }
 
+    function orderTypesVersion() external pure returns (uint256) {
+        return 1;
+    }
+
     function executeOrder(IPerplExchange.OrderDesc calldata order) external onlyOwner nonReentrant {
         _requireInitialized();
         if (
-            order.perpId != perpId || order.orderType > 3 || order.postOnly
-                || order.immediateOrCancel == order.fillOrKill || order.orderId != 0 || order.amountCNS != 0
-                || order.lotLNS == 0 || order.pricePNS == 0
+            order.perpId != perpId || order.orderType > 3 || (order.immediateOrCancel && order.fillOrKill)
+                || (order.postOnly && (order.immediateOrCancel || order.fillOrKill)) || order.orderId != 0
+                || order.amountCNS != 0 || order.lotLNS == 0 || order.pricePNS == 0
         ) {
+            revert UnsupportedOrder();
+        }
+        _compactOrders();
+        bool resting = !order.immediateOrCancel && !order.fillOrKill;
+        if (resting && _orderIds.length >= MAX_OPEN_ORDERS) {
             revert UnsupportedOrder();
         }
         _revoke();
         ++positionNonce; // Even a successful zero-fill IOC invalidates the old authorization.
         uint256 beforeTokens = collateral.balanceOf(address(this));
-        exchange.execOrder(order);
-        if (exchange.getOrderLocks(accountId).length != 0) {
-            revert UnsupportedOrder();
+        IPerplExchange.OrderSignature memory signature = exchange.execOrder(order);
+        if (resting && signature.orderId != 0) {
+            IPerplExchange.Order memory placed = exchange.getOrder(perpId, signature.orderId);
+            if (placed.accountId == accountId && placed.lotLNS != 0) {
+                _orderIds.push(signature.orderId);
+                emit LimitOrderPlaced(signature.orderId, order.orderType, order.pricePNS, order.lotLNS);
+            }
         }
         if (collateral.balanceOf(address(this)) != beforeTokens) {
             revert UnexpectedDelta();
         }
         _assertSolvent();
         emit OrderSubmitted(positionNonce, order.orderType, order.lotLNS);
+    }
+
+    function getOpenOrders() external view returns (IPerplExchange.Order[] memory orders) {
+        orders = new IPerplExchange.Order[](_orderIds.length);
+        uint256 count;
+        for (uint256 i; i < _orderIds.length; ++i) {
+            IPerplExchange.Order memory order = exchange.getOrder(perpId, _orderIds[i]);
+            if (order.accountId == accountId && order.lotLNS != 0) {
+                orders[count++] = order;
+            }
+        }
+        assembly ("memory-safe") { mstore(orders, count) }
+    }
+
+    function cancelOrder(uint256 orderId) external onlyOwner nonReentrant {
+        _requireInitialized();
+        IPerplExchange.Order memory existing = exchange.getOrder(perpId, orderId);
+        if (existing.accountId != accountId || existing.lotLNS == 0) {
+            revert UnsupportedOrder();
+        }
+        _revoke();
+        ++positionNonce;
+        IPerplExchange.OrderDesc memory order;
+        order.perpId = perpId;
+        order.orderType = 4; // Perpl's onchain Cancel enum (distinct from the REST enum).
+        order.orderId = orderId;
+        uint256 beforeTokens = collateral.balanceOf(address(this));
+        exchange.execOrder(order);
+        existing = exchange.getOrder(perpId, orderId);
+        if (existing.accountId == accountId && existing.lotLNS != 0) {
+            revert UnsupportedOrder();
+        }
+        if (collateral.balanceOf(address(this)) != beforeTokens) {
+            revert UnexpectedDelta();
+        }
+        _compactOrders();
+        _assertSolvent();
+        emit LimitOrderCancelled(orderId);
+    }
+
+    function _compactOrders() private {
+        uint256 i;
+        while (i < _orderIds.length) {
+            IPerplExchange.Order memory order = exchange.getOrder(perpId, _orderIds[i]);
+            if (order.accountId != accountId || order.lotLNS == 0) {
+                _orderIds[i] = _orderIds[_orderIds.length - 1];
+                _orderIds.pop();
+            } else {
+                ++i;
+            }
+        }
     }
 
     function armPolicy(PolicyConfig calldata config) external onlyOwner nonReentrant returns (uint256 id) {
@@ -326,7 +411,9 @@ contract SetsunaAccount is ReentrancyGuard {
             return q;
         }
         q.feeCNS = Math.min(Math.mulDiv(q.amountCNS, policy.config.feeBps, 10_000), policy.config.feeMaxCNS);
-        if (q.amountCNS + q.feeCNS > q.spendableCNS) {
+        q.protocolFeeCNS = Math.mulDiv(q.amountCNS, protocolFeeBps, 10_000);
+        // Both fees come out of the same capped budget as the margin itself.
+        if (q.amountCNS + q.feeCNS + q.protocolFeeCNS > q.spendableCNS) {
             q.status = Status.InsufficientBudget;
             return q;
         }
@@ -357,17 +444,24 @@ contract SetsunaAccount is ReentrancyGuard {
             revert UnexpectedDelta();
         }
         Policy storage policy = _policies[q.policyId];
-        policy.usedCNS += q.amountCNS + q.feeCNS;
-        reserveCNS -= q.amountCNS + q.feeCNS;
+        uint256 spent = q.amountCNS + q.feeCNS + q.protocolFeeCNS;
+        policy.usedCNS += spent;
+        reserveCNS -= spent;
         // A blocked/reverting/incorrect fee transfer rolls back the entire rescue as well.
         if (q.feeCNS != 0) {
             _transferExact(msg.sender, q.feeCNS);
         }
-        if (collateral.balanceOf(address(this)) != tokensBefore - q.amountCNS - q.feeCNS) {
+        if (q.protocolFeeCNS != 0) {
+            _transferExact(protocolFeeRecipient, q.protocolFeeCNS);
+        }
+        if (collateral.balanceOf(address(this)) != tokensBefore - spent) {
             revert UnexpectedDelta();
         }
         _assertSolvent();
         emit ToppedUp(q.policyId, msg.sender, q.amountCNS, q.feeCNS, policy.usedCNS, reserveCNS);
+        if (q.protocolFeeCNS != 0) {
+            emit ProtocolFeePaid(q.policyId, protocolFeeRecipient, q.protocolFeeCNS);
+        }
         return Status.Ready;
     }
 
