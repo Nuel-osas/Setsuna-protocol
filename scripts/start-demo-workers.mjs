@@ -5,9 +5,9 @@ import { createServer } from "node:http";
 import { privateKeyToAccount } from "viem/accounts";
 import { keeperNetwork } from "./earn-keeper-network.mjs";
 import { reviewedDemoFork } from "./demo-fork-profiles.mjs";
-import { demoTradingFixture } from "./demo-trading-fixture.mjs";
 
-// One persistent service supervises three independent workers. It never resets pending receipts.
+// One persistent service supervises the two Earn keepers. It never resets pending receipts.
+// Spot and Perps run on Monad mainnet, so the fork needs no trading price fixture.
 async function main() {
   const localAdmin = process.argv.includes("--local-admin");
   const manifest = JSON.parse(process.env.SETSUNA_DEMO_MANIFEST ?? "null");
@@ -15,7 +15,6 @@ async function main() {
     throw new Error("Combined five-protocol manifest required");
   reviewedDemoFork(manifest);
   const rpc = process.env.SETSUNA_DEMO_RPC_URL;
-  const adminRPC = process.env.SETSUNA_DEMO_ADMIN_RPC_URL;
   const keyMON = process.env.SETSUNA_MON_KEEPER_PRIVATE_KEY;
   const keyUSDC = process.env.SETSUNA_USDC_KEEPER_PRIVATE_KEY;
   const signers = [privateKeyToAccount(keyMON), privateKeyToAccount(keyUSDC)];
@@ -31,18 +30,12 @@ async function main() {
     if ((await client.getBalance({ address: signers[i].address })) === 0n)
       throw new Error("Executor signer needs synthetic gas");
   }
-  await demoTradingFixture({ rpc, adminRPC, manifest, localAdmin });
   if (!process.argv.includes("--execute")) {
     console.log(
       JSON.stringify({
         mode: "read-only",
-        checks: [
-          "reviewed-fork",
-          "both-vaults",
-          "distinct-funded-signers",
-          "price-fixture",
-        ],
-        workers: 3,
+        checks: ["reviewed-fork", "both-vaults", "distinct-funded-signers"],
+        workers: 2,
       }),
     );
     return;
@@ -127,20 +120,6 @@ async function main() {
         SETSUNA_DEMO_ADMIN_RPC_URL: "",
       },
     },
-    {
-      name: "Perps fixture",
-      script: "demo-trading-watch.mjs",
-      args: [
-        "--manifest",
-        manifestPath,
-        "--execute",
-        "--watch",
-        "--journal",
-        `${dir}/perps-price.json`,
-        ...(localAdmin ? ["--local-admin"] : []),
-      ],
-      env: common,
-    },
   ];
   const children = [];
   let stopping = false;
@@ -154,14 +133,16 @@ async function main() {
   const server = createServer((req, res) => {
     const ready =
       !stopping &&
-      children.length === 3 &&
+      children.length === definitions.length &&
       children.every((c) => c.exitCode === null);
     res.writeHead(req.url === "/health" ? (ready ? 200 : 503) : 404, {
       "Content-Type": "application/json",
     });
     res.end(
       JSON.stringify(
-        req.url === "/health" ? { ready, workers: 3 } : { error: "Not found" },
+        req.url === "/health"
+          ? { ready, workers: definitions.length }
+          : { error: "Not found" },
       ),
     );
   });
