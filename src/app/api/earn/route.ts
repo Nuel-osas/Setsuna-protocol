@@ -182,7 +182,7 @@ export async function GET() {
     return NextResponse.json(cache.body, {
       headers: { "Cache-Control": "no-store" },
     });
-  } catch (e) {
+  } catch {
     if (cache)
       return NextResponse.json({
         ...cache.body,
@@ -197,7 +197,7 @@ export async function GET() {
         bufferPct: policy.bufferPct,
         idlePct: 100,
         blendedApr: 0,
-        error: String(e),
+        error: "Market data unavailable",
       } satisfies EarnSnapshot,
       { status: 502 },
     );
