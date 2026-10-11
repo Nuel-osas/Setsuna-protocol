@@ -8,8 +8,7 @@ const cols = [
     "Explore",
     [
       ["/earn/", "Earn vaults"],
-      ["/app/?tab=spot", "Spot"],
-      ["/app/?tab=perps", "Perps"],
+      ["/trade/", "Trade"],
       ["/portfolio/", "Portfolio"],
       ["/app/", "Open app"],
     ],
@@ -35,6 +34,7 @@ export default function SiteFooter() {
   const path = usePathname();
   if (
     path.startsWith("/app") ||
+    path.startsWith("/trade") ||
     path.startsWith("/portfolio") ||
     path.startsWith("/earn") ||
     path === "/docs" ||

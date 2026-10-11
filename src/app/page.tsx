@@ -114,7 +114,7 @@ export default function Home() {
               Explore Earn <span aria-hidden="true">→</span>
             </span>
           </Link>
-          <Link className="m-product m-product-spot" href="/app/?tab=spot">
+          <Link className="m-product m-product-spot" href="/trade/?mode=spot">
             <div className="m-product-top">
               <span>02 / SPOT</span>
               <i aria-hidden="true">↗</i>
@@ -137,7 +137,7 @@ export default function Home() {
               Open Spot <span aria-hidden="true">→</span>
             </span>
           </Link>
-          <Link className="m-product m-product-perps" href="/app/?tab=perps">
+          <Link className="m-product m-product-perps" href="/trade/?mode=perps">
             <div className="m-product-top">
               <span>03 / PERPS</span>
               <i aria-hidden="true">↗</i>

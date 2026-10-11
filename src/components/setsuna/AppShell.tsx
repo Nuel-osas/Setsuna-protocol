@@ -5,14 +5,15 @@ import EarnApp from "./EarnApp";
 import App from "./App";
 import SpotApp from "./SpotApp";
 import Portfolio from "./Portfolio";
+import { TradingScope } from "./WalletProvider";
 
-type Tab = "earn" | "spot" | "perps" | "portfolio";
+type Tab = "earn" | "trade" | "portfolio";
+type TradeMode = "spot" | "perps";
 
 function TabIcon({ tab }: { tab: Tab }) {
   const paths = {
     earn: "M12 3v18M16 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7M4 8a9 9 0 0 1 16 0M4 16a9 9 0 0 0 16 0",
-    spot: "M4 8h16m-4-4 4 4-4 4M20 16H4m4-4-4 4 4 4",
-    perps: "M5 3v18M2 8h6v7H2M12 2v18M9 5h6v6H9M19 6v16M16 12h6v6h-6",
+    trade: "M5 3v18M2 8h6v7H2M12 2v18M9 5h6v6H9M19 6v16M16 12h6v6h-6",
     portfolio: "M3 7h18v14H3V7Zm4 0V3h10v4M3 12h18M10 12v3h4v-3",
   };
   return (
@@ -41,30 +42,29 @@ export default function AppShell() {
   const tab: Tab =
     path.startsWith("/portfolio") || selected === "portfolio"
       ? "portfolio"
-      : selected === "spot"
-        ? "spot"
-        : selected === "trade" || selected === "perps"
-          ? "perps"
-          : "earn";
+      : path.startsWith("/trade") ||
+          selected === "spot" ||
+          selected === "perps" ||
+          selected === "trade"
+        ? "trade"
+        : "earn";
+  // Keep existing /app/?tab=spot and /app/?tab=perps bookmarks working.
+  const mode = search.get("mode");
+  const tradeMode: TradeMode =
+    mode === "perps" ||
+    (mode !== "spot" && (selected === "perps" || selected === "trade"))
+      ? "perps"
+      : "spot";
   const go = (t: Tab) => {
+    if (t === "trade" && tab === "trade") return;
     router.push(
-      t === "portfolio"
-        ? "/portfolio/"
-        : t === "earn"
-          ? "/earn/"
-          : `/app/?tab=${t}`,
+      t === "portfolio" ? "/portfolio/" : t === "earn" ? "/earn/" : "/trade/",
     );
   };
   return (
-    <div
-      className={
-        tab === "spot" || tab === "perps"
-          ? "s-app-shell t-shell"
-          : "s-app-shell"
-      }
-    >
+    <div className={tab === "trade" ? "s-app-shell t-shell" : "s-app-shell"}>
       <nav className="s-tabs" aria-label="App sections">
-        {(["earn", "spot", "perps", "portfolio"] as const).map((t) => (
+        {(["earn", "trade", "portfolio"] as const).map((t) => (
           <button
             key={t}
             className={tab === t ? "is-on" : ""}
@@ -72,16 +72,30 @@ export default function AppShell() {
             onClick={() => go(t)}
           >
             <TabIcon tab={t} />
-            {t === "earn"
-              ? "Earn"
-              : t === "spot"
-                ? "Spot"
-                : t === "perps"
-                  ? "Perps"
-                  : "Portfolio"}
+            {t === "earn" ? "Earn" : t === "trade" ? "Trade" : "Portfolio"}
           </button>
         ))}
       </nav>
+      {tab === "trade" && (
+        <div className="t-trade-toolbar">
+          <span className="t-trade-heading">Trade</span>
+          <div className="t-trade-modes" role="group" aria-label="Trading mode">
+            {(["spot", "perps"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={tradeMode === value}
+                onClick={() => {
+                  if (value !== tradeMode)
+                    router.push(`/trade/?mode=${value}`, { scroll: false });
+                }}
+              >
+                {value === "spot" ? "Spot" : "Perps"}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {tab === "earn" ? (
         path.startsWith("/earn/mon") ||
         path.startsWith("/earn/usdc") ||
@@ -91,10 +105,11 @@ export default function AppShell() {
         ) : (
           <EarnOverview />
         )
-      ) : tab === "spot" ? (
-        <SpotApp />
-      ) : tab === "perps" ? (
-        <App />
+      ) : tab === "trade" ? (
+        // Spot and Perps settle on Monad mainnet; Earn stays on the demo fork.
+        <TradingScope>
+          {tradeMode === "spot" ? <SpotApp /> : <App />}
+        </TradingScope>
       ) : (
         <Portfolio />
       )}

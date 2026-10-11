@@ -11,6 +11,7 @@ export default function SiteHeader() {
   const path = usePathname();
   const app =
     path.startsWith("/app") ||
+    path.startsWith("/trade") ||
     path.startsWith("/portfolio") ||
     path.startsWith("/earn");
   const wallet = useWallet();
