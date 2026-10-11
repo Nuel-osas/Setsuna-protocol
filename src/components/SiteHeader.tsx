@@ -3,8 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Brand from "@/components/setsuna/Brand";
-import { useWallet } from "@/components/setsuna/WalletProvider";
-import { shortAddress } from "@/lib/setsuna/format";
+import AccountMenu from "@/components/setsuna/AccountMenu";
 import { productLinks } from "@/lib/setsuna/site";
 
 export default function SiteHeader() {
@@ -14,7 +13,6 @@ export default function SiteHeader() {
     path.startsWith("/trade") ||
     path.startsWith("/portfolio") ||
     path.startsWith("/earn");
-  const wallet = useWallet();
   const [open, setOpen] = useState(false);
   const [over, setOver] = useState(path === "/");
   useEffect(() => setOpen(false), [path]);
@@ -58,9 +56,7 @@ export default function SiteHeader() {
       </nav>
       <div className="s-header-end">
         {app ? (
-          <button className="s-btn is-small" onClick={wallet.openConnect}>
-            {wallet.address ? shortAddress(wallet.address) : "Connect"}
-          </button>
+          <AccountMenu />
         ) : (
           <Link className="s-btn is-small is-primary" href="/app/">
             Open app <span aria-hidden="true">↗</span>
