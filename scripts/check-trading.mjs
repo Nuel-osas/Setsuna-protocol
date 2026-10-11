@@ -195,8 +195,8 @@ try {
     path: ".local/trading/browser/perps-desktop.png",
     fullPage: true,
   });
-  await page.getByRole("tab", { name: "Close long", exact: true }).click();
-  await click("Review order");
+  await page.locator(".t-close-position summary").click();
+  await click("Review close");
   await confirm("Order confirmed");
   assert.equal((await position()).lotLNS, 0n);
   assert.equal(

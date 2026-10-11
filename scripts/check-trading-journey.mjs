@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { erc20Abi, formatUnits, parseAbi } from "viem";
+import {
+  encodeFunctionData,
+  erc20Abi,
+  formatUnits,
+  parseAbi,
+  parseUnits,
+} from "viem";
 
 // Called by the isolated hosted-configuration test, with a freshly funded signed wallet.
 export async function checkTradingJourney({
@@ -103,6 +109,70 @@ export async function checkTradingJourney({
     "Spot sell, buy, rejected signature, balances and approvals passed. Testing Perps…",
   );
 
+  let limitHash;
+  if (d.spot.ordersFactory) {
+    const limitABI = JSON.parse(
+      await readFile("contracts/abi/SetsunaSpotOrderAccount.json"),
+    );
+    await page
+      .getByRole("group", { name: "Spot order type", exact: true })
+      .getByRole("button", { name: "Limit", exact: true })
+      .click();
+    await click("Create Spot limit account");
+    await status("Spot limit account created");
+    const limitAccount = await c.readContract({
+      address: d.spot.ordersFactory,
+      abi: parseAbi(["function accountOf(address) view returns(address)"]),
+      functionName: "accountOf",
+      args: [user.address],
+    });
+    const open = () =>
+      c.readContract({
+        address: limitAccount,
+        abi: limitABI,
+        functionName: "getOpenOrders",
+      });
+    for (const [side, price, asset] of [
+      ["Buy MON", "0.02", "USDC"],
+      ["Sell MON", "0.06", "MON"],
+    ]) {
+      await click(side);
+      await page.getByLabel("Limit size MON", { exact: true }).fill("100");
+      await page.getByLabel("Spot limit price", { exact: true }).fill(price);
+      await click("Review limit order");
+      await page
+        .getByRole("alert")
+        .filter({ hasText: "Size must be between" })
+        .waitFor();
+      await page.getByLabel("Limit size MON", { exact: true }).fill("200");
+      await click("Review limit order");
+      await click("Confirm limit order");
+      await status("Limit order transaction confirmed");
+      let [ids, orders] = await open();
+      assert.equal(ids.length, 1);
+      assert.equal(orders[0].size, 2_000_000_000_000n);
+      await page.getByRole("button", { name: /^Open orders/ }).click();
+      await page.screenshot({
+        path: `${dir}/spot-limit-${asset}.png`,
+        fullPage: true,
+      });
+      await click(`Cancel order #${ids[0]}`);
+      await status("Cancellation confirmed");
+      assert.equal((await open())[0].length, 0);
+      await click("Balances");
+      await click(`Withdraw ${asset}`);
+      await status("Spot balance withdrawn");
+      limitHash = txs.at(-1);
+    }
+    await page
+      .getByRole("group", { name: "Spot order type", exact: true })
+      .getByRole("button", { name: "Market", exact: true })
+      .click();
+    checks.push(
+      "Spot buy/sell resting limits, minimum size guard, onchain open-order tracking, cancellation and withdrawal",
+    );
+  }
+
   await click("Perps");
   await page
     .getByRole("button", { name: "Test funds already claimed", exact: true })
@@ -153,12 +223,81 @@ export async function checkTradingJourney({
   await confirm("Reserve funded");
   assert.equal(await read("reserveCNS"), 50000000n);
   const place = async (side, size, price) => {
-    await page.getByRole("tab", { name: side, exact: true }).click();
-    if (size) await page.getByLabel("Size", { exact: true }).fill(size);
+    const closing = side.startsWith("Close ");
+    if (closing) {
+      const panel = page.locator(".t-close-position");
+      if (!(await panel.evaluate((el) => el.open)))
+        await panel.locator("summary").click();
+    } else {
+      await page.getByRole("tab", { name: side, exact: true }).click();
+    }
+    if (size)
+      await page
+        .getByLabel(closing ? "Close size" : "Size", { exact: true })
+        .fill(size);
+    if (price && !closing)
+      await page
+        .getByRole("group", { name: "Perps order type", exact: true })
+        .getByRole("button", { name: "Limit", exact: true })
+        .click();
     if (price)
-      await page.getByLabel("Limit price", { exact: true }).fill(price);
-    await enabled("Review order");
-    await click("Review order");
+      await page
+        .getByLabel(closing ? "Close limit price" : "Limit price", {
+          exact: true,
+        })
+        .fill(price);
+    // Local-fork storage fetches can exceed the public proxy's short deadline.
+    // Simulate the same action first to warm its cache; no transaction is sent.
+    const sideId = ["Long", "Short", "Close long", "Close short"].indexOf(side);
+    const m = await c.readContract({
+      address: d.exchange,
+      abi: exchangeABI,
+      functionName: "getPerpetualInfo",
+      args: [1n],
+    });
+    const buying = sideId === 0 || sideId === 3;
+    const bound = closing
+      ? parseUnits(
+          await page
+            .getByLabel("Close limit price", { exact: true })
+            .inputValue(),
+          Number(m.priceDecimals),
+        )
+      : price
+        ? parseUnits(price, Number(m.priceDecimals))
+        : ((m.basePricePNS + (buying ? m.minAskPriceONS : m.maxBidPriceONS)) *
+            BigInt(buying ? 10050 : 9950) +
+            (buying ? 0n : 9999n)) /
+          10000n;
+    await c.estimateGas({
+      account: user.address,
+      to: account,
+      data: encodeFunctionData({
+        abi: accountABI,
+        functionName: "executeOrder",
+        args: [
+          {
+            orderDescId: 0n,
+            perpId: 1n,
+            orderType: sideId,
+            orderId: 0n,
+            pricePNS: bound,
+            lotLNS: parseUnits(size, Number(m.lotDecimals)),
+            expiryBlock: 0n,
+            postOnly: false,
+            fillOrKill: !price || closing,
+            immediateOrCancel: false,
+            maxMatches: 30n,
+            leverageHdths: 1000n,
+            lastExecutionBlock: 0n,
+            amountCNS: 0n,
+            maxNegPnlCollatBPS: 100n,
+          },
+        ],
+      }),
+    });
+    await enabled(closing ? "Review close" : "Review order");
+    await click(closing ? "Review close" : "Review order");
     if (price)
       assert.ok(
         (
@@ -168,23 +307,8 @@ export async function checkTradingJourney({
         ).includes(`$${price}`),
         "Review must preserve the entered limit",
       );
-    if (price) {
-      const before = txs.length;
-      await click("Confirm");
-      await page
-        .getByRole("alert")
-        .filter({ hasText: "Order cannot fill completely" })
-        .waitFor();
-      assert.equal(
-        txs.length,
-        before,
-        "Non-crossing FOK must stop before signing",
-      );
-      await page
-        .getByRole("dialog", { name: "Place order", exact: true })
-        .getByRole("button", { name: "Close", exact: true })
-        .click();
-    } else await confirm(`${side} filled:`);
+    if (price && !closing) await confirm("Limit order transaction confirmed");
+    else await confirm(`${side} filled:`);
   };
   await place("Long", "0.001");
   assert.equal((await position()).lotLNS, 100n);
@@ -204,8 +328,9 @@ export async function checkTradingJourney({
     false,
   );
   // Oversized close must fail before any wallet transaction.
-  await page.getByLabel("Size", { exact: true }).fill("1");
-  await click("Review order");
+  await page.locator(".t-close-position summary").click();
+  await page.getByLabel("Close size", { exact: true }).fill("1");
+  await click("Review close");
   await page
     .getByRole("alert")
     .filter({ hasText: "Close size exceeds" })
@@ -224,6 +349,15 @@ export async function checkTradingJourney({
     String(Math.floor((Number(d.perplFixture.markPNS) / 10) * 0.9)),
   );
   assert.equal((await position()).lotLNS, 0n);
+  const openLimits = await read("getOpenOrders");
+  assert.equal(openLimits.length, 1);
+  await click(`Cancel order #${openLimits[0].orderId}`);
+  await confirm("Order cancelled");
+  assert.equal((await read("getOpenOrders")).length, 0);
+  await page
+    .getByRole("group", { name: "Perps order type", exact: true })
+    .getByRole("button", { name: "Market", exact: true })
+    .click();
   assert.equal(await free(), beforeUnfilled);
   const closeHash = txs.at(-1);
   await page
@@ -236,7 +370,7 @@ export async function checkTradingJourney({
     "Perps account initialization and repeat collateral deposit",
     "Long fill, partial close and full close",
     "Short fill and full close",
-    "Non-crossing FOK rejected before signing with readable liquidity error",
+    "Perps non-crossing limit rests and cancels, returning locked collateral",
     "Activity verifies receipt fills",
     "Protection revoked on trade and reserve isolated",
     "Oversized close blocked before signing",
@@ -295,6 +429,17 @@ export async function checkTradingJourney({
       "Review order",
       "Check it now",
     ],
+    ...(limitHash
+      ? [
+          [
+            "spot",
+            limitHash,
+            `setsuna.spot.orders.${d.chainId}.${d.spot.ordersFactory}.${user.address}`,
+            "Get quote",
+            "Check limit receipt",
+          ],
+        ]
+      : []),
   ]) {
     await page.evaluate(([k, h]) => localStorage.setItem(k, h), [key, hash]);
     await page.goto(`${appOrigin}/app/?tab=${tab}`);
@@ -356,6 +501,7 @@ export async function checkTradingJourney({
       { timeout: 25000 },
     );
     await page.unroute("**/api/rpc/");
+    if (tab === "Spot") await page.locator(".db-close-trade").click();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await click("Earn");
