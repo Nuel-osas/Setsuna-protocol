@@ -35,7 +35,7 @@ contract SetsunaEarnForkTest is Test {
         );
         // Explicit integration-only profile, NOT the factory's 250k eligibility rule.
         // It exercises both adapters at this historical block without fabricating protocol liquidity.
-        vault = new SetsunaEarnVault(USDC, address(this), 25_000e6, 100_000e6);
+        vault = new SetsunaEarnVault(USDC, address(this), 25_000e6, 100_000e6, address(0), 0);
         aave = new AaveUSDCAdapter(address(vault), address(USDC), AAVE, DATA, A_USDC);
         morpho = new MorphoUSDCAdapter(address(vault), address(USDC), MORPHO, MARKET);
         vault.initialize([ILendingAdapter(address(aave)), ILendingAdapter(address(morpho))]);

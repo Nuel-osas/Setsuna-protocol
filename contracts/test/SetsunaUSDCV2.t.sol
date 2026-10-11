@@ -15,7 +15,7 @@ contract SetsunaUSDCV2Test is Test {
     function setUp() public {
         vm.warp(1_000_000);
         token = new EarnMockUSDC();
-        vault = new SetsunaUSDCVault(token, address(this), 25_000e6, 250_000e6);
+        vault = new SetsunaUSDCVault(token, address(this), 25_000e6, 250_000e6, address(0), 0);
         ILendingAdapterV2[] memory list = new ILendingAdapterV2[](4);
         for (uint256 i; i < 4; ++i) {
             venues[i] = new EarnMockAdapter(token, address(vault), (i + 1) * 0.01e18);
@@ -165,7 +165,7 @@ contract SetsunaUSDCV2Test is Test {
     }
 
     function testDuplicateWrongAssetAndTooManyAdaptersRejected() public {
-        SetsunaUSDCVault other = new SetsunaUSDCVault(token, address(this), 25_000e6, 250_000e6);
+        SetsunaUSDCVault other = new SetsunaUSDCVault(token, address(this), 25_000e6, 250_000e6, address(0), 0);
         ILendingAdapterV2[] memory list = new ILendingAdapterV2[](6);
         vm.expectRevert(SetsunaMultiEarnCore.InvalidConfiguration.selector);
         other.initialize(list);
@@ -181,7 +181,7 @@ contract SetsunaUSDCV2Test is Test {
 
     function testTwoThroughFiveDestinationConfigurations() public {
         for (uint256 n = 2; n <= 5; ++n) {
-            SetsunaUSDCVault other = new SetsunaUSDCVault(token, address(this), 25_000e6, 250_000e6);
+            SetsunaUSDCVault other = new SetsunaUSDCVault(token, address(this), 25_000e6, 250_000e6, address(0), 0);
             ILendingAdapterV2[] memory list = new ILendingAdapterV2[](n);
             for (uint256 i; i < n; ++i) {
                 list[i] = ILendingAdapterV2(address(new EarnMockAdapter(token, address(other), 0.03e18)));

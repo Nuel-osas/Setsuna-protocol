@@ -22,7 +22,7 @@ contract SetsunaEarnTest is Test {
     function setUp() public {
         vm.warp(1_000_000);
         token = new EarnMockUSDC();
-        vault = new SetsunaEarnVault(token, guardian, 25_000e6, 250_000e6);
+        vault = new SetsunaEarnVault(token, guardian, 25_000e6, 250_000e6, address(0), 0);
         a = new EarnMockAdapter(token, address(vault), 0.04e18);
         b = new EarnMockAdapter(token, address(vault), 0.02e18);
         vault.initialize([ILendingAdapter(address(a)), ILendingAdapter(address(b))]);

@@ -31,7 +31,7 @@ contract SetsunaMONForkTest is Test {
         assertEq(block.chainid, 143);
         assertEq(vm.getBlockTimestamp(), TIMESTAMP);
         assertEq(blockhash(BLOCK - 1), 0x4828183d3dd658319ca668f383044a7cb99efa8cdbed8b82d0f988c9467026ac);
-        factory = new SetsunaMONFactory();
+        factory = new SetsunaMONFactory(address(0), 0);
         (vault, gateway) = factory.createVault();
         token = IERC20(factory.WMON());
         vm.deal(alice, 10_000 ether); // Synthetic MON only; all venue contracts/storage are forked mainnet.

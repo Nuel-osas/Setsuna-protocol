@@ -56,7 +56,7 @@ contract SetsunaMONTest is Test {
     function setUp() public {
         vm.warp(1_000_000);
         token = new MockWrappedMON();
-        vault = new SetsunaMONVault(token, address(this), 25_000 ether, 250_000 ether);
+        vault = new SetsunaMONVault(token, address(this), 25_000 ether, 250_000 ether, address(0), 0);
         a = new EarnMockAdapter(token, address(vault), 0.04e18);
         b = new EarnMockAdapter(token, address(vault), 0.08e18);
         a.setSize(1_000_000 ether);
@@ -121,7 +121,7 @@ contract SetsunaMONTest is Test {
     function testRejectsWrongDecimals() public {
         EarnMockUSDC usdc = new EarnMockUSDC();
         vm.expectRevert(SetsunaEarnCore.InvalidConfiguration.selector);
-        new SetsunaMONVault(usdc, alice, 25_000 ether, 250_000 ether);
+        new SetsunaMONVault(usdc, alice, 25_000 ether, 250_000 ether, address(0), 0);
     }
 
     function testUnauthorizedCannotUseAnotherUsersApproval() public {
