@@ -2,15 +2,15 @@ A deposit exchanges one underlying asset for a proportional claim on its vault. 
 
 ## Before you start
 
-Open the [Setsuna app](/app/) and check that it shows **Setsuna demo · test funds**, chain **31337**. Connect a browser wallet and select **Get test funds** for 101 MON, 1,000 USDC and 1,000 AUSD. These are demonstration assets with no monetary value; use them for deposits and gas.
+Open the [Setsuna app](/earn/) and check that it shows **Monad mainnet · Capped beta**. Connect a wallet on Monad mainnet, chain **143**, holding the MON or USDC you want to deposit and a little MON for gas. Deposits use real funds.
 
-If your wallet already has another network with chain ID 31337, check that its RPC is `https://setsuna-metropolis.vercel.app/api/rpc/`. A local Anvil network with the same chain ID is a different environment. A funding claim is limited to once per wallet per demo day, subject to the faucet’s remaining budget.
+Earn is a capped beta: setsUSDC accepts at most 2,000 USDC in total and setsMON 25,000 MON. Setsuna's contracts are unaudited; deposit only what you can afford to lose.
 
 In the Earn card, select **Deposit**, then choose **USDC** or **MON** from the asset dropdown beside the amount. The same form handles both assets; the receipt token, balance, rate and allocation details update with your selection. MON and USDC remain independent vaults.
 
 ## Deposit USDC
 
-1. Connect your wallet, or choose **Try the local demo account** in a local demo.
+1. Connect your wallet on Monad mainnet.
 2. Choose USDC and enter the amount you want to supply, or select **Max**. Check the estimated setsUSDC shares in **You receive**.
 3. Select **Deposit USDC** and approve that exact USDC amount for the vault.
 4. Confirm the deposit transaction. An approval alone does not deposit your assets.

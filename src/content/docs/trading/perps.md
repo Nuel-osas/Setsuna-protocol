@@ -38,4 +38,4 @@ Protection cannot be armed while an order remains open: a later fill could chang
 
 ## Network
 
-Perps runs on **Monad mainnet**. [Trade](/trade/?mode=perps) opens BTC positions on Perpl at live prices with your own AUSD; test funds from Earn's demo fork cannot be used here. Each protection top-up pays Setsuna 1% of the amount added, inside your cap. Setsuna's contracts are unaudited; trade small. Read [the current environments](/docs/developers/contracts/) for the deployed contracts.
+Perps runs on **Monad mainnet**. [Trade](/trade/?mode=perps) opens BTC positions on Perpl at live prices with your own AUSD. Each protection top-up pays Setsuna 1% of the amount added, inside your cap. Setsuna's contracts are unaudited; trade small. Read [the current environments](/docs/developers/contracts/) for the deployed contracts.

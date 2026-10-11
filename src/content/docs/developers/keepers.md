@@ -30,7 +30,7 @@ A worker with an execution error halts for inspection. Review the saved state an
 
 `npm run usdc:demo:five` creates and funds a dedicated synthetic-fund executor on its owned local fork, then starts the watcher. No production wallet key is needed for that launcher.
 
-An automatic cash-buffer repair was confirmed in the October 8 demo across all five destinations. That record establishes local execution. On October 9, separate MON and USDC workers were also deployed alongside the public Railway fork. They retain the same observation intervals, cooldowns and transaction journals. The hosted demo stops on an unresolved worker failure so its operator can inspect receipts before restarting.
+An automatic cash-buffer repair was confirmed in the October 8 demo across all five destinations. That record establishes local execution. On October 11, separate MON and USDC keepers began running against the mainnet vaults, each with its own dedicated gas wallet; neither holds the treasury key. They retain the same observation intervals, cooldowns and transaction journals, and reconcile any pending receipt before acting again.
 
 ## Earn and protection are different
 

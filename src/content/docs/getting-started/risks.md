@@ -31,4 +31,4 @@ USDC may lose its peg. MON's market price can fall even while a MON position ear
 
 ## Read the environment label
 
-Demo balances are synthetic. Local forks use copied protocol state and a separately advancing clock; they do not receive later mainnet transactions. The Perpl trading demo uses an explicitly disclosed historical-price fixture. See [networks and contracts](/docs/developers/contracts/).
+The app transacts on Monad mainnet with real funds. Earn is a capped beta and every Setsuna contract is unaudited. Local development forks use copied protocol state and a separately advancing clock; they do not receive later mainnet transactions. See [networks and contracts](/docs/developers/contracts/).

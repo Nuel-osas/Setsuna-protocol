@@ -1,15 +1,14 @@
-Venue addresses identify protocol deployments on Monad. Setsuna's Spot and Perps contracts are deployed on Monad mainnet; its Earn vaults are deployed on a separate synthetic-fund fork. A venue address is not a Setsuna deposit address.
+Venue addresses identify protocol deployments on Monad. Setsuna's Earn, Spot and Perps contracts are deployed on Monad mainnet. A venue address is not a Setsuna deposit address.
 
 ## Environments
 
 | Environment | Chain ID | Current scope |
 | --- | --- | --- |
-| Monad mainnet | 143 | Spot (Kuru) and Perps (Perpl) with real funds; public market reads |
-| Public Railway fork | 31337 | Earn (setsUSDC, setsMON) and test funding; source block 111560409 |
+| Monad mainnet | 143 | Earn (capped beta), Spot (Kuru) and Perps (Perpl) with real funds |
 | Local five-protocol USDC fork | 31337 | Synthetic-fund Earn transactions; source block 111560409 |
 | Unified local demo | 31337 | setsUSDC, setsMON, Spot and Perps together; source block 111560409 |
 
-Separate forks may share chain IDs and deployment addresses while holding different state. Always pair the RPC endpoint with its deployment manifest. The public fork runs on Railway and does not depend on Tenderly.
+Local forks are for development only. Separate forks may share chain IDs and deployment addresses while holding different state; always pair the RPC endpoint with its deployment manifest.
 
 ## Mainnet trading contracts
 
@@ -23,18 +22,17 @@ Deployed at Monad block 112443702. Each address is fixed at construction; there 
 
 These contracts are unaudited. Trade small.
 
-## Public Earn demo contracts
+## Mainnet Earn contracts
 
-RPC: `https://setsuna.finance/api/rpc/`. [Explorer](https://setsuna-workers-production.up.railway.app/) · [Validated deployment manifest](/api/deployment/).
+Deployed at Monad block 112553267. setsUSDC is capped at 2,000 USDC and setsMON at 25,000 MON. Both take 2% of yield, never principal, for the treasury above. The guardian can only pause deposits or disable a destination; it cannot move funds. [Live deployment manifest](/api/deployment/).
 
-| Component | Address on demo chain 31337 |
+| Component | Address on Monad mainnet (143) |
 | --- | --- |
-| setsMON vault | `0x38b1e5aEAf56c7Ac94A3B845225e9563c042D3A9` |
-| Native MON gateway | `0xdF81D5CF0df4AD9EBa60C083Ae43f3be440ab5bF` |
-| setsUSDC vault | `0x08dCeC65aA27A00964dFa954faEf92ffF27F3b82` |
-| Bounded faucet | `0x3a2aaAA478F1b827C24E91a7E612fdCaA3c18dDF` |
+| setsUSDC vault | `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7` |
+| setsMON vault | `0x3F271AaD41D6064Be2A9245fE00Fa72606c5Fda1` |
+| Native MON gateway | `0x32BcA3c83968682173c8c5A05Ab8Fb927EE5D8d2` |
 
-Both vaults take 2% of yield, never principal, for the same treasury. These addresses are for the public demo only. Do not send mainnet assets to them. Explorer receipts prove execution on this fork.
+These contracts are unaudited. Deposit only what you can afford to lose.
 
 ## Underlying assets
 

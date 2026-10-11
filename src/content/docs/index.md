@@ -30,6 +30,6 @@ A single interface does not mean a shared balance. A trade cannot spend assets h
 
 ## Current release
 
-> **Public test-fund demo.** [Open the app](/app/), connect a browser wallet and select **Get test funds**. Earn, Spot and Perps use one persistent Monad mainnet fork, chain 31337. The tokens have no monetary value. Perps uses a disclosed historical price. See [networks and contracts](/docs/developers/contracts/) for the environment and explorer.
+> **Live on Monad mainnet.** [Open the app](/app/) and connect a wallet on Monad (chain 143). Earn is a capped beta (2,000 USDC and 25,000 MON) with real funds; Spot and Perps trade on Kuru and Perpl at live prices. Setsuna's contracts are unaudited. See [networks and contracts](/docs/developers/contracts/).
 
 These docs describe the implementation available on October 9, 2026. Start with the user guides, follow the mechanism in **How it works**, or explore the calculations in **The math**.
