@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, stat, unlink } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, stat, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseEnv } from "node:util";
 import { setTimeout as delay } from "node:timers/promises";
@@ -174,6 +174,15 @@ async function main() {
       ? "Restoring the persisted Monad demo fork…"
       : "Starting a fresh pinned Monad demo fork…",
   );
+  // Earlier releases let Anvil spill every historical state under --cache-path,
+  // which filled the 5 GB volume on 11 October. Resume needs only chain-state.json.
+  await mkdir(`${stateDir}/rpc-cache`, { recursive: true, mode: 0o700 });
+  for (const entry of await readdir(`${stateDir}/rpc-cache`))
+    if (entry.startsWith("anvil-state-"))
+      await rm(`${stateDir}/rpc-cache/${entry}`, {
+        recursive: true,
+        force: true,
+      });
   const anvil = owned(
     "anvil",
     [
