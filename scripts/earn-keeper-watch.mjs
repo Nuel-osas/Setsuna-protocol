@@ -28,7 +28,7 @@ while (!stopping) {
     child.once("exit", (code) => resolve(code ?? 1));
   });
   // Each run reconciles its persisted journal before choosing an action, so a
-  // retry never resubmits a transaction. Back off instead of halting the demo.
+  // retry never resubmits a transaction. Back off instead of halting the keeper.
   failures = code === 0 ? 0 : failures + 1;
   if (failures)
     console.error(

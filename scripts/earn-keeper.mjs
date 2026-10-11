@@ -27,7 +27,6 @@ async function main() {
       "min-annual-gain": { type: "string" },
       "min-annual-gain-usdc": { type: "string" },
       "state-dir": { type: "string" },
-      "demo-manifest": { type: "string" },
       help: { type: "boolean", default: false },
     },
   });
@@ -35,7 +34,6 @@ async function main() {
     console.log(
       "Usage: node scripts/earn-keeper.mjs --vault ADDRESS [--rpc URL]\n" +
         "One read-only check by default. MONAD_RPC_URL supplies the endpoint. Requires chain ID 143.\n" +
-        "For a synthetic-fund fork ONLY, pass --demo-manifest PATH --asset MON --rpc URL. Chain and contract links are verified.\n" +
         "Execute at most one permissionless action with --execute --max-gas-price-gwei N and EARN_KEEPER_PRIVATE_KEY.\n" +
         "Optional: --asset MON|USDC --max-gas 1000000 --min-annual-gain 0.001 --state-dir PATH. Gain uses the selected asset, never USD conversion.\n" +
         "Use one dedicated signer and one shared state directory. Pending work is reconciled before further writes.",
@@ -83,12 +81,8 @@ async function main() {
       "utf8",
     ),
   );
-  const manifest = values["demo-manifest"]
-    ? JSON.parse(await readFile(values["demo-manifest"], "utf8"))
-    : undefined;
   const { client, chain, chainId } = await keeperNetwork({
     rpc,
-    manifest,
     address,
     assetSymbol,
   });
