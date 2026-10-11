@@ -5,12 +5,13 @@ import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC4626} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {SetsunaPerformanceFee} from "./SetsunaPerformanceFee.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {ILendingAdapter} from "./ILendingAdapter.sol";
 
 /// @notice Fixed two-destination lending vault. Public executors cannot choose weights, calls or recipients.
-/// @dev Prototype: immutable policy; no fees, swaps, leverage, upgrades, or adapter replacement.
-abstract contract SetsunaEarnCore is ERC4626, ReentrancyGuard {
+/// @dev Prototype: immutable policy and fixed performance fee on yield; no swaps, leverage, upgrades, or adapter replacement.
+abstract contract SetsunaEarnCore is SetsunaPerformanceFee, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     uint256 public constant BPS = 10_000;
@@ -98,8 +99,10 @@ abstract contract SetsunaEarnCore is ERC4626, ReentrancyGuard {
         uint256 minimumMarketSupply_,
         uint8 assetDecimals_,
         string memory name_,
-        string memory symbol_
-    ) ERC20(name_, symbol_) ERC4626(asset_) {
+        string memory symbol_,
+        address feeRecipient_,
+        uint256 performanceFeeBps_
+    ) ERC20(name_, symbol_) ERC4626(asset_) SetsunaPerformanceFee(feeRecipient_, performanceFeeBps_) {
         if (
             guardian_ == address(0) || depositCap_ == 0
                 || depositCap_ > 1_000_000 * 10 ** uint256(assetDecimals_) || minimumMarketSupply_ == 0
@@ -227,6 +230,7 @@ abstract contract SetsunaEarnCore is ERC4626, ReentrancyGuard {
         cachedIdle = IERC20(asset()).balanceOf(address(this));
         nav += cachedIdle;
         lastAccountingAt = block.timestamp;
+        _accrueFee(nav); // Before the event: replays pair this NAV with the post-fee supply.
         emit AccountingUpdated(nav, cachedIdle);
     }
 
@@ -303,6 +307,7 @@ abstract contract SetsunaEarnCore is ERC4626, ReentrancyGuard {
         if (cachedIdle != beforeCash + assets) {
             revert BalanceMismatch();
         }
+        _addFeeBase(assets);
     }
 
     function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares)
@@ -335,6 +340,7 @@ abstract contract SetsunaEarnCore is ERC4626, ReentrancyGuard {
         ) {
             revert BalanceMismatch();
         }
+        _removeFeeBase(assets, beforeNav);
         uint256 afterNav = _refresh();
         if (afterNav + assets + ROUNDING_BUDGET < beforeNav) {
             revert AccountingLoss();
