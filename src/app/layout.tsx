@@ -12,6 +12,7 @@ import "@/styles/logos.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
+import PrivyRoot from "@/components/setsuna/PrivyRoot";
 
 const display = EB_Garamond({
   subsets: ["latin"],
@@ -53,14 +54,16 @@ export default function RootLayout({
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <body>
-        <WalletProvider>
-          <a className="s-skip" href="#main">
-            Skip to content
-          </a>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
-        </WalletProvider>
+        <PrivyRoot>
+          <WalletProvider>
+            <a className="s-skip" href="#main">
+              Skip to content
+            </a>
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </WalletProvider>
+        </PrivyRoot>
       </body>
     </html>
   );

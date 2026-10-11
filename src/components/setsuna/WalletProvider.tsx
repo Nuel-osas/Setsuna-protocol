@@ -19,6 +19,7 @@ import {
   type WalletClient,
 } from "viem";
 import type { Secp256k1SigningSession } from "@category-labs/mera";
+import { useLogin, usePrivy, useWallets } from "@privy-io/react-auth";
 import type { Deployment } from "@/lib/setsuna/types";
 import { message, shortAddress } from "@/lib/setsuna/format";
 import Brand from "./Brand";
@@ -114,7 +115,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const provider = useRef<Provider | null>(null);
   const cleanup = useRef<(() => void) | null>(null);
   const generation = useRef(0);
+  // Email/Google accounts sign with a Privy embedded wallet through the same
+  // EIP-1193 path as browser wallets; only login and logout differ.
+  const privy = usePrivy();
+  const { wallets: privyWallets } = useWallets();
+  const [privyPending, setPrivyPending] = useState(false);
+  const viaPrivy = useRef(false);
+  const privyLogout = useRef(privy.logout);
+  privyLogout.current = privy.logout;
+  const { login: privyLogin } = useLogin({
+    onError: () => setPrivyPending(false),
+  });
   const disconnect = useCallback(() => {
+    if (viaPrivy.current) {
+      viaPrivy.current = false;
+      void privyLogout.current().catch(() => {});
+    }
     generation.current++;
     cleanup.current?.();
     cleanup.current = null;
@@ -188,6 +204,36 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (open) dialog.current?.showModal();
     else dialog.current?.close();
   }, [open]);
+  useEffect(() => {
+    if (!privyPending || !privy.ready || !privy.authenticated) return;
+    const embedded = privyWallets.find((w) => w.walletClientType === "privy");
+    if (!embedded) return;
+    setPrivyPending(false);
+    void (async () => {
+      try {
+        const eip1193 = (await embedded.getEthereumProvider()) as Provider;
+        const connecting = connect("wallet", {
+          name: "Email · Privy",
+          uuid: "privy",
+          provider: eip1193,
+        });
+        viaPrivy.current = true;
+        await connecting;
+      } catch (e) {
+        setError(message(e));
+      }
+    })();
+    // connect is recreated each render; this runs once per completed login.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [privyPending, privy.ready, privy.authenticated, privyWallets]);
+  function continueWithPrivy() {
+    setError("");
+    disconnect();
+    // Privy opens its own modal; the native dialog would sit above it.
+    setOpen(false);
+    setPrivyPending(true);
+    if (!privy.authenticated) privyLogin();
+  }
   async function connect(
     mode: "create" | "recover" | "wallet",
     choice?: Choice,
@@ -459,6 +505,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             <p className="s-small">
               Powered by Mera. A compatible passkey provider is required. Use
               the same passkey and domain to recover your account.
+            </p>
+            <button
+              className="s-button s-button-outline s-full"
+              disabled={busy || !deployment || !privy.ready}
+              onClick={continueWithPrivy}
+            >
+              Continue with email or Google
+            </button>
+            <p className="s-small">
+              Powered by Privy. Creates a Monad wallet for your login; you sign
+              every transaction.
             </p>
             <div className="s-divider">or connect a wallet</div>
             {choices.length ? (
