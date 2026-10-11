@@ -1139,3 +1139,27 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
     justify-content: flex-end;
   }
 }
+
+/* Buy reads green and sell reads red, so the active side is obvious. */
+.db-spot .db-direction.s-segment button.is-buy {
+  color: rgba(61, 220, 151, 0.7);
+}
+.db-spot .db-direction.s-segment button.is-sell {
+  color: rgba(255, 107, 107, 0.7);
+}
+.db-spot .db-direction.s-segment button.is-buy.is-on {
+  color: #3ddc97;
+  background: rgba(61, 220, 151, 0.14);
+  border-color: rgba(61, 220, 151, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(61, 220, 151, 0.25),
+    0 0 18px rgba(61, 220, 151, 0.28);
+}
+.db-spot .db-direction.s-segment button.is-sell.is-on {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.14);
+  border-color: rgba(255, 107, 107, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(255, 107, 107, 0.25),
+    0 0 18px rgba(255, 107, 107, 0.28);
+}

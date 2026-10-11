@@ -401,7 +401,7 @@ export default function SpotApp() {
               <button
                 key={String(direction)}
                 disabled={!!busy || !!pending || limitLocked}
-                className={monToUSDC === direction ? "is-on" : ""}
+                className={`${direction ? "is-sell" : "is-buy"}${monToUSDC === direction ? " is-on" : ""}`}
                 aria-label={direction ? "Sell MON" : "Buy MON"}
                 aria-pressed={monToUSDC === direction}
                 onClick={() => changeDirection(direction)}
