@@ -16,6 +16,9 @@ import {
 import { statuses } from "@/lib/setsuna/contracts";
 import { ausd, shortAddress } from "@/lib/setsuna/format";
 import { advancedDefaults, stepIn, type StepIn } from "@/lib/setsuna/presets";
+import type { Market, Position } from "@/lib/setsuna/types";
+import { useReferenceMarket } from "./useReferenceMarket";
+import OrderTypeSwitch from "./OrderTypeSwitch";
 
 function Card({
   title,
@@ -101,11 +104,66 @@ function Input({
   );
 }
 
+function ClosePosition({
+  position,
+  market,
+  disabled,
+  onReview,
+}: {
+  position: Position;
+  market: Market;
+  disabled: boolean;
+  onReview: (side: number, size: string, price: string) => void;
+}) {
+  const [size, setSize] = useState(
+    formatUnits(position.lotLNS, Number(market.lotDecimals)),
+  );
+  const [enteredPrice, setPrice] = useState<string>();
+  const side = position.positionType === 0 ? 2 : 3;
+  const price =
+    enteredPrice ??
+    formatUnits(
+      side === 2
+        ? (market.markPNS * BigInt(998)) / BigInt(1000)
+        : (market.markPNS * BigInt(1002) + BigInt(999)) / BigInt(1000),
+      Number(market.priceDecimals),
+    );
+  return (
+    <details className="s-disclose t-close-position">
+      <summary>Close position</summary>
+      <div className="s-grid-2">
+        <Input label="Close size" value={size} set={setSize} unit="BTC" />
+        <Input
+          label="Close limit price"
+          value={price}
+          set={setPrice}
+          unit="USD"
+        />
+      </div>
+      <p className="s-footnote">
+        Full position size is prefilled. Enter a smaller amount to close part of
+        it.
+      </p>
+      <button
+        className="s-btn is-quiet"
+        disabled={disabled}
+        onClick={() => onReview(side, size, price)}
+      >
+        Review close
+      </button>
+    </details>
+  );
+}
+
 const pct = (bps: number) => `${(bps / 100).toFixed(0)}%`;
 
 export default function App() {
   const s = useSetsuna();
   const terminal = useTradingMarket("perps");
+  const reference = useReferenceMarket(
+    "perps",
+    s.d?.mode === "demo" || s.d?.mode === "mainnet",
+  );
   const {
     d,
     address,
@@ -130,6 +188,8 @@ export default function App() {
   const [withdraw, setWithdraw] = useState("25");
   const [trading, setTrading] = useState("100");
   const [side, setSide] = useState(0);
+  const [orderKind, setOrderKind] = useState<"market" | "limit">("market");
+  const [slippage, setSlippage] = useState("0.5");
   const [size, setSize] = useState("0.001");
   const [enteredPrice, setPrice] = useState<string>();
   const [lev, setLev] = useState("10");
@@ -145,11 +205,7 @@ export default function App() {
   // A suggested price is a fallback, never an effect that can overwrite an edit.
   const price =
     enteredPrice ??
-    (mark
-      ? String(
-          Math.round(side === 0 || side === 3 ? mark * 1.002 : mark * 0.998),
-        )
-      : "");
+    (mark ? String(Math.round(side === 0 ? mark * 1.002 : mark * 0.998)) : "");
 
   const reserve = snapshot?.reserve ?? BigInt(0);
   const reserveNum = Number(formatUnits(reserve, 6));
@@ -171,9 +227,11 @@ export default function App() {
   const budgetMax = Math.max(10, Math.min(1000, Math.floor(reserveNum) || 250));
   const armBlocked = !hasPosition
     ? "Open a position first. Protection attaches to one position."
-    : reserveNum < Number(adv.minTopUp)
-      ? "Fund your reserve first. Top-ups are paid only from it."
-      : "";
+    : snapshot?.openOrders?.length
+      ? "Cancel or fill your open orders before turning protection on."
+      : reserveNum < Number(adv.minTopUp)
+        ? "Fund your reserve first. Top-ups are paid only from it."
+        : "";
 
   return (
     <>
@@ -182,6 +240,7 @@ export default function App() {
           kind="perps"
           reading={terminal.reading}
           local={d?.mode === "local"}
+          reference={reference}
         />
         {d?.mode === "preview" && (
           <p className="t-demo-note">
@@ -189,11 +248,17 @@ export default function App() {
             connected.
           </p>
         )}
+        {d?.mode === "mainnet" && (
+          <p className="t-fork-note">
+            Monad mainnet: orders execute on Perpl at live prices with your own
+            AUSD. Setsuna’s contracts are unaudited; trade small.
+          </p>
+        )}
         {d?.perplFixture && (
-          <p className="s-alert">
-            Fork simulation: BTC uses a fixed historical mark, refreshed by the
-            demo fixture. Perpl’s oracle guard is disabled only on this fork.
-            These are not live prices.
+          <p className="t-fork-note">
+            Chart, book and 24h stats are live Perpl mainnet data. Demo orders
+            fill on the fork at a fixed historical mark; Perpl’s oracle guard is
+            disabled only on this fork.
           </p>
         )}
 
@@ -237,6 +302,16 @@ export default function App() {
           <MarketChart kind="perps" {...terminal} fixture={!!d?.perplFixture} />
           {d?.mode === "preview" ? (
             <OrderBook kind="perps" reading={terminal.reading} />
+          ) : reference ? (
+            <OrderBook
+              kind="perps"
+              reading={reference}
+              source={
+                d?.mode === "mainnet"
+                  ? "Perpl · live"
+                  : "Perpl mainnet · reference"
+              }
+            />
           ) : (
             <PerpsMarketInfo
               reading={terminal.reading}
@@ -326,6 +401,17 @@ export default function App() {
                     . Setsuna cannot guarantee a top-up lands before
                     liquidation.
                   </p>
+                  {market && (
+                    <ClosePosition
+                      key={`${d?.chainId}:${account}:${position!.positionType}:${position!.lotLNS}`}
+                      position={position!}
+                      market={market}
+                      disabled={!ready || !snapshot?.accountId || !!s.review}
+                      onReview={(closeSide, closeSize, closePrice) =>
+                        s.actions.trade(closeSide, closeSize, closePrice, lev)
+                      }
+                    />
+                  )}
                 </>
               ) : (
                 <p className="s-lede">
@@ -333,55 +419,119 @@ export default function App() {
                   the order panel to connect, fund and trade.
                 </p>
               )}
+              {account && (
+                <section
+                  className="t-open-orders"
+                  aria-label="Perps open orders"
+                >
+                  <h3>
+                    Open orders{" "}
+                    <small>{snapshot?.openOrders?.length ?? 0}</small>
+                  </h3>
+                  {snapshot?.openOrders?.length ? (
+                    snapshot.openOrders.map((order) => (
+                      <div className="t-open-order" key={order.orderId}>
+                        <span>
+                          <b>
+                            {
+                              ["Long", "Short", "Close long", "Close short"][
+                                order.orderType
+                              ]
+                            }
+                          </b>
+                          <small>
+                            #{order.orderId} ·{" "}
+                            {formatUnits(
+                              order.lotLNS,
+                              Number(market?.lotDecimals ?? 5),
+                            )}{" "}
+                            BTC remaining
+                          </small>
+                        </span>
+                        <span>
+                          $
+                          {formatUnits(
+                            (market?.basePricePNS ?? BigInt(0)) +
+                              BigInt(order.priceONS),
+                            Number(market?.priceDecimals ?? 1),
+                          )}
+                        </span>
+                        <button
+                          className="s-btn is-small"
+                          disabled={!ready || !!s.review}
+                          onClick={() => s.actions.cancelOrder(order.orderId)}
+                        >
+                          Cancel order #{order.orderId}
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="s-muted">No open limit orders.</p>
+                  )}
+                </section>
+              )}
             </Card>
 
             <Card
               className="t-ticket"
               title="Place order"
               kicker="Perpl · BTC-PERP"
-              aside={<span className="s-pill">Fill or kill</span>}
+              aside={
+                <span className="s-pill">
+                  {orderKind === "market"
+                    ? "Immediate fill"
+                    : "Good till cancelled"}
+                </span>
+              }
             >
               <DemoFunding
                 onFunded={s.refresh}
                 disabled={s.busy || !!s.unknownHash || !!s.review}
               />
+              <OrderTypeSwitch
+                value={orderKind}
+                onChange={setOrderKind}
+                disabled={s.busy || !!s.unknownHash || !!s.review}
+                label="Perps order type"
+              />
               <div className="s-segment" role="tablist">
-                {["Long", "Short", "Close long", "Close short"].map(
-                  (label, i) => (
-                    <button
-                      key={label}
-                      role="tab"
-                      disabled={s.busy || !!s.unknownHash}
-                      aria-selected={side === i}
-                      className={side === i ? "is-on" : ""}
-                      onClick={() => {
-                        setSide(i);
-                        setPrice(undefined);
-                        if (i >= 2 && hasPosition)
-                          setSize(
-                            formatUnits(
-                              position!.lotLNS,
-                              Number(market?.lotDecimals ?? 5),
-                            ),
-                          );
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ),
-                )}
+                {["Long", "Short"].map((label, i) => (
+                  <button
+                    key={label}
+                    role="tab"
+                    disabled={s.busy || !!s.unknownHash}
+                    aria-selected={side === i}
+                    className={side === i ? "is-on" : ""}
+                    onClick={() => {
+                      setSide(i);
+                      setPrice(undefined);
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
               <div className="s-grid-2">
                 <Input label="Size" value={size} set={setSize} unit="BTC" />
-                <Input
-                  label="Limit price"
-                  value={price}
-                  set={setPrice}
-                  unit="USD"
-                  hint={
-                    mark ? `Mark ${mark.toLocaleString("en-US")}` : undefined
-                  }
-                />
+                {orderKind === "limit" ? (
+                  <Input
+                    label="Limit price"
+                    value={price}
+                    set={setPrice}
+                    unit="USD"
+                    hint={
+                      mark ? `Mark ${mark.toLocaleString("en-US")}` : undefined
+                    }
+                  />
+                ) : (
+                  <Input
+                    label="Slippage"
+                    value={slippage}
+                    set={setSlippage}
+                    unit="%"
+                    hint="Maximum price movement · 0.01%–5%"
+                  />
+                )}
               </div>
               <div className="s-chips" aria-label="Leverage">
                 <span>Leverage</span>
@@ -416,18 +566,36 @@ export default function App() {
                 </button>
               ) : (
                 <button
-                  className={`s-btn is-primary is-wide ${side === 1 || side === 2 ? "t-sell-action" : "t-buy-action"}`}
-                  disabled={!ready || !snapshot?.accountId}
-                  onClick={() => s.actions.trade(side, size, price, lev)}
+                  className={`s-btn is-primary is-wide ${side === 1 ? "t-sell-action" : "t-buy-action"}`}
+                  disabled={
+                    !ready ||
+                    !snapshot?.accountId ||
+                    (orderKind === "limit" && !snapshot?.orderTypesVersion)
+                  }
+                  onClick={() =>
+                    s.actions.trade(side, size, price, lev, orderKind, slippage)
+                  }
                 >
                   Review order
                 </button>
               )}
+              {account &&
+                orderKind === "limit" &&
+                !snapshot?.orderTypesVersion && (
+                  <p className="s-footnote">
+                    Limit orders are not enabled for this trading account yet.
+                  </p>
+                )}
               {account && (
                 <details className="s-disclose">
                   <summary>
                     Trading balance · {ausd(snapshot?.freeTrading)} AUSD free
                   </summary>
+                  {!!snapshot?.lockedTrading && (
+                    <p className="s-footnote">
+                      {ausd(snapshot.lockedTrading)} AUSD locked by open orders.
+                    </p>
+                  )}
                   <Input
                     label={snapshot?.accountId ? "Amount" : "Opening deposit"}
                     value={trading}
@@ -471,8 +639,11 @@ export default function App() {
                 </details>
               )}
               <p className="s-footnote">
-                Any trade ends current protection. You re-arm it for the new
-                position in one tap.
+                {orderKind === "market"
+                  ? "Executes immediately within your slippage limit, in full or not at all. "
+                  : "Unfilled size stays open at your limit price until filled or cancelled. "}
+                Any trade ends current protection. You can re-arm after open
+                orders are cleared.
               </p>
             </Card>
           </div>
@@ -600,8 +771,9 @@ export default function App() {
                     Setsuna may add up to <b>{budget} AUSD</b>. It steps in when
                     margin falls to <b>{pct(stepIn[mode].trigger)}</b> above
                     maintenance and rebuilds it to{" "}
-                    <b>{pct(stepIn[mode].target)}</b>. You pay the keeper fee
-                    only when it acts.
+                    <b>{pct(stepIn[mode].target)}</b>. Fees apply only when it
+                    acts: the keeper fee plus a fixed 1% Setsuna fee on the
+                    margin added, both inside your budget.
                   </p>
 
                   <button

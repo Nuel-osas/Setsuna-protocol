@@ -12,6 +12,7 @@ import {
   encodeFunctionData,
   decodeEventLog,
   erc20Abi,
+  formatUnits,
   type Abi,
   type Address,
   type Hex,
@@ -26,6 +27,11 @@ import {
 import { tradeOutcome, tradeDescription } from "@/lib/setsuna/trading-receipt";
 import { amount, ausd, message, shortAddress } from "@/lib/setsuna/format";
 import type { Snapshot } from "@/lib/setsuna/types";
+import {
+  marketPriceBound,
+  slippageBasisPoints,
+  type OrderKind,
+} from "@/lib/setsuna/order-types";
 
 export type Review = {
   title: string;
@@ -419,10 +425,44 @@ export function useSetsuna() {
         );
       }),
 
-    trade: (side: number, size: string, price: string, leverage: string) =>
+    trade: (
+      side: number,
+      size: string,
+      price: string,
+      leverage: string,
+      kind: OrderKind = "fok",
+      slippage = "0.5",
+    ) =>
       guard(() => {
         if (!account || !market || !d) return;
-        const pricePNS = amount(price, Number(market.priceDecimals));
+        if (kind === "limit" && !snapshot?.orderTypesVersion)
+          throw new Error(
+            "This trading account needs the new order-enabled deployment for limit orders.",
+          );
+        const buying = side === 0 || side === 3;
+        const bookPrice =
+          (market.basePricePNS ?? BigInt(0)) +
+          ((buying ? market.minAskPriceONS : market.maxBidPriceONS) ??
+            BigInt(0));
+        if (
+          kind === "market" &&
+          (!snapshot?.readAt || Date.now() - snapshot.readAt > 30_000)
+        )
+          throw new Error(
+            "Market quote is stale. Refresh before placing an order.",
+          );
+        const slippageBps =
+          kind === "market" ? slippageBasisPoints(slippage) : 50;
+        const pricePNS =
+          kind === "market"
+            ? marketPriceBound(
+                bookPrice > BigInt(0) ? bookPrice : market.markPNS,
+                buying,
+                slippageBps,
+              )
+            : amount(price, Number(market.priceDecimals));
+        const reviewPrice = formatUnits(pricePNS, Number(market.priceDecimals));
+        const expiresAt = Date.now() + 30_000;
         const lotLNS = amount(size, Number(market.lotDecimals));
         const leverageHdths = amount(leverage, 2);
         if (![0, 1, 2, 3].includes(side))
@@ -439,7 +479,9 @@ export function useSetsuna() {
           throw new Error("This preview limits leverage to 15×.");
         ask(
           "Place order",
-          "Fill-or-kill: it fills in full or not at all. Any trade ends current protection; re-arm for the new position.",
+          kind === "limit"
+            ? "Fills at your limit or better; any remainder stays open until filled or cancelled. Protection stays off while orders are open."
+            : "Fills immediately within your price bound, in full or not at all. Any trade ends current protection; re-arm for the new position.",
           [
             [
               "Order",
@@ -451,10 +493,28 @@ export function useSetsuna() {
               ][side],
             ],
             ["Size", `${size} BTC`],
-            ["Limit price", `$${price}`],
+            [
+              "Order type",
+              kind === "limit"
+                ? "Limit · good till cancelled"
+                : kind === "market"
+                  ? "Market"
+                  : "Immediate limit",
+            ],
+            [
+              kind === "market" ? "Worst execution price" : "Limit price",
+              `$${reviewPrice}`,
+            ],
+            ...(kind === "market"
+              ? ([["Slippage", `${slippageBps / 100}%`]] as [string, string][])
+              : []),
             ["Leverage", `${leverage}×`],
           ],
           async () => {
+            if (kind === "market" && Date.now() > expiresAt)
+              throw new Error(
+                "Market quote expired. Close this review and request a fresh order.",
+              );
             const hash = await send(account, accountAbi, "executeOrder", [
               {
                 orderDescId: BigInt(0),
@@ -465,7 +525,7 @@ export function useSetsuna() {
                 lotLNS,
                 expiryBlock: BigInt(0),
                 postOnly: false,
-                fillOrKill: true,
+                fillOrKill: kind !== "limit",
                 immediateOrCancel: false,
                 maxMatches: BigInt(30),
                 leverageHdths,
@@ -474,6 +534,8 @@ export function useSetsuna() {
                 maxNegPnlCollatBPS: BigInt(100),
               },
             ]);
+            if (kind === "limit")
+              return "Limit order transaction confirmed. Check Open orders and your position for resting size and fills.";
             try {
               const receipt = await clientFor(d).getTransactionReceipt({
                 hash,
@@ -489,6 +551,23 @@ export function useSetsuna() {
             } catch {
               return "Order confirmed. Fill details are unavailable; check your position before trading again.";
             }
+          },
+        );
+      }),
+
+    cancelOrder: (id: number) =>
+      guard(() => {
+        if (!account || !snapshot?.openOrders?.some((o) => o.orderId === id))
+          throw new Error(
+            "This order is no longer open. Refresh before continuing.",
+          );
+        ask(
+          "Cancel order",
+          "Cancels the unfilled remainder. Released collateral stays in your Perps trading balance.",
+          [["Order", `#${id}`]],
+          async () => {
+            await send(account, accountAbi, "cancelOrder", [BigInt(id)]);
+            return "Order cancelled. Unfilled collateral is available in your trading balance.";
           },
         );
       }),

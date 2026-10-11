@@ -49,6 +49,7 @@ async function validateDemo(origin: string, raw: string, rpc: string) {
     "function perpId() view returns(uint256)",
     "function market() view returns(address)",
     "function usdc() view returns(address)",
+    "function margin() view returns(address)",
   ]);
   const m = d.earnMON!,
     s = d.spot!;
@@ -101,6 +102,19 @@ async function validateDemo(origin: string, raw: string, rpc: string) {
     matches.some(([a, b]) => a.toLowerCase() !== b.toLowerCase())
   )
     throw new Error("Demo contract links do not match");
+  if (s.ordersFactory) {
+    const [orderMarket, orderToken, orderMargin] = await Promise.all([
+      c.readContract({ address: s.ordersFactory, abi, functionName: "market" }),
+      c.readContract({ address: s.ordersFactory, abi, functionName: "usdc" }),
+      c.readContract({ address: s.ordersFactory, abi, functionName: "margin" }),
+    ]);
+    if (
+      orderMarket.toLowerCase() !== venues.market.toLowerCase() ||
+      orderToken.toLowerCase() !== venues.usdc.toLowerCase() ||
+      orderMargin.toLowerCase() !== "0x2a68ba1833cdf93fa9da1eebd7f46242ad8e90c5"
+    )
+      throw new Error("Spot order factory links do not match");
+  }
   if (d.earnUSDC) await validateUSDCEarn(c, d.earnUSDC);
   return d;
 }

@@ -16,9 +16,11 @@ import type {
   Quote,
   Position,
   Market,
+  PerpsOrder,
 } from "./types";
 import { clientFor } from "@/components/setsuna/WalletProvider";
 import { ausd } from "./format";
+import { perpsBalances } from "./order-types";
 import {
   tradeOutcome,
   tradeDescription,
@@ -64,6 +66,7 @@ export async function readSnapshot(
     owner,
   ])) as bigint;
   const base: Snapshot = {
+    readAt: Date.now(),
     walletBalance,
     reserve: BigInt(0),
     accountId: BigInt(0),
@@ -112,6 +115,22 @@ export async function readSnapshot(
       "Account configuration differs from this deployment. Actions are unavailable.",
     );
   Object.assign(base, { account, reserve, accountId, policyId, quote });
+  base.orderTypesVersion = (await read(
+    account,
+    accountAbi,
+    "orderTypesVersion",
+  ).catch(() => BigInt(0))) as bigint;
+  if (base.orderTypesVersion > BigInt(0)) {
+    const orders = (await read(
+      account,
+      accountAbi,
+      "getOpenOrders",
+    )) as PerpsOrder[];
+    base.openOrders = orders.map((order) => ({
+      ...order,
+      lotLNS: BigInt(order.lotLNS),
+    }));
+  }
   if (base.policyId > BigInt(0))
     base.policy = (await read(account, accountAbi, "getPolicy", [
       base.policyId,
@@ -127,7 +146,14 @@ export async function readSnapshot(
     ]);
     base.position = (position as [Position, bigint, boolean])[0];
     base.market = market as Market;
-    base.freeTrading = (info as { balanceCNS: bigint }).balanceCNS;
+    const { balanceCNS, lockedBalanceCNS } = info as {
+      balanceCNS: bigint;
+      lockedBalanceCNS: bigint;
+    };
+    const balances = perpsBalances(balanceCNS, lockedBalanceCNS);
+    base.tradingBalance = balances.balance;
+    base.lockedTrading = balances.locked;
+    base.freeTrading = balances.free;
   }
   try {
     const start = d.startBlock
@@ -164,6 +190,8 @@ export async function readSnapshot(
             ToppedUp: "Margin top-up executed",
             Refused: "Top-up refused",
             OrderSubmitted: "Order submitted",
+            LimitOrderPlaced: "Limit order placed",
+            LimitOrderCancelled: "Limit order cancelled",
           };
           let detail =
             args.amountCNS !== undefined
@@ -175,6 +203,11 @@ export async function readSnapshot(
             detail += ` + ${ausd(args.feeCNS as bigint, 6)} AUSD fee`;
           if (decoded.eventName === "Refused")
             detail = statuses[Number(args.reason)] ?? "Policy check failed";
+          if (
+            decoded.eventName === "LimitOrderPlaced" ||
+            decoded.eventName === "LimitOrderCancelled"
+          )
+            detail = `Order #${args.orderId}`;
           if (decoded.eventName === "OrderSubmitted")
             detail = `Requested ${formatUnits(args.lotLNS as bigint, Number(base.market?.lotDecimals ?? 5))} BTC · fill not implied`;
           return [
