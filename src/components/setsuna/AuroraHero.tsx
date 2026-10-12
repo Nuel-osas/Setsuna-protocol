@@ -2,7 +2,7 @@
 import TokenIcon from "./TokenIcon";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import FlowSculpture from "./FlowSculpture";
+import HeroRails from "./HeroRails";
 
 export default function AuroraHero() {
   const root = useRef<HTMLElement>(null);
@@ -73,21 +73,7 @@ export default function AuroraHero() {
           </div>
         </div>
         <div className="m-hero-art">
-          <div className="m-orbit m-orbit-one" />
-          <div className="m-orbit m-orbit-two" />
-          <FlowSculpture />
-          <span className="m-asset-tag m-asset-mon">
-            <i className="m-token m-token-mon">
-              <TokenIcon asset="MON" size={20} />
-            </i>{" "}
-            MON <span>→ setsMON</span>
-          </span>
-          <span className="m-asset-tag m-asset-usdc">
-            <i className="m-token m-token-usdc">
-              <TokenIcon asset="USDC" size={28} />
-            </i>{" "}
-            USDC <span>→ setsUSDC</span>
-          </span>
+          <HeroRails />
         </div>
         <div className="m-hero-bottom">
           <span>

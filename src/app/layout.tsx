@@ -9,6 +9,7 @@ import "@/styles/portfolio.css";
 import "@/styles/earn-vaults.css";
 import "@/styles/bucket-theme.css";
 import "@/styles/logos.css";
+import "@/styles/motion.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";

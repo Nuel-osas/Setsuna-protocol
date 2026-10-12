@@ -66,8 +66,9 @@ export default function SiteFooter() {
         <span>© 2026 Setsuna · Built on Monad</span>
         <span>Live on Monad mainnet. Earn is a capped beta. Not audited.</span>
       </div>
-      <div className="m-footer-word" aria-hidden="true">
-        setsuna
+      <div className="m-footer-word m-bigword" aria-hidden="true">
+        <div className="m-bigword-field" />
+        <span className="m-bigword-text">setsuna</span>
       </div>
     </footer>
   );

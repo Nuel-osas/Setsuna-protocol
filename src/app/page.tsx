@@ -4,7 +4,7 @@ import VaultFlow from "@/components/setsuna/VaultFlow";
 import FlowSculpture from "@/components/setsuna/FlowSculpture";
 import { Mark } from "@/components/setsuna/Brand";
 import TokenIcon from "@/components/setsuna/TokenIcon";
-import { ProtocolLabel } from "@/components/setsuna/ProtocolIcon";
+import VenueTicker from "@/components/setsuna/VenueTicker";
 
 const questions = [
   [
@@ -33,26 +33,7 @@ export default function Home() {
   return (
     <main id="main" className="m-home">
       <AuroraHero />
-      <section
-        className="m-venues"
-        aria-label="Connected lending and trading venues"
-      >
-        <span>Built around Monad’s markets</span>
-        <div>
-          {[
-            "Aave",
-            "Morpho",
-            "Euler",
-            "Neverland",
-            "Curvance",
-            "Kuru",
-            "Perpl",
-          ].map((name) => (
-            <ProtocolLabel key={name} name={name} size={28} />
-          ))}
-        </div>
-        <p>Protocol integrations · independent venues</p>
-      </section>
+      <VenueTicker />
 
       <section id="flow" className="m-intro m-section">
         <span className="m-section-label">
@@ -321,7 +302,7 @@ export default function Home() {
         <Link className="m-button m-button-light" href="/app/">
           Find your flow <span aria-hidden="true">↗</span>
         </Link>
-        <p>Explore Setsuna’s development preview.</p>
+        <p>Live on Monad mainnet · capped beta.</p>
       </section>
     </main>
   );
