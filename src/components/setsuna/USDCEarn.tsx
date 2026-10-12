@@ -7,6 +7,7 @@ import { usdcVaultAbi, readUSDC, type USDCSnapshot } from "@/lib/setsuna/usdc";
 import { clientFor, useWallet } from "./WalletProvider";
 import EarnForm, { type EarnControls } from "./EarnForm";
 import { message } from "@/lib/setsuna/format";
+import { readEarlier, type EarlierPosition } from "@/lib/setsuna/retired-earn";
 import EarnVaultLayout from "./EarnVaultLayout";
 import EarnDecision from "./EarnDecision";
 import { earnDecision } from "@/lib/setsuna/earn-decision";
@@ -44,6 +45,7 @@ export default function USDCEarn(controls: EarnControls) {
   useNoticeToast(notice);
   const [amount, setAmount] = useState("");
   const [exitShares, setExitShares] = useState("");
+  const [earlier, setEarlier] = useState<EarlierPosition>();
   const [busy, setBusy] = useState("");
   const [pending, setPending] = useState<Hex>();
   const generation = useRef(0);
@@ -63,10 +65,14 @@ export default function USDCEarn(controls: EarnControls) {
       if (actionInFlight.current) invalidateEarnSummary(d, "USDC");
       // Public figures finish before the larger wallet/liquidity/history read starts.
       await readEarnSummary(d, "USDC");
-      const next = await readUSDC(d, address);
+      const [next, old] = await Promise.all([
+        readUSDC(d, address),
+        readEarlier(d, "USDC", address).catch(() => undefined),
+      ]);
       if (generation.current !== current || read !== readSequence.current)
         return;
       setSnapshot(next);
+      setEarlier(old);
       setReadError("");
     } catch {
       if (generation.current === current && read === readSequence.current) {
@@ -84,6 +90,7 @@ export default function USDCEarn(controls: EarnControls) {
   useEffect(() => {
     generation.current++;
     setSnapshot(undefined);
+    setEarlier(undefined);
     setError("");
     setNotice("");
     setPending(undefined);
@@ -127,11 +134,12 @@ export default function USDCEarn(controls: EarnControls) {
     depositAssets <= snapshot.maxDeposit &&
     snapshot.walletBalance !== undefined &&
     depositAssets <= snapshot.walletBalance;
+  // A position left in the retired vault is withdrawn first, automatically.
   const canRedeem =
     ready &&
-    redeemShares > BigInt(0) &&
     !!snapshot &&
-    redeemShares <= snapshot.maxRedeem;
+    redeemShares <= snapshot.maxRedeem &&
+    (redeemShares > BigInt(0) || !!earlier);
 
   async function act(
     action: "deposit" | "withdraw" | "observeRates" | "rebalance",
@@ -195,6 +203,43 @@ export default function USDCEarn(controls: EarnControls) {
           "Deposit confirmed. Your USDC is represented by setsUSDC shares.",
         );
       } else if (action === "withdraw") {
+        const old = await readEarlier(d, "USDC", address);
+        if (old) {
+          // The retired vault is emptied first.
+          const earlierQuote = await c.readContract({
+            address: old.vault,
+            abi: usdcVaultAbi,
+            functionName: "previewRedeem",
+            args: [old.shares],
+          });
+          unchanged();
+          setBusy("Confirm earlier USDC withdrawal…");
+          await wallet.send(
+            old.vault,
+            encodeFunctionData({
+              abi: usdcVaultAbi,
+              functionName: "redeemWithMinAssets",
+              args: [
+                old.shares,
+                address,
+                address,
+                earlierQuote - earlierQuote / BigInt(1000),
+                block.timestamp + BigInt(600),
+              ],
+            }),
+            track,
+          );
+          track();
+          if (redeemShares === BigInt(0)) {
+            setNotice(
+              "Withdrawal confirmed. USDC from your earlier deposit has returned to your wallet.",
+            );
+            await refresh();
+            return;
+          }
+          setBusy("Confirm USDC withdrawal…");
+          block = await c.getBlock();
+        }
         const available = await c.readContract({
           address: m.vault,
           abi: usdcVaultAbi,
@@ -344,6 +389,7 @@ export default function USDCEarn(controls: EarnControls) {
           pending={!!pending}
           canDeposit={canDeposit}
           canRedeem={canRedeem}
+          earlier={earlier?.assets}
           onSubmit={(action) => void act(action)}
         />
       }

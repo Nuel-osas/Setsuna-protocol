@@ -12,6 +12,7 @@ import {
 import { clientFor, useWallet } from "./WalletProvider";
 import EarnForm, { type EarnControls } from "./EarnForm";
 import { message } from "@/lib/setsuna/format";
+import { readEarlier, type EarlierPosition } from "@/lib/setsuna/retired-earn";
 import EarnVaultLayout from "./EarnVaultLayout";
 import EarnDecision from "./EarnDecision";
 import { earnDecision } from "@/lib/setsuna/earn-decision";
@@ -41,6 +42,7 @@ export default function MONEarn(controls: EarnControls) {
   useNoticeToast(notice);
   const [amount, setAmount] = useState("");
   const [exitShares, setExitShares] = useState("");
+  const [earlier, setEarlier] = useState<EarlierPosition>();
   const [busy, setBusy] = useState("");
   const [pending, setPending] = useState<Hex>();
   const generation = useRef(0);
@@ -60,10 +62,14 @@ export default function MONEarn(controls: EarnControls) {
       if (actionInFlight.current) invalidateEarnSummary(d, "MON");
       // Public figures finish before the larger wallet/liquidity/history read starts.
       await readEarnSummary(d, "MON");
-      const next = await readMON(d, address);
+      const [next, old] = await Promise.all([
+        readMON(d, address),
+        readEarlier(d, "MON", address).catch(() => undefined),
+      ]);
       if (generation.current !== current || read !== readSequence.current)
         return;
       setSnapshot(next);
+      setEarlier(old);
       setReadError("");
     } catch {
       if (generation.current === current && read === readSequence.current) {
@@ -81,6 +87,7 @@ export default function MONEarn(controls: EarnControls) {
   useEffect(() => {
     generation.current++;
     setSnapshot(undefined);
+    setEarlier(undefined);
     setError("");
     setNotice("");
     setPending(undefined);
@@ -125,11 +132,12 @@ export default function MONEarn(controls: EarnControls) {
     depositAssets <= snapshot.maxDeposit &&
     snapshot.walletBalance !== undefined &&
     depositAssets + gasReserve <= snapshot.walletBalance;
+  // A position left in the retired vault is withdrawn first, automatically.
   const canRedeem =
     ready &&
-    redeemShares > BigInt(0) &&
     !!snapshot &&
-    redeemShares <= snapshot.maxRedeem;
+    redeemShares <= snapshot.maxRedeem &&
+    (redeemShares > BigInt(0) || !!earlier);
 
   async function act(
     action: "deposit" | "withdraw" | "observeRates" | "rebalance",
@@ -181,8 +189,57 @@ export default function MONEarn(controls: EarnControls) {
           "Deposit confirmed. Your MON is represented by setsMON shares.",
         );
       } else if (action === "withdraw") {
+        const old = await readEarlier(d, "MON", address);
+        if (old?.gateway) {
+          // The retired vault is emptied first, through its own gateway.
+          unchanged();
+          setBusy("Approving earlier setsMON…");
+          await wallet.send(
+            old.vault,
+            encodeFunctionData({
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [old.gateway, old.shares],
+            }),
+            track,
+          );
+          track();
+          unchanged();
+          setBusy("Confirm earlier MON withdrawal…");
+          block = await c.getBlock();
+          const earlierQuote = await c.readContract({
+            address: old.vault,
+            abi: monVaultAbi,
+            functionName: "previewRedeem",
+            args: [old.shares],
+          });
+          await wallet.send(
+            old.gateway,
+            encodeFunctionData({
+              abi: monGatewayAbi,
+              functionName: "redeemMON",
+              args: [
+                old.shares,
+                address,
+                earlierQuote - earlierQuote / BigInt(1000),
+                block.timestamp + BigInt(600),
+              ],
+            }),
+            track,
+          );
+          track();
+        }
+        if (redeemShares === BigInt(0)) {
+          if (!old) throw new Error("Select shares to withdraw.");
+          setNotice(
+            "Withdrawal confirmed. MON from your earlier deposit has returned to your wallet.",
+          );
+          await refresh();
+          return;
+        }
         // Only the selected shares are approved. The gateway always redeems for msg.sender.
         unchanged();
+        setBusy("Approving shares…");
         await wallet.send(
           m.vault,
           encodeFunctionData({
@@ -338,6 +395,7 @@ export default function MONEarn(controls: EarnControls) {
           pending={!!pending}
           canDeposit={canDeposit}
           canRedeem={canRedeem}
+          earlier={earlier?.assets}
           onSubmit={(action) => void act(action)}
         />
       }

@@ -282,6 +282,8 @@ type Props = EarnControls & {
   pending: boolean;
   canDeposit: boolean;
   canRedeem: boolean;
+  /** Assets still in the retired vault, withdrawn first on any withdrawal. */
+  earlier?: bigint;
   onSubmit: (action: EarnMode) => void;
 };
 
@@ -340,7 +342,10 @@ export default function EarnForm(p: Props) {
   const maximum = withdrawing ? (p.maxRedeem ?? BigInt(0)) : maxDeposit;
   const validQuote =
     p.healthy && quoted?.value !== undefined && quoted.value > BigInt(0);
-  const canSubmit = (withdrawing ? p.canRedeem : p.canDeposit) && validQuote;
+  const earlier = withdrawing ? (p.earlier ?? BigInt(0)) : BigInt(0);
+  const canSubmit = withdrawing
+    ? p.canRedeem && (units === BigInt(0) ? earlier > BigInt(0) : validQuote)
+    : p.canDeposit && validQuote;
   const reason = locked
     ? p.busy || "Check your submitted transaction before continuing."
     : !p.vault
@@ -466,13 +471,15 @@ export default function EarnForm(p: Props) {
           <div className="s-earn-amount-row">
             <output aria-label="Estimated amount received" aria-live="polite">
               {units === BigInt(0)
-                ? "0.00"
+                ? earlier > BigInt(0)
+                  ? earnAmount(earlier, decimals, 6)
+                  : "0.00"
                 : quoted?.failed || !p.healthy
                   ? "—"
                   : quoted?.value === undefined
                     ? "…"
                     : earnAmount(
-                        quoted.value,
+                        quoted.value + earlier,
                         withdrawing ? decimals : shareDecimals,
                         6,
                       )}
@@ -483,9 +490,11 @@ export default function EarnForm(p: Props) {
             </span>
           </div>
           <p className="s-earn-balance">
-            {withdrawing
-              ? "Returned to your connected wallet"
-              : "Your share of the vault, including interest or losses"}
+            {earlier > BigInt(0)
+              ? `Includes ${earnAmount(earlier, decimals, 4)} ${asset} from your earlier deposit, withdrawn first`
+              : withdrawing
+                ? "Returned to your connected wallet"
+                : "Your share of the vault, including interest or losses"}
           </p>
         </div>
         <dl className="s-earn-form-facts">
