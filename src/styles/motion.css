@@ -375,3 +375,32 @@ body .s-footer {
   padding-top: 24px;
   border-top: 0;
 }
+.m-footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 24px;
+  padding: 0 4px 28px;
+  color: var(--b-muted);
+  font-size: 12px;
+}
+.s-footer .m-footer-legal nav {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+.s-footer .m-footer-legal a {
+  margin: 0;
+  color: var(--b-secondary);
+  font-size: 12px;
+}
+.m-footer-legal a:hover {
+  color: var(--b-text);
+}
+@media (max-width: 700px) {
+  .m-footer-legal {
+    flex-direction: column;
+    text-align: center;
+  }
+}
