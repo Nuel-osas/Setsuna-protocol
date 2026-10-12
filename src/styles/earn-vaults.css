@@ -1091,3 +1091,102 @@
 .e-controls code {
   overflow-wrap: anywhere;
 }
+
+/* Deposit from another chain (Aurora Intents). */
+.e-vault .s-anychain {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 1px solid var(--e-line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.s-anychain > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+.s-anychain > summary::-webkit-details-marker {
+  display: none;
+}
+/* setsuna.css hides spans inside every summary; this one carries the title. */
+.s-anychain > summary > span {
+  display: block;
+}
+.s-anychain > summary small {
+  display: block;
+  margin-top: 2px;
+  color: var(--b-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.s-anychain-body {
+  display: grid;
+  gap: 12px;
+  padding: 0 20px 20px;
+}
+.s-anychain-body label {
+  display: grid;
+  gap: 6px;
+  color: var(--b-muted);
+  font-size: 12px;
+}
+.s-anychain-body select,
+.s-anychain-body input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--e-line);
+  border-radius: 10px;
+  background: var(--b-surface);
+  color: var(--b-text);
+  font: inherit;
+  font-size: 14px;
+}
+.s-anychain-quote,
+.s-anychain-note,
+.s-anychain-step {
+  margin: 0;
+  color: var(--b-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.s-anychain > .s-anychain-note {
+  padding: 0 20px 20px;
+}
+.s-anychain-address {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--e-line);
+  border-radius: 10px;
+  background: var(--b-surface);
+  color: var(--b-text);
+  text-align: left;
+  cursor: pointer;
+}
+.s-anychain-address code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.s-anychain-address span {
+  flex: none;
+  color: var(--b-accent);
+  font-size: 12px;
+}
+.s-anychain-status {
+  margin: 0;
+  color: var(--b-accent);
+  font-size: 13px;
+}
+.s-anychain .s-error {
+  margin: 0 20px 16px;
+}

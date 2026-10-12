@@ -10,6 +10,7 @@ import {
   type MONSnapshot,
 } from "@/lib/setsuna/mon";
 import { clientFor, useWallet } from "./WalletProvider";
+import AnyChainDeposit from "./AnyChainDeposit";
 import EarnForm, { type EarnControls } from "./EarnForm";
 import { message } from "@/lib/setsuna/format";
 import { readEarlier, type EarlierPosition } from "@/lib/setsuna/retired-earn";
@@ -372,32 +373,44 @@ export default function MONEarn(controls: EarnControls) {
         </>
       }
       form={
-        <EarnForm
-          {...controls}
-          asset="MON"
-          vault={m?.vault}
-          amount={amount}
-          setAmount={setAmount}
-          exitShares={exitShares}
-          setExitShares={setExitShares}
-          depositAssets={depositAssets}
-          redeemShares={redeemShares}
-          walletBalance={snapshot?.walletBalance}
-          shares={snapshot?.shares}
-          maxDeposit={snapshot?.maxDeposit}
-          maxRedeem={snapshot?.maxRedeem}
-          available={snapshot?.available}
-          shareValue={snapshot?.shareValue}
-          blendedApr={snapshot?.blendedApr}
-          block={snapshot?.block}
-          healthy={!!snapshot?.healthy && !readError}
-          busy={busy}
-          pending={!!pending}
-          canDeposit={canDeposit}
-          canRedeem={canRedeem}
-          earlier={earlier?.assets}
-          onSubmit={(action) => void act(action)}
-        />
+        <>
+          <EarnForm
+            {...controls}
+            asset="MON"
+            vault={m?.vault}
+            amount={amount}
+            setAmount={setAmount}
+            exitShares={exitShares}
+            setExitShares={setExitShares}
+            depositAssets={depositAssets}
+            redeemShares={redeemShares}
+            walletBalance={snapshot?.walletBalance}
+            shares={snapshot?.shares}
+            maxDeposit={snapshot?.maxDeposit}
+            maxRedeem={snapshot?.maxRedeem}
+            available={snapshot?.available}
+            shareValue={snapshot?.shareValue}
+            blendedApr={snapshot?.blendedApr}
+            block={snapshot?.block}
+            healthy={!!snapshot?.healthy && !readError}
+            busy={busy}
+            pending={!!pending}
+            canDeposit={canDeposit}
+            canRedeem={canRedeem}
+            earlier={earlier?.assets}
+            onSubmit={(action) => void act(action)}
+          />
+          {controls.mode === "deposit" && (
+            <AnyChainDeposit
+              asset="MON"
+              recipient={address}
+              onArrived={(arrived) => {
+                setAmount(arrived);
+                void refresh();
+              }}
+            />
+          )}
+        </>
       }
       risk={
         <p className="s-footnote">
