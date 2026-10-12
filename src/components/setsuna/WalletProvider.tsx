@@ -22,6 +22,7 @@ import {
 } from "viem";
 import type { Secp256k1SigningSession } from "@category-labs/mera";
 import { useLogin, usePrivy, useWallets } from "@privy-io/react-auth";
+import { toast } from "./Toaster";
 import type { Deployment } from "@/lib/setsuna/types";
 import { message, shortAddress } from "@/lib/setsuna/format";
 import Brand from "./Brand";
@@ -35,7 +36,14 @@ type Provider = EIP1193Provider & {
     listener: (...args: unknown[]) => void,
   ) => void;
 };
-type Choice = { name: string; uuid: string; icon?: string; provider: Provider };
+type Choice = {
+  name: string;
+  uuid: string;
+  icon?: string;
+  provider: Provider;
+  /** Known account of an embedded wallet; skips the account request. */
+  address?: Address;
+};
 
 function WalletIcon({ name, icon }: { name?: string; icon?: string }) {
   const [failed, setFailed] = useState<string>();
@@ -123,6 +131,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const { wallets: privyWallets } = useWallets();
   const [privyPending, setPrivyPending] = useState(false);
   const viaPrivy = useRef(false);
+  const privyAuthenticated = useRef(privy.authenticated);
+  privyAuthenticated.current = privy.authenticated;
   const privyLogout = useRef(privy.logout);
   privyLogout.current = privy.logout;
   const { login: privyLogin } = useLogin({
@@ -130,7 +140,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     onComplete: ({ wasAlreadyAuthenticated }) => {
       if (!wasAlreadyAuthenticated) setPrivyPending(true);
     },
-    onError: () => setPrivyPending(false),
+    // Privy reports closing its modal as an error even after a login succeeds.
+    onError: () => {
+      if (!privyAuthenticated.current) setPrivyPending(false);
+    },
   });
   const disconnect = useCallback(() => {
     if (viaPrivy.current) {
@@ -217,18 +230,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!embedded) return;
     setPrivyPending(false);
     void (async () => {
-      try {
-        const eip1193 = (await embedded.getEthereumProvider()) as Provider;
-        const connecting = connect("wallet", {
-          name: "Email · Privy",
-          uuid: "privy",
-          provider: eip1193,
-        });
-        viaPrivy.current = true;
-        await connecting;
-      } catch (e) {
-        setError(message(e));
+      // A just-created embedded wallet can take a moment to answer.
+      let failure: unknown;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (attempt) await new Promise((r) => setTimeout(r, 1000));
+        try {
+          const eip1193 = (await embedded.getEthereumProvider()) as Provider;
+          const ok = await connect("wallet", {
+            name: "Email · Privy",
+            uuid: "privy",
+            provider: eip1193,
+            address: getAddress(embedded.address),
+          });
+          if (ok) {
+            viaPrivy.current = true;
+            return;
+          }
+        } catch (e) {
+          failure = e;
+        }
       }
+      toast(
+        `Signed in, but the wallet did not connect${failure ? `: ${message(failure)}` : ""}. Press Connect to retry.`,
+      );
     })();
     // connect is recreated each render; this runs once per completed login.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -251,7 +275,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     mode: "create" | "recover" | "wallet",
     choice?: Choice,
   ) {
-    if (!deployment) return;
+    if (!deployment) return false;
     setBusy(true);
     setError("");
     disconnect();
@@ -310,10 +334,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           chain,
           transport: custom(choice.provider),
         });
-        const accounts = await wallet.requestAddresses();
-        if (!accounts[0]) throw new Error("No account was shared.");
-        nextAddress = getAddress(accounts[0]);
-        nextChain = await wallet.getChainId();
+        if (choice.address) {
+          // Embedded wallets sign for whichever chain each request names.
+          nextAddress = choice.address;
+        } else {
+          const accounts = await wallet.requestAddresses();
+          if (!accounts[0]) throw new Error("No account was shared.");
+          nextAddress = getAddress(accounts[0]);
+          nextChain = await wallet.getChainId();
+        }
         // Embedded wallets re-announce the same account once connected; only a
         // real switch (or a revoked account) ends the session.
         const connected = nextAddress;
@@ -332,7 +361,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
       if (generation.current !== current) {
         pendingSession?.end();
-        return;
+        return false;
       }
       session.current = pendingSession ?? null;
       client.current = wallet;
@@ -340,6 +369,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setChainId(nextChain);
       setKind(mode === "wallet" ? "wallet" : "mera");
       setOpen(false);
+      return true;
     } catch (e) {
       pendingSession?.end();
       if (generation.current === current) {
@@ -349,6 +379,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     } finally {
       setBusy(false);
     }
+    return false;
   }
   async function sendOn(
     target: Deployment,
