@@ -1,4 +1,25 @@
-/* Hero rails: holdings flow through Setsuna into Monad's markets. */
+/* Dot-field hero backdrop; the gradient shows until WebGL draws. */
+.m-hero .m-hero-frame {
+  background: radial-gradient(ellipse 60% 45% at 50% 95%, #0a1030, #050611 70%);
+}
+/* Sized to the viewport, not the frame: the frame narrows on scroll, and resizing
+   a WebGL canvas every scroll frame clears it and makes the dots jump. */
+.m-glass {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: -1;
+  display: block;
+  width: 100vw;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+/* Hero rails: holdings flow through Setsuna into Monad's markets.
+   Height tracks the room left under the hero copy (the frame is 920–1100px). */
+.m-hero .m-hero-art {
+  height: clamp(270px, calc(min(max(920px, 100svh), 1100px) - 650px), 400px);
+}
 .m-rails {
   position: absolute;
   inset: 0;
@@ -43,8 +64,7 @@
   padding: 8px 14px 8px 8px;
   border: 1px solid rgba(210, 225, 255, 0.12);
   border-radius: 14px;
-  background: rgba(14, 20, 36, 0.62);
-  backdrop-filter: blur(14px);
+  background: rgba(12, 16, 30, 0.9);
   color: #eef2ff;
   font-size: 14px;
   font-weight: 500;
@@ -209,56 +229,44 @@
   }
 }
 
-/* Oversized wordmark, lit by a drifting light field. */
+/* Oversized wordmark over a flowing wave shader. */
 .m-footer-word.m-bigword {
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  margin-top: 30px;
-  padding: 60px 0 0;
-  font-size: min(27vw, 420px);
+  margin: 36px 0 24px;
+  padding: 120px 0 0;
+  border-radius: 28px;
+  background: #060709;
+  font-size: min(25vw, 400px);
   line-height: 0.8;
-  color: inherit;
 }
-.m-bigword-field,
-.m-bigword-text {
-  background-image:
-    radial-gradient(38% 60% at 30% 70%, #e9edff, transparent 70%),
-    radial-gradient(40% 70% at 55% 80%, #2338ff, transparent 72%),
-    radial-gradient(35% 60% at 80% 60%, #8a6bff, transparent 70%),
-    radial-gradient(50% 80% at 10% 90%, #4d8dff, transparent 70%);
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-  animation: m-field 18s ease-in-out infinite alternate;
-}
-.m-bigword-field {
+.m-wordmark-glow {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.45;
-  filter: blur(80px);
-  mask-image: radial-gradient(
-    ellipse 55% 60% at 50% 62%,
-    #000 35%,
-    transparent 100%
-  );
+  background: #060709;
+}
+.m-bigword-word {
+  display: inline-grid;
+}
+.m-bigword-word > span {
+  grid-area: 1 / 1;
+  padding: 0 0.04em 0.02em 0;
+}
+/* Blend on a wrapper: Chrome ignores it on a background-clipped text span. */
+.m-bigword-lit {
+  mix-blend-mode: color-dodge;
 }
 .m-bigword-text {
-  display: inline-block;
-  padding: 0 0.04em 0.02em 0;
-  color: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.12),
+    rgba(225, 231, 255, 0.56)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-color: rgba(255, 255, 255, 0.05);
-}
-@keyframes m-field {
-  from {
-    background-position: 0% 0%;
-  }
-  to {
-    background-position: 100% 0%;
-  }
+  color: transparent;
 }
 
 @media (max-width: 760px) {
@@ -292,9 +300,7 @@
 @media (prefers-reduced-motion: reduce) {
   .m-rail-pulse,
   .m-rail-hub-card::before,
-  .m-venues-backdrop > i,
-  .m-bigword-field,
-  .m-bigword-text {
+  .m-venues-backdrop > i {
     animation: none;
   }
   .m-ticker-track {
@@ -306,4 +312,66 @@
   .m-ticker-group[aria-hidden="true"] {
     display: none;
   }
+}
+
+/* Marketing header: no bar. Logo and action float; links sit in a small pill. */
+body .s-header:not(.is-app) {
+  height: 76px;
+  padding: 0 28px;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 0;
+  box-shadow: none;
+  transition: background 0.3s ease;
+}
+/* Off the hero, a soft fade keeps it legible over content without a hard edge. */
+body .s-header:not(.is-app):not(.is-over) {
+  background: linear-gradient(rgba(8, 10, 15, 0.92), rgba(8, 10, 15, 0));
+}
+body .s-header:not(.is-app) .s-btn.is-primary {
+  min-height: 38px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: #05060c;
+  font-weight: 500;
+}
+body .s-header:not(.is-app) .s-btn.is-primary:hover {
+  background: #e4e8ff;
+}
+@media (min-width: 961px) {
+  body .s-header:not(.is-app) > nav {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    background: rgba(14, 16, 26, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  body .s-header:not(.is-app) > nav a {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 450;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+  body .s-header:not(.is-app) > nav a:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  body .s-header:not(.is-app) > nav a[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* The footer is now just the wordmark panel. */
+body .s-footer {
+  padding-top: 24px;
+  border-top: 0;
 }

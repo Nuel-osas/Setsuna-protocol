@@ -1,34 +1,6 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Brand from "@/components/setsuna/Brand";
-
-const cols = [
-  [
-    "Explore",
-    [
-      ["/earn/", "Earn vaults"],
-      ["/trade/", "Trade"],
-      ["/portfolio/", "Portfolio"],
-      ["/app/", "Open app"],
-    ],
-  ],
-  [
-    "Resources",
-    [
-      ["/earn/#rates", "Live rates"],
-      ["/docs/", "Documentation"],
-      ["/faq/", "FAQ"],
-    ],
-  ],
-  [
-    "Legal",
-    [
-      ["/privacy-policy/", "Privacy"],
-      ["/terms-of-use/", "Preview terms"],
-    ],
-  ],
-] as const;
+import WordmarkGlow from "@/components/setsuna/WordmarkGlow";
 
 export default function SiteFooter() {
   const path = usePathname();
@@ -43,32 +15,13 @@ export default function SiteFooter() {
     return null;
   return (
     <footer className="s-footer">
-      <div className="s-footer-grid">
-        <div>
-          <Brand />
-          <p>
-            A calmer way to put your assets to work. Automated Earn vaults, Spot
-            and Perps on Monad.
-          </p>
-        </div>
-        {cols.map(([title, links]) => (
-          <nav key={title} aria-label={title}>
-            <h4>{title}</h4>
-            {links.map(([href, label]) => (
-              <Link key={href} href={href}>
-                {label}
-              </Link>
-            ))}
-          </nav>
-        ))}
-      </div>
-      <div className="s-footer-base">
-        <span>© 2026 Setsuna · Built on Monad</span>
-        <span>Live on Monad mainnet. Earn is a capped beta. Not audited.</span>
-      </div>
       <div className="m-footer-word m-bigword" aria-hidden="true">
-        <div className="m-bigword-field" />
-        <span className="m-bigword-text">setsuna</span>
+        <WordmarkGlow />
+        <span className="m-bigword-word">
+          <span className="m-bigword-lit">
+            <span className="m-bigword-text">setsuna</span>
+          </span>
+        </span>
       </div>
     </footer>
   );

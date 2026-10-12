@@ -3,6 +3,7 @@ import TokenIcon from "./TokenIcon";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import HeroRails from "./HeroRails";
+import DotField from "./DotField";
 
 export default function AuroraHero() {
   const root = useRef<HTMLElement>(null);
@@ -41,12 +42,7 @@ export default function AuroraHero() {
   return (
     <section ref={root} className="m-hero" aria-labelledby="hero-title">
       <div className="m-hero-frame">
-        <div className="m-aurora" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-        </div>
-        <div className="m-hero-grid" aria-hidden="true" />
+        <DotField className="m-glass" />
         <div className="m-hero-copy">
           <span className="m-kicker">
             <TokenIcon asset="MON" size={14} /> Built on Monad <span>•</span>{" "}

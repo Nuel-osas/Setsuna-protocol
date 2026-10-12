@@ -290,20 +290,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="m-final">
-        <div className="m-final-halo" aria-hidden="true" />
-        <Mark size={48} />
-        <span className="m-section-label">Your assets. Your direction.</span>
-        <h2>
-          A little more
-          <br />
-          <em>possibility.</em>
-        </h2>
-        <Link className="m-button m-button-light" href="/app/">
-          Find your flow <span aria-hidden="true">↗</span>
-        </Link>
-        <p>Live on Monad mainnet · capped beta.</p>
-      </section>
     </main>
   );
 }

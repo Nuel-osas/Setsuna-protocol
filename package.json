@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@category-labs/mera": "0.2.0",
+    "@paper-design/shaders-react": "0.0.81",
     "@privy-io/react-auth": "^3.48.1",
     "@stripe/stripe-js": "^10.0.0",
     "lightweight-charts": "^5.2.1",
