@@ -126,6 +126,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const privyLogout = useRef(privy.logout);
   privyLogout.current = privy.logout;
   const { login: privyLogin } = useLogin({
+    // Also fires after Google's redirect returns, when in-memory state is gone.
+    onComplete: ({ wasAlreadyAuthenticated }) => {
+      if (!wasAlreadyAuthenticated) setPrivyPending(true);
+    },
     onError: () => setPrivyPending(false),
   });
   const disconnect = useCallback(() => {
@@ -207,7 +211,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     else dialog.current?.close();
   }, [open]);
   useEffect(() => {
-    if (!privyPending || !privy.ready || !privy.authenticated) return;
+    if (!privyPending || !deployment || !privy.ready || !privy.authenticated)
+      return;
     const embedded = privyWallets.find((w) => w.walletClientType === "privy");
     if (!embedded) return;
     setPrivyPending(false);
@@ -227,7 +232,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     })();
     // connect is recreated each render; this runs once per completed login.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [privyPending, privy.ready, privy.authenticated, privyWallets]);
+  }, [
+    privyPending,
+    deployment,
+    privy.ready,
+    privy.authenticated,
+    privyWallets,
+  ]);
   function continueWithPrivy() {
     setError("");
     disconnect();
@@ -303,7 +314,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         if (!accounts[0]) throw new Error("No account was shared.");
         nextAddress = getAddress(accounts[0]);
         nextChain = await wallet.getChainId();
-        const accountsChanged = () => disconnect();
+        // Embedded wallets re-announce the same account once connected; only a
+        // real switch (or a revoked account) ends the session.
+        const connected = nextAddress;
+        const accountsChanged = (...args: unknown[]) => {
+          const next = (args[0] as string[] | undefined)?.[0];
+          if (!next || getAddress(next) !== connected) disconnect();
+        };
         const chainChanged = (...args: unknown[]) =>
           setChainId(Number(args[0]));
         choice.provider.on?.("accountsChanged", accountsChanged);
