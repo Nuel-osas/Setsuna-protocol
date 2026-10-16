@@ -1433,3 +1433,27 @@ body:has(.t-shell) .s-modal .s-btn.is-primary {
     padding-bottom: 160px;
   }
 }
+
+/* Server-rendered loading state for the app routes (see AppFallback). */
+.s-app-fallback {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 140px 24px 80px;
+  color: var(--b-text);
+}
+.s-app-fallback h1 {
+  margin: 0;
+  font: 500 clamp(32px, 4vw, 48px) / 1.05 var(--f-sans), sans-serif;
+  letter-spacing: -0.03em;
+}
+.s-app-fallback p {
+  margin: 14px 0 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--b-secondary);
+}
+.s-app-fallback .s-app-fallback-status {
+  margin-top: 28px;
+  font-size: 13px;
+  color: var(--b-muted);
+}

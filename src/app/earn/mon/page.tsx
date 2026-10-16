@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMeta } from "@/lib/setsuna/seo";
 import { Suspense } from "react";
 import AppShell from "@/components/setsuna/AppShell";
+import AppFallback from "@/components/setsuna/AppFallback";
 export const metadata: Metadata = pageMeta({
   title: "setsMON vault",
   description:
@@ -12,9 +13,10 @@ export default function Page() {
   return (
     <Suspense
       fallback={
-        <main id="main" className="s-app">
-          Loading vault…
-        </main>
+        <AppFallback
+          title="setsMON vault"
+          text="Puts MON to work across approved Monad lending markets within published caps. Capped beta: up to 25,000 MON."
+        />
       }
     >
       <AppShell />
