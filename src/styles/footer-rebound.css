@@ -1,0 +1,70 @@
+/* Footer rubber band (from Sui's footer). The 30vh height is the pull distance. */
+.s-rebound {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 30vh;
+  /* Sui lets the graphic rise behind an opaque footer; ours is translucent, so clip instead. */
+  overflow: clip;
+  background: var(--b-surface-subtle);
+}
+.s-rebound-expander {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+.s-rebound-graphic {
+  display: block;
+  position: relative;
+  overflow: visible;
+  pointer-events: none;
+  will-change: transform;
+}
+.s-rebound-blocks {
+  width: 100vw;
+  overflow: hidden;
+}
+.s-rebound-noise {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+/* Pixel variant under the landing wall: its blue floor continues, an ink skyline rises. */
+.s-rebound.is-pixel {
+  background: #2338ff;
+}
+.s-rebound-pixels {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 479px) {
+  .s-rebound {
+    display: none;
+  }
+}
+
+/* Lenis base rules; Lenis also needs native smooth scrolling off while it runs. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis {
+  scroll-behavior: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
