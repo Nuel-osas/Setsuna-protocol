@@ -12,6 +12,8 @@ export const OG_IMAGE = {
   height: 630,
   alt: "Setsuna: put your assets in motion. Automated MON and USDC yield vaults on Monad with published allocation rules.",
 };
+export const X_URL = "https://x.com/Setsunaprotocol";
+export const X_HANDLE = "@Setsunaprotocol";
 export const REPO_URL = "https://github.com/Nuel-osas/Setsuna-protocol";
 export const DELTAV_URL = "https://deltav.monad.xyz/startup/setsuna";
 
@@ -39,7 +41,7 @@ export function pageMeta({
     // Pages kept out of search get no canonical, so the two signals never disagree.
     ...(index ? { alternates: { canonical: path } } : { robots: { index: false, follow: true } }),
     openGraph: { title: `${title} · ${SITE_NAME}`, description, url: path, type, siteName: SITE_NAME, locale: "en_US", images: [OG_IMAGE] },
-    twitter: { card: "summary_large_image", title: `${title} · ${SITE_NAME}`, description, images: [OG_IMAGE] },
+    twitter: { card: "summary_large_image", site: X_HANDLE, creator: X_HANDLE, title: `${title} · ${SITE_NAME}`, description, images: [OG_IMAGE] },
   };
 }
 

@@ -226,6 +226,24 @@ body:has(.db-spot) .s-header .s-btn {
 body .s-header .s-btn:hover {
   background: var(--b-surface-hover);
 }
+body .s-header .s-x-link {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--b-surface);
+  color: var(--b-white);
+  transition: background 0.2s;
+}
+body .s-header .s-x-link:hover {
+  background: var(--b-surface-hover, rgba(255, 255, 255, 0.14));
+}
+body .s-header .s-x-link svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
 body .s-header .s-menu {
   border: 0;
   border-radius: 8px;

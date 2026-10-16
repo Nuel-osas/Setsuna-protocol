@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { docs, docHref } from "@/lib/docs/catalog";
 import { getDoc } from "@/lib/docs/content";
-import { jsonLd, OG_IMAGE, pageMeta, SITE_URL } from "@/lib/setsuna/seo";
+import { jsonLd, OG_IMAGE, pageMeta, SITE_URL, X_HANDLE } from "@/lib/setsuna/seo";
 import {
   DocActions,
   DocContents,
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // The docs suffix is already in the title, so skip the layout's "· Setsuna".
     title: { absolute: title },
     openGraph: { title, description, url: docHref(slug), type: "article", siteName: "Setsuna", locale: "en_US", images: [OG_IMAGE] },
-    twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE] },
+    twitter: { card: "summary_large_image", site: X_HANDLE, creator: X_HANDLE, title, description, images: [OG_IMAGE] },
   };
 }
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Brand from "@/components/setsuna/Brand";
 import AccountMenu from "@/components/setsuna/AccountMenu";
 import { productLinks } from "@/lib/setsuna/site";
+import { X_URL } from "@/lib/setsuna/seo";
 
 export default function SiteHeader() {
   const path = usePathname();
@@ -58,9 +59,16 @@ export default function SiteHeader() {
         {app ? (
           <AccountMenu />
         ) : (
-          <Link className="s-btn is-small is-primary" href="/app/">
-            Open app <span aria-hidden="true">↗</span>
-          </Link>
+          <>
+            <a className="s-x-link" href={X_URL} target="_blank" rel="noopener noreferrer" aria-label="Setsuna on X">
+              <svg viewBox="0 0 16 15" aria-hidden="true">
+                <path d="M12.32.62h2.36L9.53 6.56l6.09 8.05H10.83L7.1 9.73l-4.29 4.88H.45l5.53-6.34L.14.62h4.91l3.39 4.48L12.32.62Zm-.84 12.56h1.31L4.34 1.96H2.91l8.57 11.22Z" />
+              </svg>
+            </a>
+            <Link className="s-btn is-small is-primary" href="/app/">
+              Open app <span aria-hidden="true">↗</span>
+            </Link>
+          </>
         )}
         <button
           className="s-menu"

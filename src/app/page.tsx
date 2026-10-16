@@ -9,7 +9,7 @@ import PixelGrid from "@/components/landing/PixelGrid";
 import { LiveAllocation, LiveBlock } from "@/components/landing/Live";
 import HeroHexes from "@/components/landing/HeroHexes";
 import { HexCell, hexStyle, type Fill, type Hex } from "@/components/landing/Hex";
-import { DELTAV_URL, jsonLd, REPO_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/setsuna/seo";
+import { DELTAV_URL, jsonLd, REPO_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL, X_URL } from "@/lib/setsuna/seo";
 import "@/styles/landing.css";
 
 export const metadata: Metadata = {
@@ -125,8 +125,9 @@ function Button({
   children: ReactNode;
   tone?: "light" | "dark" | "blue";
 }) {
+  const external = href.startsWith("http");
   return (
-    <a className={`lx-btn is-${tone}`} href={href}>
+    <a className={`lx-btn is-${tone}`} href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
       <span className="lx-btn-bg" aria-hidden="true" />
       <span className="lx-btn-label">{children}</span>
       <span className="lx-btn-icon" aria-hidden="true">
@@ -155,7 +156,7 @@ export default function Home() {
               url: SITE_URL,
               logo: `${SITE_URL}/icon-512.png`,
               description: SITE_DESCRIPTION,
-              sameAs: [REPO_URL, DELTAV_URL],
+              sameAs: [X_URL, REPO_URL, DELTAV_URL],
             },
             {
               "@context": "https://schema.org",
@@ -440,6 +441,9 @@ export default function Home() {
           <div className="lx-cta-actions">
             <Button href="/app/" tone="blue">Open app</Button>
             <Button href="/docs/" tone="light">Read the docs</Button>
+            <Button href={X_URL} tone="light">
+              <XLogo /> Follow on X
+            </Button>
           </div>
         </div>
         <div className="lx-wall" aria-hidden="true" data-wall style={{ "--cols": WALL_COLS } as CSSProperties}>
@@ -451,6 +455,14 @@ export default function Home() {
 
       <LandingMotion />
     </main>
+  );
+}
+
+function XLogo() {
+  return (
+    <svg className="lx-x" viewBox="0 0 16 15" aria-hidden="true">
+      <path d="M12.32.62h2.36L9.53 6.56l6.09 8.05H10.83L7.1 9.73l-4.29 4.88H.45l5.53-6.34L.14.62h4.91l3.39 4.48L12.32.62Zm-.84 12.56h1.31L4.34 1.96H2.91l8.57 11.22Z" />
+    </svg>
   );
 }
 

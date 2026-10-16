@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import FooterRebound from "@/components/setsuna/FooterRebound";
+import { X_URL } from "@/lib/setsuna/seo";
 
 export default function SiteFooter() {
   const path = usePathname();
@@ -24,6 +25,9 @@ export default function SiteFooter() {
           <nav aria-label="Legal">
             <Link href="/privacy-policy/">Privacy</Link>
             <Link href="/terms-of-use/">Terms</Link>
+            <a href={X_URL} target="_blank" rel="noopener noreferrer">
+              X
+            </a>
           </nav>
           <span>Live on mainnet · Capped beta · Not audited</span>
         </div>

@@ -15,7 +15,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
 import Toaster from "@/components/setsuna/Toaster";
 import PrivyRoot from "@/components/setsuna/PrivyRoot";
-import { OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/setsuna/seo";
+import { OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL, X_HANDLE } from "@/lib/setsuna/seo";
 
 const display = EB_Garamond({
   subsets: ["latin"],
@@ -77,6 +77,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: X_HANDLE,
+    creator: X_HANDLE,
     title: `${SITE_NAME} · Put your assets in motion`,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
