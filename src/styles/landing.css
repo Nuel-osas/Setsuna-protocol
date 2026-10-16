@@ -678,8 +678,6 @@
 .lx-cover i {
   position: absolute;
   background: var(--paper-2);
-  /* Hit-testable (the container is not), so the header can tell it is over paper. */
-  pointer-events: auto;
 }
 .lx-cover.is-h i {
   left: 0;

@@ -201,12 +201,10 @@ export default function LandingMotion() {
               },
             },
           });
-          // The window starts at about 40% of the screen, so the room is already in view.
-          tl.fromTo(room.querySelectorAll(".lx-cover.is-h i"), { scaleY: 0.6 }, { scaleY: 0, duration: 0.75, ease: "none" }, 0)
-            .fromTo(room.querySelectorAll(".lx-cover.is-v i"), { scaleX: 0.6 }, { scaleX: 0, duration: 0.75, ease: "none" }, 0)
+          tl.fromTo(room.querySelectorAll(".lx-cover.is-h i"), { scaleY: 0.9 }, { scaleY: 0, duration: 0.75, ease: "none" }, 0)
+            .fromTo(room.querySelectorAll(".lx-cover.is-v i"), { scaleX: 0.9 }, { scaleX: 0, duration: 0.75, ease: "none" }, 0)
             .fromTo(room.querySelector("[data-room-content]"), { scale: 0.82 }, { scale: 1, duration: 0.75, ease: "none" }, 0)
-            // The line appears once the window is wide enough to hold it, not clipped by the covers.
-            .fromTo(room.querySelector("[data-room-content]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: "none" }, 0.28)
+            .fromTo(room.querySelector("[data-room-content]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: "none" }, 0.2)
             .fromTo(roomLines, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6, ease: "none", stagger: 0.008 }, 0.05)
             .fromTo(roomChars, { color: "#4a4d5c" }, { color: "#f2efe8", duration: 0.01, ease: "none", stagger: 0.02 }, 0.75)
             .fromTo(room.querySelector(".lx-room-p"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.3 }, ">-0.2");
