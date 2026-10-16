@@ -2,18 +2,6 @@
 import ProtocolIcon from "@/components/setsuna/ProtocolIcon";
 import { useEarn } from "@/components/setsuna/useEarn";
 
-/** The live blended base rate, set inside the hero's blue hexagon. */
-export function LiveApr() {
-  const { data, failed } = useEarn();
-  const v = data && !failed ? (data.blendedApr * 100).toFixed(2) : null;
-  return (
-    <span className={`lx-apr ${v ? "" : "is-loading"}`} aria-live="polite">
-      <b className="lx-pixel">{v ?? "-.--"}%</b>
-      <small>base APR · live</small>
-    </span>
-  );
-}
-
 /** Setsuna's current target split, read from the same snapshot the vault uses. */
 export function LiveAllocation() {
   const { data, failed } = useEarn();

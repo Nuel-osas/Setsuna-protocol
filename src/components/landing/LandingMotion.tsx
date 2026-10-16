@@ -44,7 +44,7 @@ export default function LandingMotion() {
 
         /* ── text helpers ───────────────────────────────────────── */
         // Walrus heading reveal: each letter sits in a clipping box with two
-        // text-shadow copies to its left; sliding 1.4em rolls the copies through.
+        // text-shadow copies to its left; sliding 2em rolls the copies through.
         const rollSplit = (el: HTMLElement) => {
           const split = SplitText.create(el, { type: "words,chars", wordsClass: "lx-wd", charsClass: "lx-ch" });
           split.chars.forEach((ch, i) => {
@@ -61,7 +61,7 @@ export default function LandingMotion() {
           gsap.fromTo(
             chars,
             { x: "0em", autoAlpha: 0 },
-            { x: "1.4em", autoAlpha: 1, duration: 0.65, ease: "power2.out", stagger: { amount: 0.8, from: "random" } },
+            { x: "2em", autoAlpha: 1, duration: 0.65, ease: "power2.out", stagger: { amount: 0.8, from: "random" } },
           );
         // Unifi typewriter: characters switch on one after another.
         const typeSplit = (el: HTMLElement) => {

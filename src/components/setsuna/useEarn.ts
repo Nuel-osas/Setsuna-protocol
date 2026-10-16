@@ -2,25 +2,40 @@
 import { useEffect, useState } from "react";
 import type { EarnSnapshot } from "@/lib/setsuna/earn";
 
+// One fetch and one minute timer shared by every component on the page; each
+// used to poll /api/earn on its own, so a page with several fired several requests.
+type EarnState = { data?: EarnSnapshot; failed: boolean };
+let state: EarnState = { failed: false };
+const listeners = new Set<(s: EarnState) => void>();
+let timer: ReturnType<typeof setInterval> | undefined;
+
+function load() {
+  fetch("/api/earn/", { cache: "no-store" })
+    .then((r) => r.json())
+    .then((j: EarnSnapshot) => publish({ data: j, failed: !j.destinations?.length }))
+    .catch(() => publish({ ...state, failed: true }));
+}
+function publish(next: EarnState) {
+  state = next;
+  listeners.forEach((l) => l(state));
+}
+
 /** Live destination rates and Setsuna's target split, refreshed every minute. */
 export function useEarn() {
-  const [data, setData] = useState<EarnSnapshot>();
-  const [failed, setFailed] = useState(false);
+  const [snap, setSnap] = useState<EarnState>(state);
   useEffect(() => {
-    let alive = true;
-    const load = () =>
-      fetch("/api/earn/", { cache: "no-store" })
-        .then((r) => r.json())
-        .then((j: EarnSnapshot) => alive && (setData(j), setFailed(!j.destinations?.length)))
-        .catch(() => alive && setFailed(true));
-    void load();
-    const t = setInterval(load, 60_000);
+    listeners.add(setSnap);
+    setSnap(state);
+    if (listeners.size === 1) {
+      load();
+      timer = setInterval(load, 60_000);
+    }
     return () => {
-      alive = false;
-      clearInterval(t);
+      listeners.delete(setSnap);
+      if (!listeners.size) clearInterval(timer);
     };
   }, []);
-  return { data, failed };
+  return { data: snap.data, failed: snap.failed };
 }
 
 export const pct = (f: number, d = 2) => `${(f * 100).toFixed(d)}%`;
