@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEarn, usd } from "@/components/setsuna/useEarn";
+import { useEarnSummary } from "@/components/setsuna/useEarnSummary";
 import { HexCell, hexStyle, type Hex } from "./Hex";
 
 // Protocol logos are drawn for dark grounds, so they sit on ink cells.
@@ -32,6 +33,8 @@ type Fact = { value: string; label: string; spot?: Destination };
 
 // "Aave V3" and "Morpho Blue" match the hexagons' "Aave" and "Morpho".
 const keyOf = (name: string) => name.trim().split(/[\s·]/)[0].toLowerCase();
+// setsUSDC adapter order, as deployed (see earnVenues).
+const VAULT_ORDER = ["aave", "morpho", "euler", "neverland", "curvance"];
 const onCluster = new Set(hexes.flatMap((h) => (h.logo ? [keyOf(h.logo)] : [])));
 
 /** Text that rolls in like the headline: each letter slides through its shadow copies. */
@@ -57,6 +60,17 @@ function Roll({ text }: { text: string }) {
  */
 export default function HeroHexes() {
   const { data, failed } = useEarn();
+  // Shares and rates come from the vault's own positions, not the target model.
+  const { data: vault } = useEarnSummary("USDC");
+  const held = useMemo(() => {
+    const out = new Map<string, { share: number; apr: number }>();
+    if (!vault || vault.nav <= BigInt(0)) return out;
+    vault.positions.forEach((p, i) => {
+      const k = VAULT_ORDER[i];
+      if (k) out.set(k, { share: Number((p * BigInt(10_000)) / vault.nav) / 10_000, apr: Number(vault.rates[i]) / 1e18 });
+    });
+    return out;
+  }, [vault]);
   const ref = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(-1); // -1: resting on the blended rate
 
@@ -80,7 +94,15 @@ export default function HeroHexes() {
     if (!data || failed) return hexes.map(() => undefined);
     return hexes.map((h, i) => {
       const spot = h.logo ? spots.get(keyOf(h.logo)) : undefined;
-      if (spot) return { value: `${Math.round(spot.weight * 100)}%`, label: spot.weight > 0 ? "of the vault" : "watching", spot };
+      if (spot) {
+        const real = held.get(keyOf(spot.protocol));
+        if (!real) return { value: `${Math.round(spot.weight * 100)}%`, label: "target", spot };
+        return {
+          value: `${Math.round(real.share * 100)}%`,
+          label: real.share > 0 ? "of the vault" : "watching",
+          spot: { ...spot, apr: real.apr || spot.apr },
+        };
+      }
       switch (i) {
         case 0:
           return { value: String(data.destinations.length), label: "markets read" };
@@ -98,7 +120,7 @@ export default function HeroHexes() {
           return h.logo ? { value: "Approved", label: "market" } : undefined;
       }
     });
-  }, [data, failed, spots]);
+  }, [data, failed, spots, held]);
 
   const stops = useMemo(() => (facts.some(Boolean) ? WALK.filter((i) => facts[i]) : []), [facts]);
 
@@ -125,7 +147,7 @@ export default function HeroHexes() {
   const last = useRef(active);
   if (active) last.current = active;
   const shown = last.current;
-  const blended = data && !failed ? `${(data.blendedApr * 100).toFixed(2)}%` : "-.--%";
+  const blended = vault ? `${(Number(vault.blendedApr) / 1e16).toFixed(2)}%` : "-.--%";
 
   return (
     <div className={`lx-hero-hexes ${at >= 0 ? "has-spot" : ""}`} aria-hidden="true" data-hexes ref={ref}>
@@ -153,7 +175,7 @@ export default function HeroHexes() {
           <div className="lx-hex-slot" key={i} style={hexStyle(h, "var(--hw)")} data-hex>
             <HexCell hex={h} back={back} flipped={flipped} className={lit ? "is-lit" : ""}>
               {h.kind === "apr" && (
-                <span className={`lx-apr ${data && !failed ? "" : "is-loading"}`} aria-live="polite">
+                <span className={`lx-apr ${vault ? "" : "is-loading"}`} aria-live="polite">
                   <b className="lx-pixel">
                     <Roll text={active ? `${(active.apr * 100).toFixed(2)}%` : blended} />
                   </b>

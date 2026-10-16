@@ -21,6 +21,9 @@ export default function PixelGrid() {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const touch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     let cells: Cell[] = [];
+    // Cells the touch shimmer may light: none under the headline or copy, so
+    // the squares never sit on top of words.
+    let open: Cell[] = [];
     let size = 0;
     let cols = 0;
     let raf = 0;
@@ -44,7 +47,17 @@ export default function PixelGrid() {
       cells = [];
       for (let r = 0; r < rows; r++)
         for (let c = 0; c < cols; c++) cells.push({ x: c * size, y: r * size, color: COLORS[0], alpha: 0, fade: 0 });
+      quiet();
       draw(performance.now());
+    };
+
+    const quiet = () => {
+      const box = host.getBoundingClientRect();
+      const text = [...host.querySelectorAll(".lx-hero-copy > :is(p, h1)")].map((el) => {
+        const r = el.getBoundingClientRect();
+        return { l: r.left - box.left, t: r.top - box.top, r: r.right - box.left, b: r.bottom - box.top };
+      });
+      open = cells.filter((c) => !text.some((t) => c.x < t.r && c.x + size > t.l && c.y < t.b && c.y + size > t.t));
     };
 
     const draw = (now: number) => {
@@ -103,14 +116,16 @@ export default function PixelGrid() {
     const observer = new IntersectionObserver(([entry]) => (visible = entry.isIntersecting));
     observer.observe(host);
     layout();
+    // Web fonts change the copy's size once they load.
+    document.fonts?.ready.then(quiet);
     const resize = () => layout();
     addEventListener("resize", resize);
     let timer: ReturnType<typeof setInterval> | undefined;
     if (!reduced) {
       if (touch)
         timer = setInterval(() => {
-          if (!visible || !cells.length) return;
-          light(cells[Math.floor(Math.random() * cells.length)], COLORS[Math.floor(Math.random() * COLORS.length)]);
+          if (!visible || !open.length) return;
+          light(open[Math.floor(Math.random() * open.length)], COLORS[Math.floor(Math.random() * COLORS.length)]);
         }, 180);
       else addEventListener("pointermove", move, { passive: true });
     }

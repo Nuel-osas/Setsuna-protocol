@@ -404,3 +404,23 @@ body .s-footer {
     text-align: center;
   }
 }
+/* Over the landing's paper sections the fade turns light and the brand dark. */
+body .s-header.is-light:not(.is-app):not(.is-over) {
+  background: linear-gradient(
+    rgba(242, 239, 232, 0.94),
+    rgba(242, 239, 232, 0)
+  );
+}
+body .s-header.is-light:not(.is-app):not(.is-over) .s-home {
+  color: #07080c;
+}
+body .s-header.is-light:not(.is-app):not(.is-over) .s-brand {
+  --tide: #07080c;
+}
+body .s-header.is-light:not(.is-app):not(.is-over) .s-menu span {
+  background: #07080c;
+}
+body .s-header.is-light:not(.is-app):not(.is-over) .s-x-link {
+  background: #07080c;
+  color: #f2efe8;
+}

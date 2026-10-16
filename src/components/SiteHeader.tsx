@@ -16,12 +16,19 @@ export default function SiteHeader() {
     path.startsWith("/earn");
   const [open, setOpen] = useState(false);
   const [over, setOver] = useState(path === "/");
+  const [light, setLight] = useState(false);
   useEffect(() => setOpen(false), [path]);
   useEffect(() => {
     // Transparent over the home hero, solid once the hero scrolls away.
     const stage = path === "/" ? document.querySelector(".m-hero-frame") : null;
-    if (!stage) return setOver(false);
-    const check = () => setOver(stage.getBoundingClientRect().bottom > 72);
+    if (!stage) {
+      setLight(false);
+      return setOver(false);
+    }
+    const check = () => {
+      setOver(stage.getBoundingClientRect().bottom > 72);
+      setLight(groundIsLight());
+    };
     check();
     addEventListener("scroll", check, { passive: true });
     return () => removeEventListener("scroll", check);
@@ -36,7 +43,7 @@ export default function SiteHeader() {
   if (path === "/docs" || path.startsWith("/docs/")) return null;
   return (
     <header
-      className={`s-header ${app ? "is-app" : ""} ${open ? "is-open" : ""} ${over && !open ? "is-over" : ""}`}
+      className={`s-header ${app ? "is-app" : ""} ${open ? "is-open" : ""} ${over && !open ? "is-over" : ""} ${light && !open ? "is-light" : ""}`}
     >
       <Link className="s-home" href="/" aria-label="Setsuna home">
         <Brand />
@@ -83,4 +90,19 @@ export default function SiteHeader() {
       </div>
     </header>
   );
+}
+
+/** Whether the page behind the header's middle is a light (paper) section. */
+function groundIsLight() {
+  const header = document.querySelector(".s-header");
+  const under = document
+    .elementsFromPoint(innerWidth / 2, 40)
+    .find((el) => !header?.contains(el));
+  for (let el: Element | null | undefined = under; el; el = el.parentElement) {
+    const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
+    if (!m || (m.length > 3 && Number(m[3]) < 0.5)) continue;
+    const [r, g, b] = m.map(Number);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b > 140;
+  }
+  return false;
 }
