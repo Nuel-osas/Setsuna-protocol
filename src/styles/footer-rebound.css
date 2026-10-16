@@ -45,6 +45,33 @@
   width: 100%;
   height: 100%;
 }
+/* Touch pull on phones: a strip fixed to the bottom of the screen that grows as
+   the page lifts. The canvas keeps the full pull height and is anchored to the
+   strip's bottom, so the skyline rises from the floor. */
+.s-rebound-touch {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  height: 0;
+  overflow: hidden;
+  background: #2338ff;
+  pointer-events: none;
+}
+.s-rebound-touch canvas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  width: 100%;
+  height: 30vh;
+}
+@media (min-width: 769px) {
+  .s-rebound-touch {
+    display: none;
+  }
+}
 /* The pull only runs above 768px (see FooterRebound), so the strip goes with it. */
 @media (max-width: 768px) {
   .s-rebound {

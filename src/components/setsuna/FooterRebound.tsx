@@ -55,7 +55,7 @@ const DOTS = [
 // top row stays blue and the seam disappears.
 const PIXEL_COLS = 32;
 const wallHeight = (c: number) => 2 + ((c * 37 + (c >> 2) * 11) % 5) + (c % 7 === 3 ? 1 : 0);
-const pixelTarget = (c: number) => wallHeight(PIXEL_COLS - 1 - c) - 1;
+const pixelTarget = (c: number, cols = PIXEL_COLS) => wallHeight(cols - 1 - c) - 1;
 const INK = "#07080c";
 const LIT = "#7b88ff";
 
@@ -117,7 +117,7 @@ function startNoise(canvas: HTMLCanvasElement) {
 }
 
 /** Draws the pixel variant at a pull progress; returns a resize hook. */
-function pixelRenderer(canvas: HTMLCanvasElement) {
+function pixelRenderer(canvas: HTMLCanvasElement, cols = PIXEL_COLS) {
   const ctx = canvas.getContext("2d")!;
   let w = 0;
   let h = 0;
@@ -130,7 +130,7 @@ function pixelRenderer(canvas: HTMLCanvasElement) {
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cell = w / PIXEL_COLS;
+    cell = w / cols;
     rows = Math.floor(h / cell);
   };
   const draw = (progress: number) => {
@@ -138,8 +138,8 @@ function pixelRenderer(canvas: HTMLCanvasElement) {
     if (progress <= 0) return;
     // Like the reference: everything starts level, then each column heads for its own height.
     const t = Math.min(progress, PROGRESS_CAP) / PROGRESS_CAP;
-    for (let c = 0; c < PIXEL_COLS; c++) {
-      const target = Math.min(pixelTarget(c), rows - 1);
+    for (let c = 0; c < cols; c++) {
+      const target = Math.min(pixelTarget(c, cols), rows - 1);
       const n = Math.max(1, Math.round(gsap.utils.interpolate(START_UNIFORM, target, t)));
       const x = Math.round(c * cell);
       const cw = Math.round((c + 1) * cell) - x;
@@ -157,11 +157,109 @@ function pixelRenderer(canvas: HTMLCanvasElement) {
   return { draw, size };
 }
 
+// Touch version (phones, home page only). Lenis is not used: scrolling stays native
+// and only a pull past the bottom is handled. The wall shows 16 columns there.
+const TOUCH_COLS = 16;
+const TOUCH_MAX = 0.3; // pull distance as a share of the viewport, like the desktop strip
+const TOUCH_GIVE = 1.1; // resistance: higher lets the finger travel further before the pull tops out
+const TOUCH_RETURN = 0.8; // seconds to spring back after release
+
+/**
+ * At the bottom of the page, pulling up lifts the page and raises the pixel
+ * skyline underneath, with resistance; letting go springs it back. iOS's own
+ * bounce is blocked only during this pull, so pull-to-refresh is unaffected.
+ */
+function useTouchRebound(enabled: boolean, strip: React.RefObject<HTMLDivElement | null>, canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+  useEffect(() => {
+    const el = strip.current;
+    const canvas = canvasRef.current;
+    const page = document.querySelector<HTMLElement>("main#main");
+    if (!enabled || !el || !canvas || !page) return;
+    if (innerWidth > 768 || !("ontouchstart" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // Sized from innerHeight rather than vh, which on phones ignores the browser bars.
+    let max = innerHeight * TOUCH_MAX;
+    canvas.style.height = `${max}px`;
+    const pixel = pixelRenderer(canvas, TOUCH_COLS);
+    const state = { pull: 0 };
+    let startY: number | null = null;
+    let lastY = 0;
+    let tween: gsap.core.Tween | undefined;
+
+    const apply = () => {
+      // Whole pixels, or the wall's cell rows show hairline seams while it moves.
+      const p = Math.round(state.pull);
+      el.style.height = `${p}px`;
+      page.style.transform = p ? `translate3d(0, ${-p}px, 0)` : "";
+      pixel.draw(p / max);
+    };
+    const atBottom = () => scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
+
+    const onStart = (e: TouchEvent) => {
+      tween?.kill();
+      lastY = e.touches[0].clientY;
+      // Keep any pull still springing back, so a second pull picks up where it is.
+      startY = atBottom() ? lastY + (state.pull ? invert(state.pull) : 0) : null;
+    };
+    // Rubber band: the pull approaches max as the finger travels, never past it.
+    const band = (d: number) => max * (1 - Math.exp(-d / (max * TOUCH_GIVE)));
+    const invert = (p: number) => -max * TOUCH_GIVE * Math.log(1 - Math.min(p, max * 0.999) / max);
+    const onMove = (e: TouchEvent) => {
+      const y = e.touches[0].clientY;
+      // A fling can reach the bottom mid-gesture; start the pull from there.
+      if (startY === null && atBottom() && y < lastY) startY = y;
+      lastY = y;
+      if (startY === null) return;
+      const d = startY - y;
+      if (d <= 0) {
+        if (state.pull) {
+          state.pull = 0;
+          apply();
+        }
+        return;
+      }
+      e.preventDefault(); // our pull, not the browser's bounce
+      state.pull = band(d);
+      apply();
+    };
+    const onEnd = () => {
+      startY = null;
+      if (!state.pull) return;
+      tween = gsap.to(state, { pull: 0, duration: TOUCH_RETURN, ease: "power4.out", onUpdate: apply });
+    };
+    const onResize = () => {
+      max = innerHeight * TOUCH_MAX;
+      canvas.style.height = `${max}px`;
+      pixel.size();
+    };
+
+    addEventListener("touchstart", onStart, { passive: true });
+    addEventListener("touchmove", onMove, { passive: false });
+    addEventListener("touchend", onEnd);
+    addEventListener("touchcancel", onEnd);
+    addEventListener("resize", onResize);
+    return () => {
+      tween?.kill();
+      removeEventListener("touchstart", onStart);
+      removeEventListener("touchmove", onMove);
+      removeEventListener("touchend", onEnd);
+      removeEventListener("touchcancel", onEnd);
+      removeEventListener("resize", onResize);
+      state.pull = 0;
+      el.style.height = "";
+      page.style.transform = "";
+    };
+  }, [enabled, strip, canvasRef]);
+}
+
 export default function FooterRebound({ variant = "gradient" }: { variant?: "gradient" | "pixel" }) {
   const root = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const noiseRef = useRef<HTMLCanvasElement>(null);
   const pixelRef = useRef<HTMLCanvasElement>(null);
+  const touchRef = useRef<HTMLDivElement>(null);
+  const touchCanvasRef = useRef<HTMLCanvasElement>(null);
+  useTouchRebound(variant === "pixel", touchRef, touchCanvasRef);
 
   useEffect(() => {
     const stopNoise = noiseRef.current ? startNoise(noiseRef.current) : () => {};
@@ -299,9 +397,14 @@ export default function FooterRebound({ variant = "gradient" }: { variant?: "gra
 
   if (variant === "pixel")
     return (
-      <div className="s-rebound is-pixel" ref={root} aria-hidden="true">
-        <canvas ref={pixelRef} className="s-rebound-pixels" />
-      </div>
+      <>
+        <div className="s-rebound is-pixel" ref={root} aria-hidden="true">
+          <canvas ref={pixelRef} className="s-rebound-pixels" />
+        </div>
+        <div className="s-rebound-touch" ref={touchRef} aria-hidden="true">
+          <canvas ref={touchCanvasRef} />
+        </div>
+      </>
     );
 
   return (
