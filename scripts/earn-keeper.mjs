@@ -27,6 +27,9 @@ async function main() {
       "min-annual-gain": { type: "string" },
       "min-annual-gain-usdc": { type: "string" },
       "state-dir": { type: "string" },
+      "horizon-days": { type: "string", default: "7" },
+      "profit-factor": { type: "string", default: "2" },
+      "repair-tolerance-bps": { type: "string", default: "100" },
       help: { type: "boolean", default: false },
     },
   });
@@ -36,7 +39,8 @@ async function main() {
         "One read-only check by default. MONAD_RPC_URL supplies the endpoint. Requires chain ID 143.\n" +
         "Execute at most one permissionless action with --execute --max-gas-price-gwei N and EARN_KEEPER_PRIVATE_KEY.\n" +
         "Optional: --asset MON|USDC --max-gas 1000000 --min-annual-gain 0.001 --state-dir PATH. Gain uses the selected asset, never USD conversion.\n" +
-        "Use one dedicated signer and one shared state directory. Pending work is reconciled before further writes.",
+        "Use one dedicated signer and one shared state directory. Pending work is reconciled before further writes.\n" +
+        "Spend gate: act only when gain over --horizon-days 7 covers --profit-factor 2 x gas, or a repair fixes more than --repair-tolerance-bps 100 of NAV. USDC vaults price gas at Kuru's live MON/USDC ask.",
     );
     return;
   }
@@ -72,6 +76,15 @@ async function main() {
       "Execution requires EARN_KEEPER_PRIVATE_KEY and a positive gas-price ceiling",
     );
   }
+  for (const flag of ["horizon-days", "profit-factor", "repair-tolerance-bps"])
+    if (!/^\d+$/.test(values[flag])) throw new Error(`Invalid --${flag}`);
+  const gate = {
+    multi: values.multi,
+    maxGas: BigInt(values["max-gas"]),
+    horizonDays: BigInt(values["horizon-days"]),
+    profitFactor: BigInt(values["profit-factor"]),
+    repairToleranceBps: BigInt(values["repair-tolerance-bps"]),
+  };
   const abi = JSON.parse(
     await readFile(
       new URL(
@@ -96,6 +109,7 @@ async function main() {
           abi,
           minimumGain,
           assetSymbol,
+          gate,
         })),
       }),
     );
@@ -162,6 +176,7 @@ async function main() {
       abi,
       minimumGain,
       assetSymbol,
+      gate,
     });
     if (!report.action) {
       console.log(json({ mode: "execute", ...report }));
@@ -177,6 +192,7 @@ async function main() {
       maxGasPrice,
       maxGas: BigInt(values["max-gas"]),
       minimumGain,
+      accept: report.spend?.accept,
       persist,
     });
     console.log(json({ mode: "execute", vault: address, result }));

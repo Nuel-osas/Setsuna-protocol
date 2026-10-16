@@ -18,6 +18,8 @@ import {
   MONAD_USDC,
   reconcilePending,
   ReconciliationRequired,
+  unsafeVenue,
+  worthGas,
 } from "./earn-keeper-core.mjs";
 
 const abi = JSON.parse(
@@ -325,5 +327,134 @@ test("MON gain uses 18 decimals; USDC keeps 6 and never cross-matches assets", a
   await assert.rejects(
     inspectVault({ client, address, abi, assetSymbol: "MON" }),
     /MON vault/,
+  );
+});
+
+const policy = {
+  bufferBps: 1000n,
+  repairToleranceBps: 100n,
+  horizonDays: 7n,
+  profitFactor: 2n,
+};
+const nav = 100_000_000n; // 100 USDC
+const gated = (overrides) => ({
+  nav,
+  positions: [45_000_000n, 45_000_000n],
+  grossMovement: 1_000_000n,
+  annualIncomeBefore: 4_000_000n,
+  annualIncomeAfter: 4_000_000n,
+  repairsLimits: false,
+  ...overrides,
+});
+
+test("interest-drift buffer repairs are dust and must pay for gas", () => {
+  // Idle 9.9999 vs a 10.0001 minimum: the loop that burned 141 rebalances a day.
+  const decision = worthGas({
+    plan: gated({ repairsLimits: true }),
+    idle: 9_999_900n,
+    unsafe: false,
+    policy,
+    cycleCost: 50_000n,
+  });
+  assert.equal(decision.worth, false);
+  assert.equal(decision.reason, "gain-below-gas");
+});
+
+test("a real buffer shortfall or unsafe venue always repairs", () => {
+  const plan = gated({ repairsLimits: true, annualIncomeAfter: 3_000_000n });
+  assert.equal(
+    worthGas({
+      plan,
+      idle: 2_000_000n,
+      unsafe: false,
+      policy,
+      cycleCost: 10n ** 9n,
+    }).reason,
+    "material-repair",
+  );
+  assert.equal(
+    worthGas({
+      plan,
+      idle: 10_000_000n,
+      unsafe: true,
+      policy,
+      cycleCost: 10n ** 9n,
+    }).reason,
+    "material-repair",
+  );
+});
+
+test("a move runs only when a week of gain covers twice its gas", () => {
+  // +5 USDC/yr is about 0.0959 USDC a week.
+  const plan = gated({ annualIncomeAfter: 9_000_000n });
+  const run = (cycleCost) =>
+    worthGas({ plan, idle: 10_000_000n, unsafe: false, policy, cycleCost })
+      .worth;
+  assert.equal(run(47_000n), true);
+  assert.equal(run(48_000n), false);
+  assert.equal(
+    worthGas({
+      plan: gated({ grossMovement: 0n }),
+      idle: 0n,
+      unsafe: true,
+      policy,
+      cycleCost: 0n,
+    }).reason,
+    "no-movement",
+  );
+});
+
+test("unsafe venues mirror the contract's forced exits, beyond dust", () => {
+  const limits = {
+    destinationCapBps: 6000n,
+    maxApr: 10n ** 18n,
+    minimumMarketSupply: 250_000_000_000n,
+    marketCashCapBps: 1000n,
+  };
+  const healthy = {
+    disabled: false,
+    rate: 4n * 10n ** 16n,
+    capacity: 10n ** 12n,
+    supply: 10n ** 12n,
+    cash: 10n ** 12n,
+  };
+  const check = (venue, positions = [50_000_000n, 40_000_000n]) =>
+    unsafeVenue({
+      positions,
+      nav,
+      venues: [venue, healthy],
+      limits,
+      tolerance: 1_000_000n,
+    });
+  assert.equal(check(healthy), false);
+  assert.equal(check({ ...healthy, disabled: true }), true);
+  assert.equal(check({ ...healthy, supply: 1n }), true);
+  assert.equal(check({ ...healthy, rate: 0n }), true);
+  assert.equal(check({ ...healthy, cash: 100_000_000n }), true);
+  assert.equal(check(healthy, [62_000_000n, 28_000_000n]), true);
+  assert.equal(check({ ...healthy, disabled: true }, [900_000n, 0n]), false);
+});
+
+test("without a live MON price, only safety repairs may spend", () => {
+  const plan = gated({ annualIncomeAfter: 900_000_000n });
+  assert.equal(
+    worthGas({
+      plan,
+      idle: 10_000_000n,
+      unsafe: false,
+      policy,
+      cycleCost: undefined,
+    }).reason,
+    "price-unavailable",
+  );
+  assert.equal(
+    worthGas({
+      plan: { ...plan, repairsLimits: true },
+      idle: 0n,
+      unsafe: false,
+      policy,
+      cycleCost: undefined,
+    }).reason,
+    "material-repair",
   );
 });
