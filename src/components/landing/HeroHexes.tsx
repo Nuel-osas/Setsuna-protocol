@@ -35,6 +35,10 @@ type Fact = { value: string; label: string; spot?: Destination };
 const keyOf = (name: string) => name.trim().split(/[\s·]/)[0].toLowerCase();
 // setsUSDC adapter order, as deployed (see earnVenues).
 const VAULT_ORDER = ["aave", "morpho", "euler", "neverland", "curvance"];
+// Below this the vault has not deployed anything worth describing (the capped
+// beta can sit near empty), so the cluster shows the allocation model instead,
+// labelled as a target. 100 USDC, in the token's 6 decimals.
+const LIVE_NAV = BigInt(100_000_000);
 const onCluster = new Set(hexes.flatMap((h) => (h.logo ? [keyOf(h.logo)] : [])));
 
 /** Text that rolls in like the headline: each letter slides through its shadow copies. */
@@ -64,7 +68,7 @@ export default function HeroHexes() {
   const { data: vault } = useEarnSummary("USDC");
   const held = useMemo(() => {
     const out = new Map<string, { share: number; apr: number }>();
-    if (!vault || vault.nav <= BigInt(0)) return out;
+    if (!vault || vault.nav < LIVE_NAV) return out;
     vault.positions.forEach((p, i) => {
       const k = VAULT_ORDER[i];
       if (k) out.set(k, { share: Number((p * BigInt(10_000)) / vault.nav) / 10_000, apr: Number(vault.rates[i]) / 1e18 });
@@ -96,7 +100,7 @@ export default function HeroHexes() {
       const spot = h.logo ? spots.get(keyOf(h.logo)) : undefined;
       if (spot) {
         const real = held.get(keyOf(spot.protocol));
-        if (!real) return { value: `${Math.round(spot.weight * 100)}%`, label: "target", spot };
+        if (!real) return { value: `${Math.round(spot.weight * 100)}%`, label: "target share", spot };
         return {
           value: `${Math.round(real.share * 100)}%`,
           label: real.share > 0 ? "of the vault" : "watching",
@@ -147,7 +151,13 @@ export default function HeroHexes() {
   const last = useRef(active);
   if (active) last.current = active;
   const shown = last.current;
-  const blended = vault ? `${(Number(vault.blendedApr) / 1e16).toFixed(2)}%` : "-.--%";
+  const live = held.size > 0;
+  const blended = live
+    ? `${(Number(vault!.blendedApr) / 1e16).toFixed(2)}%`
+    : data && !failed
+      ? `${(data.blendedApr * 100).toFixed(2)}%`
+      : "-.--%";
+  const restLabel = live ? "base APR · live" : "target APR";
 
   return (
     <div className={`lx-hero-hexes ${at >= 0 ? "has-spot" : ""}`} aria-hidden="true" data-hexes ref={ref}>
@@ -175,16 +185,16 @@ export default function HeroHexes() {
           <div className="lx-hex-slot" key={i} style={hexStyle(h, "var(--hw)")} data-hex>
             <HexCell hex={h} back={back} flipped={flipped} className={lit ? "is-lit" : ""}>
               {h.kind === "apr" && (
-                <span className={`lx-apr ${vault ? "" : "is-loading"}`} aria-live="polite">
+                <span className={`lx-apr ${live || (data && !failed) ? "" : "is-loading"}`} aria-live="polite">
                   <b className="lx-pixel">
                     <Roll text={active ? `${(active.apr * 100).toFixed(2)}%` : blended} />
                   </b>
                   {/* Phones get a shorter label; the cell is too narrow for the full one. */}
                   <small className="lx-apr-wide">
-                    <Roll text={active ? `${active.protocol} APR` : "base APR · live"} />
+                    <Roll text={active ? `${active.protocol} APR` : restLabel} />
                   </small>
                   <small className="lx-apr-narrow">
-                    <Roll text={active ? active.protocol : "base APR"} />
+                    <Roll text={active ? active.protocol : live ? "base APR" : "target APR"} />
                   </small>
                 </span>
               )}

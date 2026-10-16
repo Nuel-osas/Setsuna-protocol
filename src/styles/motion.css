@@ -424,3 +424,17 @@ body .s-header.is-light:not(.is-app):not(.is-over) .s-x-link {
   background: #07080c;
   color: #f2efe8;
 }
+/* The link pill and the action read on paper too: ink pill, ink button. */
+@media (min-width: 961px) {
+  body .s-header.is-light:not(.is-app):not(.is-over) > nav {
+    border-color: rgba(7, 8, 12, 0.1);
+    background: rgba(7, 8, 12, 0.88);
+  }
+}
+body .s-header.is-light:not(.is-app):not(.is-over) .s-btn.is-primary {
+  background: #07080c;
+  color: #f2efe8;
+}
+body .s-header.is-light:not(.is-app):not(.is-over) .s-btn.is-primary:hover {
+  background: #2338ff;
+}
