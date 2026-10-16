@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<!-- Source for src/app/opengraph-image.png and twitter-image.png. Render at 1200x630 in Chrome, e.g. a headless screenshot, after fonts load. -->
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  :root { --ink:#07080c; --paper:#f2efe8; --blue:#2338ff; --blue-l:#7b88ff; --ice:#b9c2ff; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    background: radial-gradient(70% 80% at 80% 35%, rgba(35,56,255,.22), transparent 70%), var(--ink);
+    color: var(--paper);
+    font-family: Inter, sans-serif;
+  }
+  .grid { position: absolute; inset: 0;
+    background:
+      linear-gradient(rgba(242,239,232,.06) 1px, transparent 1px) 0 0 / 60px 60px,
+      linear-gradient(90deg, rgba(242,239,232,.06) 1px, transparent 1px) 0 0 / 60px 60px;
+    -webkit-mask-image: linear-gradient(#000 60%, transparent 92%); }
+  .lit { position: absolute; width: 60px; height: 60px; }
+  .copy { position: absolute; left: 64px; top: 56px; width: 640px; }
+  .brand { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 500; letter-spacing: -.04em; }
+  .eyebrow { margin-top: 44px; font: 500 15px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: #8e8b84; display: flex; align-items: center; gap: 12px; }
+  .eyebrow::before { content: ""; width: 9px; height: 9px; border: 1.5px solid currentColor; }
+  h1 { margin-top: 20px; font-family: "Geist Pixel", monospace; font-weight: 400; font-size: 88px; line-height: .86; text-transform: uppercase; }
+  .bar { display: flex; align-items: flex-end; height: 24px; margin-top: 26px; }
+  .bar i { width: 12px; height: 12px; background: var(--blue-l); }
+  .bar i:nth-child(2) { align-self: flex-start; background: var(--ice); }
+  .bar i:nth-child(3) { background: var(--blue); }
+  .bar b { width: 96px; height: 12px; background: linear-gradient(90deg, var(--blue), var(--blue-l) 45%, var(--ice) 75%, var(--paper)); }
+  p.lede { margin-top: 22px; font-size: 22px; line-height: 1.4; color: #c9c5bc; max-width: 600px; }
+  .hexes { position: absolute; left: 716px; top: 64px; --hw: 100px; width: calc(4.5 * var(--hw)); height: calc(3.25 * var(--hw) * 1.1547); }
+  .slot { position: absolute; width: var(--hw); height: calc(var(--hw) * 1.1547); }
+  .hex { position: absolute; inset: 3%; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  .blue { background: radial-gradient(120% 90% at 30% 15%, #8a95ff, var(--blue) 50%, #0f1a96); }
+  .deep { background: repeating-linear-gradient(0deg, rgba(123,136,255,.22) 0 1px, transparent 1px 12px), linear-gradient(165deg, #1b2470, #07080c 80%); }
+  .glass { background: conic-gradient(from 210deg at 62% 38%, var(--ice), var(--paper), #9aa4ff, var(--blue), #c9b9ff, var(--ice)); }
+  .paper { background: linear-gradient(160deg, #fbfaf6, #e6e2d8); }
+  .grid-h { background: linear-gradient(rgba(242,239,232,.12) 1px, transparent 1px) 0 0/14px 14px, linear-gradient(90deg, rgba(242,239,232,.12) 1px, transparent 1px) 0 0/14px 14px, #161923; }
+  .ink { background: radial-gradient(80% 80% at 50% 30%, #1c2140, var(--ink)); }
+  .hex img { width: 34%; }
+  .apr { text-align: center; }
+  .apr b { display: block; font-family: "Geist Pixel", monospace; font-weight: 400; font-size: 25px; }
+  .apr small { font: 500 8px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+  .wall { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(64, 1fr); }
+  .wall i { aspect-ratio: 1; }
+  .wall i.on { background: var(--blue); }
+  .wall i.lit2 { background: var(--blue-l); }
+  .url { position: absolute; right: 64px; bottom: 92px; font: 500 18px "JetBrains Mono", monospace; letter-spacing: .08em; color: var(--ice); }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="copy">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 64 64"><g transform="translate(0 3)"><path d="M32 8 A24 24 0 0 0 32 56 C24 44 40 20 32 8 Z" transform="translate(-1.7 0)" fill="#7b88ff"/><path d="M32 8 C40 20 24 44 32 56 A24 24 0 0 0 32 8 Z" transform="translate(1.7 -6)" fill="#7b88ff"/></g></svg>
+      setsuna
+    </div>
+    <div class="eyebrow">Earn · Spot · Perps on Monad</div>
+    <h1>Put your assets<br>in motion</h1>
+    <div class="bar"><i></i><i></i><i></i><b></b></div>
+    <p class="lede">Automated MON and USDC yield vaults<br>with published allocation rules.</p>
+  </div>
+  <div class="hexes" id="hexes"></div>
+  <div class="url">setsuna.finance</div>
+  <div class="wall" id="wall"></div>
+  <script>
+    const hw = 100, H = hw * 1.1547;
+    const cells = [
+      [1,0,"glass"],[2,0,"ink","morpho.svg"],[3,0,"paper"],
+      [0,1,"ink","aave-icon.png"],[1,1,"blue","apr"],[2,1,"paper"],[3,1,"ink","euler.svg"],
+      [0,2,"grid-h"],[1,2,"paper","mark"],[2,2,"glass","usdc.svg"],
+      [1,3,"ink","neverland.svg"],[2,3,"blue","monad.svg"],[3,3,"deep","curvance.svg"],
+    ];
+    const root = document.getElementById("hexes");
+    for (const [c, r, fill, what] of cells) {
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      slot.style.left = (c + (r % 2) * 0.5) * hw + "px";
+      slot.style.top = r * 0.75 * H + "px";
+      let inner = "";
+      if (what === "apr") inner = '<div class="apr"><b>APR</b><small>live on Monad</small></div>';
+      else if (what === "mark") inner = '<svg width="44" height="44" viewBox="0 0 64 64"><g transform="translate(0 3)"><path d="M32 8 A24 24 0 0 0 32 56 C24 44 40 20 32 8 Z" transform="translate(-1.7 0)" fill="#2338ff"/><path d="M32 8 C40 20 24 44 32 56 A24 24 0 0 0 32 8 Z" transform="translate(1.7 -6)" fill="#2338ff"/></g></svg>';
+      else if (what) inner = `<img src="../../public/images/${what.includes("usdc")||what.includes("monad")?"tokens":"protocols"}/${what}">`;
+      slot.innerHTML = `<div class="hex ${fill}">${inner}</div>`;
+      root.appendChild(slot);
+    }
+    // The landing's pixel wall, three rows tall.
+    const wall = document.getElementById("wall");
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 64; c++) {
+      const h = 1 + ((c * 37 + (c >> 2) * 11) % 3);
+      const i = document.createElement("i");
+      if (3 - r <= h) i.className = "on";
+      else if (r === 3 - h - 1 && (c * 13) % 5 === 0) i.className = "lit2";
+      wall.appendChild(i);
+    }
+  </script>
+</body>
+</html>

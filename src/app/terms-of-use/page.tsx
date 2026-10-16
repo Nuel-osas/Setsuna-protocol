@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "Preview terms · Setsuna" };
+import { pageMeta } from "@/lib/setsuna/seo";
+export const metadata: Metadata = pageMeta({
+  title: "Terms of use",
+  description:
+    "The terms for using Setsuna, a hackathon build on Monad mainnet with real funds: the capped Earn beta, unaudited contracts, approvals and dependencies.",
+  path: "/terms-of-use/",
+});
 export default function Page() {
   return (
     <main id="main" className="s-doc">

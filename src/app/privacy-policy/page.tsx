@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "Privacy · Setsuna" };
+import { pageMeta } from "@/lib/setsuna/seo";
+export const metadata: Metadata = pageMeta({
+  title: "Privacy",
+  description:
+    "What the Setsuna web app stores, what wallet and RPC connections reveal, how passkeys are handled, and why onchain activity is public.",
+  path: "/privacy-policy/",
+});
 export default function Page() {
   return (
     <main id="main" className="s-doc">

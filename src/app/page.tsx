@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import type { Metadata } from "next";
 import { Geist_Pixel } from "next/font/google";
 import { Mark } from "@/components/setsuna/Brand";
 import TokenIcon from "@/components/setsuna/TokenIcon";
@@ -8,7 +9,12 @@ import PixelGrid from "@/components/landing/PixelGrid";
 import { LiveAllocation, LiveBlock } from "@/components/landing/Live";
 import HeroHexes from "@/components/landing/HeroHexes";
 import { HexCell, hexStyle, type Fill, type Hex } from "@/components/landing/Hex";
+import { DELTAV_URL, jsonLd, REPO_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/setsuna/seo";
 import "@/styles/landing.css";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const pixel = Geist_Pixel({
   subsets: ["latin"],
@@ -137,6 +143,43 @@ function Button({
 export default function Home() {
   return (
     <main id="main" className={`lx ${pixel.variable}`}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLd([
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "@id": `${SITE_URL}/#organization`,
+              name: SITE_NAME,
+              url: SITE_URL,
+              logo: `${SITE_URL}/icon-512.png`,
+              description: SITE_DESCRIPTION,
+              sameAs: [REPO_URL, DELTAV_URL],
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": `${SITE_URL}/#website`,
+              name: SITE_NAME,
+              url: SITE_URL,
+              description: SITE_DESCRIPTION,
+              inLanguage: "en",
+              publisher: { "@id": `${SITE_URL}/#organization` },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: SITE_NAME,
+              url: `${SITE_URL}/earn/`,
+              applicationCategory: "FinanceApplication",
+              operatingSystem: "Web",
+              description: SITE_DESCRIPTION,
+              publisher: { "@id": `${SITE_URL}/#organization` },
+            },
+          ]),
+        }}
+      />
       <script
         dangerouslySetInnerHTML={{
           // Injects a stylesheet rather than touching <html>, whose attributes React hydrates and checks.
