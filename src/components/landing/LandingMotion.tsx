@@ -280,7 +280,7 @@ export default function LandingMotion() {
             scale: 1,
             stagger: 0.05,
             ease: "none",
-            scrollTrigger: { trigger: rulesEl.querySelector(".lx-tiles"), start: "top 85%", end: "bottom 40%", scrub: 0.5 },
+            scrollTrigger: { trigger: rulesEl.querySelector(".lx-tiles"), start: "top 90%", end: "center 55%", scrub: 0.5 },
           });
         });
 

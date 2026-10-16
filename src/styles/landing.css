@@ -214,7 +214,8 @@
   width: 120%;
   height: 100%;
   background: var(--btn-sweep);
-  transform: translate(0, 140%) rotate(10deg);
+  /* Far enough down that the tilted corner stays hidden on full-width buttons. */
+  transform: translate(0, 230%) rotate(10deg);
   transition: transform 0.525s var(--cubic);
 }
 .lx-btn-icon {
@@ -1377,16 +1378,47 @@
   }
 }
 @media (max-width: 899px) {
+  /* Hero: flattened so the calls to action sit between the copy and a smaller cluster. */
+  .lx-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-height: 0;
+    padding: 108px var(--pad) 36px;
+  }
   .lx-hero-inner {
-    grid-template-columns: 1fr;
-    padding-top: 116px;
+    display: contents;
+  }
+  .lx-hero-copy {
+    position: relative;
+    z-index: 1;
+    order: 1;
+  }
+  .lx-hero-title {
+    margin-top: 18px;
+  }
+  .lx-hero-lede {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+  .lx-hero-bar {
+    order: 2;
+    margin: 0;
+  }
+  .lx-hero-bar p {
+    display: none;
   }
   .lx-hero-hexes {
-    --hw: min(19vw, 96px);
-    justify-self: center;
+    --hw: min(15vw, 84px);
+    order: 3;
+    z-index: 1;
+    align-self: center;
   }
   .lx-hero-bar .lx-btn {
     min-width: 0;
+    height: 60px;
+    gap: 12px;
+    padding: 0 16px;
   }
   .lx-marquee {
     grid-template-columns: 1fr;
@@ -1403,7 +1435,21 @@
   }
   .lx-room {
     height: auto;
-    min-height: 100svh;
+    min-height: 0;
+    padding-block: 110px;
+  }
+  .lx-statement {
+    min-height: 0;
+  }
+  .lx-statement-inner {
+    padding-block: 100px;
+  }
+  .lx-rules-inner {
+    min-height: 0;
+    padding-block: 100px 40px;
+  }
+  .lx-card-art {
+    padding: 36px 6px 10px;
   }
   .lx-products,
   .lx-faq {
@@ -1416,7 +1462,7 @@
     grid-template-columns: 1fr;
   }
   .lx-card {
-    min-height: 480px;
+    min-height: 420px;
   }
   .lx-steps-inner,
   .lx-rules-inner,
