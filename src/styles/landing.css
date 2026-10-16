@@ -561,6 +561,12 @@
   text-transform: uppercase;
   opacity: 0.8;
 }
+.lx-roll {
+  white-space: nowrap;
+}
+.lx-apr-narrow {
+  display: none;
+}
 .lx-apr.is-loading b {
   opacity: 0.45;
 }
@@ -1481,10 +1487,16 @@
     display: none;
   }
   .lx-hero-hexes {
-    --hw: min(15vw, 84px);
+    --hw: min(19.5vw, 96px);
     order: 3;
     z-index: 1;
     align-self: center;
+  }
+  .lx-apr-wide {
+    display: none;
+  }
+  .lx-apr-narrow {
+    display: block;
   }
   .lx-hero-bar .lx-btn {
     min-width: 0;

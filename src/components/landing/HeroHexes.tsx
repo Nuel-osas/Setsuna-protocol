@@ -157,8 +157,12 @@ export default function HeroHexes() {
                   <b className="lx-pixel">
                     <Roll text={active ? `${(active.apr * 100).toFixed(2)}%` : blended} />
                   </b>
-                  <small>
+                  {/* Phones get a shorter label; the cell is too narrow for the full one. */}
+                  <small className="lx-apr-wide">
                     <Roll text={active ? `${active.protocol} APR` : "base APR · live"} />
+                  </small>
+                  <small className="lx-apr-narrow">
+                    <Roll text={active ? active.protocol : "base APR"} />
                   </small>
                 </span>
               )}
