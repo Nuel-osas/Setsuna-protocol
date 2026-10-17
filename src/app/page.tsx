@@ -310,8 +310,7 @@ export default function Home() {
           </a>
         </div>
         <p className="lx-note">
-          <i /> Live on Monad mainnet with real funds. Earn is a capped beta;
-          Setsuna’s contracts are unaudited.
+          <i /> Live on Monad mainnet with real funds.
         </p>
       </section>
 
