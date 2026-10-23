@@ -1,0 +1,55 @@
+{
+  "name": "@setsunaprotocol/mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Setsuna on Monad: lets an AI read the vaults and prepare deposits and withdrawals for you to sign.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://setsuna.finance",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuel-osas/Setsuna-protocol.git",
+    "directory": "packages/mcp"
+  },
+  "bin": {
+    "setsuna-mcp": "dist/stdio.js"
+  },
+  "main": "./dist/server.js",
+  "types": "./dist/server.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "setsuna",
+    "monad",
+    "mcp",
+    "model-context-protocol",
+    "defi",
+    "vault"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@setsunaprotocol/sdk": "^0.1.0",
+    "viem": "^2.56.9",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

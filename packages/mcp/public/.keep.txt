@@ -1,0 +1,1 @@
+Setsuna MCP server. See https://mcp.setsuna.finance/
