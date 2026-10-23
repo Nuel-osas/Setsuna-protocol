@@ -1,0 +1,53 @@
+{
+  "name": "@setsuna/sdk",
+  "version": "0.1.0",
+  "description": "Read Setsuna's rule-bound Earn vaults on Monad and prepare deposits and withdrawals for the user to sign.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://setsuna.finance",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuel-osas/Setsuna-protocol.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/Nuel-osas/Setsuna-protocol/issues"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "setsuna",
+    "monad",
+    "erc4626",
+    "vault",
+    "defi",
+    "sdk"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "peerDependencies": {
+    "viem": "^2.30.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "viem": "^2.56.9"
+  }
+}
