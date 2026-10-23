@@ -339,7 +339,123 @@ export function createSetsuna(options: SetsunaOptions = {}) {
     };
   }
 
-  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw };
+  const minus = (x: bigint, bps: number) => x - (x * BigInt(bps)) / 10_000n;
+
+  /** Unsigned transactions for a deposit, in order. The caller's wallet signs and sends them. */
+  async function prepareDeposit(
+    id: VaultId,
+    assets: string,
+    owner: string,
+    opts: { slippageBps?: number; deadlineSeconds?: number } = {},
+  ): Promise<Prepared> {
+    const v = vaultOf(id);
+    const who = ownerOf(owner);
+    const quote = await quoteDeposit(id, assets, who);
+    if (!quote.ok) throw new Error(quote.problems.join(" "));
+    const value = BigInt(quote.assets.raw);
+    const shares = BigInt(quote.shares.raw);
+    const minShares = minus(shares, opts.slippageBps ?? DEFAULT_SLIPPAGE_BPS);
+    const block = await client.getBlock();
+    const deadline = block.timestamp + BigInt(opts.deadlineSeconds ?? DEFAULT_DEADLINE_SECONDS);
+    const transactions: Transaction[] = [];
+    if (v.assetSymbol === "MON") {
+      transactions.push({
+        label: `Deposit ${quote.assets.formatted} MON into setsMON through the MON gateway`,
+        to: v.gateway!,
+        data: encodeFunctionData({ abi: monGatewayAbi, functionName: "depositMON", args: [who, minShares, deadline] }),
+        value: value.toString(),
+        chainId: 143,
+      });
+    } else {
+      const allowance = await client.readContract({ address: v.asset, abi: erc20Abi, functionName: "allowance", args: [who, v.address] });
+      if (allowance < value)
+        transactions.push({
+          label: `Allow setsUSDC to take exactly ${quote.assets.formatted} USDC`,
+          to: v.asset,
+          data: encodeFunctionData({ abi: erc20Abi, functionName: "approve", args: [v.address, value] }),
+          value: "0",
+          chainId: 143,
+        });
+      transactions.push({
+        label: `Deposit ${quote.assets.formatted} USDC into setsUSDC`,
+        to: v.address,
+        data: encodeFunctionData({ abi: vaultAbi, functionName: "depositWithMinShares", args: [value, who, minShares, deadline] }),
+        value: "0",
+        chainId: 143,
+      });
+    }
+    return {
+      vault: v.id,
+      action: "deposit",
+      owner: who,
+      transactions,
+      expected: { shares: quote.shares, assets: quote.assets },
+      minimum: amount(minShares, v.shareDecimals),
+      expiresAt: iso(deadline)!,
+      appUrl: appUrlOf(v),
+      notes: [
+        "Setsuna contracts are unaudited and the vaults are capped. Deposit only what you can afford to lose.",
+        `The deposit reverts if it would mint fewer than ${amount(minShares, v.shareDecimals).formatted} ${v.id}.`,
+      ],
+    };
+  }
+
+  /** Unsigned transactions for a withdrawal back to `owner`, in order. setsMON returns native MON. */
+  async function prepareWithdraw(
+    id: VaultId,
+    owner: string,
+    request: WithdrawAmount,
+    opts: { slippageBps?: number; deadlineSeconds?: number } = {},
+  ): Promise<Prepared> {
+    const v = vaultOf(id);
+    const who = ownerOf(owner);
+    const quote = await quoteWithdraw(id, who, request);
+    if (!quote.ok) throw new Error(quote.problems.join(" "));
+    const shares = BigInt(quote.shares.raw);
+    const minAssets = minus(BigInt(quote.assets.raw), opts.slippageBps ?? DEFAULT_SLIPPAGE_BPS);
+    const block = await client.getBlock();
+    const deadline = block.timestamp + BigInt(opts.deadlineSeconds ?? DEFAULT_DEADLINE_SECONDS);
+    const transactions: Transaction[] = [];
+    if (v.assetSymbol === "MON") {
+      const allowance = await client.readContract({ address: v.address, abi: vaultAbi, functionName: "allowance", args: [who, v.gateway!] });
+      if (allowance < shares)
+        transactions.push({
+          label: `Allow the MON gateway to redeem exactly ${quote.shares.formatted} setsMON`,
+          to: v.address,
+          data: encodeFunctionData({ abi: vaultAbi, functionName: "approve", args: [v.gateway!, shares] }),
+          value: "0",
+          chainId: 143,
+        });
+      transactions.push({
+        label: `Withdraw ${quote.assets.formatted} MON (native) from setsMON`,
+        to: v.gateway!,
+        data: encodeFunctionData({ abi: monGatewayAbi, functionName: "redeemMON", args: [shares, who, minAssets, deadline] }),
+        value: "0",
+        chainId: 143,
+      });
+    } else {
+      transactions.push({
+        label: `Withdraw ${quote.assets.formatted} USDC from setsUSDC`,
+        to: v.address,
+        data: encodeFunctionData({ abi: vaultAbi, functionName: "redeemWithMinAssets", args: [shares, who, who, minAssets, deadline] }),
+        value: "0",
+        chainId: 143,
+      });
+    }
+    return {
+      vault: v.id,
+      action: "withdraw",
+      owner: who,
+      transactions,
+      expected: { shares: quote.shares, assets: quote.assets },
+      minimum: amount(minAssets, v.assetDecimals),
+      expiresAt: iso(deadline)!,
+      appUrl: appUrlOf(v),
+      notes: [`The withdrawal reverts if it would return less than ${amount(minAssets, v.assetDecimals).formatted} ${v.assetSymbol}.`],
+    };
+  }
+
+  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw };
 }
 
 export type Setsuna = ReturnType<typeof createSetsuna>;
