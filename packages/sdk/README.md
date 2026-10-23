@@ -1,15 +1,15 @@
-# @setsuna/sdk
+# @setsunaprotocol/sdk
 
 Read Setsuna's rule-bound Earn vaults on Monad, and prepare deposits and withdrawals for a wallet to sign.
 
 The SDK never holds a key and never sends a transaction. Reads come straight from the contracts on Monad mainnet. Prepared transactions are plain `{ to, data, value }` objects that your user's wallet signs.
 
 ```sh
-npm install @setsuna/sdk viem
+npm install @setsunaprotocol/sdk viem
 ```
 
 ```ts
-import { createSetsuna } from "@setsuna/sdk";
+import { createSetsuna } from "@setsunaprotocol/sdk";
 
 const setsuna = createSetsuna(); // Monad mainnet over https://rpc2.monad.xyz
 
