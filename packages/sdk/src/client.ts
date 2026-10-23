@@ -1,0 +1,269 @@
+import {
+  createPublicClient,
+  encodeFunctionData,
+  getAddress,
+  http,
+  isAddress,
+  parseUnits,
+  type Address,
+  type Hex,
+  type PublicClient,
+} from "viem";
+import { adapterAbi, erc20Abi, monGatewayAbi, multiVaultAbi, vaultAbi } from "./abis.js";
+import {
+  APP_URL,
+  DEFAULT_DEADLINE_SECONDS,
+  DEFAULT_RPC,
+  DEFAULT_SLIPPAGE_BPS,
+  VAULTS,
+  monad,
+  type VaultConfig,
+  type VaultId,
+  type Venue,
+} from "./constants.js";
+import { amount, bpsToPercent, iso, percentFrom1e18, percentOf, type Amount } from "./format.js";
+
+export interface SetsunaOptions {
+  /** A viem public client for Monad (chain 143). Takes precedence over `rpcUrl`. */
+  client?: PublicClient;
+  /** Monad RPC. Defaults to https://rpc2.monad.xyz. */
+  rpcUrl?: string;
+}
+
+export interface Allocation {
+  venue: Venue;
+  market: string;
+  adapter: Address;
+  assets: Amount;
+  /** Share of the vault's net assets held in this market, in percent. */
+  sharePct: number;
+  /** The market's current base supply APR, in percent. */
+  aprPct: number;
+  disabled: boolean;
+}
+
+export interface VaultState {
+  id: VaultId;
+  address: Address;
+  assetSymbol: "USDC" | "MON";
+  block: { number: string; time: string | null };
+  netAssets: Amount;
+  /** False when a market's value could not be read; the vault then refuses deposits and redemptions. */
+  healthy: boolean;
+  totalShares: Amount;
+  /** Assets one whole share redeems for today. */
+  sharePrice: Amount;
+  /** Income of the current allocation over net assets, before the performance fee, in percent. */
+  baseAprPct: number;
+  /** baseAprPct after the performance fee on yield. */
+  netAprPct: number;
+  performanceFeePct: number;
+  idle: { assets: Amount; sharePct: number };
+  allocations: Allocation[];
+  cap: Amount;
+  /** How much more the vault accepts before its cap. Zero while deposits are paused. */
+  capRemaining: Amount;
+  depositsPaused: boolean;
+  lastRebalanceAt: string | null;
+  appUrl: string;
+}
+
+export interface Market {
+  vault: VaultId;
+  venue: Venue;
+  market: string;
+  adapter: Address;
+  aprPct: number;
+  marketSupply: Amount;
+  availableLiquidity: Amount;
+  /** Markets smaller than the vault's minimum size get no new money. */
+  eligible: boolean;
+  disabled: boolean;
+}
+
+export interface VaultPosition {
+  vault: VaultId;
+  shares: Amount;
+  assets: Amount;
+  /** What could be redeemed right now, limited by the markets' available cash. */
+  withdrawableNow: Amount;
+}
+
+export interface Position {
+  owner: Address;
+  block: string;
+  vaults: VaultPosition[];
+  wallet: { USDC: Amount; MON: Amount };
+}
+
+export interface Transaction {
+  /** What this step does, in plain words. */
+  label: string;
+  to: Address;
+  data: Hex;
+  /** Native MON to send, in wei, as a string. */
+  value: string;
+  chainId: 143;
+}
+
+export interface Prepared {
+  vault: VaultId;
+  action: "deposit" | "withdraw";
+  owner: Address;
+  /** Send these in order from `owner`. Nothing is signed or sent by the SDK. */
+  transactions: Transaction[];
+  /** What the final step gives, at the current quote. */
+  expected: { shares: Amount; assets: Amount };
+  /** The least the final step accepts before it reverts. */
+  minimum: Amount;
+  /** After this time the final step reverts with DeadlineExpired; prepare again. */
+  expiresAt: string;
+  appUrl: string;
+  notes: string[];
+}
+
+export type WithdrawAmount = { amount: string } | { shares: string } | { all: true };
+
+const vaultOf = (id: VaultId | string): VaultConfig => {
+  const v = VAULTS[id as VaultId];
+  if (!v) throw new Error(`Unknown vault "${id}". Use "setsUSDC" or "setsMON".`);
+  return v;
+};
+const ownerOf = (owner: string): Address => {
+  if (!isAddress(owner)) throw new Error(`"${owner}" is not an address.`);
+  return getAddress(owner);
+};
+const appUrlOf = (v: VaultConfig) => `${APP_URL}/earn/${v.assetSymbol === "USDC" ? "usdc" : "mon"}/`;
+
+/** Read Setsuna's Earn vaults on Monad and prepare deposits and withdrawals. Read-only: it never holds a key. */
+export function createSetsuna(options: SetsunaOptions = {}) {
+  const client: PublicClient =
+    options.client ?? (createPublicClient({ chain: monad, transport: http(options.rpcUrl ?? DEFAULT_RPC, { retryCount: 3, timeout: 20_000 }) }) as PublicClient);
+
+  async function head() {
+    const block = await client.getBlock();
+    if ((await client.getChainId()) !== 143) throw new Error("The client is not on Monad mainnet (chain 143).");
+    return block;
+  }
+
+  async function getVault(id: VaultId): Promise<VaultState> {
+    const v = vaultOf(id);
+    const block = await head();
+    const at = { blockNumber: block.number } as const;
+    const read = <T>(functionName: string, args: unknown[] = []) =>
+      client.readContract({ address: v.address, abi: vaultAbi, functionName: functionName as never, args: args as never, ...at }) as Promise<T>;
+    const [accounting, supply, cap, paused, feeBps, lastRebalance, onePrice, room, idle] = await Promise.all([
+      read<readonly [bigint, boolean]>("accounting"),
+      read<bigint>("totalSupply"),
+      read<bigint>("depositCap"),
+      read<boolean>("depositsPaused"),
+      read<bigint>("performanceFeeBps"),
+      read<bigint>("lastRebalanceAt"),
+      read<bigint>("convertToAssets", [10n ** BigInt(v.shareDecimals)]),
+      read<bigint>("maxDeposit", ["0x0000000000000000000000000000000000000001"]),
+      client.readContract({ address: v.asset, abi: erc20Abi, functionName: "balanceOf", args: [v.address], ...at }),
+    ]);
+    const [nav, healthy] = accounting;
+    const venues = await Promise.all(
+      v.venues.map(async (x, i) => {
+        const [assets, apr, disabled] = await Promise.all([
+          client.readContract({ address: x.adapter, abi: adapterAbi, functionName: "totalAssets", ...at }),
+          client.readContract({ address: x.adapter, abi: adapterAbi, functionName: "supplyApr", args: [0n], ...at }).catch(() => 0n),
+          read<boolean>("disabled", [BigInt(i)]),
+        ]);
+        return { ...x, assets, apr, disabled };
+      }),
+    );
+    const income = venues.reduce((s, x) => s + (x.assets * x.apr) / 10n ** 18n, 0n);
+    const baseApr = nav === 0n ? 0n : (income * 10n ** 18n) / nav;
+    const fee = bpsToPercent(feeBps);
+    return {
+      id: v.id,
+      address: v.address,
+      assetSymbol: v.assetSymbol,
+      block: { number: block.number.toString(), time: iso(block.timestamp) },
+      netAssets: amount(nav, v.assetDecimals),
+      healthy,
+      totalShares: amount(supply, v.shareDecimals),
+      sharePrice: amount(onePrice, v.assetDecimals),
+      baseAprPct: percentFrom1e18(baseApr),
+      netAprPct: Math.round(percentFrom1e18(baseApr) * (1 - fee / 100) * 10_000) / 10_000,
+      performanceFeePct: fee,
+      idle: { assets: amount(idle, v.assetDecimals), sharePct: percentOf(idle, nav) },
+      allocations: venues.map((x) => ({
+        venue: x.venue,
+        market: x.market,
+        adapter: x.adapter,
+        assets: amount(x.assets, v.assetDecimals),
+        sharePct: percentOf(x.assets, nav),
+        aprPct: percentFrom1e18(x.apr),
+        disabled: x.disabled,
+      })),
+      cap: amount(cap, v.assetDecimals),
+      capRemaining: amount(paused ? 0n : room, v.assetDecimals),
+      depositsPaused: paused,
+      lastRebalanceAt: iso(lastRebalance),
+      appUrl: appUrlOf(v),
+    };
+  }
+
+  async function getVaults(): Promise<VaultState[]> {
+    return Promise.all((Object.keys(VAULTS) as VaultId[]).map(getVault));
+  }
+
+  async function getMarkets(): Promise<Market[]> {
+    const block = await head();
+    const at = { blockNumber: block.number } as const;
+    const rows = await Promise.all(
+      Object.values(VAULTS).map(async (v) => {
+        const min = await client.readContract({ address: v.address, abi: vaultAbi, functionName: "minimumMarketSupply", ...at });
+        return Promise.all(
+          v.venues.map(async (x, i) => {
+            const [apr, supply, liquidity, disabled] = await Promise.all([
+              client.readContract({ address: x.adapter, abi: adapterAbi, functionName: "supplyApr", args: [0n], ...at }).catch(() => 0n),
+              client.readContract({ address: x.adapter, abi: adapterAbi, functionName: "marketSupply", ...at }).catch(() => 0n),
+              client.readContract({ address: x.adapter, abi: adapterAbi, functionName: "availableLiquidity", ...at }).catch(() => 0n),
+              client.readContract({ address: v.address, abi: vaultAbi, functionName: "disabled", args: [BigInt(i)], ...at }),
+            ]);
+            return {
+              vault: v.id,
+              venue: x.venue,
+              market: x.market,
+              adapter: x.adapter,
+              aprPct: percentFrom1e18(apr),
+              marketSupply: amount(supply, v.assetDecimals),
+              availableLiquidity: amount(liquidity, v.assetDecimals),
+              eligible: !disabled && supply >= min && apr > 0n,
+              disabled,
+            } satisfies Market;
+          }),
+        );
+      }),
+    );
+    return rows.flat();
+  }
+
+  async function getPosition(owner: string): Promise<Position> {
+    const who = ownerOf(owner);
+    const block = await head();
+    const at = { blockNumber: block.number } as const;
+    const vaults = await Promise.all(
+      Object.values(VAULTS).map(async (v) => {
+        const read = <T>(functionName: string, args: unknown[]) =>
+          client.readContract({ address: v.address, abi: vaultAbi, functionName: functionName as never, args: args as never, ...at }) as Promise<T>;
+        const shares = await read<bigint>("balanceOf", [who]);
+        const [assets, now] = shares === 0n ? [0n, 0n] : await Promise.all([read<bigint>("convertToAssets", [shares]), read<bigint>("maxWithdraw", [who])]);
+        return { vault: v.id, shares: amount(shares, v.shareDecimals), assets: amount(assets, v.assetDecimals), withdrawableNow: amount(now, v.assetDecimals) };
+      }),
+    );
+    const [usdc, mon] = await Promise.all([
+      client.readContract({ address: VAULTS.setsUSDC.asset, abi: erc20Abi, functionName: "balanceOf", args: [who], ...at }),
+      client.getBalance({ address: who, ...at }),
+    ]);
+    return { owner: who, block: block.number.toString(), vaults, wallet: { USDC: amount(usdc, 6), MON: amount(mon, 18) } };
+  }
+
+  return { getVault, getVaults, getMarkets, getPosition };
+}
+
+export type Setsuna = ReturnType<typeof createSetsuna>;
