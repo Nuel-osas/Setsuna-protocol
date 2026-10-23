@@ -1,0 +1,11 @@
+{
+  "name": "setsuna-stats",
+  "private": true,
+  "type": "module",
+  "description": "stats.setsuna.finance: password-protected real-usage dashboard, read live from Monad mainnet",
+  "engines": { "node": "24.x" },
+  "dependencies": {
+    "@vercel/functions": "3.10.3",
+    "viem": "2.56.9"
+  }
+}

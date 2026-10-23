@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Setsuna Stats</title>
+<style>
+@font-face { font-family: "GeistPixel"; src: url(/fonts/GeistPixel.woff2) format("woff2"); font-display: swap; }
+:root { --ground: #f6f4ef; --card: #fff; --ink: #0b0c10; --muted: #55524b; --line: #dcd8cf; --blue: #2338ff; --ice: #b9c2ff; --bad: #b42318; color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--ground); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; display: grid; place-items: center; min-height: 100vh; padding: 24px max(16px, env(safe-area-inset-left)); }
+main { width: min(100%, 420px); display: grid; gap: 22px; }
+.eyebrow { font: 600 13px/1 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 10px; margin: 0; }
+.eyebrow::before { content: ""; width: 9px; height: 9px; background: var(--blue); }
+h1 { font: 400 clamp(44px, 12vw, 64px)/.9 "GeistPixel", ui-monospace, monospace; text-transform: uppercase; margin: 0; }
+.bar { display: flex; align-items: center; height: 10px; }
+.bar i { width: 10px; height: 10px; background: var(--blue); }
+.bar i + i { background: var(--ice); transform: translateY(-10px); }
+.bar b { width: 120px; height: 8px; background: linear-gradient(90deg, var(--blue), var(--ice)); }
+form { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; gap: 14px; box-shadow: 0 1px 2px rgba(11, 12, 16, .05); }
+label { font-weight: 600; font-size: 15px; }
+input { font: inherit; font-size: 17px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); width: 100%; }
+input:focus-visible, button:focus-visible { outline: 3px solid var(--ice); outline-offset: 2px; border-color: var(--blue); }
+button { font: 600 16px/1 ui-monospace, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; padding: 15px; border: 0; border-radius: 8px; background: var(--blue); color: #fff; cursor: pointer; }
+button:hover { background: #1a2bd6; }
+.wrong { color: var(--bad); font-size: 15px; margin: 0; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Setsuna · private</p>
+  <h1>Traction<br>stats</h1>
+  <div class="bar" aria-hidden="true"><i></i><i></i><b></b></div>
+  <form method="post" action="/api/login">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+    <p class="wrong" id="wrong" hidden>That password isn't right. Try again.</p>
+    <button type="submit">Open stats</button>
+  </form>
+  <p class="note">Real usage of Setsuna on Monad mainnet, read live from the chain.</p>
+</main>
+<script>
+  if (new URLSearchParams(location.search).has("wrong")) document.getElementById("wrong").hidden = false;
+</script>
+</body>
+</html>

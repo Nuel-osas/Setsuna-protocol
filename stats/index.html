@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Setsuna Stats</title>
+<style>
+/* Landing's paper sections: warm light ground, ink text, Setsuna blue. Bright, high contrast, large type. */
+@font-face { font-family: "GeistPixelSt"; src: url(/fonts/GeistPixel.woff2) format("woff2"); font-display: swap; }
+.st {
+  --ground: #f6f4ef; --card: #ffffff; --ink: #0b0c10; --ink2: #2a2c33; --muted: #55524b; --soft: #ece9e2;
+  --blue: #2338ff; --blue-l: #5d6cff; --ice: #b9c2ff; --line: #dcd8cf;
+  --ok: #0f7a4a; --warn: #a15c00;
+  --pixel: "GeistPixelSt", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  padding: clamp(22px, 4vw, 52px) max(16px, clamp(16px, 4vw, 52px));
+  display: grid;
+  gap: clamp(32px, 4vw, 52px);
+  min-height: 100%;
+}
+.st-eyebrow { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0; }
+.st-eyebrow::before { content: ""; width: 9px; height: 9px; background: var(--blue); }
+.st-head { display: grid; gap: 16px; max-width: 1000px; }
+.st-title { font-family: var(--pixel); font-weight: 400; font-size: clamp(44px, 7vw, 92px); line-height: 0.9; margin: 0; text-transform: uppercase; color: var(--ink); }
+.st-bar { display: flex; align-items: center; height: 10px; }
+.st-bar i { display: block; width: 10px; height: 10px; background: var(--blue); }
+.st-bar i:nth-child(2) { background: var(--ice); transform: translateY(-10px); }
+.st-bar b { display: block; width: 160px; height: 8px; background: linear-gradient(90deg, var(--blue), var(--ice)); }
+.st-takeaway { font-size: clamp(18px, 1.8vw, 22px); line-height: 1.5; color: var(--ink2); max-width: 60ch; margin: 0; text-wrap: balance; }
+.st-takeaway b { color: var(--blue); font-weight: 700; }
+.st-meta { font-family: var(--mono); font-size: 14px; color: var(--muted); display: flex; gap: 8px 22px; flex-wrap: wrap; }
+.st-meta span { font-variant-numeric: tabular-nums; }
+
+.st-section { display: grid; gap: 18px; min-width: 0; }
+.st-note { font-size: 15px; color: var(--muted); margin: 0; line-height: 1.5; max-width: 70ch; }
+
+.st-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: 14px; }
+.st-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 14px; align-content: start; min-width: 0; min-height: 230px; box-shadow: 0 1px 2px rgba(11, 12, 16, 0.05); }
+.st-card-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.st-label { font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.st-chip { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.st-chip.is-zero { color: var(--muted); background: var(--soft); }
+.st-chip.is-moving { color: var(--warn); background: #fdf0d8; }
+.st-chip.is-met { color: var(--ok); background: #dcf3e7; }
+.st-big { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.st-num { font-family: var(--pixel); font-size: clamp(52px, 5.5vw, 68px); line-height: 0.9; color: var(--ink); font-variant-numeric: tabular-nums; }
+.st-target { font-size: 16px; color: var(--muted); font-weight: 500; }
+.st-target span { color: var(--ink2); font-weight: 600; }
+.st-progress { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; height: 12px; }
+.st-progress i { background: var(--soft); border-radius: 2px; }
+.st-progress i.on { background: var(--blue); }
+.st-progress i.on.full { background: var(--ok); }
+.st-def { font-size: 14px; color: var(--muted); line-height: 1.45; margin: 0; }
+.st-split { font-size: 14px; color: var(--ink2); display: flex; gap: 6px 16px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 12px; }
+.st-split span { font-variant-numeric: tabular-nums; font-weight: 600; }
+.st-split em { font-style: normal; font-weight: 400; color: var(--muted); }
+
+.st-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 27rem), 1fr)); gap: 14px; }
+.st-panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 12px; min-width: 0; }
+.st-panel h3 { font-size: 17px; font-weight: 600; margin: 0; color: var(--ink); }
+.st-chart { position: relative; min-height: 220px; }
+.st-chart svg text { fill: var(--muted); font-family: var(--mono); font-size: 12px; }
+.st-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; color: var(--ink2); }
+.st-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.st-legend i { width: 12px; height: 12px; display: inline-block; border-radius: 3px; }
+.st-tip { position: absolute; pointer-events: none; background: var(--ink); color: #fff; border-radius: 8px; padding: 8px 11px; font-size: 13px; white-space: nowrap; z-index: 2; box-shadow: 0 6px 18px rgba(11, 12, 16, 0.18); }
+.st-tip div:first-child { opacity: 0.7; margin-bottom: 3px; }
+.st-empty { font-size: 14px; color: var(--muted); margin: 0; }
+
+.st-table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+.st-table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+.st-table th { font-size: 13px; font-weight: 600; color: var(--muted); text-align: right; padding: 13px 16px; border-bottom: 1px solid var(--line); background: #faf9f6; white-space: nowrap; }
+.st-table td { text-align: right; padding: 13px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; color: var(--ink); }
+.st-table tr:last-child td { border-bottom: 0; }
+.st-table th:first-child, .st-table td:first-child { text-align: left; }
+.st-table td.addr { font-family: var(--mono); font-size: 14px; }
+.st-grp { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+.st-grp.organic { color: #fff; background: var(--blue); }
+.st-grp.incentivized { color: #1a2399; background: var(--ice); }
+.st-grp.team { color: var(--ink2); background: var(--soft); }
+.st-foot { font-size: 14px; color: var(--muted); line-height: 1.7; border-top: 1px solid var(--line); padding-top: 18px; display: grid; gap: 6px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .st-progress i.on { animation: st-in .5s cubic-bezier(.16,1,.3,1) both; }
+}
+@keyframes st-in { from { opacity: 0; } to { opacity: 1; } }
+
+html, body { margin: 0; background: #f6f4ef; }
+* { box-sizing: border-box; }
+.st { min-height: 100vh; }
+.st-topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.st-brand { font: 600 15px/1 system-ui, sans-serif; display: flex; align-items: center; gap: 9px; color: var(--ink); }
+.st-brand svg { width: 22px; height: 22px; }
+.st-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.st-btn { font: 600 13px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; text-decoration: none; }
+.st-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.st-btn:focus-visible { outline: 3px solid var(--ice); outline-offset: 2px; }
+.st-btn[disabled] { opacity: .6; cursor: progress; }
+.st-status { font: 13px/1.3 var(--mono); color: var(--muted); }
+.st-error { background: #fdecea; color: #8a1c12; border: 1px solid #f3c2bc; border-radius: 10px; padding: 14px 16px; font-size: 15px; }
+.sk { background: linear-gradient(90deg, #ece9e2, #f6f4ef, #ece9e2); background-size: 200% 100%; animation: sk 1.2s linear infinite; border-radius: 6px; color: transparent !important; }
+@keyframes sk { to { background-position: -200% 0; } }
+</style>
+</head>
+<body>
+<div class="st">
+  <div class="st-topbar">
+    <span class="st-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(0 3)"><path d="M32 8 A24 24 0 0 0 32 56 C24 44 40 20 32 8 Z" fill="#0b0c10" transform="translate(-1.7 0)"/><path d="M32 8 C40 20 24 44 32 56 A24 24 0 0 0 32 8 Z" fill="#2338ff" transform="translate(1.7 -6)"/></g></svg>setsuna stats</span>
+    <span class="st-actions">
+      <span class="st-status" id="status">Reading the chain…</span>
+      <button class="st-btn primary" id="refresh" type="button">Refresh</button>
+      <a class="st-btn" href="/api/logout">Sign out</a>
+    </span>
+  </div>
+
+  <header class="st-head" id="top">
+    <p class="st-eyebrow">Real usage · Monad mainnet · live</p>
+    <h1 class="st-title">Traction<br>sprint</h1>
+    <div class="st-bar" aria-hidden="true"><i></i><i></i><b></b></div>
+    <p class="st-takeaway" id="takeaway"><span class="sk">Loading the latest numbers from Monad.</span></p>
+    <div class="st-meta" id="meta"></div>
+  </header>
+
+  <div class="st-error" id="error" hidden></div>
+
+  <section class="st-section" id="targets">
+    <p class="st-eyebrow">Sprint targets · external wallets only</p>
+    <div class="st-cards" id="cards"></div>
+  </section>
+
+  <section class="st-section" id="daily">
+    <p class="st-eyebrow">Day by day · UTC</p>
+    <div class="st-charts">
+      <div class="st-panel"><h3>New wallets per day</h3><div class="st-legend" id="legend-wallets"></div><div class="st-chart" id="chart-wallets"></div></div>
+      <div class="st-panel"><h3>Spot volume per day, USDC</h3><div class="st-legend" id="legend-volume"></div><div class="st-chart" id="chart-volume"></div></div>
+    </div>
+  </section>
+
+  <section class="st-section" id="other">
+    <p class="st-eyebrow">Everything else on chain</p>
+    <div class="st-table-wrap"><table class="st-table" id="activity-table">
+      <thead><tr><th>Measure</th><th>Organic</th><th>Rewarded</th><th>Team</th></tr></thead><tbody></tbody>
+    </table></div>
+  </section>
+
+  <section class="st-section" id="wallets">
+    <p class="st-eyebrow">Every wallet that has used Setsuna</p>
+    <div class="st-table-wrap"><table class="st-table" id="wallet-table">
+      <thead><tr><th>Wallet</th><th>Group</th><th>First seen</th><th>Spot USDC</th><th>Trades</th><th>Days</th><th>setsUSDC</th><th>setsMON</th><th>Perps</th><th>Limits</th></tr></thead><tbody></tbody>
+    </table></div>
+  </section>
+
+  <footer class="st-foot">
+    <span>Read live from Setsuna's contracts on Monad mainnet: spot gateway swaps, setsUSDC and setsMON deposits and balances, Perpl and limit-order accounts.</span>
+    <span>Organic: any wallet not listed as team or rewarded. Rewarded: wallets that received a campaign payment. Team: Setsuna's own wallets, never counted as users.</span>
+    <span>A wallet is an address, not a verified person. Perps filled notional is not computed. Campaign spend and interviews are tracked by hand.</span>
+  </footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

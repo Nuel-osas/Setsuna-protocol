@@ -1,0 +1,5 @@
+node_modules/
+.vercel/
+.vercel
+# Team wallets stay private: the repo is public. See data/team.example.json.
+data/team.json
