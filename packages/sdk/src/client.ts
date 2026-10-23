@@ -263,7 +263,83 @@ export function createSetsuna(options: SetsunaOptions = {}) {
     return { owner: who, block: block.number.toString(), vaults, wallet: { USDC: amount(usdc, 6), MON: amount(mon, 18) } };
   }
 
-  return { getVault, getVaults, getMarkets, getPosition };
+  /** Shares for a deposit at the current price, and whether the cap, pause or wallet would stop it. */
+  async function quoteDeposit(id: VaultId, assets: string, owner?: string) {
+    const v = vaultOf(id);
+    const value = parseUnits(assets, v.assetDecimals);
+    if (value <= 0n) throw new Error("Deposit a positive amount.");
+    const who = owner ? ownerOf(owner) : undefined;
+    const block = await head();
+    const at = { blockNumber: block.number } as const;
+    const [shares, room, paused] = await Promise.all([
+      client.readContract({ address: v.address, abi: vaultAbi, functionName: "previewDeposit", args: [value], ...at }),
+      client.readContract({ address: v.address, abi: vaultAbi, functionName: "maxDeposit", args: [who ?? "0x0000000000000000000000000000000000000001"], ...at }),
+      client.readContract({ address: v.address, abi: vaultAbi, functionName: "depositsPaused", ...at }),
+    ]);
+    const problems: string[] = [];
+    if (paused) problems.push("Deposits are paused on this vault. Withdrawals still work.");
+    else if (value > room) problems.push(`The vault accepts at most ${amount(room, v.assetDecimals).formatted} ${v.assetSymbol} more before its cap.`);
+    let walletBalance: Amount | undefined;
+    if (who) {
+      const bal = v.assetSymbol === "MON"
+        ? await client.getBalance({ address: who, ...at })
+        : await client.readContract({ address: v.asset, abi: erc20Abi, functionName: "balanceOf", args: [who], ...at });
+      walletBalance = amount(bal, v.assetDecimals);
+      if (bal < value) problems.push(`The wallet holds ${walletBalance.formatted} ${v.assetSymbol}, less than ${assets}.`);
+      if (v.assetSymbol === "MON" && bal === value) problems.push("This would leave no MON for gas. Deposit a little less.");
+    }
+    return {
+      vault: v.id,
+      assets: amount(value, v.assetDecimals),
+      shares: amount(shares, v.shareDecimals),
+      capRemaining: amount(paused ? 0n : room, v.assetDecimals),
+      walletBalance,
+      ok: problems.length === 0,
+      problems,
+      block: block.number.toString(),
+    };
+  }
+
+  async function sharesFor(v: VaultConfig, who: Address, request: WithdrawAmount, blockNumber: bigint) {
+    const at = { blockNumber } as const;
+    const balance = await client.readContract({ address: v.address, abi: vaultAbi, functionName: "balanceOf", args: [who], ...at });
+    if ("all" in request) return { shares: balance, balance };
+    if ("shares" in request) return { shares: parseUnits(request.shares, v.shareDecimals), balance };
+    const assets = parseUnits(request.amount, v.assetDecimals);
+    const shares = await client.readContract({ address: v.address, abi: vaultAbi, functionName: "previewWithdraw", args: [assets], ...at });
+    return { shares, balance };
+  }
+
+  /** Assets a withdrawal returns at the current price, and whether the markets have the cash for it now. */
+  async function quoteWithdraw(id: VaultId, owner: string, request: WithdrawAmount) {
+    const v = vaultOf(id);
+    const who = ownerOf(owner);
+    const block = await head();
+    const at = { blockNumber: block.number } as const;
+    const { shares, balance } = await sharesFor(v, who, request, block.number);
+    const [assets, redeemable] = await Promise.all([
+      shares === 0n ? 0n : client.readContract({ address: v.address, abi: vaultAbi, functionName: "previewRedeem", args: [shares], ...at }),
+      client.readContract({ address: v.address, abi: vaultAbi, functionName: "maxRedeem", args: [who], ...at }),
+    ]);
+    const problems: string[] = [];
+    if (balance === 0n) problems.push(`This wallet holds no ${v.id}.`);
+    else if (shares > balance) problems.push(`That is more than the ${amount(balance, v.shareDecimals).formatted} ${v.id} this wallet holds.`);
+    else if (shares > redeemable)
+      problems.push(`The markets can return ${amount(redeemable, v.shareDecimals).formatted} ${v.id} worth right now. Withdraw less, or try again later.`);
+    if (shares === 0n && balance > 0n) problems.push("Choose a larger amount.");
+    return {
+      vault: v.id,
+      shares: amount(shares, v.shareDecimals),
+      assets: amount(assets, v.assetDecimals),
+      sharesHeld: amount(balance, v.shareDecimals),
+      redeemableNow: amount(redeemable, v.shareDecimals),
+      ok: problems.length === 0,
+      problems,
+      block: block.number.toString(),
+    };
+  }
+
+  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw };
 }
 
 export type Setsuna = ReturnType<typeof createSetsuna>;
