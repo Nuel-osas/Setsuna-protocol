@@ -42,9 +42,15 @@ Set `MONAD_RPC_URL` to use your own Monad RPC. The default is `https://rpc2.mona
 | `get_position` | A wallet's shares and their value, what is withdrawable now, and its USDC and MON |
 | `explain_rules` | The vault's fixed rules, read from the contract, in plain words |
 | `quote_deposit` · `quote_withdraw` | What a deposit or withdrawal would give today, and what would stop it |
-| `prepare_deposit` · `prepare_withdraw` | Unsigned transactions, in order, for your wallet to sign |
+| `prepare_deposit` · `prepare_withdraw` | Unsigned transactions, in order, plus a link to review and sign them in your browser wallet |
 
 Every tool is read-only toward the chain. Prepared transactions carry the same protection as the app: each reverts if the result falls more than 0.1% short of the quote, or if it is sent after 10 minutes.
+
+## Sign in your browser
+
+Every prepared deposit or withdrawal comes with a link such as `https://mcp.setsuna.finance/sign?vault=setsUSDC&action=deposit&amount=50`. Open it, connect MetaMask, Rabby, Phantom or any browser wallet, check the summary, and sign.
+
+The link carries only the request, never transaction data. The page rebuilds the transactions itself with `@setsunaprotocol/sdk` when you open it, so a link can only deposit into a Setsuna vault or withdraw back to your own wallet, and it never goes stale.
 
 ## Try asking
 

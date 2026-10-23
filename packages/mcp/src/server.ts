@@ -3,7 +3,7 @@ import { createSetsuna, type Setsuna, type VaultState } from "@setsunaprotocol/s
 import { z } from "zod";
 
 export const SERVER_NAME = "setsuna";
-export const SERVER_VERSION = "0.1.0";
+export const SERVER_VERSION = "0.1.1";
 
 const INSTRUCTIONS = `Setsuna runs rule-bound Earn vaults on Monad mainnet (chain 143): setsUSDC holds USDC and setsMON holds MON. Deposits are allocated across Monad lending markets (Aave, Morpho, Euler, Neverland, Curvance) by fixed on-chain rules that nobody can change.
 
