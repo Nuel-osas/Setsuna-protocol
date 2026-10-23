@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Sign with Setsuna</title>
+<style>
+@font-face { font-family: "GeistPixel"; src: url(/GeistPixel.woff2) format("woff2"); font-display: swap; }
+:root { --ink: #07080c; --panel: #0f1118; --panel-2: #161923; --line: rgba(242,239,232,.12); --fg: #f2efe8; --muted: #9a968d; --blue: #2338ff; --blue-l: #7b88ff; --ice: #b9c2ff; --ok: #6fd3a1; --bad: #f08a7e; --warn: #f2c35b; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { min-height: 100vh; background: radial-gradient(60% 50% at 50% 0%, rgba(35,56,255,.28), transparent 70%), linear-gradient(rgba(242,239,232,.05) 1px, transparent 1px) 0 0 / 100% 54px, linear-gradient(90deg, rgba(242,239,232,.05) 1px, transparent 1px) 0 0 / 54px 100%, var(--ink); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: grid; justify-items: center; padding: 40px max(16px, env(safe-area-inset-left)) 60px max(16px, env(safe-area-inset-right)); }
+main { width: min(100%, 520px); display: grid; gap: 22px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -.02em; }
+.brand svg { width: 26px; height: 26px; }
+.eyebrow { margin: 0; font: 600 12px/1 ui-monospace, Menlo, monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--ice); display: flex; gap: 10px; align-items: center; }
+.eyebrow::before { content: ""; width: 9px; height: 9px; background: var(--blue); }
+h1 { margin: 10px 0 0; font: 400 clamp(36px, 9vw, 52px)/.95 "GeistPixel", ui-monospace, monospace; text-transform: uppercase; }
+#subtitle { margin: 8px 0 0; color: #c9c5bc; }
+.card { background: rgba(15,17,24,.94); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 14px; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.fact { background: var(--panel-2); border-radius: 10px; padding: 12px; display: grid; gap: 4px; min-width: 0; }
+.fact span { font: 500 11px ui-monospace, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.fact b { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#markets { color: var(--muted); font-size: 14px; margin: 0; }
+.wallet { display: flex; align-items: center; gap: 10px; width: 100%; padding: 13px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: 600 16px system-ui, sans-serif; cursor: pointer; }
+.wallet:hover { border-color: var(--blue-l); }
+.wallet img { width: 24px; height: 24px; border-radius: 6px; }
+#wallets { display: grid; gap: 8px; }
+.connected { margin: 0; color: var(--ok); font-weight: 600; }
+.muted { color: var(--muted); margin: 0; }
+ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: s; }
+li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--panel-2); counter-increment: s; }
+li::before { content: counter(s); font: 600 13px ui-monospace, monospace; color: var(--ice); margin-right: 10px; }
+.step-label { flex: 1; }
+.step-state { font: 500 13px ui-monospace, monospace; color: var(--muted); white-space: nowrap; }
+li[data-state="active"] { outline: 1px solid var(--blue-l); }
+li[data-state="active"] .step-state { color: var(--warn); }
+li[data-state="done"] .step-state { color: var(--ok); }
+.step-link { color: var(--ice); }
+.rows { display: grid; gap: 6px; font-size: 15px; }
+.rows div { display: flex; justify-content: space-between; gap: 12px; }
+.rows span { color: var(--muted); }
+.rows b { font-variant-numeric: tabular-nums; text-align: right; }
+#sign { width: 100%; padding: 15px; border: 0; border-radius: 12px; background: var(--blue); color: #fff; font: 600 17px system-ui, sans-serif; cursor: pointer; box-shadow: 0 0 40px rgba(35,56,255,.4); }
+#sign:disabled { opacity: .55; cursor: default; box-shadow: none; }
+#status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--panel-2); font-size: 15px; }
+#status[data-tone="ok"] { color: var(--ok); }
+#status[data-tone="bad"] { color: var(--bad); }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+a { color: var(--ice); }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--ice); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(0 3)"><path d="M32 8 A24 24 0 0 0 32 56 C24 44 40 20 32 8 Z" fill="#f2efe8" transform="translate(-1.7 0)"/><path d="M32 8 C40 20 24 44 32 56 A24 24 0 0 0 32 8 Z" fill="#b9c2ff" transform="translate(1.7 -6)"/></g></svg>
+    setsuna
+  </div>
+  <header>
+    <p class="eyebrow">Prepared by your AI · signed by you</p>
+    <h1 id="title">Setsuna</h1>
+    <p id="subtitle"></p>
+  </header>
+
+  <section class="card" aria-label="Vault">
+    <div class="facts">
+      <div class="fact"><span>Net APR</span><b id="apr">…</b></div>
+      <div class="fact"><span>Room under cap</span><b id="cap">…</b></div>
+      <div class="fact"><span>Network</span><b>Monad</b></div>
+    </div>
+    <p id="markets"></p>
+  </section>
+
+  <section class="card" aria-label="Wallet">
+    <div id="wallets"><p class="muted">Looking for your wallet…</p></div>
+  </section>
+
+  <section class="card" id="review" hidden aria-label="Review">
+    <ol id="steps"></ol>
+    <div class="rows">
+      <div><span>You get about</span><b id="expected"></b></div>
+      <div><span>Reverts if less than</span><b id="minimum"></b></div>
+      <div><span>Valid until</span><b id="expires"></b></div>
+    </div>
+    <button id="sign" type="button" disabled>Sign</button>
+  </section>
+
+  <p id="status" role="status" hidden></p>
+
+  <p class="note">This page builds the transaction itself from Setsuna's published SDK. It can only deposit into a Setsuna vault or withdraw back to your own wallet, and nothing is sent until you confirm in your wallet. Setsuna's contracts are unaudited and the vaults are capped: deposit only what you can afford to lose. Prefer the app? <a id="app-link" href="https://setsuna.finance/earn/">Open setsuna.finance</a>.</p>
+</main>
+<script type="module" src="/sign.js"></script>
+</body>
+</html>

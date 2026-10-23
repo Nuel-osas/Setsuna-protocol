@@ -2,7 +2,28 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "public",
-  "functions": { "api/mcp.js": { "maxDuration": 60, "includeFiles": "dist/**" } },
-  "rewrites": [{ "source": "/(.*)", "destination": "/api/mcp" }],
-  "headers": [{ "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }]
+  "functions": {
+    "api/mcp.js": {
+      "maxDuration": 60,
+      "includeFiles": "dist/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!sign$|sign\\.html$|sign\\.js$|GeistPixel\\.woff2$).*)",
+      "destination": "/api/mcp"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
+  ],
+  "cleanUrls": true
 }
