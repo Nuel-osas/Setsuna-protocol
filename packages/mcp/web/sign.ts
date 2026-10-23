@@ -61,6 +61,7 @@ let account: `0x${string}` | undefined;
 let provider: EIP1193Provider | undefined;
 let prepared: Prepared | undefined;
 let busy = false;
+let finished = false;
 
 function setStatus(text: string, tone: "info" | "ok" | "bad" = "info") {
   const s = $("status");
@@ -155,6 +156,10 @@ async function prepare() {
 }
 
 async function sign() {
+  if (finished) {
+    location.href = $("app-link").getAttribute("href")!;
+    return;
+  }
   if (!prepared || !provider || !account || busy) return;
   if (Date.parse(prepared.expiresAt) - Date.now() < 30_000) await prepare();
   if (!prepared) return;
@@ -182,7 +187,9 @@ async function sign() {
     const position = await setsuna.getPosition(account);
     const mine = position.vaults.find((v) => v.vault === prepared!.vault)!;
     setStatus(`Done. You now hold ${short(mine.shares.formatted)} ${mine.vault}, worth ${short(mine.assets.formatted)} ${VAULTS[mine.vault].assetSymbol}.`, "ok");
-    button.textContent = "Done";
+    finished = true;
+    button.textContent = "View your position on setsuna.finance";
+    button.disabled = false;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     setStatus(/reject|denied|cancel/i.test(message) ? "You cancelled in your wallet. Nothing was sent." : message.split("\n")[0], "bad");
