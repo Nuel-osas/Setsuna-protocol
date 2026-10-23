@@ -20,6 +20,11 @@ function publish(next: EarnState) {
   listeners.forEach((l) => l(state));
 }
 
+/** Start from the snapshot the server put in the page; the minute timer refreshes it. */
+export function seedEarn(snapshot: EarnSnapshot, force = false) {
+  if (force || !state.data) state = { data: snapshot, failed: false };
+}
+
 /** Live destination rates and Setsuna's target split, refreshed every minute. */
 export function useEarn() {
   const [snap, setSnap] = useState<EarnState>(state);

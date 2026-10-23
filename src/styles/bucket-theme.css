@@ -67,7 +67,7 @@ html {
 body,
 body:has(.t-shell),
 body:has(.db-spot) {
-  background: var(--b-bg) url("/images/bucket-theme/main-bg.png") center / cover
+  background: var(--b-bg) url("/images/bucket-theme/main-bg.jpg") center / cover
     fixed no-repeat;
   color: var(--b-text);
   min-height: 100svh;

@@ -14,7 +14,9 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
 import Toaster from "@/components/setsuna/Toaster";
-import PrivyRoot from "@/components/setsuna/PrivyRoot";
+import { mainnetDeployment } from "@/lib/setsuna/mainnet-deployment";
+import EarnSeed from "@/components/setsuna/EarnSeed";
+import { earnSeeds } from "@/lib/setsuna/earn-seed";
 import { OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL, X_HANDLE } from "@/lib/setsuna/seo";
 
 const display = EB_Garamond({
@@ -92,19 +94,26 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
+// Pages carry the vaults' figures in their HTML, refreshed at most every 30s.
+export const revalidate = 30;
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // The network config is public (also served at /api/deployment); sending it
+  // in the page removes a round trip before anything can load.
+  const deployment = mainnetDeployment();
+  const seeds = await earnSeeds(deployment);
   return (
     <html
       lang="en"
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <body>
-        <PrivyRoot>
-          <WalletProvider>
+        <WalletProvider initialDeployment={deployment}>
+          <EarnSeed seeds={seeds} />
             <a className="s-skip" href="#main">
               Skip to content
             </a>
@@ -112,8 +121,7 @@ export default function RootLayout({
             {children}
             <SiteFooter />
             <Toaster />
-          </WalletProvider>
-        </PrivyRoot>
+        </WalletProvider>
       </body>
     </html>
   );

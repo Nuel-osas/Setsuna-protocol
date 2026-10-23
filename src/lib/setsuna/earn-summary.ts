@@ -37,6 +37,8 @@ export function earnSummaryKey(d: Deployment, asset: SummaryAsset) {
 const summaries = createReadCache<EarnSummary>(10_000);
 export const cachedEarnSummary = (d: Deployment, asset: SummaryAsset) =>
   summaries.peek(earnSummaryKey(d, asset));
+export const seedEarnSummary = (d: Deployment, asset: SummaryAsset, value: EarnSummary, force = false) =>
+  summaries.prime(earnSummaryKey(d, asset), value, force);
 export const invalidateEarnSummary = (d: Deployment, asset: SummaryAsset) =>
   summaries.invalidate(earnSummaryKey(d, asset));
 

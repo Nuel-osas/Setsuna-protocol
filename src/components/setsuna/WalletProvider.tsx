@@ -21,7 +21,8 @@ import {
   type WalletClient,
 } from "viem";
 import type { Secp256k1SigningSession } from "@category-labs/mera";
-import { useLogin, usePrivy, useWallets } from "@privy-io/react-auth";
+import dynamic from "next/dynamic";
+import type { PrivyApi, PrivyEvents, PrivyState } from "./PrivyBridge";
 import { toast } from "./Toaster";
 import type { Deployment } from "@/lib/setsuna/types";
 import { message, shortAddress } from "@/lib/setsuna/format";
@@ -105,13 +106,24 @@ type WalletState = {
   ) => Promise<Hex>;
 };
 const Context = createContext<WalletState | null>(null);
+// Privy and its WalletConnect list are ~1 MB; they load only when needed.
+const PrivyBridge = dynamic(() => import("./PrivyBridge"), { ssr: false });
 export function useWallet() {
   const value = useContext(Context);
   if (!value) throw new Error("Wallet provider missing");
   return value;
 }
-export function WalletProvider({ children }: { children: ReactNode }) {
-  const [deployment, setDeployment] = useState<Deployment>();
+export function WalletProvider({
+  children,
+  initialDeployment,
+}: {
+  children: ReactNode;
+  /** Rendered into the page by the server, so no fetch is needed to start. */
+  initialDeployment?: Deployment;
+}) {
+  const [deployment, setDeployment] = useState<Deployment | undefined>(
+    initialDeployment,
+  );
   const [address, setAddress] = useState<Address>();
   const [kind, setKind] = useState<WalletState["kind"]>();
   const [chainId, setChainId] = useState<number>();
@@ -127,24 +139,46 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const generation = useRef(0);
   // Email/Google accounts sign with a Privy embedded wallet through the same
   // EIP-1193 path as browser wallets; only login and logout differ.
-  const privy = usePrivy();
-  const { wallets: privyWallets } = useWallets();
+  // Privy loads on demand (see PrivyBridge); until then it reports not ready.
+  const [privyWanted, setPrivyWanted] = useState(false);
+  const [privy, setPrivy] = useState<PrivyState>({
+    ready: false,
+    authenticated: false,
+    wallets: [],
+  });
+  const privyWallets = privy.wallets;
+  const privyApi = useRef<PrivyApi>({
+    login: () => {},
+    logout: async () => {},
+  });
   const [privyPending, setPrivyPending] = useState(false);
   const viaPrivy = useRef(false);
   const privyAuthenticated = useRef(privy.authenticated);
   privyAuthenticated.current = privy.authenticated;
-  const privyLogout = useRef(privy.logout);
-  privyLogout.current = privy.logout;
-  const { login: privyLogin } = useLogin({
-    // Also fires after Google's redirect returns, when in-memory state is gone.
+  const privyLogout = useRef(() => privyApi.current.logout());
+  const privyLogin = () => privyApi.current.login();
+  const privyEvents = useRef<PrivyEvents>({
+    onComplete: () => {},
+    onError: () => {},
+  });
+  privyEvents.current = {
     onComplete: ({ wasAlreadyAuthenticated }) => {
       if (!wasAlreadyAuthenticated) setPrivyPending(true);
     },
-    // Privy reports closing its modal as an error even after a login succeeds.
     onError: () => {
       if (!privyAuthenticated.current) setPrivyPending(false);
     },
-  });
+  };
+  useEffect(() => {
+    // Returning from Google sign-in, or a saved Privy session, needs Privy now.
+    try {
+      if (
+        location.search.includes("privy_oauth") ||
+        Object.keys(localStorage).some((k) => k.startsWith("privy:"))
+      )
+        setPrivyWanted(true);
+    } catch {}
+  }, []);
   const disconnect = useCallback(() => {
     if (viaPrivy.current) {
       viaPrivy.current = false;
@@ -163,16 +197,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => {
     let alive = true;
-    readDeployment()
-      .then((d) => {
-        if (alive) setDeployment(d);
-      })
-      .catch(() => {
-        if (alive)
-          setError(
-            "Could not load the network configuration. Reload to retry.",
-          );
-      });
+    if (!initialDeployment)
+      readDeployment()
+        .then((d) => {
+          if (alive) setDeployment(d);
+        })
+        .catch(() => {
+          if (alive)
+            setError(
+              "Could not load the network configuration. Reload to retry.",
+            );
+        });
     const add = (event: Event) => {
       const { info, provider: p } = (
         event as CustomEvent<{
@@ -220,6 +255,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     };
   }, [disconnect]);
   useEffect(() => {
+    // Opening Connect starts loading Privy while the choices are on screen.
+    if (open) setPrivyWanted(true);
     if (open) dialog.current?.showModal();
     else dialog.current?.close();
   }, [open]);
@@ -521,6 +558,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      {privyWanted && (
+        <PrivyBridge api={privyApi} events={privyEvents} onState={setPrivy} />
+      )}
       <dialog
         ref={dialog}
         className="s-modal"
