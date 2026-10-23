@@ -114,5 +114,86 @@ export function createSetsunaServer(options: { setsuna?: Setsuna; rpcUrl?: strin
     ({ vault: id }) => run(() => setsuna.getRules(id), (r) => r.rules.map((line) => `- ${line}`).join("\n")),
   );
 
+  const amount = z.string().regex(/^\d+(\.\d+)?$/, 'A decimal number such as "25" or "0.5".');
+  const withdrawRequest = {
+    amount: amount.optional().describe("How much of the vault's asset to withdraw, in USDC or MON."),
+    shares: amount.optional().describe("How many vault shares to redeem, instead of an amount."),
+    all: z.boolean().optional().describe("Withdraw the whole position."),
+  };
+  type WithdrawArgs = { amount?: string; shares?: string; all?: boolean };
+  const pick = (a: WithdrawArgs) => {
+    const given = [a.amount !== undefined, a.shares !== undefined, a.all === true].filter(Boolean).length;
+    if (given !== 1) throw new Error("Give exactly one of amount, shares or all.");
+    return a.all ? ({ all: true } as const) : a.shares !== undefined ? { shares: a.shares } : { amount: a.amount! };
+  };
+  const slippage = z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .describe("Most the result may fall short of the quote, in basis points. Default 10 (0.1%).");
+  const steps = (p: { transactions: { label: string }[]; expiresAt: string; appUrl: string; notes: string[] }) =>
+    [
+      `${p.transactions.length} transaction${p.transactions.length > 1 ? "s" : ""} for the user's wallet to sign, in order:`,
+      ...p.transactions.map((t, i) => `${i + 1}. ${t.label}`),
+      `Valid until ${p.expiresAt}; prepare again after that. Or use the app: ${p.appUrl}`,
+      ...p.notes,
+    ].join("\n");
+
+  server.registerTool(
+    "quote_deposit",
+    {
+      title: "Quote a deposit",
+      description: "Shares a deposit would mint at today's price, and anything that would stop it: the cap, a deposit pause, or the wallet's balance.",
+      inputSchema: { vault, amount: amount.describe("Amount of USDC or MON to deposit."), owner: address.optional().describe("The depositing wallet, to check its balance.") },
+      annotations: readOnly,
+    },
+    ({ vault: id, amount: value, owner }) =>
+      run(
+        () => setsuna.quoteDeposit(id, value, owner),
+        (q) => (q.ok ? `Depositing ${short(q.assets.formatted)} mints about ${short(q.shares.formatted)} ${q.vault}.` : `This deposit would fail: ${q.problems.join(" ")}`),
+      ),
+  );
+
+  server.registerTool(
+    "quote_withdraw",
+    {
+      title: "Quote a withdrawal",
+      description: "What a withdrawal would return at today's price, and whether the markets hold enough cash for it right now.",
+      inputSchema: { vault, owner: address.describe("The wallet that holds the shares."), ...withdrawRequest },
+      annotations: readOnly,
+    },
+    (a) =>
+      run(
+        () => setsuna.quoteWithdraw(a.vault, a.owner, pick(a)),
+        (q) => (q.ok ? `Redeeming ${short(q.shares.formatted)} ${q.vault} returns about ${short(q.assets.formatted)}.` : `This withdrawal would fail: ${q.problems.join(" ")}`),
+      ),
+  );
+
+  server.registerTool(
+    "prepare_deposit",
+    {
+      title: "Prepare a deposit",
+      description:
+        "Build the unsigned transactions for a deposit, in order: for setsUSDC an exact USDC approval when needed, then the deposit; for setsMON one native MON deposit through the gateway. Nothing is signed or sent: show each transaction to the user for their own wallet to sign. Each reverts if it would mint less than the quote minus the slippage, or after 10 minutes.",
+      inputSchema: { vault, amount: amount.describe("Amount of USDC or MON to deposit."), owner: address.describe("The wallet that will sign and receive the shares."), slippage_bps: slippage },
+      annotations: readOnly,
+    },
+    (a) => run(() => setsuna.prepareDeposit(a.vault, a.amount, a.owner, { slippageBps: a.slippage_bps }), steps),
+  );
+
+  server.registerTool(
+    "prepare_withdraw",
+    {
+      title: "Prepare a withdrawal",
+      description:
+        "Build the unsigned transactions for a withdrawal back to the owner, in order: setsUSDC returns USDC in one transaction; setsMON approves exactly those shares to the gateway when needed, then returns native MON. Nothing is signed or sent: show each transaction to the user for their own wallet to sign.",
+      inputSchema: { vault, owner: address.describe("The wallet that holds the shares and receives the assets."), ...withdrawRequest, slippage_bps: slippage },
+      annotations: readOnly,
+    },
+    (a) => run(() => setsuna.prepareWithdraw(a.vault, a.owner, pick(a), { slippageBps: a.slippage_bps }), steps),
+  );
+
   return server;
 }
