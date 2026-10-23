@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { createSetsunaServer } from "../src/server.js";
+import { createSetsunaServer, signUrl } from "../src/server.js";
 import { handleMcpRequest } from "../src/http.js";
 
 const HOLDER = "0x6915aEf0947F4daD61aeF39Fe0f546A03190c92C";
@@ -62,7 +62,15 @@ test("prepare_deposit returns unsigned transactions with an expiry and the risk 
   assert.equal(prepared.transactions[0].value, "1000000000000000000");
   assert.ok(prepared.expiresAt);
   assert.match(text(r), /unaudited/);
+  assert.equal(prepared.signUrl, `https://mcp.setsuna.finance/sign?vault=setsMON&action=deposit&amount=1&owner=${HOLDER}`);
+  assert.match(text(r), /^Easiest: send the user this link/);
   await client.close();
+});
+
+test("signing links carry only the request, never transaction data", () => {
+  const url = new URL(signUrl({ vault: "setsUSDC", action: "withdraw", all: true }));
+  assert.equal(url.origin + url.pathname, "https://mcp.setsuna.finance/sign");
+  assert.deepEqual([...url.searchParams.keys()], ["vault", "action", "all"]);
 });
 
 test("withdraw tools want exactly one of amount, shares or all", async () => {
