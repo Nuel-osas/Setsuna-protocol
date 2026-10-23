@@ -455,7 +455,49 @@ export function createSetsuna(options: SetsunaOptions = {}) {
     };
   }
 
-  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw };
+  /** The vault's fixed rules, read from the contract, with a plain sentence for each. */
+  async function getRules(id: VaultId) {
+    const v = vaultOf(id);
+    const read = (functionName: string) => client.readContract({ address: v.address, abi: vaultAbi, functionName: functionName as never }) as Promise<bigint>;
+    const [buffer, cap, move, cooldown, interval, maxAge, rateBand, fee, minSupply, guardian] = await Promise.all([
+      read("BUFFER_BPS"), read("DESTINATION_CAP_BPS"), read("MOVE_BPS"), read("COOLDOWN"), read("OBSERVATION_INTERVAL"),
+      read("MAX_OBSERVATION_AGE"), read("MAX_RATE_CHANGE_BPS"), read("performanceFeeBps"), read("minimumMarketSupply"),
+      client.readContract({ address: v.address, abi: vaultAbi, functionName: "guardian" }),
+    ]);
+    const cashCap = v.id === "setsUSDC" ? await client.readContract({ address: v.address, abi: multiVaultAbi, functionName: "MARKET_CASH_CAP_BPS" }) : undefined;
+    const rules = [
+      `About ${bpsToPercent(buffer)}% of the vault stays as cash for withdrawals.`,
+      `No single market holds more than ${bpsToPercent(cap)}% of the vault.`,
+      ...(cashCap !== undefined ? [`The vault never supplies more than ${bpsToPercent(cashCap)}% of a market's available cash.`] : []),
+      `A market with less than ${amount(minSupply, v.assetDecimals).formatted} ${v.assetSymbol} supplied gets no new money.`,
+      `Money is split between eligible markets in proportion to their rates. A market whose rate moved more than ${bpsToPercent(rateBand)}% between readings is left out, and each market is scored at its lowest reading.`,
+      `One rebalance moves at most ${bpsToPercent(move)}% of the vault, then waits at least ${Number(cooldown) / 60} minutes.`,
+      `Rates are recorded at most every ${Number(interval) / 60} minutes and must be under ${Number(maxAge) / 60} minutes old to rebalance. Anyone can record them or rebalance; nobody can choose the weights.`,
+      `A ${bpsToPercent(fee)}% fee applies to yield only, never to deposits.`,
+      `The guardian (${guardian}) can only pause new deposits or disable a market. It cannot move funds, change fees or upgrade the contract, and there is no admin.`,
+    ];
+    return {
+      vault: v.id,
+      address: v.address,
+      parameters: {
+        cashBufferPct: bpsToPercent(buffer),
+        marketCapPct: bpsToPercent(cap),
+        marketCashCapPct: cashCap !== undefined ? bpsToPercent(cashCap) : null,
+        moveLimitPct: bpsToPercent(move),
+        cooldownMinutes: Number(cooldown) / 60,
+        observationIntervalMinutes: Number(interval) / 60,
+        maxObservationAgeMinutes: Number(maxAge) / 60,
+        rateChangeBandPct: bpsToPercent(rateBand),
+        performanceFeePct: bpsToPercent(fee),
+        minimumMarketSupply: amount(minSupply, v.assetDecimals),
+        guardian,
+      },
+      rules,
+      source: `https://repo.sourcify.dev/143/${v.address}`,
+    };
+  }
+
+  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, getRules };
 }
 
 export type Setsuna = ReturnType<typeof createSetsuna>;
