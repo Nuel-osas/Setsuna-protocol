@@ -4,8 +4,31 @@ import { useWallet } from "./WalletProvider";
 import { EarnToken, earnAmount, type EarnAsset } from "./EarnForm";
 import { EarnEnvironment, earnRate, earnVenues } from "./EarnVaultLayout";
 import { ProtocolLabel } from "./ProtocolIcon";
-
 import { useEarnSummary } from "./useEarnSummary";
+
+/* Earn in the landing's language: a pixel hero over the grid, numbered product
+   blocks for each vault, a ruled comparison, the three steps and the three rules. */
+
+const STEPS = [
+  ["01", "Deposit once", "Choose MON or USDC. You receive shares in that asset’s vault."],
+  ["02", "Let it work", "Published rules allocate across approved markets and rebalance as rates move."],
+  ["03", "Withdraw when ready", "Redeem your shares for the underlying asset, subject to available liquidity."],
+] as const;
+const RULES = [
+  ["60", "Max per market", "No single protocol can hold the whole pool."],
+  ["10", "Kept as cash", "A buffer for withdrawals beside deployed capital."],
+  ["10", "Max per move", "Bounded rebalances, with a cooldown between them."],
+] as const;
+
+function PixelBar() {
+  return (
+    <div className="ax-pbar" aria-hidden="true">
+      <i />
+      <i />
+      <b />
+    </div>
+  );
+}
 
 export default function EarnOverview() {
   const { deployment: d } = useWallet();
@@ -16,196 +39,199 @@ export default function EarnOverview() {
     return snapshot?.healthy ? snapshot : undefined;
   };
   return (
-    <main id="main" className="s-app s-unified-earn e-overview">
-      <header className="e-overview-heading">
-        <div>
-          <span className="e-kicker">SETSUNA EARN</span>
-          <h1>
+    <main id="main" className="s-app s-unified-earn e-overview ax">
+      {/* ── hero ── */}
+      <section className="ax-hero">
+        <div className="ax-hero-copy">
+          <p className="ax-eyebrow">Setsuna Earn</p>
+          <h1 className="ax-pixel ax-h1">
             Less to manage.
             <br />
             <span>More in motion.</span>
           </h1>
-          <p>
+          <PixelBar />
+          <p className="ax-lede">
             One deposit. Automated allocation across Monad lending markets.
-            <br className="e-desktop-break" /> Choose your asset. The vault
-            handles the rest.
+            Choose your asset. The vault handles the rest.
           </p>
         </div>
-        <EarnEnvironment />
-      </header>
-      <div className="e-section-head e-catalogue-head">
-        <h2>Explore vaults</h2>
-        <Link href="/portfolio/">Your portfolio ↗</Link>
-      </div>
-      <div className="e-vault-cards">
-        {(["MON", "USDC"] as const).map((asset) => {
-          const snapshot = vault(asset),
-            decimals = asset === "MON" ? 18 : 6;
-          const m = asset === "MON" ? d?.earnMON : d?.earnUSDC;
-          const names = earnVenues(asset, m?.adapters.length ?? 4).map(
-            (s) => s.split(" · ")[0],
-          );
-          return (
-            <article
-              className={`e-vault-card is-${asset.toLowerCase()}`}
-              key={asset}
-            >
-              <div className="e-card-banner">
-                <div className="e-card-token">
-                  <EarnToken asset={asset} receipt />
-                  <div>
+        <div className="ax-hero-side">
+          <EarnEnvironment />
+          <dl className="ax-hero-stats">
+            {(["MON", "USDC"] as const).map((asset) => (
+              <div key={asset} className={asset === "MON" ? "is-blue" : ""}>
+                <dt>sets{asset} · base APR</dt>
+                <dd className="ax-pixel">{earnRate(vault(asset)?.blendedApr)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* ── vaults: the landing's product blocks ── */}
+      <section className="ax-section" aria-labelledby="ax-vaults">
+        <header className="ax-head">
+          <p className="ax-eyebrow">Choose your asset</p>
+          <h2 id="ax-vaults" className="ax-pixel ax-h2">Explore vaults</h2>
+          <Link className="ax-head-link" href="/portfolio/">
+            Your portfolio ↗
+          </Link>
+        </header>
+        <div className="ax-cards">
+          {(["MON", "USDC"] as const).map((asset, i) => {
+            const snapshot = vault(asset),
+              decimals = asset === "MON" ? 18 : 6;
+            const m = asset === "MON" ? d?.earnMON : d?.earnUSDC;
+            const names = earnVenues(asset, m?.adapters.length ?? 4).map((s) => s.split(" · ")[0]);
+            return (
+              <Link
+                key={asset}
+                href={`/earn/${asset.toLowerCase()}/`}
+                className={`ax-card is-${asset.toLowerCase()}`}
+                aria-label={`Explore sets${asset}`}
+              >
+                <div className="ax-card-art">
+                  <span className="ax-card-tag">
+                    0{i + 1} / {asset === "MON" ? "Native asset" : "Stablecoin"}
+                  </span>
+                  <div className="ax-card-rate">
+                    <span>Current base APR</span>
+                    <strong className="ax-pixel">{earnRate(snapshot?.blendedApr)}</strong>
+                    <em>Variable · 2% of yield only</em>
+                  </div>
+                </div>
+                <div className="ax-card-copy">
+                  <div className="ax-card-title">
+                    <EarnToken asset={asset} receipt />
                     <h3>sets{asset}</h3>
-                    <span>
-                      {asset === "MON"
-                        ? "Native asset vault"
-                        : "Stablecoin vault"}
+                    <span className="ax-chip">
+                      {asset} → sets{asset}
                     </span>
                   </div>
-                </div>
-                <span className="e-card-tag">
-                  {asset} → sets{asset}
-                </span>
-              </div>
-              <div className="e-card-body">
-                <p>
-                  {asset === "MON"
-                    ? "Put your MON to work, without managing each lending position."
-                    : "A simpler way to earn on USDC, with allocation handled for you."}
-                </p>
-                <div className="e-card-rate">
-                  <div>
-                    <span>Current base APR</span>
-                    <strong>{earnRate(snapshot?.blendedApr)}</strong>
-                  </div>
-                  <span className="e-rate-note">
-                    Variable rate
-                    <br />
-                    2% of yield only
-                  </span>
-                </div>
-                <dl className="e-card-facts">
-                  <div>
-                    <dt>Total in vault</dt>
-                    <dd>
-                      {earnAmount(snapshot?.nav, decimals, 2)} {asset}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>1 sets{asset}</dt>
-                    <dd>
-                      {earnAmount(snapshot?.shareValue, decimals, 6)} {asset}
-                    </dd>
-                  </div>
-                </dl>
-                <div className="e-sources">
-                  <span>Lending through</span>
                   <p>
+                    {asset === "MON"
+                      ? "Put your MON to work, without managing each lending position."
+                      : "A simpler way to earn on USDC, with allocation handled for you."}
+                  </p>
+                  <dl className="ax-facts">
+                    <div>
+                      <dt>Total in vault</dt>
+                      <dd>
+                        {earnAmount(snapshot?.nav, decimals, 2)} {asset}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>1 sets{asset}</dt>
+                      <dd>
+                        {earnAmount(snapshot?.shareValue, decimals, 6)} {asset}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="ax-sources">
                     {names.map((name) => (
                       <ProtocolLabel key={name} name={name} size={16} />
                     ))}
-                  </p>
+                  </div>
+                  {(asset === "MON" ? mon : usdc).failed && (
+                    <p className="ax-note">
+                      {m ? "Vault readings are temporarily unavailable." : "This vault is not connected in this environment."}
+                    </p>
+                  )}
+                  <span className="ax-btn">
+                    Explore sets{asset}
+                    <span aria-hidden="true">↗</span>
+                  </span>
                 </div>
-                {(asset === "MON" ? mon : usdc).failed && (
-                  <p className="e-note">
-                    {m
-                      ? "Vault readings are temporarily unavailable."
-                      : "This vault is not connected in this environment."}
-                  </p>
-                )}
-                <Link
-                  className="e-view-vault"
-                  href={`/earn/${asset.toLowerCase()}/`}
-                  aria-label={`View sets${asset} vault`}
-                >
-                  Explore sets{asset} <span aria-hidden="true">↗</span>
-                </Link>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-      <section
-        className="e-panel e-compare"
-        id="rates"
-        aria-label="Compare vaults"
-      >
-        <header className="e-section-head">
-          <h2>At a glance</h2>
-          <span>Rates from this environment</span>
-        </header>
-        <div className="s-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Vault</th>
-                <th scope="col">Current base APR</th>
-                <th scope="col">Total assets</th>
-                <th scope="col">Receipt token</th>
-                <th scope="col" aria-label="Vault details" />
-              </tr>
-            </thead>
-            <tbody>
-              {(["MON", "USDC"] as const).map((asset) => (
-                <tr key={asset}>
-                  <th scope="row">
-                    <span className="e-table-token">
-                      <EarnToken asset={asset} />
-                      {asset}
-                    </span>
-                  </th>
-                  <td className="e-positive">
-                    {earnRate(vault(asset)?.blendedApr)}
-                  </td>
-                  <td>
-                    {earnAmount(vault(asset)?.nav, asset === "MON" ? 18 : 6, 2)}{" "}
-                    {asset}
-                  </td>
-                  <td>sets{asset}</td>
-                  <td>
-                    <Link
-                      href={`/earn/${asset.toLowerCase()}/`}
-                      aria-label={`Open sets${asset} details`}
-                    >
-                      View vault ↗
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </Link>
+            );
+          })}
         </div>
       </section>
-      <section className="e-how" aria-label="How Earn works">
-        {[
-          [
-            "01",
-            "Deposit once",
-            "Choose MON or USDC. Receive shares in that asset’s vault.",
-          ],
-          [
-            "02",
-            "Let it work",
-            "Rules allocate across approved markets and rebalance as conditions change.",
-          ],
-          [
-            "03",
-            "Withdraw when ready",
-            "Redeem your shares for the underlying asset, subject to available liquidity.",
-          ],
-        ].map(([number, title, text]) => (
-          <article key={number}>
-            <span>{number}</span>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
-        ))}
+
+      {/* ── at a glance: a ruled table ── */}
+      <section className="ax-section" id="rates" aria-labelledby="ax-glance">
+        <header className="ax-head">
+          <p className="ax-eyebrow">Side by side</p>
+          <h2 id="ax-glance" className="ax-pixel ax-h2">At a glance</h2>
+        </header>
+        <div className="ax-table" role="table" aria-label="Compare vaults">
+          <div className="ax-tr is-head" role="row">
+            <span role="columnheader">Vault</span>
+            <span role="columnheader">Base APR</span>
+            <span role="columnheader">Total assets</span>
+            <span role="columnheader">Receipt</span>
+            <span role="columnheader" aria-label="Open" />
+          </div>
+          {(["MON", "USDC"] as const).map((asset) => (
+            <Link key={asset} href={`/earn/${asset.toLowerCase()}/`} className="ax-tr" role="row">
+              <span role="cell" className="ax-token">
+                <EarnToken asset={asset} />
+                {asset}
+              </span>
+              <span role="cell" className="ax-pixel ax-tr-apr">
+                {earnRate(vault(asset)?.blendedApr)}
+              </span>
+              <span role="cell">
+                {earnAmount(vault(asset)?.nav, asset === "MON" ? 18 : 6, 2)} {asset}
+              </span>
+              <span role="cell">sets{asset}</span>
+              <span role="cell" className="ax-tr-go">
+                View vault ↗
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
-      <p className="e-demo-note">
+
+      {/* ── how it works ── */}
+      <section className="ax-section" aria-labelledby="ax-how">
+        <header className="ax-head">
+          <p className="ax-eyebrow">Simple on the surface</p>
+          <h2 id="ax-how" className="ax-pixel ax-h2">How Earn works</h2>
+        </header>
+        <ol className="ax-steps">
+          {STEPS.map(([n, title, text]) => (
+            <li key={n}>
+              <span className="ax-pixel ax-step-n">{n}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ── rules: the landing's "built to move" band ── */}
+      <section className="ax-rules" aria-labelledby="ax-rules">
+        <div className="ax-rules-copy">
+          <p className="ax-eyebrow">The freedom of clear boundaries</p>
+          <h2 id="ax-rules" className="ax-pixel ax-h2">
+            Built to move.
+            <br />
+            Bound by rules.
+          </h2>
+          <Link className="ax-btn is-dark" href="/docs/how-it-works/rebalancing/">
+            Read the allocation rules <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+        <ul className="ax-rule-list">
+          {RULES.map(([v, title, text]) => (
+            <li key={title}>
+              <strong className="ax-pixel">{v}%</strong>
+              <div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <p className="ax-risk">
         {d?.mode === "mainnet"
-          ? "Live on Monad mainnet as a capped beta with real funds; Setsuna's contracts are unaudited; deposit only what you can afford to lose. "
+          ? "Live on Monad mainnet as a capped beta with real funds. Setsuna's contracts are unaudited; deposit only what you can afford to lose. "
           : "Preview only. Deposits require configured mainnet vaults. "}
-        Base APR reflects the current allocation, including idle cash; it is not
-        a promised return. <Link href="/docs/">Learn how Setsuna works ↗</Link>
+        Base APR reflects the current allocation, including idle cash; it is not a promised return.{" "}
+        <Link href="/docs/">Learn how Setsuna works ↗</Link>
       </p>
     </main>
   );

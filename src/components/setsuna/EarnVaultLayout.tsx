@@ -5,11 +5,9 @@ import type { MONSnapshot } from "@/lib/setsuna/mon";
 import type { USDCSnapshot } from "@/lib/setsuna/usdc";
 import { useWallet } from "./WalletProvider";
 import { EarnToken, earnAmount, type EarnAsset } from "./EarnForm";
-import EarnPerformance from "./EarnPerformance";
 import { useEarnSummary } from "./useEarnSummary";
 import type { EarnSummary } from "@/lib/setsuna/earn-summary";
-import EarnEarnings from "./EarnEarnings";
-import ProtocolIcon from "./ProtocolIcon";
+import ProtocolIcon, { ProtocolLabel } from "./ProtocolIcon";
 
 export const earnRate = (rate?: bigint) =>
   rate === undefined ? "—" : `${(Number(rate) / 1e16).toFixed(2)}%`;
@@ -151,17 +149,15 @@ export default function EarnVaultLayout({
   snapshot,
   form,
   alerts,
-  advanced,
-  risk,
-  controls,
   destinations,
 }: {
   asset: EarnAsset;
   snapshot?: MONSnapshot | USDCSnapshot;
   form: ReactNode;
   alerts: ReactNode;
-  advanced: ReactNode;
-  risk: ReactNode;
+  // Kept for callers; the simplified page links to the docs for these instead.
+  advanced?: ReactNode;
+  risk?: ReactNode;
   controls?: ReactNode;
   destinations: string[];
 }) {
@@ -171,149 +167,113 @@ export default function EarnVaultLayout({
     snapshot && (!summary || snapshot.block >= summary.block)
       ? snapshot
       : summary;
-  const headlineSound = headline?.healthy;
+  const view = headline?.healthy ? headline : undefined;
   const decimals = asset === "MON" ? 18 : 6;
   const sound = snapshot?.healthy;
+  const rows = [...destinations, `Cash · ${asset === "MON" ? "WMON" : "USDC"}`];
+  const weight = (amount?: bigint) =>
+    amount === undefined || !view?.nav
+      ? undefined
+      : Number((amount * BigInt(10_000)) / view.nav) / 100;
   return (
-    <main id="main" className="s-app s-unified-earn e-vault">
-      <div className="e-breadcrumb">
-        <Link href="/earn/">← All vaults</Link>
-        <EarnEnvironment />
-      </div>
-      <header className="e-vault-heading">
-        <EarnToken asset={asset} receipt />
-        <div>
-          <span className="e-kicker">AUTOMATED LENDING VAULT</span>
-          <h1>sets{asset}</h1>
-          <p>
-            Deposit {asset}. Hold sets{asset}. Let your assets get to work.
+    <main id="main" className="s-app s-unified-earn e-vault ax ax-vault">
+      <Link className="ax-back" href="/earn/">
+        ← All vaults
+      </Link>
+      <section className="ax-hero">
+        <div className="ax-hero-copy">
+          <p className="ax-eyebrow">Automated lending vault</p>
+          <h1 className="ax-pixel ax-h1 ax-vault-title">sets{asset}</h1>
+          <div className="ax-pbar" aria-hidden="true">
+            <i />
+            <i />
+            <b />
+          </div>
+          <p className="ax-lede">
+            Deposit {asset}. Hold sets{asset}. The vault spreads it across{" "}
+            {destinations.length} lending markets by fixed rules.
           </p>
         </div>
-      </header>
+        <dl className="ax-hero-stats is-three">
+          <div className="is-blue">
+            <dt>Base APR</dt>
+            <dd className="ax-pixel">{earnRate(view?.blendedApr)}</dd>
+          </div>
+          <div>
+            <dt>In vault</dt>
+            <dd className="ax-pixel">{earnAmount(view?.nav, decimals, 2)}</dd>
+          </div>
+          <div>
+            <dt>1 sets{asset}</dt>
+            <dd className="ax-pixel">{earnAmount(view?.shareValue, decimals, 4)}</dd>
+          </div>
+        </dl>
+      </section>
       {alerts}
-      <div className="e-vault-grid">
-        <div className="e-vault-content">
-          <dl className="e-stats">
-            <div>
-              <dt>Current base APR</dt>
-              <dd className="e-positive">
-                {earnRate(headlineSound ? headline?.blendedApr : undefined)}
-              </dd>
-              <small>Weighted by actual allocation</small>
-            </div>
-            <div>
-              <dt>Total in vault</dt>
-              <dd>
-                {earnAmount(
-                  headlineSound ? headline?.nav : undefined,
-                  decimals,
-                  2,
-                )}{" "}
-                <small>{asset}</small>
-              </dd>
-              <small>Includes the cash buffer</small>
-            </div>
-            <div>
-              <dt>Share value</dt>
-              <dd>
-                {earnAmount(
-                  headlineSound ? headline?.shareValue : undefined,
-                  decimals,
-                  5,
-                )}{" "}
-                <small>{asset}</small>
-              </dd>
-              <small>Per sets{asset}</small>
-            </div>
-          </dl>
-          <EarnPerformance asset={asset} enabled={!!snapshot?.healthy} />
-          <section
-            className="e-panel s-position"
-            aria-label="Your vault position"
-          >
-            <header className="e-section-head">
-              <h2>Your position</h2>
-              <Link href="/portfolio/">Portfolio ↗</Link>
-            </header>
-            <dl className="e-position-stats">
-              <div>
-                <dt>Current value</dt>
-                <dd data-testid={`${asset.toLowerCase()}-worth`}>
-                  {earnAmount(
-                    address && sound ? snapshot?.worth : undefined,
-                    decimals,
-                    5,
-                  )}{" "}
-                  <small>{asset}</small>
-                </dd>
-              </div>
-              <div>
-                <dt>Your shares</dt>
-                <dd data-testid={`${asset.toLowerCase()}-shares`}>
-                  {earnAmount(
-                    address ? snapshot?.shares : undefined,
-                    decimals + 6,
-                    5,
-                  )}{" "}
-                  <small>sets{asset}</small>
-                </dd>
-              </div>
-              <div>
-                <dt>Available to withdraw</dt>
-                <dd>
-                  {earnAmount(
-                    address && sound ? snapshot?.available : undefined,
-                    decimals,
-                    5,
-                  )}{" "}
-                  <small>{asset}</small>
-                </dd>
-              </div>
-            </dl>
-            <EarnEarnings
-              asset={asset}
-              shares={snapshot?.shares}
-              worth={sound ? snapshot?.worth : undefined}
-              block={snapshot?.block}
-            />
-          </section>
-          <EarnAllocation
-            asset={asset}
-            snapshot={headlineSound ? headline : undefined}
-            destinations={destinations}
-          />
-          {controls && (
-            <section
-              className="e-panel e-controls"
-              aria-labelledby={`${asset.toLowerCase()}-controls-title`}
-            >
-              <h2 id={`${asset.toLowerCase()}-controls-title`}>
-                Anyone can rebalance
-              </h2>
-              <p>
-                No manager moves this vault. Any wallet can record protocol
-                rates or trigger a rebalance; the contract computes the moves
-                and refuses any that break its rules.
-              </p>
-              {controls}
+      <div className="ax-vault-grid">
+        <div className="ax-vault-main">
+          {address && (
+            <section className="ax-block" aria-label="Your position">
+              <header className="ax-block-head">
+                <p className="ax-eyebrow">Your position</p>
+                <Link href="/portfolio/">Portfolio ↗</Link>
+              </header>
+              <dl className="ax-facts">
+                <div>
+                  <dt>Value</dt>
+                  <dd data-testid={`${asset.toLowerCase()}-worth`}>
+                    {earnAmount(sound ? snapshot?.worth : undefined, decimals, 4)} {asset}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Withdrawable now</dt>
+                  <dd>
+                    {earnAmount(sound ? snapshot?.available : undefined, decimals, 4)} {asset}
+                  </dd>
+                </div>
+              </dl>
             </section>
           )}
-          <details className="e-panel e-advanced">
-            <summary>
-              Allocation rules & vault activity{" "}
-              <span aria-hidden="true">+</span>
-            </summary>
-            <div className="e-advanced-body">
-              {risk}
-              {advanced}
+          <section className="ax-block" aria-label="Where it works">
+            <header className="ax-block-head">
+              <p className="ax-eyebrow">Where your {asset} works</p>
+            </header>
+            <div className="ax-alloc-bar" aria-hidden="true">
+              {rows.map((label, i) => (
+                <span
+                  key={label}
+                  style={{
+                    width: `${weight(i === destinations.length ? view?.idle : view?.positions[i]) ?? 0}%`,
+                    background: colors[i],
+                  }}
+                />
+              ))}
             </div>
-          </details>
+            <ul className="ax-alloc">
+              {rows.map((label, i) => {
+                const cash = i === destinations.length;
+                const name = label.split(" · ")[0];
+                const pct = weight(cash ? view?.idle : view?.positions[i]);
+                return (
+                  <li key={label}>
+                    <i style={{ background: colors[i] }} />
+                    {cash ? <span className="ax-alloc-name">Cash buffer</span> : <ProtocolLabel name={name} size={18} />}
+                    <span className="ax-alloc-apr">{cash ? "for withdrawals" : `${earnRate(view?.rates[i])} APR`}</span>
+                    <strong className="ax-pixel">{pct === undefined ? "—" : `${pct.toFixed(1)}%`}</strong>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+          <p className="ax-risk">
+            Max 60% per market · about 10% kept as cash · rates are variable, not
+            promised. Contracts are unaudited and the vault is capped; deposit only
+            what you can afford to lose.{" "}
+            <Link href="/docs/how-it-works/rebalancing/">Rules, rebalancing and activity ↗</Link>
+          </p>
         </div>
-        <aside className="e-vault-sidebar">
-          <div className="e-sticky">
-            {form}
-            <EarnNetworkNote />
-          </div>
+        <aside className="ax-vault-side">
+          <div className="e-sticky">{form}</div>
         </aside>
       </div>
     </main>

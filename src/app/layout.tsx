@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, EB_Garamond, JetBrains_Mono } from "next/font/google";
+import { Inter, EB_Garamond, JetBrains_Mono, Geist_Pixel } from "next/font/google";
 import "@/styles/setsuna.css";
 import "@/styles/refresh.css";
 import "@/styles/terminal.css";
@@ -10,6 +10,7 @@ import "@/styles/earn-vaults.css";
 import "@/styles/bucket-theme.css";
 import "@/styles/logos.css";
 import "@/styles/motion.css";
+import "@/styles/app-brand.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
@@ -27,6 +28,14 @@ const display = EB_Garamond({
 const sans = Inter({
   subsets: ["latin"],
   variable: "--f-sans",
+  display: "swap",
+});
+// The landing's display face, now site-wide for page titles and figures.
+const pixel = Geist_Pixel({
+  subsets: ["latin"],
+  weight: "variable",
+  axes: ["ELSH"],
+  variable: "--f-pixel",
   display: "swap",
 });
 const mono = JetBrains_Mono({
@@ -109,7 +118,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      className={`${display.variable} ${sans.variable} ${mono.variable} ${pixel.variable}`}
     >
       <body>
         <WalletProvider initialDeployment={deployment}>
