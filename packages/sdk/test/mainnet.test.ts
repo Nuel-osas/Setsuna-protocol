@@ -61,6 +61,7 @@ test("a deposit over the cap is refused with a reason", async () => {
 test("a prepared MON deposit simulates on mainnet and mints at least the minimum", async () => {
   const prepared = await setsuna.prepareDeposit("setsMON", "1", HOLDER);
   assert.equal(prepared.transactions.length, 1);
+  assert.equal(prepared.signUrl, `https://mcp.setsuna.finance/sign?vault=setsMON&action=deposit&amount=1&owner=${HOLDER}`);
   const tx = prepared.transactions[0];
   assert.equal(tx.to, VAULTS.setsMON.gateway);
   assert.equal(tx.value, parseUnits("1", 18).toString());
@@ -74,6 +75,7 @@ test("a prepared MON deposit simulates on mainnet and mints at least the minimum
 test("a prepared setsUSDC withdrawal of everything simulates and returns at least the minimum", async () => {
   const prepared = await setsuna.prepareWithdraw("setsUSDC", HOLDER, { all: true });
   assert.equal(prepared.transactions.length, 1);
+  assert.match(prepared.signUrl, /\?vault=setsUSDC&action=withdraw&all=true&owner=/);
   const tx = prepared.transactions[0];
   const decoded = decodeFunctionData({ abi: vaultAbi, data: tx.data });
   assert.equal(decoded.functionName, "redeemWithMinAssets");
