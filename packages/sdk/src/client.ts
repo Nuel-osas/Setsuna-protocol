@@ -22,6 +22,7 @@ import {
   type Venue,
 } from "./constants.js";
 import { amount, bpsToPercent, iso, percentFrom1e18, percentOf, type Amount } from "./format.js";
+import { signUrl } from "./sign.js";
 
 export interface SetsunaOptions {
   /** A viem public client for Monad (chain 143). Takes precedence over `rpcUrl`. */
@@ -119,6 +120,8 @@ export interface Prepared {
   /** After this time the final step reverts with DeadlineExpired; prepare again. */
   expiresAt: string;
   appUrl: string;
+  /** A link where a person can review and sign this request in their browser wallet. It never expires. */
+  signUrl: string;
   notes: string[];
 }
 
@@ -393,6 +396,7 @@ export function createSetsuna(options: SetsunaOptions = {}) {
       minimum: amount(minShares, v.shareDecimals),
       expiresAt: iso(deadline)!,
       appUrl: appUrlOf(v),
+      signUrl: signUrl({ vault: v.id, action: "deposit", amount: assets, owner: who }),
       notes: [
         "Setsuna contracts are unaudited and the vaults are capped. Deposit only what you can afford to lose.",
         `The deposit reverts if it would mint fewer than ${amount(minShares, v.shareDecimals).formatted} ${v.id}.`,
@@ -451,6 +455,7 @@ export function createSetsuna(options: SetsunaOptions = {}) {
       minimum: amount(minAssets, v.assetDecimals),
       expiresAt: iso(deadline)!,
       appUrl: appUrlOf(v),
+      signUrl: signUrl({ vault: v.id, action: "withdraw", ...request, owner: who }),
       notes: [`The withdrawal reverts if it would return less than ${amount(minAssets, v.assetDecimals).formatted} ${v.assetSymbol}.`],
     };
   }
