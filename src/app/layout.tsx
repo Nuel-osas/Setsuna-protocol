@@ -11,6 +11,7 @@ import "@/styles/bucket-theme.css";
 import "@/styles/logos.css";
 import "@/styles/motion.css";
 import "@/styles/app-brand.css";
+import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { WalletProvider } from "@/components/setsuna/WalletProvider";
@@ -131,6 +132,7 @@ export default async function RootLayout({
             <SiteFooter />
             <Toaster />
         </WalletProvider>
+        <Analytics />
       </body>
     </html>
   );
