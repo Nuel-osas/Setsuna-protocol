@@ -148,6 +148,7 @@
       el("span", null, `${s.team_wallets} team wallets excluded`),
       el("span", null, `${s.incentivized_wallets} rewarded wallets listed`),
     );
+    users(report.accounts);
     cards(report.scorecard);
     legend("legend-wallets");
     legend("legend-volume");
@@ -170,6 +171,42 @@
       (r) => fmt(r.earn_mon, "USDC"),
       (r) => fmt(r.perps_orders),
       (r) => fmt(r.limit_orders),
+    ]);
+  }
+
+  function users(a) {
+    const note = $("users-note");
+    const card = (label, value, def) => {
+      const c = el("article", "st-card");
+      const top = el("div", "st-card-top");
+      top.append(el("span", "st-label", label));
+      const big = el("div", "st-big");
+      big.append(el("span", "st-num", value));
+      c.append(top, big, el("p", "st-def", def));
+      return c;
+    };
+    if (!a || !a.available) {
+      const onchain = report => report.wallets.filter((w) => w.group !== "team").length;
+      $("user-cards").replaceChildren(card("Active wallets", fmt(onchain(last)), "Any deposit or trade on chain, team excluded. Includes every login type."));
+      note.textContent = a?.reason === "privy_error"
+        ? `Couldn't read Privy just now${a.status ? ` (${a.status})` : ""}, so email and Google sign-ups are missing. Check PRIVY_APP_SECRET in the setsuna-stats project.`
+        : "Email and Google sign-ups appear here once PRIVY_APP_ID and PRIVY_APP_SECRET are set in the setsuna-stats Vercel project.";
+      fill("users-table", [], []);
+      return;
+    }
+    const m = a.privy_by_method;
+    const split = Object.entries(m).map(([k, v]) => `${v} ${k}`).join(" · ") || "none yet";
+    $("user-cards").replaceChildren(
+      card("Users", fmt(a.users_total), "Email and Google accounts, plus passkey or wallet users seen on chain."),
+      card("Email / Google sign-ups", fmt(a.privy_accounts), `From Privy: ${split}.`),
+      card("Passkey or wallet users", fmt(a.passkey_or_wallet_users), "Deposited or traded from a wallet that isn't a Privy account. Passkeys leave no sign-up record, so this is how they show."),
+      card("Sign-up to first deposit", a.privy_activation_pct === null ? "—" : `${fmt(a.privy_activation_pct)}%`, `${fmt(a.privy_activated)} of ${fmt(a.privy_accounts)} email/Google accounts have deposited or traded.`),
+    );
+    note.textContent = a.team_privy_accounts ? `${a.team_privy_accounts} team Privy account${a.team_privy_accounts > 1 ? "s" : ""} not counted.` : "";
+    fill("users-table", [...a.daily].reverse(), [
+      (r) => d3.utcFormat("%a %b %-d")(new Date(r.day + "T00:00:00Z")),
+      (r) => fmt(r.privy_signups),
+      (r) => fmt(r.passkey_or_wallet_users),
     ]);
   }
 
