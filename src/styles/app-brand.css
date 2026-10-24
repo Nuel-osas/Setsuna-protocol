@@ -1,0 +1,1122 @@
+/* App pages (Earn, Trade, Portfolio) in the landing's language: ink ground with the
+   ruled pixel grid, Geist Pixel display type, mono eyebrows with a square, square-edged
+   panels on thin rules, blue and ice accents. Loaded last; it restyles only, it never
+   changes layout logic. The landing (.lx) keeps its own stylesheet. */
+
+:root {
+  --b-bg: #07080c;
+  --b-surface: rgba(242, 239, 232, 0.035);
+  --b-surface-subtle: rgba(242, 239, 232, 0.02);
+  --b-surface-hover: rgba(242, 239, 232, 0.07);
+  --b-line: rgba(242, 239, 232, 0.1);
+  --b-accent: #7b88ff;
+  --b-violet: #b9c2ff;
+  --b-violet-tint: rgba(123, 136, 255, 0.1);
+  --b-modal: #12141c;
+  --a-ink: #07080c;
+  --a-ink-2: #0e1017;
+  --a-ink-3: #161923;
+  --a-paper: #f2efe8;
+  --a-blue: #2338ff;
+  --a-blue-l: #7b88ff;
+  --a-ice: #b9c2ff;
+  --a-line: rgba(242, 239, 232, 0.09);
+  --a-muted: #8e8b84;
+}
+:root,
+body {
+  --r: 4px;
+  --r-lg: 4px;
+}
+
+/* ── ground: ink, the ruled grid, one blue glow at the top ─────────────── */
+body:not(:has(.lx)),
+body:has(.t-shell),
+body:has(.db-spot) {
+  background-color: var(--a-ink);
+  background-image:
+    radial-gradient(60% 45% at 50% -8%, rgba(35, 56, 255, 0.22), transparent 70%),
+    linear-gradient(rgba(242, 239, 232, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 239, 232, 0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 80px 80px, 80px 80px;
+  background-position: 0 0, -1px -1px, -1px -1px;
+  background-attachment: fixed;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+/* ── eyebrows: mono, uppercase, a small blue square ────────────────────── */
+.e-kicker,
+.s-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.e-kicker::before,
+.s-eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--a-blue-l);
+  flex: none;
+}
+
+/* ── page titles: Geist Pixel, uppercase, the landing's pixel bar beneath ─ */
+.e-overview-heading h1,
+.e-vault-heading h1,
+.s-app h1,
+.s-page > section h1,
+.p-header h1 {
+  font-family: var(--f-pixel), ui-monospace, monospace;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+}
+.e-overview-heading h1 {
+  font-size: clamp(46px, 6.2vw, 104px);
+}
+.e-overview-heading h1 span {
+  color: var(--a-blue-l);
+}
+.e-vault-heading h1 {
+  font-size: clamp(44px, 5vw, 84px);
+  /* Product names keep their casing: setsUSDC, not SETSUSDC. */
+  text-transform: none;
+}
+.e-vault-heading h1 + p {
+  margin-top: 16px;
+}
+.e-overview-heading h1::after,
+.e-vault-heading h1::after {
+  content: "";
+  display: block;
+  width: 220px;
+  height: 20px;
+  margin-top: 22px;
+  background:
+    linear-gradient(var(--a-blue-l), var(--a-blue-l)) 0 10px / 10px 10px no-repeat,
+    linear-gradient(var(--a-ice), var(--a-ice)) 10px 0 / 10px 10px no-repeat,
+    linear-gradient(90deg, var(--a-blue), var(--a-blue-l) 55%, var(--a-paper)) 20px 10px / 200px 10px no-repeat;
+}
+/* Trading's market name stays compact, but in the same face. */
+.t-shell h1,
+.db-spot h1 {
+  font-family: var(--f-pixel), ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* ── figures: pixel numerals ───────────────────────────────────────────── */
+.e-card-rate strong,
+.e-stats dd,
+.e-position-stats dd,
+.e-card-facts dd {
+  font-family: var(--f-pixel), ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.e-card-rate strong {
+  font-size: clamp(48px, 5vw, 76px);
+  color: var(--a-paper);
+}
+.e-stats dd.e-positive,
+.e-positive {
+  color: var(--a-ice);
+}
+
+/* ── vault cards: the landing's product cards (blue for MON, ink for USDC) ─ */
+.e-vault-card {
+  border-radius: 4px !important;
+  border: 1px solid rgba(242, 239, 232, 0.12);
+  backdrop-filter: none;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--a-blue);
+}
+.e-vault-card:hover {
+  background-color: #2f45ff;
+}
+.e-vault-card.is-usdc {
+  background:
+    linear-gradient(rgba(242, 239, 232, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(242, 239, 232, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--a-ink-2);
+  border-color: rgba(185, 194, 255, 0.28);
+}
+.e-vault-card.is-usdc:hover {
+  background-color: var(--a-ink-3);
+}
+.e-vault-card.is-mon .e-card-rate > div > span,
+.e-vault-card.is-mon .e-card-facts dt,
+.e-vault-card.is-mon .e-rate-note,
+.e-vault-card.is-mon .e-sources,
+.e-vault-card.is-mon .e-note {
+  color: rgba(242, 239, 232, 0.78);
+}
+.e-card-tag {
+  border-radius: 2px !important;
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── the landing's block button: paper, ink text, mono label, arrow box ─── */
+.e-view-vault {
+  border-radius: 2px !important;
+  background: var(--a-paper);
+  color: var(--a-ink);
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.e-view-vault:hover {
+  background: #fff;
+}
+/* Primary actions: the landing's paper button, square. */
+.s-btn.is-primary,
+.s-button:not(.s-button-outline),
+.e-vault .s-earn-form .s-btn.is-primary {
+  border-radius: 2px !important;
+  background: var(--a-paper);
+  color: var(--a-ink);
+}
+.s-btn.is-primary:hover:not(:disabled),
+.e-vault .s-earn-form .s-btn.is-primary:hover:not(:disabled) {
+  background: #fff;
+}
+.s-btn,
+.s-btn.is-small,
+.s-earn-mode,
+.s-segment,
+.s-input-box,
+.e-environment,
+.e-venue-mark,
+.s-earn-mode button,
+.s-earn-picker-trigger,
+.e-vault .s-earn-form .s-earn-mode,
+code {
+  border-radius: 2px !important;
+}
+
+/* ── panels: square edges on thin rules ────────────────────────────────── */
+.e-panel,
+.s-card,
+.s-table-wrap,
+.e-venue,
+.p-connect,
+.p-connect-mark,
+.s-earn-amount-panel,
+.e-vault .s-earn-form,
+details.e-panel,
+details.s-card {
+  border-radius: 4px !important;
+}
+.e-panel,
+.s-card,
+.s-table-wrap,
+.e-venue,
+.p-connect {
+  background-color: rgba(14, 16, 23, 0.82);
+  border: 1px solid var(--a-line);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.s-earn-amount-panel {
+  background-color: rgba(242, 239, 232, 0.035);
+  border: 1px solid var(--a-line);
+}
+.e-allocation-bar {
+  border-radius: 0 !important;
+}
+.e-environment {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--a-line);
+}
+.e-environment i {
+  border-radius: 0 !important;
+  background: var(--a-blue-l);
+}
+
+/* Section titles and table heads read like the landing's labels. */
+.e-section-head h2 {
+  letter-spacing: -0.02em;
+}
+.s-table-wrap th {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+
+/* ── header on app pages: ink with a single rule ───────────────────────── */
+.s-header.is-app {
+  background: rgba(7, 8, 12, 0.88);
+  border-bottom: 1px solid var(--a-line);
+  backdrop-filter: blur(12px);
+}
+
+/* ── trade: the toolbar title and market names in the display face ─────── */
+.t-trade-heading {
+  font-family: var(--f-pixel), ui-monospace, monospace;
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.t-market-strip .t-pair h1,
+.db-spot h1 {
+  font-family: var(--f-pixel), ui-monospace, monospace !important;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.t-trade-modes button {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   .ax — app pages laid out like the landing: full-width ruled sections,
+   pixel display type, numbered product blocks, rule bands.
+   ════════════════════════════════════════════════════════════════════════ */
+.s-app.ax {
+  max-width: 1320px;
+  padding-bottom: 48px;
+}
+.ax-pixel {
+  font-family: var(--f-pixel), ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.ax-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.ax-eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--a-blue-l);
+}
+.ax-h1 {
+  margin: 22px 0 0;
+  font-size: clamp(54px, 7.4vw, 124px);
+  line-height: 0.86;
+  text-transform: uppercase;
+  color: var(--a-paper);
+}
+.ax-h1 span {
+  color: var(--a-blue-l);
+}
+.ax-h2 {
+  margin: 14px 0 0;
+  font-size: clamp(38px, 4.4vw, 68px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--a-paper);
+}
+.ax-pbar {
+  position: relative;
+  width: 260px;
+  height: 20px;
+  margin-top: 30px;
+}
+.ax-pbar i,
+.ax-pbar b {
+  position: absolute;
+  display: block;
+}
+.ax-pbar i:first-child {
+  left: 0;
+  top: 10px;
+  width: 10px;
+  height: 10px;
+  background: var(--a-blue-l);
+}
+.ax-pbar i:nth-child(2) {
+  left: 10px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--a-ice);
+}
+.ax-pbar b {
+  left: 20px;
+  top: 10px;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(90deg, var(--a-blue), var(--a-blue-l) 55%, var(--a-paper));
+}
+.ax-lede {
+  max-width: 480px;
+  margin: 28px 0 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: #c9c5bc;
+}
+
+/* hero: copy on the left, live APRs on the right, a rule beneath */
+.ax-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 40px;
+  padding: 72px 0 56px;
+  border-bottom: 1px solid var(--a-line);
+}
+.ax-hero-side {
+  display: grid;
+  justify-items: end;
+  gap: 22px;
+}
+.ax-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(190px, 1fr));
+  margin: 0;
+  border: 1px solid var(--a-line);
+}
+.ax-hero-stats > div {
+  padding: 22px 24px;
+  background: rgba(14, 16, 23, 0.9);
+}
+.ax-hero-stats > div + div {
+  border-left: 1px solid var(--a-line);
+}
+.ax-hero-stats > div.is-blue {
+  background: var(--a-blue);
+}
+.ax-hero-stats dt {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 232, 0.7);
+}
+.ax-hero-stats dd {
+  margin: 14px 0 0;
+  font-size: 56px;
+  line-height: 0.9;
+  color: var(--a-paper);
+}
+
+/* sections and their heads */
+.ax-section {
+  padding: 64px 0 0;
+}
+.ax-head {
+  position: relative;
+  margin-bottom: 30px;
+}
+.ax-head-link {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-blue-l);
+  text-decoration: none;
+}
+
+/* vault blocks: art on top (blue / ink with a grid), copy beneath */
+.ax-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--a-line);
+}
+.ax-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  color: inherit;
+  text-decoration: none;
+  background: rgba(14, 16, 23, 0.92);
+  transition: background 0.3s ease;
+}
+.ax-card + .ax-card {
+  border-left: 1px solid var(--a-line);
+}
+.ax-card:hover {
+  background: rgba(22, 25, 35, 0.95);
+}
+.ax-card-art {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 300px;
+  padding: 26px 28px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--a-blue);
+  overflow: hidden;
+}
+.ax-card.is-usdc .ax-card-art {
+  background:
+    linear-gradient(rgba(242, 239, 232, 0.05) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(242, 239, 232, 0.05) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--a-ink-3);
+}
+.ax-card-art::after {
+  /* a few lit cells, like the landing's grid */
+  content: "";
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  width: 40px;
+  height: 40px;
+  background: var(--a-ice);
+  box-shadow: 40px 40px 0 rgba(242, 239, 232, 0.9), -40px 80px 0 rgba(123, 136, 255, 0.85);
+  opacity: 0.75;
+}
+.ax-card.is-usdc .ax-card-art::after {
+  background: var(--a-blue);
+  box-shadow: 40px 40px 0 var(--a-blue-l), -40px 80px 0 rgba(185, 194, 255, 0.7);
+}
+.ax-card-tag {
+  font-family: var(--f-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 232, 0.8);
+}
+.ax-card-rate span {
+  display: block;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 232, 0.75);
+}
+.ax-card-rate strong {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(64px, 6.4vw, 104px);
+  line-height: 0.86;
+  color: var(--a-paper);
+}
+.ax-card-rate em {
+  display: block;
+  margin-top: 12px;
+  font-style: normal;
+  font-size: 13px;
+  color: rgba(242, 239, 232, 0.72);
+}
+.ax-card-copy {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 26px 28px 28px;
+}
+.ax-card-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ax-card-title h3 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.ax-chip {
+  margin-left: auto;
+  padding: 6px 10px;
+  border: 1px solid var(--a-line);
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.ax-card-copy > p {
+  margin: 0;
+  color: #c9c5bc;
+  line-height: 1.55;
+}
+.ax-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  border-top: 1px solid var(--a-line);
+  border-bottom: 1px solid var(--a-line);
+}
+.ax-facts > div {
+  padding: 14px 0;
+}
+.ax-facts > div + div {
+  padding-left: 18px;
+  border-left: 1px solid var(--a-line);
+}
+.ax-facts dt {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.ax-facts dd {
+  margin: 8px 0 0;
+  font-family: var(--f-pixel), monospace;
+  font-size: 22px;
+  color: var(--a-paper);
+}
+.ax-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: var(--a-muted);
+}
+.ax-note {
+  margin: 0;
+  font-size: 13px;
+  color: #f1c145;
+}
+
+/* the landing's block button */
+.ax-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 20px;
+  background: var(--a-paper);
+  color: var(--a-ink);
+  font-family: var(--f-mono), monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.ax-card:hover .ax-btn,
+.ax-btn:hover {
+  background: #fff;
+}
+.ax-btn span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background: var(--a-ink);
+  color: var(--a-paper);
+  font-size: 12px;
+}
+.ax-btn.is-dark {
+  display: inline-flex;
+  gap: 40px;
+  margin-top: 34px;
+  background: var(--a-ink-3);
+  color: var(--a-paper);
+  border: 1px solid var(--a-line);
+}
+.ax-btn.is-dark:hover {
+  background: var(--a-blue);
+}
+.ax-btn.is-dark span {
+  background: var(--a-paper);
+  color: var(--a-ink);
+}
+
+/* at a glance: a ruled table */
+.ax-table {
+  border: 1px solid var(--a-line);
+  background: rgba(14, 16, 23, 0.9);
+}
+.ax-tr {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.2fr 1fr 0.9fr;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 26px;
+  color: var(--a-paper);
+  text-decoration: none;
+}
+.ax-tr + .ax-tr {
+  border-top: 1px solid var(--a-line);
+}
+a.ax-tr:hover {
+  background: rgba(35, 56, 255, 0.12);
+}
+.ax-tr.is-head {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.ax-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+.ax-tr-apr {
+  font-size: 26px;
+  color: var(--a-ice);
+}
+.ax-tr-go {
+  justify-self: end;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-blue-l);
+}
+
+/* steps: three ruled columns with big pixel numerals */
+.ax-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--a-line);
+}
+.ax-steps li {
+  padding: 30px 28px 34px;
+  background: rgba(14, 16, 23, 0.9);
+}
+.ax-steps li + li {
+  border-left: 1px solid var(--a-line);
+}
+.ax-step-n {
+  font-size: 64px;
+  line-height: 0.9;
+  color: var(--a-blue-l);
+}
+.ax-steps h3 {
+  margin: 26px 0 0;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.ax-steps p {
+  margin: 10px 0 0;
+  color: #a9a59c;
+  line-height: 1.55;
+}
+
+/* rules band: paper ground, like the landing's light sections */
+.ax-rules {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 56px;
+  margin-top: 72px;
+  padding: 56px 56px;
+  background:
+    linear-gradient(rgba(13, 15, 18, 0.06) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(13, 15, 18, 0.06) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--a-paper);
+  color: var(--a-ink);
+}
+.ax-rules .ax-eyebrow {
+  color: #6d6a63;
+}
+.ax-rules .ax-eyebrow::before {
+  border-color: var(--a-blue);
+}
+.ax-rules .ax-h2 {
+  color: var(--a-ink);
+}
+.ax-rule-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-rule-list li {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(13, 15, 18, 0.14);
+}
+.ax-rule-list li:last-child {
+  border-bottom: 1px solid rgba(13, 15, 18, 0.14);
+}
+.ax-rule-list strong {
+  font-size: 64px;
+  line-height: 0.9;
+  color: var(--a-blue);
+}
+.ax-rule-list h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.ax-rule-list p {
+  margin: 6px 0 0;
+  color: #55524b;
+}
+.ax-risk {
+  margin: 28px 0 0;
+  max-width: 760px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--a-muted);
+}
+.ax-risk a {
+  color: var(--a-blue-l);
+}
+
+@media (max-width: 899px) {
+  .ax-hero {
+    grid-template-columns: 1fr;
+    padding: 40px 0 36px;
+  }
+  .ax-hero-side {
+    justify-items: start;
+  }
+  .ax-hero-stats {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
+  .ax-hero-stats > div {
+    padding: 16px;
+  }
+  .ax-hero-stats dd {
+    font-size: 38px;
+  }
+  .ax-cards,
+  .ax-steps {
+    grid-template-columns: 1fr;
+  }
+  .ax-card + .ax-card,
+  .ax-steps li + li {
+    border-left: 0;
+    border-top: 1px solid var(--a-line);
+  }
+  .ax-card-art {
+    min-height: 220px;
+  }
+  .ax-head-link {
+    position: static;
+    display: inline-block;
+    margin-top: 14px;
+  }
+  .ax-tr {
+    grid-template-columns: 1fr auto;
+    padding: 16px;
+  }
+  .ax-tr > :nth-child(3),
+  .ax-tr > :nth-child(4),
+  .ax-tr.is-head > :nth-child(5) {
+    display: none;
+  }
+  .ax-tr > .ax-tr-go {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+  .ax-rules {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-top: 48px;
+    padding: 36px 20px;
+  }
+  .ax-rule-list li {
+    grid-template-columns: 96px 1fr;
+  }
+  .ax-rule-list strong {
+    font-size: 44px;
+  }
+}
+
+/* Older app rules style every h1/h2 in .s-app; the .ax display type must win. */
+.s-app.ax .ax-h1,
+.s-app.ax .ax-h2,
+.s-app.ax .ax-pixel {
+  font-family: var(--f-pixel), ui-monospace, monospace !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  max-width: none;
+}
+.s-app.ax .ax-h1 {
+  font-size: clamp(54px, 6.4vw, 108px);
+}
+.s-app.ax .ax-h1::after {
+  content: none;
+}
+.ax-hero-copy {
+  min-width: 0;
+}
+.s-app.ax .ax-h1 {
+  font-size: clamp(44px, 5.4vw, 96px);
+  white-space: nowrap;
+}
+.ax-chip {
+  white-space: nowrap;
+}
+@media (max-width: 899px) {
+  .s-app.ax .ax-h1 {
+    white-space: normal;
+  }
+  .ax-chip {
+    display: none;
+  }
+  .ax-hero-stats dt {
+    font-size: 10px;
+  }
+}
+
+/* ── vault page: hero, then position + allocation beside the form ───────── */
+.ax-back {
+  display: inline-block;
+  margin-top: 36px;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+  text-decoration: none;
+}
+.ax-back:hover {
+  color: var(--a-paper);
+}
+.ax-vault .ax-hero {
+  padding-top: 32px;
+}
+.s-app.ax .ax-h1.ax-vault-title {
+  text-transform: none;
+  font-size: clamp(56px, 7vw, 120px);
+}
+.ax-hero-stats.is-three {
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+}
+.ax-hero-stats.is-three dd {
+  font-size: 44px;
+}
+.ax-vault-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 32px;
+  align-items: start;
+  padding-top: 40px;
+}
+.ax-vault-main {
+  display: grid;
+  gap: 24px;
+}
+.ax-block {
+  padding: 24px 26px 26px;
+  border: 1px solid var(--a-line);
+  background: rgba(14, 16, 23, 0.9);
+}
+.ax-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.ax-block-head a {
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-blue-l);
+  text-decoration: none;
+}
+.ax-alloc-bar {
+  display: flex;
+  height: 12px;
+  background: rgba(242, 239, 232, 0.06);
+}
+.ax-alloc-bar span {
+  display: block;
+  height: 100%;
+}
+.ax-alloc {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-alloc li {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto 90px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--a-line);
+}
+.ax-alloc li:last-child {
+  border-bottom: 0;
+}
+.ax-alloc li > i {
+  width: 12px;
+  height: 12px;
+}
+.ax-alloc-name {
+  color: var(--a-paper);
+}
+.ax-alloc-apr {
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+.ax-alloc strong {
+  justify-self: end;
+  font-size: 22px;
+  color: var(--a-paper);
+}
+.ax-vault-side .e-sticky {
+  position: sticky;
+  top: 96px;
+}
+/* The deposit card in the same square, ruled style. */
+.ax-vault-side .s-card,
+.ax-vault-side .s-earn-form {
+  border: 1px solid var(--a-line) !important;
+  background: rgba(14, 16, 23, 0.95) !important;
+}
+@media (max-width: 999px) {
+  .ax-vault-grid {
+    grid-template-columns: 1fr;
+  }
+  .ax-vault-side {
+    order: -1;
+  }
+  .ax-vault-side .e-sticky {
+    position: static;
+  }
+  .ax-hero-stats.is-three dd {
+    font-size: 28px;
+  }
+  .ax-hero-stats.is-three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 599px) {
+  .ax-alloc li {
+    grid-template-columns: 12px minmax(0, 1fr) 76px;
+  }
+  .ax-alloc-apr {
+    display: none;
+  }
+}
+
+/* ── connect / account dialog: the landing's ink panel ──────────────────── */
+.s-modal,
+body:has(.t-shell) .s-modal {
+  border-radius: 0 !important;
+  border: 1px solid rgba(242, 239, 232, 0.14) !important;
+  background:
+    linear-gradient(rgba(242, 239, 232, 0.035) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(242, 239, 232, 0.035) 1px, transparent 1px) 0 0 / 40px 40px,
+    #0b0c12 !important;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), 0 0 120px rgba(35, 56, 255, 0.18) !important;
+  padding: 30px 30px 28px !important;
+}
+.s-modal::before {
+  /* the blue rule across the top, with the pixel bar's two squares */
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--a-blue), var(--a-blue-l) 60%, var(--a-ice));
+}
+.s-modal::backdrop {
+  background: rgba(4, 5, 8, 0.72);
+  backdrop-filter: blur(6px);
+}
+.s-modal h2 {
+  margin-top: 22px;
+  font-family: var(--f-pixel), ui-monospace, monospace !important;
+  font-weight: 400 !important;
+  font-size: 40px !important;
+  line-height: 0.95 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase;
+  color: var(--a-paper);
+}
+.s-modal > p:not(.s-small):not(.s-error) {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.s-modal .s-button,
+.s-modal .s-btn,
+.s-modal .s-wallet-option {
+  border-radius: 0 !important;
+  min-height: 52px;
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.s-modal .s-button:not(.s-button-outline) {
+  background: var(--a-paper) !important;
+  color: var(--a-ink) !important;
+}
+.s-modal .s-button:not(.s-button-outline):hover:not(:disabled) {
+  background: #fff !important;
+}
+.s-modal .s-button-outline,
+.s-modal .s-wallet-option {
+  background: rgba(242, 239, 232, 0.04) !important;
+  border: 1px solid rgba(242, 239, 232, 0.14) !important;
+  color: var(--a-paper) !important;
+}
+.s-modal .s-button-outline:hover:not(:disabled),
+.s-modal .s-wallet-option:hover {
+  background: var(--a-blue) !important;
+  border-color: var(--a-blue) !important;
+}
+.s-modal .s-small {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #8e8b84;
+}
+.s-modal .s-divider {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.s-modal-close {
+  border-radius: 0 !important;
+  background: rgba(242, 239, 232, 0.06) !important;
+  border: 1px solid rgba(242, 239, 232, 0.14) !important;
+}
+.s-modal .s-address {
+  border-radius: 0 !important;
+  font-family: var(--f-mono), monospace;
+}
+.s-modal h2 + p {
+  margin-top: 14px;
+}
