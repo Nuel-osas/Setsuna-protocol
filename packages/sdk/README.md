@@ -47,6 +47,19 @@ Every prepared deposit or withdrawal carries the same protection as the app: it 
 
 Amounts come back as `{ raw, formatted, decimals }`: `raw` is the exact integer as a string, so results survive JSON.
 
+## Signing links
+
+Every prepared deposit or withdrawal also has a `signUrl`: a link to Setsuna's signing page, where a person connects their browser wallet (MetaMask, Rabby, Phantom and others), reviews the request and signs it. Build one directly with `signUrl()`:
+
+```ts
+import { signUrl } from "@setsunaprotocol/sdk";
+
+signUrl({ vault: "setsUSDC", action: "deposit", amount: "50" });
+// https://mcp.setsuna.finance/sign?vault=setsUSDC&action=deposit&amount=50
+```
+
+The link carries only the request, never transaction data. The page rebuilds the transactions with this SDK when it is opened, so a link can only deposit into a Setsuna vault or withdraw back to the connected wallet, and it never expires. This is the easiest way for an app or an AI agent to let someone act without ever touching their keys.
+
 ## The vaults
 
 | Vault | Asset | Markets | Cap |
