@@ -65,6 +65,26 @@ export const VAULTS: Record<VaultId, VaultConfig> = {
   },
 };
 
+/**
+ * setsAUSD, deployed 28 October 2026: AUSD in and out, held as setsUSDC. Each setsAUSD share is one
+ * setsUSDC share, so setsUSDC's rate, fee and 2,000 USDC cap apply. Swaps go through one Curve stable
+ * pool and revert below 99.8% of one-for-one. Shares carry EIP-2612 permit.
+ */
+export const AUSD_SAVINGS = {
+  id: "setsAUSD",
+  address: "0x551903E3687820A733FBe406DD33Fee8D12bd2F3",
+  name: "Setsuna AUSD Savings",
+  asset: "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a",
+  assetSymbol: "AUSD",
+  assetName: "Agora Dollar",
+  assetDecimals: 6,
+  shareDecimals: 12,
+  underlying: "setsUSDC",
+  pool: "0x942644106B073E30D72c2C5D7529D5C296ea91ab",
+  poolIndex: { AUSD: 0, USDC: 1 },
+  deployedBlock: 117431452n,
+} as const;
+
 /** The app's own protection: accept at most 0.1% less than quoted, within 10 minutes. */
 export const DEFAULT_SLIPPAGE_BPS = 10;
 export const DEFAULT_DEADLINE_SECONDS = 600;
