@@ -4,6 +4,7 @@
 import { readFile } from "node:fs/promises";
 import { createPublicClient, http } from "viem";
 import { computeUsage } from "../lib/score.js";
+import { accountsReport, fetchPrivyUsers } from "../lib/accounts.js";
 
 export const config = { maxDuration: 60 };
 
@@ -16,7 +17,22 @@ async function build() {
   cache ??= await data("checkpoint.json");
   // team.json is kept out of git (the repo is public); without it no wallet counts as team.
   const [team, incentivized] = await Promise.all([data("team.json").catch(() => ({ wallets: [] })), data("incentivized.json")]);
-  return computeUsage({ client, cache, team: team.wallets.map((w) => w.address), incentivized });
+  const teamAddrs = team.wallets.map((w) => w.address);
+  const report = await computeUsage({ client, cache, team: teamAddrs, incentivized });
+  report.accounts = await accounts(report.wallets, teamAddrs);
+  return report;
+}
+
+// Sign-ups from Privy, matched to on-chain wallets. Optional: without the secret the page says so.
+async function accounts(walletRows, team) {
+  const appId = process.env.PRIVY_APP_ID;
+  const secret = process.env.PRIVY_APP_SECRET;
+  if (!appId || !secret) return { available: false, reason: "not_configured" };
+  try {
+    return accountsReport({ users: await fetchPrivyUsers({ appId, secret }), walletRows, team });
+  } catch (error) {
+    return { available: false, reason: "privy_error", status: error?.status ?? null };
+  }
 }
 
 export async function GET() {
