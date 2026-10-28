@@ -60,6 +60,32 @@ signUrl({ vault: "setsUSDC", action: "deposit", amount: "50" });
 
 The link carries only the request, never transaction data. The page rebuilds the transactions with this SDK when it is opened, so a link can only deposit into a Setsuna vault or withdraw back to the connected wallet, and it never expires. This is the easiest way for an app or an AI agent to let someone act without ever touching their keys.
 
+## AUSD savings (setsAUSD)
+
+`setsuna.ausd` covers setsAUSD, a wrapper that lets an app save **AUSD** in setsUSDC: AUSD in, AUSD out. Each setsAUSD share is one setsUSDC share, so it earns setsUSDC's rate under setsUSDC's 2,000 USDC cap. Swaps go through one Curve stable pool (about 0.005% each way) and revert if they would return under 99.8% of one-for-one, so a depeg pauses savings instead of filling them badly. `unwrap` always hands back plain setsUSDC.
+
+```ts
+const s = await setsuna.ausd.getSavings();          // rate, room, swap cost, peg health
+await setsuna.ausd.prepareDeposit("50", owner);     // approve + deposit, the saver pays gas
+await setsuna.ausd.prepareWithdraw(owner, { all: true });
+```
+
+**Gasless, for apps with a relayer.** The saver only signs; the app's relayer submits and pays the gas.
+
+```ts
+// In: an EIP-3009 ReceiveWithAuthorization on AUSD, payable only to `to`, the app's contract,
+// which then calls setsAUSD deposit(value, owner) in the saver's name.
+const { typedData } = setsuna.ausd.buildGaslessDeposit({ owner, to: appSaver, amount: "50" });
+
+// Out: an EIP-2612 permit on the saver's setsAUSD for the app's contract, which calls
+// redeem(shares, owner, owner). The AUSD can only go back to the owner.
+const out = await setsuna.ausd.buildGaslessWithdraw({ owner, spender: appSaver, request: { all: true } });
+```
+
+Both return EIP-712 typed data for `signTypedData` (viem) or `eth_signTypedData_v4`.
+
+setsAUSD: [`0x551903E3687820A733FBe406DD33Fee8D12bd2F3`](https://monadscan.com/address/0x551903E3687820A733FBe406DD33Fee8D12bd2F3), verified on Sourcify.
+
 ## The vaults
 
 | Vault | Asset | Markets | Cap |
