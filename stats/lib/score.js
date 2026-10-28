@@ -9,10 +9,13 @@ export const CONTRACTS = {
   spot: "0x978BdBaD035F1cdf47e10915c0ceC4A94C3fC17D",
   orders: "0x323ad3cd45Cc366306B60878b59ED0d6C56EEfA4",
   perps: "0x00206Efbf5C49B61f2701a20d86329df4C3aB50D",
+  // AUSD savings held as setsUSDC; its savers are counted, the wrapper itself is not a wallet.
+  setsAUSD: "0x551903E3687820A733FBe406DD33Fee8D12bd2F3",
 };
+const SETS_AUSD_FROM = 117431452n;
 const FROM = 112443702n; // trading deployment; Earn v2 followed at 112600382
 // "Meaningful" Earn position and the retention window, per the sprint plan.
-export const MEANINGFUL = { setsUSDC: 1, setsMON: 20 }; // in the vault's asset
+export const MEANINGFUL = { setsUSDC: 1, setsMON: 20, setsAUSD: 1 }; // in the vault's asset
 export const RETENTION_HOURS = 72;
 // The sprint plan's targets. Planning goals, not published thresholds.
 const TARGETS = [
@@ -56,9 +59,9 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
   cache.logs ??= {};
   cache.times ??= {};
 
-  async function logs(address, event) {
+  async function logs(address, event, from = FROM) {
     const key = `${address.toLowerCase()}:${event.name}`;
-    const hit = cache.logs[key] ? JSON.parse(cache.logs[key], unbig) : { to: FROM - 1n, rows: [] };
+    const hit = cache.logs[key] ? JSON.parse(cache.logs[key], unbig) : { to: from - 1n, rows: [] };
     const spans = [];
     for (let s = hit.to + 1n; s <= head.number; s += 10_000n) spans.push([s, s + 9_999n > head.number ? head.number : s + 9_999n]);
     for (let i = 0; i < spans.length; i += 8) {
@@ -95,11 +98,13 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
   /* Earn: depositors and their positions now */
   const positions = [];
   const depositEvents = [];
-  for (const [vault, address, decimals] of [["setsUSDC", CONTRACTS.setsUSDC, 6], ["setsMON", CONTRACTS.setsMON, 18]]) {
-    const deps = await stamp(await logs(address, ev.deposit));
+  const wrapper = getAddress(CONTRACTS.setsAUSD);
+  for (const [vault, address, decimals, from] of [["setsUSDC", CONTRACTS.setsUSDC, 6, FROM], ["setsMON", CONTRACTS.setsMON, 18, FROM], ["setsAUSD", CONTRACTS.setsAUSD, 6, SETS_AUSD_FROM]]) {
+    const deps = await stamp(await logs(address, ev.deposit, from));
     const first = new Map();
     for (const d of deps) {
       const w = getAddress(d.args.owner);
+      if (w === wrapper) continue; // setsAUSD's own setsUSDC; its savers are counted under setsAUSD
       depositEvents.push({ wallet: w, vault, time: d.time });
       if (!first.has(w) || d.time < first.get(w)) first.set(w, d.time);
     }
@@ -116,14 +121,15 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
   const wallets = new Map();
   const row = (w) => {
     if (!wallets.has(w))
-      wallets.set(w, { wallet: w, group: group(w), first_seen: null, spot_volume_usdc: 0, spot_trades: 0, spot_days: new Set(), earn_usdc: 0, earn_mon: 0, perps_orders: 0, limit_orders: 0 });
+      wallets.set(w, { wallet: w, group: group(w), first_seen: null, spot_volume_usdc: 0, spot_trades: 0, spot_days: new Set(), earn_usdc: 0, earn_mon: 0, earn_ausd: 0, perps_orders: 0, limit_orders: 0 });
     return wallets.get(w);
   };
   const seen = (r, t) => (r.first_seen = r.first_seen === null ? t : Math.min(r.first_seen, t));
   for (const t of trades) { const r = row(t.wallet); r.spot_volume_usdc += t.usd; r.spot_trades++; r.spot_days.add(day(t.time)); seen(r, t.time); }
   for (const o of perpsOrders) if (o.wallet) { const r = row(o.wallet); r.perps_orders++; seen(r, o.time); }
   for (const o of limitOrders) if (o.wallet) { const r = row(o.wallet); r.limit_orders++; seen(r, o.time); }
-  for (const p of positions) { const r = row(p.wallet); r[p.vault === "setsUSDC" ? "earn_usdc" : "earn_mon"] += p.assets; seen(r, p.since); }
+  const field = { setsUSDC: "earn_usdc", setsMON: "earn_mon", setsAUSD: "earn_ausd" };
+  for (const p of positions) { const r = row(p.wallet); r[field[p.vault]] += p.assets; seen(r, p.since); }
 
   /* Score each group */
   const now = Number(head.timestamp);
@@ -146,7 +152,10 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
       limitOrderTraders: mine.filter((r) => r.limit_orders).length,
       earnDepositors: new Set(pos.map((p) => p.wallet)).size,
       earnMeaningful: new Set(pos.filter((p) => p.assets >= MEANINGFUL[p.vault]).map((p) => p.wallet)).size,
-      tvlUSDC: round(pos.filter((p) => p.vault === "setsUSDC").reduce((s, p) => s + p.assets, 0)),
+      // setsAUSD is held as setsUSDC, so it counts toward USDC TVL.
+      tvlUSDC: round(pos.filter((p) => p.vault === "setsUSDC" || p.vault === "setsAUSD").reduce((s, p) => s + p.assets, 0)),
+      tvlAUSD: round(pos.filter((p) => p.vault === "setsAUSD").reduce((s, p) => s + p.assets, 0)),
+      ausdSavers: new Set(pos.filter((p) => p.vault === "setsAUSD").map((p) => p.wallet)).size,
       tvlMON: round(pos.filter((p) => p.vault === "setsMON").reduce((s, p) => s + p.assets, 0)),
       retention72hPct: old.length ? Math.round((old.filter((p) => p.assets >= MEANINGFUL[p.vault]).length / old.length) * 1000) / 10 : null,
     };
@@ -185,11 +194,11 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
     const ext = positions.filter((p) => group(p.wallet) !== "team" && now - p.since >= RETENTION_HOURS * 3600);
     scorecard.find((r) => r.metric === "retention72hPct").external = ext.length ? Math.round((ext.filter((p) => p.assets >= MEANINGFUL[p.vault]).length / ext.length) * 1000) / 10 : null;
   }
-  const activity = ["spotExecutions", "largestWalletSharePct", "perpsTraders", "perpsOrders", "limitOrderTraders", "earnDepositors", "tvlMON"].map((metric) => ({
+  const activity = ["spotExecutions", "largestWalletSharePct", "perpsTraders", "perpsOrders", "limitOrderTraders", "earnDepositors", "tvlMON", "ausdSavers", "tvlAUSD"].map((metric) => ({
     metric, organic: scores.organic[metric], incentivized: scores.incentivized[metric], team: scores.team[metric],
   }));
   const walletRows = [...wallets.values()]
-    .map((r) => ({ ...r, spot_days: r.spot_days.size, first_seen: iso(r.first_seen), spot_volume_usdc: round(r.spot_volume_usdc), earn_usdc: round(r.earn_usdc), earn_mon: round(r.earn_mon) }))
+    .map((r) => ({ ...r, spot_days: r.spot_days.size, first_seen: iso(r.first_seen), spot_volume_usdc: round(r.spot_volume_usdc), earn_usdc: round(r.earn_usdc), earn_mon: round(r.earn_mon), earn_ausd: round(r.earn_ausd) }))
     .sort((a, b) => (a.first_seen < b.first_seen ? -1 : 1));
 
   return {

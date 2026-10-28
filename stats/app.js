@@ -11,6 +11,8 @@
     limitOrderTraders: "Limit-order traders",
     earnDepositors: "Earn depositors, any size",
     tvlMON: "setsMON held, MON",
+    ausdSavers: "AUSD savers (setsAUSD)",
+    tvlAUSD: "setsAUSD held, AUSD",
   };
   const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
   const fmt = (v, unit) => {
@@ -156,7 +158,7 @@
     stacked("chart-volume", report.daily, "spot_volume_usdc", "USDC");
     fill("activity-table", report.activity, [
       (r) => LABELS[r.metric] || r.metric,
-      ...GROUPS.map((g) => (r) => fmt(r[g], r.metric === "largestWalletSharePct" ? "%" : r.metric === "tvlMON" ? "USDC" : "count")),
+      ...GROUPS.map((g) => (r) => fmt(r[g], r.metric === "largestWalletSharePct" ? "%" : r.metric === "tvlMON" || r.metric === "tvlAUSD" ? "USDC" : "count")),
     ]);
     const addr = (r) => `${r.wallet.slice(0, 6)}…${r.wallet.slice(-4)}`;
     addr.cls = "addr";
@@ -169,6 +171,7 @@
       (r) => fmt(r.spot_days),
       (r) => fmt(r.earn_usdc, "USDC"),
       (r) => fmt(r.earn_mon, "USDC"),
+      (r) => fmt(r.earn_ausd, "USDC"),
       (r) => fmt(r.perps_orders),
       (r) => fmt(r.limit_orders),
     ]);
