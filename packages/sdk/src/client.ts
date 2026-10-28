@@ -23,6 +23,7 @@ import {
 } from "./constants.js";
 import { amount, bpsToPercent, iso, percentFrom1e18, percentOf, type Amount } from "./format.js";
 import { signUrl } from "./sign.js";
+import { createAUSDSavings } from "./ausd.js";
 
 export interface SetsunaOptions {
   /** A viem public client for Monad (chain 143). Takes precedence over `rpcUrl`. */
@@ -502,7 +503,10 @@ export function createSetsuna(options: SetsunaOptions = {}) {
     };
   }
 
-  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, getRules };
+  /** setsAUSD: AUSD savings held in setsUSDC, with gasless signature builders for apps that relay. */
+  const ausd = createAUSDSavings(client, async () => (await getVault("setsUSDC")).netAprPct);
+
+  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, getRules, ausd };
 }
 
 export type Setsuna = ReturnType<typeof createSetsuna>;
