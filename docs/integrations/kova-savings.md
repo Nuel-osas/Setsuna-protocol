@@ -1,6 +1,6 @@
 # Kova Savings with setsAUSD
 
-How to switch on Kova's Savings with Setsuna, using Kova's existing `KovaSaver`, API and app. AUSD in, AUSD out, and savers only sign.
+How to switch on Kova's Savings with Setsuna. AUSD in, AUSD out, and savers only sign. With Option A, Setsuna pays the gas and Kova deploys nothing.
 
 ## What setsAUSD is
 
@@ -17,6 +17,66 @@ It is a standard ERC-4626 for everything Kova uses: `asset()`, `name()`, `balanc
 
 ## Switching it on
 
+There are two ways. **Option A is the easy one: Setsuna pays the gas**, so Kova deploys nothing and holds no MON for savings.
+
+### Option A (recommended): Setsuna pays the gas
+
+Setsuna's saver contract, [`SetsunaAUSDSaver`](https://monadscan.com/address/0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3) `0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3`, does what `KovaSaver` does: it takes the wallet's signed AUSD and saves it in the wallet's name, and redeems a signed permit back to the wallet. Setsuna's relayer submits those calls and pays the MON.
+
+1. **Set the API environment** to Setsuna's saver instead of deploying your own:
+
+   ```sh
+   KOVA_SAVINGS_VAULT=0x551903E3687820A733FBe406DD33Fee8D12bd2F3
+   KOVA_SAVER=0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3
+   ```
+
+   The wallet already signs for whatever `saver` the savings endpoint returns (`receiveAuthorizationTypedData` with `to: saver`, `vaultPermitTypedData` with `spender: saver`), so **no wallet or app change is needed.**
+
+2. **Send the signatures to Setsuna's relayer** instead of your own. In `apps/api/src/services/money.ts`, replace the `sendFromRelayer(...)` call in each function:
+
+   ```ts
+   const SETSUNA_RELAYER = "https://setsuna-relayer-production.up.railway.app";
+
+   async function setsunaRelay(path: string, body: Record<string, string>) {
+     const res = await fetch(`${SETSUNA_RELAYER}${path}`, {
+       method: "POST",
+       headers: { "content-type": "application/json" },
+       body: JSON.stringify(body),
+     });
+     const out = (await res.json()) as { txHash?: Hex; error?: string };
+     if (!res.ok || !out.txHash) throw new KovaError("chain_error", out.error ?? "The move didn't go through.");
+     return out.txHash;
+   }
+
+   // saveIn: instead of sendFromRelayer(helper, data, { maxGas: 400_000n })
+   const txHash = await setsunaRelay("/v1/ausd/save", {
+     owner: wallet,
+     value: signed.value.toString(),
+     validAfter: signed.validAfter.toString(),
+     validBefore: signed.validBefore.toString(),
+     nonce: signed.nonce,
+     signature: signed.signature,
+   });
+
+   // saveOut: instead of sendFromRelayer(helper, data, { maxGas: 400_000n })
+   const txHash = await setsunaRelay("/v1/ausd/withdraw", {
+     owner: wallet,
+     shares: signed.shares.toString(),
+     deadline: signed.deadline.toString(),
+     signature: signed.signature,
+   });
+   ```
+
+   Keep recording `savingsMoves` with the returned `txHash`, exactly as today. The relayer waits for confirmation before it answers.
+
+That's it. Nothing to deploy, no gas limit to change, no MON to hold.
+
+**Limits** (so the sponsorship can't be drained): saves from 1 AUSD; withdrawals from 0.5 AUSD or the whole balance; 5 sponsored moves per wallet per day; a daily gas budget. Every request is simulated first, so a bad, replayed or expired signature is refused with a plain-English `error` and costs nothing. The relayer only ever calls `save` or `withdraw` on the saver, and the saver only ever pays the signer. `GET /health` shows whether sponsoring is on and today's remaining budget. If the budget is used up the relayer answers `503`; savings stay safe and the move can be retried later.
+
+### Option B: your own relayer pays
+
+Use your existing `KovaSaver` and relayer:
+
 1. **Deploy a KovaSaver for setsAUSD on mainnet**, with your existing script:
 
    ```sh
@@ -24,11 +84,9 @@ It is a standard ERC-4626 for everything Kova uses: `asset()`, `name()`, `balanc
      forge script script/DeploySavings.s.sol --rpc-url monad --private-key $KEY --broadcast
    ```
 
-   The constructor reads `asset()` (AUSD) and approves the vault once. Nothing else to configure.
-
 2. **Set the API environment**: `KOVA_SAVINGS_VAULT=0x551903E3687820A733FBe406DD33Fee8D12bd2F3` and `KOVA_SAVER=<the new KovaSaver>`.
 
-3. **Raise the relayer gas limit for savings.** This is the one code change. `saveIn` and `saveOut` in `apps/api/src/services/money.ts` call `sendFromRelayer(helper, data, { maxGas: 400_000n })`. setsAUSD needs more, because setsUSDC values all five markets on every move and the swap runs in the same transaction. Measured on mainnet:
+3. **Raise the relayer gas limit for savings** in `saveIn` and `saveOut` (`maxGas: 400_000n` today). setsAUSD needs more, because setsUSDC values all five markets on every move and the swap runs in the same transaction. Measured on mainnet:
 
    | Step | Gas |
    |---|---|
@@ -38,8 +96,6 @@ It is a standard ERC-4626 for everything Kova uses: `asset()`, `name()`, `balanc
    | setsAUSD redeem (setsUSDC redeem + swap) | ~1.70M |
 
    So `save` is about 1.24M and `withdraw` about 1.79M. Use `maxGas: 2_200_000n` for both.
-
-That's all. The app's Savings screen, the wallet's signatures (`receiveAuthorizationTypedData` naming KovaSaver, `vaultPermitTypedData` with the vault's `name()` and version `1`) and the balance maths work as they are.
 
 ## Behaviour to expect
 
@@ -51,7 +107,7 @@ That's all. The app's Savings screen, the wallet's signatures (`receiveAuthoriza
 
 ## Proof on mainnet
 
-A fresh wallet holding only AUSD, with no MON at any point, saved and withdrew while another wallet relayed and paid gas, using the published `@setsunaprotocol/sdk@0.2.0` signatures:
+**With your own relayer (Option B).** A fresh wallet holding only AUSD, with no MON at any point, saved and withdrew while another wallet relayed and paid gas, using the `@setsunaprotocol/sdk` signatures:
 
 | Step | Transaction |
 |---|---|
@@ -62,11 +118,12 @@ A fresh wallet holding only AUSD, with no MON at any point, saved and withdrew w
 
 Round trip: 0.0102%.
 
-## Setsuna pays the gas (optional)
+**With Setsuna paying the gas (Option A)**, through the live relayer and `SetsunaAUSDSaver`. The saving wallet's MON balance stayed at 0.479258 MON throughout:
 
-You don't need your own relayer. Setsuna runs one that submits a saver's signed save or withdrawal through [`SetsunaAUSDSaver`](https://monadscan.com/address/0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3) and pays the MON. With it, Kova needs no savings contract and no gas budget of its own: the wallet signs, and you post the signature with the SDK (`buildSponsoredDeposit` / `submitSponsoredDeposit`, `buildSponsoredWithdraw` / `submitSponsoredWithdraw`), or straight to `https://setsuna-relayer-production.up.railway.app/v1/ausd/save` and `/v1/ausd/withdraw`. `https://setsuna-relayer-production.up.railway.app/health` shows whether sponsoring is on and today's remaining budget.
-
-Limits keep it from being drained: saves from 1 AUSD, 5 sponsored moves per wallet per day, a daily gas budget, and every request is simulated first, so a bad signature costs nothing. The relayer can't do anything but `save` and `withdraw`, and the saver contract only ever pays the signer. Tested live on mainnet: a wallet saved and withdrew while its MON balance never moved.
+| Step | Transaction | Relayer paid |
+|---|---|---|
+| 1 AUSD saved | [`0xc3b31647…`](https://monadscan.com/tx/0xc3b31647a2ae677a8421161fbf9e6d3d13fdde68c356bf1e5037030c62870f73) | 0.145 MON |
+| Everything withdrawn as AUSD | [`0x7785e96d…`](https://monadscan.com/tx/0x7785e96dcccf27c18383a12d10b4393f25f63df36f1f6d288e8df4dac2d23ac3) | 0.215 MON |
 
 ## Using the SDK
 
@@ -109,6 +166,16 @@ const outSignature = await wallet.signTypedData(out.typedData);
 ```
 
 Both payloads are standard EIP-712 typed data, so they work with viem's `signTypedData`, ethers' `signTypedData`, or a wallet's `eth_signTypedData_v4`.
+
+With Setsuna paying the gas (Option A), the SDK does the whole round trip for any app, not just Kova:
+
+```ts
+const save = setsuna.ausd.buildSponsoredDeposit({ owner: saver, amount: "50" });
+await setsuna.ausd.submitSponsoredDeposit({ typedData: save.typedData, signature: await wallet.signTypedData(save.typedData) });
+
+const exit = await setsuna.ausd.buildSponsoredWithdraw({ owner: saver, request: { all: true } });
+await setsuna.ausd.submitSponsoredWithdraw({ typedData: exit.typedData, signature: await wallet.signTypedData(exit.typedData) });
+```
 
 If the saver pays their own gas instead, `setsuna.ausd.prepareDeposit("50", saver)` and `setsuna.ausd.prepareWithdraw(saver, { all: true })` return the unsigned transactions in order (an exact AUSD approval when needed, then the deposit).
 
