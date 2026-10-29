@@ -105,6 +105,27 @@ type WalletState = {
     value?: bigint,
   ) => Promise<Hex>;
 };
+/** Which wallet to reconnect after a reload. Never a key: only the wallet's name and address. */
+const LAST_WALLET = "setsuna.wallet.last";
+type LastWallet =
+  | { type: "injected"; name: string; address: Address }
+  | { type: "privy" }
+  | { type: "mera"; address: Address };
+function rememberWallet(value: LastWallet | null) {
+  try {
+    if (value) localStorage.setItem(LAST_WALLET, JSON.stringify(value));
+    else localStorage.removeItem(LAST_WALLET);
+  } catch {
+    /* private mode: just don't remember */
+  }
+}
+function lastWallet(): LastWallet | null {
+  try {
+    return JSON.parse(localStorage.getItem(LAST_WALLET) ?? "null") as LastWallet | null;
+  } catch {
+    return null;
+  }
+}
 const Context = createContext<WalletState | null>(null);
 // Privy and its WalletConnect list are ~1 MB; they load only when needed.
 const PrivyBridge = dynamic(() => import("./PrivyBridge"), { ssr: false });
@@ -300,6 +321,49 @@ export function WalletProvider({
     privy.authenticated,
     privyWallets,
   ]);
+  // After a reload: reconnect the wallet used last, without a popup where the wallet allows it.
+  const restored = useRef(false);
+  useEffect(() => {
+    if (restored.current || !deployment || address) return;
+    const last = lastWallet();
+    if (!last) {
+      restored.current = true;
+      return;
+    }
+    if (last.type === "privy") {
+      // Privy keeps its own session; reattach to it once it loads.
+      restored.current = true;
+      setPrivyWanted(true);
+      setPrivyPending(true);
+      return;
+    }
+    if (last.type === "mera") {
+      // A passkey key is rebuilt from the passkey, which needs the user: offer it in one tap.
+      restored.current = true;
+      setOpen(true);
+      return;
+    }
+    const choice = choices.find((c) => c.name === last.name);
+    if (!choice) return; // wallets announce themselves shortly after load
+    restored.current = true;
+    void (async () => {
+      try {
+        // eth_accounts never opens a popup; it lists accounts the site is still allowed to see.
+        const accounts = (await choice.provider.request({ method: "eth_accounts" })) as string[];
+        const account = accounts?.find((a) => a.toLowerCase() === last.address.toLowerCase());
+        if (account) await connect("wallet", { ...choice, address: getAddress(account) });
+      } catch {
+        /* stay disconnected; Connect still works */
+      }
+    })();
+    // connect is recreated each render; this runs once per page load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deployment, choices, address]);
+  // Give a wallet that never announces itself a moment, then stop waiting.
+  useEffect(() => {
+    const t = setTimeout(() => (restored.current = true), 4000);
+    return () => clearTimeout(t);
+  }, []);
   function continueWithPrivy() {
     setError("");
     disconnect();
@@ -406,6 +470,13 @@ export function WalletProvider({
       setChainId(nextChain);
       setKind(mode === "wallet" ? "wallet" : "mera");
       setOpen(false);
+      rememberWallet(
+        mode !== "wallet"
+          ? { type: "mera", address: nextAddress }
+          : choice?.uuid === "privy"
+            ? { type: "privy" }
+            : { type: "injected", name: choice!.name, address: nextAddress },
+      );
       return true;
     } catch (e) {
       pendingSession?.end();
@@ -555,7 +626,10 @@ export function WalletProvider({
         kind,
         chainId,
         openConnect,
-        disconnect,
+        disconnect: () => {
+          rememberWallet(null);
+          disconnect();
+        },
         send,
         sendOn,
       }}
