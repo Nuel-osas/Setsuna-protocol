@@ -1,4 +1,5 @@
 "use client";
+import { rpcTransport } from "@/lib/setsuna/rpc-client";
 import {
   createContext,
   useCallback,
@@ -362,7 +363,7 @@ export function WalletProvider({
         wallet = createWalletClient({
           account,
           chain,
-          transport: http(deployment.rpc),
+          transport: rpcTransport(deployment),
         });
       } else {
         if (!choice) throw new Error("Choose an installed wallet.");

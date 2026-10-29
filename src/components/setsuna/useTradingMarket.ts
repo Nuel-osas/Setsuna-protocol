@@ -1,6 +1,7 @@
 "use client";
+import { rpcTransport } from "@/lib/setsuna/rpc-client";
 import { useEffect, useState } from "react";
-import { createPublicClient, http, formatUnits } from "viem";
+import { createPublicClient, formatUnits } from "viem";
 import { useWallet } from "./WalletProvider";
 import { exchangeAbi } from "@/lib/setsuna/contracts";
 import { kuruABI } from "@/lib/setsuna/spot";
@@ -33,7 +34,7 @@ export function useTradingMarket(kind: "spot" | "perps") {
     setError("");
     if (!d || (d.mode !== "preview" && kind === "spot" && !d.spot)) return;
     const c = createPublicClient({
-      transport: http(d.rpc, { timeout: 12000, retryCount: 0 }),
+      transport: rpcTransport(d),
     });
     const update = async () => {
       if (inFlight) return;

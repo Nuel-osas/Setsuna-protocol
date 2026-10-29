@@ -1,8 +1,10 @@
 import {
   createPublicClient,
   defineChain,
+  fallback,
   http,
-  type HttpTransport,
+  type HttpTransportConfig,
+  type Transport,
 } from "viem";
 import type { Deployment } from "./types";
 
@@ -30,8 +32,35 @@ export const chainFor = (d: Deployment) =>
  * the first is answered from memory instead of costing a sequential round trip.
  * A failed lookup is not remembered.
  */
+/**
+ * Monad mainnet's public endpoints, in order. rpc2 first: it serves archive reads and wide log
+ * ranges. A phone on a shared carrier IP can be refused by one endpoint's per-IP limit, so the
+ * browser moves on to the next instead of failing the whole page.
+ */
+const MAINNET_FALLBACKS = [
+  "https://rpc1.monad.xyz",
+  "https://rpc.monad.xyz",
+  "https://rpc3.monad.xyz",
+];
+
+export function rpcTransport(
+  d: Deployment,
+  config: HttpTransportConfig = {},
+): Transport {
+  const urls =
+    d.chainId === 143
+      ? [d.rpc, ...MAINNET_FALLBACKS.filter((u) => u !== d.rpc)]
+      : [d.rpc];
+  const transports = urls.map((url) =>
+    http(url, { timeout: 12_000, ...config, retryCount: 1 }),
+  );
+  return transports.length === 1
+    ? transports[0]
+    : fallback(transports, { retryCount: 1 });
+}
+
 const rememberChainId =
-  (transport: HttpTransport): HttpTransport =>
+  (transport: Transport): Transport =>
   (config) => {
     const inner = transport(config);
     let chainId: Promise<unknown> | undefined;
@@ -45,7 +74,7 @@ const rememberChainId =
         });
         return chainId;
       },
-    } as ReturnType<HttpTransport>;
+    } as ReturnType<Transport>;
   };
 
 const makeClient = (d: Deployment) =>
@@ -53,9 +82,7 @@ const makeClient = (d: Deployment) =>
     chain: chainFor(d),
     ...(d.chainId === 143 ? { batch: { multicall: { wait: 16 } } } : {}),
     transport: rememberChainId(
-      http(d.rpc, {
-        timeout: 12_000,
-        retryCount: 0,
+      rpcTransport(d, {
         // Keep RPC batches bounded for public endpoint compatibility.
         // This changes transport only: eth_call is still executed at its requested block.
         batch: { batchSize: 20, wait: 10 },
