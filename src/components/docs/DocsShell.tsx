@@ -164,7 +164,7 @@ export default function DocsShell({
         <div className="sd-sidebar-note">
           <span className="sd-meta-dot" />
           <span>Built on Monad</span>
-          <span className="sd-small-tag">Preview</span>
+          <span className="sd-small-tag">Mainnet</span>
         </div>
       </aside>
       <div className="sd-page">{children}</div>
