@@ -123,18 +123,31 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
     for (const w of standard) {
       const chains = w.chains.join(" ");
-      const eco: Ecosystem | null = chains.includes("sui:") ? "sui" : chains.includes("aptos:") ? "aptos" : null;
-      if (!eco || !w.features["standard:connect"]) continue;
-      out.push({
-        id: `${eco}:${w.name}`, name: w.name, icon: w.icon, ecosystem: eco,
-        connect: async () => {
-          const f = w.features["standard:connect"] as { connect: () => Promise<{ accounts: readonly { address: string }[] }> };
-          const { accounts } = await f.connect();
-          const address = accounts[0]?.address ?? w.accounts[0]?.address;
-          if (!address) throw new Error(`${w.name} returned no account`);
-          return { ecosystem: eco, name: w.name, icon: w.icon, address, standard: w };
-        },
-      });
+      // A wallet can serve both (Nightly), so it is offered under each.
+      const ecos = (["sui", "aptos"] as const).filter((e) => chains.includes(`${e}:`));
+      for (const eco of ecos) {
+        // Aptos wallets (AIP-62: Petra, Nightly, Pontem…) connect through aptos:connect, not standard:connect.
+        const aptosConnect = eco === "aptos" ? (w.features["aptos:connect"] as { connect: () => Promise<{ status: string; args?: { address: { toString(): string } | string } }> } | undefined) : undefined;
+        const stdConnect = w.features["standard:connect"] as { connect: () => Promise<{ accounts: readonly { address: string }[] }> } | undefined;
+        if (!aptosConnect && !stdConnect) continue;
+        out.push({
+          id: `${eco}:${w.name}`, name: w.name, icon: w.icon, ecosystem: eco,
+          connect: async () => {
+            let address: string | undefined;
+            if (aptosConnect) {
+              const r = await aptosConnect.connect();
+              if (r.status !== "Approved") throw new Error("Connection rejected");
+              address = r.args?.address?.toString();
+            } else {
+              const { accounts } = await stdConnect!.connect();
+              address = accounts.find((a) => (a as { chains?: readonly string[] }).chains?.some((c) => c.startsWith(`${eco}:`)) ?? true)?.address;
+            }
+            address ??= w.accounts.find((a) => a.chains.some((c) => c.startsWith(`${eco}:`)))?.address;
+            if (!address) throw new Error(`${w.name} returned no account`);
+            return { ecosystem: eco, name: w.name, icon: w.icon, address, standard: w };
+          },
+        });
+      }
     }
     return out;
   }, [evm, solanaInjected, standard]);
@@ -148,7 +161,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     setConnected((prev) => {
       const c = prev[e];
       c?.solana?.disconnect().catch(() => {});
-      const f = c?.standard?.features["standard:disconnect"] as { disconnect?: () => Promise<void> } | undefined;
+      const f = c?.standard?.features[e === "aptos" && c.standard.features["aptos:disconnect"] ? "aptos:disconnect" : "standard:disconnect"] as { disconnect?: () => Promise<void> } | undefined;
       f?.disconnect?.().catch(() => {});
       const next = { ...prev };
       delete next[e];
