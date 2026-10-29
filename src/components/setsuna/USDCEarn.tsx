@@ -7,6 +7,7 @@ import { usdcVaultAbi, readUSDC, type USDCSnapshot } from "@/lib/setsuna/usdc";
 import { clientFor, useWallet } from "./WalletProvider";
 import AnyChainDeposit from "./AnyChainDeposit";
 import EarnForm, { type EarnControls } from "./EarnForm";
+import AUSDEarnForm from "./AUSDEarnForm";
 import { message } from "@/lib/setsuna/format";
 import { readEarlier, type EarlierPosition } from "@/lib/setsuna/retired-earn";
 import EarnVaultLayout from "./EarnVaultLayout";
@@ -27,7 +28,10 @@ const parseAmount = (value: string, decimals: number) => {
   }
 };
 
-export default function USDCEarn(controls: EarnControls) {
+export default function USDCEarn({
+  ausd = false,
+  ...controls
+}: EarnControls & { ausd?: boolean }) {
   const wallet = useWallet();
   const { deployment: d, address } = wallet;
   const m = d?.earnUSDC;
@@ -46,6 +50,8 @@ export default function USDCEarn(controls: EarnControls) {
   useNoticeToast(notice);
   const [amount, setAmount] = useState("");
   const [exitShares, setExitShares] = useState("");
+  // AUSD, picked in the token picker, is saved here through setsAUSD (mainnet only).
+  const payWith = ausd && d?.mode === "mainnet" ? "AUSD" : "USDC";
   const [earlier, setEarlier] = useState<EarlierPosition>();
   const [busy, setBusy] = useState("");
   const [pending, setPending] = useState<Hex>();
@@ -368,6 +374,15 @@ export default function USDCEarn(controls: EarnControls) {
       }
       form={
         <>
+          {payWith === "AUSD" ? (
+            <AUSDEarnForm
+              mode={controls.mode}
+              setMode={controls.setMode}
+              setAsset={controls.setAsset}
+              blendedApr={snapshot?.blendedApr}
+              onChanged={() => void refresh()}
+            />
+          ) : (
           <EarnForm
             {...controls}
             asset="USDC"
@@ -394,7 +409,8 @@ export default function USDCEarn(controls: EarnControls) {
             earlier={earlier?.assets}
             onSubmit={(action) => void act(action)}
           />
-          {controls.mode === "deposit" && (
+          )}
+          {controls.mode === "deposit" && payWith === "USDC" && (
             <AnyChainDeposit
               asset="USDC"
               recipient={address}

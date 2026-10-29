@@ -7,9 +7,11 @@ import { Mark } from "./Brand";
 import TokenIcon from "./TokenIcon";
 
 export type EarnAsset = "MON" | "USDC";
+/** What the token picker offers: the two vaults, plus AUSD, saved in setsUSDC through setsAUSD. */
+export type PickerAsset = EarnAsset | "AUSD";
 export type EarnMode = "deposit" | "withdraw";
 export type EarnControls = {
-  setAsset: (asset: EarnAsset) => void;
+  setAsset: (asset: PickerAsset) => void;
   mode: EarnMode;
   setMode: (mode: EarnMode) => void;
 };
@@ -30,7 +32,7 @@ export function EarnToken({
   asset,
   receipt = false,
 }: {
-  asset: EarnAsset;
+  asset: PickerAsset;
   receipt?: boolean;
 }) {
   return (
@@ -52,25 +54,25 @@ export function EarnToken({
   );
 }
 
-function EarnAssetPicker({
+export function EarnAssetPicker({
   asset,
   receipt,
   disabled,
   onSelect,
 }: {
-  asset: EarnAsset;
+  asset: PickerAsset;
   receipt: boolean;
   disabled: boolean;
-  onSelect: (asset: EarnAsset) => void;
+  onSelect: (asset: PickerAsset) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(asset);
+  const [active, setActive] = useState<PickerAsset>(asset);
   const [above, setAbove] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const listId = useId();
   const expanded = open && !disabled;
-  const options = ["MON", "USDC"] as const;
+  const options = ["MON", "USDC", "AUSD"] as const;
 
   useLayoutEffect(() => {
     if (!expanded) return;
@@ -104,7 +106,7 @@ function EarnAssetPicker({
     setOpen(false);
   }, [asset, receipt, disabled]);
 
-  function choose(next: EarnAsset) {
+  function choose(next: PickerAsset) {
     if (disabled) return;
     setOpen(false);
     onSelect(next);
@@ -154,15 +156,17 @@ function EarnAssetPicker({
           }
           if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
             event.preventDefault();
+            const at = options.indexOf(active);
             setActive(
               event.key === "Home"
-                ? "MON"
+                ? options[0]
                 : event.key === "End"
-                  ? "USDC"
+                  ? options[options.length - 1]
                   : expanded
-                    ? active === "MON"
-                      ? "USDC"
-                      : "MON"
+                    ? options[
+                        (at + (event.key === "ArrowUp" ? options.length - 1 : 1)) %
+                          options.length
+                      ]
                     : asset,
             );
             setOpen(true);
@@ -173,9 +177,10 @@ function EarnAssetPicker({
               setActive(asset);
               setOpen(true);
             }
-          } else if (["m", "u", "s"].includes(event.key.toLowerCase())) {
+          } else if (["m", "u", "a", "s"].includes(event.key.toLowerCase())) {
             event.preventDefault();
-            setActive(event.key.toLowerCase() === "u" ? "USDC" : "MON");
+            const k = event.key.toLowerCase();
+            setActive(k === "u" ? "USDC" : k === "a" ? "AUSD" : "MON");
             setOpen(true);
           }
         }}
@@ -227,10 +232,14 @@ function EarnAssetPicker({
                   <span>{receipt ? `sets${token}` : token}</span>
                   <small>
                     {receipt
-                      ? `${token} vault shares`
+                      ? token === "AUSD"
+                        ? "AUSD saved in setsUSDC"
+                        : `${token} vault shares`
                       : token === "MON"
                         ? "Monad"
-                        : "USD Coin"}
+                        : token === "USDC"
+                          ? "USD Coin"
+                          : "Agora Dollar"}
                   </small>
                 </span>
                 {asset === token && (

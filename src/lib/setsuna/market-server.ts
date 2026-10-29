@@ -137,6 +137,7 @@ export function liveSnapshot(kind: "spot" | "perps"): Promise<LiveMarket> {
 }
 // About six days of hourly candles, matching a trading terminal's default view.
 const COUNT = 150;
+const SPOT_REACH_MS = 60 * 86_400_000;
 export function liveCandles(
   kind: "spot" | "perps",
   interval: "15m" | "1h" | "4h",
@@ -144,12 +145,15 @@ export function liveCandles(
   return cached(`candles-${kind}-${interval}`, 30000, async () => {
     const seconds = { "15m": 900, "1h": 3600, "4h": 14400 }[interval],
       end = Date.now(),
-      start = end - seconds * 1000 * COUNT;
+      start = end - seconds * 1000 * COUNT,
+      // A quiet spot book can go days without a trade; reach back far enough
+      // that the chart shows the latest real candles instead of an empty pane.
+      spotStart = Math.min(start, end - SPOT_REACH_MS);
     const candles =
       kind === "spot"
         ? kuruCandles(
             await json(
-              `${KURU}/${MARKET}/trades/history?countback=${COUNT}&from=${Math.floor(start / 1000)}&to=${Math.floor(end / 1000)}&resolution=${interval}&isDollar=false&inMarketCap=false`,
+              `${KURU}/${MARKET}/trades/history?countback=${COUNT}&from=${Math.floor(spotStart / 1000)}&to=${Math.floor(end / 1000)}&resolution=${interval}&isDollar=false&inMarketCap=false`,
             ),
           )
         : perplCandles(
@@ -164,7 +168,11 @@ export function liveCandles(
       source: kind === "spot" ? "Kuru" : "Perpl",
       interval,
       candles: candles
-        .filter((c) => c.time <= end && c.time >= start - seconds * 1000)
+        .filter(
+          (c) =>
+            c.time <= end &&
+            c.time >= (kind === "spot" ? spotStart : start) - seconds * 1000,
+        )
         .slice(-COUNT),
     };
   });

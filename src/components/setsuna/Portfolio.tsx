@@ -6,6 +6,7 @@ import { useWallet } from "./WalletProvider";
 import { usePortfolio } from "./usePortfolio";
 import { Mark } from "./Brand";
 import EarnEarnings from "./EarnEarnings";
+import AUSDPosition from "./AUSDPosition";
 import { EarnToken } from "./EarnForm";
 import TokenIcon from "./TokenIcon";
 import { shortAddress } from "@/lib/setsuna/format";
@@ -338,6 +339,13 @@ export default function Portfolio() {
                     })}
                   </div>
                 )}
+                <AUSDPosition
+                  apr={
+                    data?.earn.USDC.status === "ready"
+                      ? data.earn.USDC.data.apr
+                      : undefined
+                  }
+                />
                 <p className="p-section-note">
                   Share value includes interest and losses. The current base APR
                   is variable; withdrawals depend on available liquidity.
