@@ -1,0 +1,2 @@
+web3icons (MIT) — https://github.com/0xa3k5/web3icons
+Chain and token logos are trademarks of their owners, used to identify networks.
