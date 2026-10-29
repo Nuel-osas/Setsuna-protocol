@@ -83,7 +83,12 @@ export const AUSD_SAVINGS = {
   pool: "0x942644106B073E30D72c2C5D7529D5C296ea91ab",
   poolIndex: { AUSD: 0, USDC: 1 },
   deployedBlock: 117431452n,
+  /** SetsunaAUSDSaver: carries out a saver's signed save or withdrawal for whoever pays the gas. */
+  saver: "0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3",
 } as const;
+
+/** Setsuna's relayer, which pays the gas for setsAUSD saves and withdrawals made through AUSD_SAVINGS.saver. */
+export const RELAYER_URL = "https://setsuna-relayer-production.up.railway.app";
 
 /** The app's own protection: accept at most 0.1% less than quoted, within 10 minutes. */
 export const DEFAULT_SLIPPAGE_BPS = 10;

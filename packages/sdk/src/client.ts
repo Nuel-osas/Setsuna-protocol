@@ -30,6 +30,8 @@ export interface SetsunaOptions {
   client?: PublicClient;
   /** Monad RPC. Defaults to https://rpc2.monad.xyz. */
   rpcUrl?: string;
+  /** Setsuna's gas-sponsoring relayer for setsAUSD. Defaults to RELAYER_URL. */
+  relayerUrl?: string;
 }
 
 export interface Allocation {
@@ -504,7 +506,7 @@ export function createSetsuna(options: SetsunaOptions = {}) {
   }
 
   /** setsAUSD: AUSD savings held in setsUSDC, with gasless signature builders for apps that relay. */
-  const ausd = createAUSDSavings(client, async () => (await getVault("setsUSDC")).netAprPct);
+  const ausd = createAUSDSavings(client, async () => (await getVault("setsUSDC")).netAprPct, options.relayerUrl);
 
   return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, getRules, ausd };
 }

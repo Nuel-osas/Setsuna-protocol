@@ -1,6 +1,6 @@
 import { encodeFunctionData, getAddress, isAddress, parseUnits, toHex, type Address, type Hex, type PublicClient } from "viem";
 import { ausdWrapperAbi, curveStablePoolAbi, erc20Abi } from "./abis.js";
-import { APP_URL, AUSD_SAVINGS, DEFAULT_SLIPPAGE_BPS } from "./constants.js";
+import { APP_URL, AUSD_SAVINGS, DEFAULT_SLIPPAGE_BPS, RELAYER_URL } from "./constants.js";
 import { amount, type Amount } from "./format.js";
 import type { Transaction } from "./client.js";
 
@@ -72,7 +72,14 @@ const who = (owner: string): Address => {
 const minus = (v: bigint, bps: number) => (v * (10_000n - BigInt(bps))) / 10_000n;
 const NOTE_RISK = "Setsuna contracts are unaudited and the vaults are capped. Save only what you can afford to lose.";
 
-export function createAUSDSavings(client: PublicClient, setsUSDCNetApr: () => Promise<number>) {
+export interface SponsoredResult {
+  txHash: Hex;
+  block: string;
+  /** What Setsuna's relayer paid for this transaction. */
+  gasPaidMON: string;
+}
+
+export function createAUSDSavings(client: PublicClient, setsUSDCNetApr: () => Promise<number>, relayerUrl: string = RELAYER_URL) {
   const read = <T>(functionName: string, args: unknown[] = [], blockNumber?: bigint) =>
     client.readContract({ address: W, abi: ausdWrapperAbi, functionName: functionName as never, args: args as never, blockNumber }) as Promise<T>;
   const dy = (i: number, j: number, dx: bigint) =>
@@ -264,5 +271,56 @@ export function createAUSDSavings(client: PublicClient, setsUSDCNetApr: () => Pr
     return { typedData, expected: { shares: quote.shares, assets: quote.assets }, notes: ["The saver signs this; the app's relayer submits it and pays the gas."] };
   }
 
-  return { getSavings, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, buildGaslessDeposit, buildGaslessWithdraw };
+  /* ── Sponsored: Setsuna's relayer pays the gas. The saver signs; the app submits. ── */
+
+  const saverAddress = AUSD_SAVINGS.saver as Address;
+  async function relay(path: string, body: Record<string, unknown>): Promise<SponsoredResult> {
+    const res = await fetch(`${relayerUrl}${path}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body, (_, v) => (typeof v === "bigint" ? v.toString() : v)),
+    });
+    const out = (await res.json().catch(() => ({}))) as SponsoredResult & { error?: string };
+    if (!res.ok) throw new Error(out.error ?? `The relayer answered ${res.status}.`);
+    return out;
+  }
+
+  /** What the saver signs for a sponsored save. Sign it, then pass it to `submitSponsoredDeposit`. At least 1 AUSD. */
+  function buildSponsoredDeposit(params: { owner: string; amount: string; validForSeconds?: number }) {
+    return buildGaslessDeposit({ ...params, to: saverAddress });
+  }
+
+  /** What the saver signs for a sponsored withdrawal back to themselves in AUSD. */
+  function buildSponsoredWithdraw(params: { owner: string; request: AUSDWithdrawAmount; validForSeconds?: number }) {
+    return buildGaslessWithdraw({ ...params, spender: saverAddress });
+  }
+
+  /** Sends the signed save to Setsuna's relayer, which submits it and pays the gas. */
+  function submitSponsoredDeposit(signed: { typedData: ReturnType<typeof buildGaslessDeposit>["typedData"]; signature: Hex }) {
+    const m = signed.typedData.message;
+    if (getAddress(m.to) !== saverAddress) throw new Error("Build the signature with buildSponsoredDeposit.");
+    return relay("/v1/ausd/save", { owner: m.from, value: m.value, validAfter: m.validAfter, validBefore: m.validBefore, nonce: m.nonce, signature: signed.signature });
+  }
+
+  /** Sends the signed withdrawal to Setsuna's relayer, which submits it and pays the gas. */
+  function submitSponsoredWithdraw(signed: { typedData: Awaited<ReturnType<typeof buildGaslessWithdraw>>["typedData"]; signature: Hex }) {
+    const m = signed.typedData.message;
+    if (getAddress(m.spender) !== saverAddress) throw new Error("Build the signature with buildSponsoredWithdraw.");
+    return relay("/v1/ausd/withdraw", { owner: m.owner, shares: m.value, deadline: m.deadline, signature: signed.signature });
+  }
+
+  return {
+    getSavings,
+    getPosition,
+    quoteDeposit,
+    quoteWithdraw,
+    prepareDeposit,
+    prepareWithdraw,
+    buildGaslessDeposit,
+    buildGaslessWithdraw,
+    buildSponsoredDeposit,
+    buildSponsoredWithdraw,
+    submitSponsoredDeposit,
+    submitSponsoredWithdraw,
+  };
 }

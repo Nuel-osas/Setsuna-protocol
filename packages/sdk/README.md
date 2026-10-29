@@ -84,6 +84,18 @@ const out = await setsuna.ausd.buildGaslessWithdraw({ owner, spender: appSaver, 
 
 Both return EIP-712 typed data for `signTypedData` (viem) or `eth_signTypedData_v4`.
 
+**Sponsored: Setsuna pays the gas.** No relayer of your own needed. The saver signs; you submit to Setsuna's relayer, which carries the call out through `SetsunaAUSDSaver` and pays the MON.
+
+```ts
+const save = setsuna.ausd.buildSponsoredDeposit({ owner, amount: "50" });
+await setsuna.ausd.submitSponsoredDeposit({ typedData: save.typedData, signature: await signTypedData(save.typedData) });
+
+const out = await setsuna.ausd.buildSponsoredWithdraw({ owner, request: { all: true } });
+await setsuna.ausd.submitSponsoredWithdraw({ typedData: out.typedData, signature: await signTypedData(out.typedData) });
+```
+
+Sponsored saves start at 1 AUSD; each wallet gets 5 sponsored moves a day, within a daily gas budget. The relayer only ever calls `save` or `withdraw` on the saver, and the saver only ever pays the signer.
+
 setsAUSD: [`0x551903E3687820A733FBe406DD33Fee8D12bd2F3`](https://monadscan.com/address/0x551903E3687820A733FBe406DD33Fee8D12bd2F3), verified on Sourcify.
 
 ## The vaults
