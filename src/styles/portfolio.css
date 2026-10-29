@@ -825,3 +825,9 @@
   display: grid;
   gap: 10px;
 }
+@media (max-width: 640px) {
+  .p-send-open {
+    align-self: stretch;
+    width: 100%;
+  }
+}

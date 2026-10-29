@@ -60,7 +60,11 @@ export default function SendFunds({
     if (!d || !recipient) return;
     clientFor(d)
       .getCode({ address: recipient })
-      .then((code) => setIsContract(!!code && code !== "0x"))
+      // EIP-7702 wallets (e.g. MetaMask smart accounts) carry a 0xef0100… delegation marker as
+      // code; they are ordinary wallets, so only real contract code earns the warning.
+      .then((code) =>
+        setIsContract(!!code && code !== "0x" && !code.toLowerCase().startsWith("0xef0100")),
+      )
       .catch(() => undefined);
   }, [d, recipient]);
 
