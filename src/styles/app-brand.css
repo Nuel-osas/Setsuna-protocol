@@ -1349,3 +1349,198 @@ body:has(.t-shell) .s-modal {
   color: var(--a-blue-l);
   text-decoration: none;
 }
+
+/* ════════ Trade in the landing's layout ════════ */
+/* toolbar: pixel title, square mode tabs, a single rule beneath */
+.t-trade-toolbar {
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+  border-bottom: 1px solid var(--a-line) !important;
+  background: rgba(7, 8, 12, 0.6) !important;
+}
+.t-trade-heading {
+  font-size: 40px !important;
+  line-height: 1 !important;
+}
+.t-trade-modes {
+  border-radius: 0 !important;
+  border: 1px solid var(--a-line) !important;
+  background: transparent !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+.t-trade-modes button {
+  border-radius: 0 !important;
+  padding: 12px 22px !important;
+  color: var(--a-muted) !important;
+  background: transparent !important;
+}
+.t-trade-modes button[aria-pressed="true"],
+.t-trade-modes button.is-on {
+  background: var(--a-blue) !important;
+  color: var(--a-paper) !important;
+}
+
+/* market strip: the price in pixel type, labels as mono eyebrows */
+.t-market-strip {
+  border-bottom: 1px solid var(--a-line) !important;
+  background: rgba(10, 11, 16, 0.6) !important;
+}
+.t-market-strip .t-stat span:first-child,
+.t-market-strip .t-stat dt,
+.t-market-strip .t-stat > small {
+  font-family: var(--f-mono), monospace;
+  font-size: 10.5px !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-muted) !important;
+}
+.t-market-strip .t-stat-hero strong,
+.t-market-strip .t-stat-hero > :first-child {
+  font-family: var(--f-pixel), monospace !important;
+  font-weight: 400 !important;
+  font-size: 32px !important;
+  letter-spacing: 0 !important;
+}
+.t-market-tag {
+  border-radius: 0 !important;
+  font-family: var(--f-mono), monospace;
+  letter-spacing: 0.12em;
+}
+/* the "mainnet · real funds" chips say nothing new */
+.t-environment,
+.t-chart-panel .t-panel-tabs > span:last-child:not(button) {
+  display: none !important;
+}
+
+/* panels: ink, ruled, square */
+.t-chart-panel,
+.t-book,
+.db-book,
+.t-ticket,
+.db-ticket,
+.db-account,
+.t-position,
+.t-protection,
+.t-reserve,
+.t-shell .s-card {
+  border-radius: 0 !important;
+  background: rgba(10, 11, 16, 0.92) !important;
+  box-shadow: none !important;
+}
+
+/* every tab row in the trading screen: mono capitals, active = paper with a blue rule */
+.t-panel-tabs button,
+.db-tabs button,
+.t-order-kind button,
+.db-book-filters button,
+.t-book-controls button,
+.t-pro-tools button,
+.db-small-segment button,
+.db-mobile-tabs button {
+  border-radius: 0 !important;
+  font-family: var(--f-mono), monospace !important;
+  font-size: 12px !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.t-order-kind button[aria-pressed="true"],
+.t-order-kind button.is-on,
+.db-tabs button[aria-selected="true"],
+.db-tabs button.is-on,
+.t-panel-tabs button[aria-pressed="true"],
+.t-panel-tabs button.is-on {
+  color: var(--a-paper) !important;
+  box-shadow: inset 0 -2px 0 var(--a-blue-l) !important;
+}
+.t-pro-tools button.is-on,
+.t-pro-tools button[aria-pressed="true"],
+.db-book-filters button.is-on,
+.db-book-filters button[aria-pressed="true"],
+.t-book-controls button.is-on,
+.t-book-controls button[aria-pressed="true"],
+.db-small-segment button.is-on,
+.db-small-segment button[aria-pressed="true"] {
+  background: var(--a-blue) !important;
+  color: var(--a-paper) !important;
+}
+
+/* order ticket: square side blocks, square inputs and chips */
+.db-direction,
+.t-side,
+.s-segment {
+  border-radius: 0 !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--a-line) !important;
+  background: transparent !important;
+}
+.db-direction button,
+.t-side button {
+  border-radius: 0 !important;
+  border: 0 !important;
+  min-height: 46px;
+  font-family: var(--f-mono), monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.db-direction button.is-buy.is-on,
+.t-side button.is-long.is-on {
+  background: #1f8f5c !important;
+  color: #fff !important;
+}
+.db-direction button.is-sell.is-on,
+.t-side button.is-short.is-on {
+  background: #c8463f !important;
+  color: #fff !important;
+}
+.db-fractions button,
+.s-chips button,
+.t-shell input,
+.t-shell select,
+.t-shell .s-input-box,
+.t-shell .s-stepin button {
+  border-radius: 0 !important;
+}
+.s-chips button.is-on,
+.t-shell .s-stepin button.is-on {
+  background: var(--a-blue) !important;
+  border-color: var(--a-blue) !important;
+  color: var(--a-paper) !important;
+}
+.db-submit,
+.t-ticket .s-btn.is-primary,
+.t-protection .s-btn.is-primary,
+.db-account-empty button {
+  border-radius: 0 !important;
+  min-height: 52px;
+  background: var(--a-paper) !important;
+  color: var(--a-ink) !important;
+  font-family: var(--f-mono), monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.db-submit:hover:not(:disabled),
+.t-ticket .s-btn.is-primary:hover:not(:disabled) {
+  background: #fff !important;
+}
+/* positions and protection: pixel figures, mono labels */
+.t-position h3,
+.t-position strong,
+.t-reserve strong {
+  font-family: var(--f-pixel), monospace;
+  font-weight: 400;
+}
+.t-shell .s-eyebrow,
+.t-position .s-eyebrow {
+  color: var(--a-muted);
+}
+.t-chart-source {
+  display: none !important;
+}
