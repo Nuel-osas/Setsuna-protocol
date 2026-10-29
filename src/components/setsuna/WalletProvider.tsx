@@ -12,7 +12,6 @@ import {
 import {
   createWalletClient,
   custom,
-  http,
   formatEther,
   toHex,
   getAddress,
@@ -445,7 +444,7 @@ export function WalletProvider({
         ? createWalletClient({
             account: connected.account,
             chain: chainFor(target),
-            transport: http(target.rpc),
+            transport: rpcTransport(target),
           })
         : connected;
     const pub = clientFor(target);
@@ -470,7 +469,9 @@ export function WalletProvider({
         setChainId(target.chainId);
       }
     }
-    if (!(await pub.getCode({ address: to })))
+    // App transactions must target a contract. A plain transfer (no calldata) is the one
+    // exception: that's how MON is sent to another wallet from Portfolio.
+    if (data !== "0x" && !(await pub.getCode({ address: to })))
       throw new Error("No contract at this address. Refresh the target.");
     await pub.call({ account: address, to, data, value });
     const gas = await pub.estimateGas({ account: address, to, data, value });

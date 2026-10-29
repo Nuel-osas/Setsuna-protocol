@@ -738,3 +738,90 @@
 .p-copy svg {
   opacity: 0.7;
 }
+
+/* Send from the wallet. */
+.p-send-open {
+  margin-top: 10px;
+  align-self: flex-start;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.p-send-open[aria-pressed="true"] {
+  border-color: currentColor;
+}
+.p-send-open:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.p-send {
+  margin: 16px 0;
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  max-width: 560px;
+}
+.p-send-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.p-send-head h3 {
+  margin: 0;
+}
+.p-send-close {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  cursor: pointer;
+}
+.p-send-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.p-send-field > span {
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.8;
+}
+.p-send-field input {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  min-width: 0;
+}
+.p-send-max {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.p-send-review {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+}
+.p-send-review code,
+.p-send-done code {
+  word-break: break-all;
+}
+.p-send-done {
+  display: grid;
+  gap: 10px;
+}
