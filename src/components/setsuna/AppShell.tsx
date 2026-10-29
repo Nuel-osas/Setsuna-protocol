@@ -1,4 +1,5 @@
 "use client";
+import { BRIDGE_URL } from "@/lib/setsuna/site";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import EarnOverview from "./EarnOverview";
 import EarnApp from "./EarnApp";
@@ -9,8 +10,9 @@ import { EarnScope, TradingScope } from "./WalletProvider";
 
 type Tab = "earn" | "trade" | "portfolio";
 type TradeMode = "spot" | "perps";
-function TabIcon({ tab }: { tab: Tab }) {
+function TabIcon({ tab }: { tab: Tab | "bridge" }) {
   const paths = {
+    bridge: "M2 17h20M5 17V9.5a7 7 0 0 1 14 0V17M9 17v-4M15 17v-4M12 17v-6",
     earn: "M12 3v18M16 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7M4 8a9 9 0 0 1 16 0M4 16a9 9 0 0 0 16 0",
     trade: "M5 3v18M2 8h6v7H2M12 2v18M9 5h6v6H9M19 6v16M16 12h6v6h-6",
     portfolio: "M3 7h18v14H3V7Zm4 0V3h10v4M3 12h18M10 12v3h4v-3",
@@ -63,17 +65,25 @@ export default function AppShell() {
   return (
     <div className={tab === "trade" ? "s-app-shell t-shell" : "s-app-shell"}>
       <nav className="s-tabs" aria-label="App sections">
-        {(["earn", "trade", "portfolio"] as const).map((t) => (
-          <button
-            key={t}
-            className={tab === t ? "is-on" : ""}
-            aria-current={tab === t ? "page" : undefined}
-            onClick={() => go(t)}
-          >
-            <TabIcon tab={t} />
-            {t === "earn" ? "Earn" : t === "trade" ? "Trade" : "Portfolio"}
-          </button>
-        ))}
+        {(["earn", "trade", "bridge", "portfolio"] as const).map((t) =>
+          t === "bridge" ? (
+            // The bridge is its own app; it opens at bridge.setsuna.finance.
+            <button key={t} type="button" onClick={() => window.location.assign(BRIDGE_URL)}>
+              <TabIcon tab={t} />
+              Bridge
+            </button>
+          ) : (
+            <button
+              key={t}
+              className={tab === t ? "is-on" : ""}
+              aria-current={tab === t ? "page" : undefined}
+              onClick={() => go(t)}
+            >
+              <TabIcon tab={t} />
+              {t === "earn" ? "Earn" : t === "trade" ? "Trade" : "Portfolio"}
+            </button>
+          ),
+        )}
       </nav>
       {tab === "trade" && (
         <div className="t-trade-toolbar">
