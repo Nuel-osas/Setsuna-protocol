@@ -62,9 +62,51 @@ A fresh wallet holding only AUSD, with no MON at any point, saved and withdrew w
 
 Round trip: 0.0102%.
 
-## Optional: the SDK
+## Using the SDK
 
-`@setsunaprotocol/sdk` 0.2.0 reads the rate, room under the cap, swap cost and peg health (`setsuna.ausd.getSavings()`), each saver's position, and builds the same two typed-data payloads (`buildGaslessDeposit`, `buildGaslessWithdraw`). Kova's own code already covers this, so it's only useful for showing the rate or the cap on the Savings screen.
+The SDK is optional for Kova, whose own code already builds the signatures, but it's the quickest way to show the rate, the room under the cap and each saver's balance, or to build the same signatures elsewhere.
+
+```sh
+npm install @setsunaprotocol/sdk
+```
+
+```ts
+import { createSetsuna } from "@setsunaprotocol/sdk";
+
+const setsuna = createSetsuna(); // Monad mainnet, read-only, no key
+
+// Rate, room under the cap, swap cost and peg health
+const savings = await setsuna.ausd.getSavings();
+// { netAprPct, capRemaining, roundTripCostPct, pegOk, ... }
+
+// A saver's position
+const position = await setsuna.ausd.getPosition(saver);
+// { shares, value (in AUSD), redeemableShares, walletAUSD }
+
+// In: the saver signs an AUSD ReceiveWithAuthorization naming your saving contract
+const { typedData: inData } = setsuna.ausd.buildGaslessDeposit({
+  owner: saver,
+  to: kovaSaver,
+  amount: "50",
+});
+const inSignature = await wallet.signTypedData(inData);
+// your relayer calls KovaSaver.save(...) with inData.message and the signature
+
+// Out: the saver signs a permit on their setsAUSD for your saving contract
+const out = await setsuna.ausd.buildGaslessWithdraw({
+  owner: saver,
+  spender: kovaSaver,
+  request: { all: true }, // or { amount: "10" } in AUSD, or { shares: "…" }
+});
+const outSignature = await wallet.signTypedData(out.typedData);
+// your relayer calls KovaSaver.withdraw(...) with out.typedData.message and the signature
+```
+
+Both payloads are standard EIP-712 typed data, so they work with viem's `signTypedData`, ethers' `signTypedData`, or a wallet's `eth_signTypedData_v4`.
+
+If the saver pays their own gas instead, `setsuna.ausd.prepareDeposit("50", saver)` and `setsuna.ausd.prepareWithdraw(saver, { all: true })` return the unsigned transactions in order (an exact AUSD approval when needed, then the deposit).
+
+Package: [`@setsunaprotocol/sdk` on npm](https://www.npmjs.com/package/@setsunaprotocol/sdk) (MIT). Source: [`packages/sdk`](../../packages/sdk).
 
 ## Risk
 
