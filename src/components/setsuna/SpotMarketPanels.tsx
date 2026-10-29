@@ -5,10 +5,37 @@ import { marketNumber, type Level } from "@/lib/setsuna/market-view";
 import type { SpotTrade } from "@/lib/setsuna/live-market";
 import TokenIcon from "./TokenIcon";
 
+/** Latest Kuru swap price. The order book leaves out AMM liquidity, so with one side
+ * empty it has no midpoint, while trades still print through the pool. */
+function useLastTrade() {
+  const [price, setPrice] = useState<number>();
+  useEffect(() => {
+    let alive = true;
+    const load = () =>
+      fetch("/api/markets/?kind=spot&view=trades", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : undefined))
+        .then((body: { trades?: SpotTrade[] } | undefined) => {
+          const last = Array.isArray(body?.trades) ? body.trades[0]?.price : undefined;
+          if (alive && last !== undefined && Number.isFinite(last)) setPrice(last);
+        })
+        .catch(() => undefined);
+    void load();
+    const timer = setInterval(load, 30000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, []);
+  return price;
+}
+
 export function SpotSummary({ reading }: { reading?: TradingReading }) {
   const bid = reading?.bids[0]?.price,
     ask = reading?.asks[0]?.price;
   const spread = bid !== undefined && ask !== undefined ? ask - bid : undefined;
+  const last = useLastTrade();
+  const price = reading?.price ?? last;
+  const loaded = !!reading;
   return (
     <header className="db-summary">
       <div className="db-pair">
@@ -21,32 +48,28 @@ export function SpotSummary({ reading }: { reading?: TradingReading }) {
           </i>
         </span>
         <h1>MON/USDC</h1>
-        <span className="db-pair-price">${marketNumber(reading?.price)}</span>
+        {price !== undefined && (
+          <span className="db-pair-price">${marketNumber(price)}</span>
+        )}
       </div>
       <div className="db-stat t-stat">
-        <span>Market midpoint</span>
-        <strong>
-          {reading?.price === undefined
-            ? "—"
-            : `$${marketNumber(reading.price)}`}
-        </strong>
+        <span>{reading?.price !== undefined ? "Market midpoint" : "Last price"}</span>
+        <strong>{price === undefined ? "…" : `$${marketNumber(price)}`}</strong>
       </div>
       <div className="db-stat">
         <span>Best bid</span>
-        <strong>{marketNumber(bid)}</strong>
+        <strong>{bid !== undefined ? marketNumber(bid) : loaded ? "No bids" : "…"}</strong>
       </div>
       <div className="db-stat">
         <span>Best ask</span>
-        <strong>{marketNumber(ask)}</strong>
+        <strong>{ask !== undefined ? marketNumber(ask) : loaded ? "No asks" : "…"}</strong>
       </div>
-      <div className="db-stat">
-        <span>Spread</span>
-        <strong>
-          {spread !== undefined && reading?.price
-            ? `${((spread / reading.price) * 100).toFixed(3)}%`
-            : "—"}
-        </strong>
-      </div>
+      {spread !== undefined && reading?.price ? (
+        <div className="db-stat">
+          <span>Spread</span>
+          <strong>{`${((spread / reading.price) * 100).toFixed(3)}%`}</strong>
+        </div>
+      ) : null}
     </header>
   );
 }
@@ -219,14 +242,25 @@ export function SpotBook({
             {side !== "bids" && (
               <div className="db-asks">{rows([...asks].reverse(), false)}</div>
             )}
+            {/* With one side empty there is no spread; say which side, not "— —". */}
             <div className="db-spread">
-              <span>Spread</span>
-              <span>{marketNumber(spread)}</span>
-              <span>
-                {spread !== undefined && reading?.price
-                  ? `${((spread / reading.price) * 100).toFixed(3)}%`
-                  : "—"}
-              </span>
+              {spread !== undefined && reading?.price ? (
+                <>
+                  <span>Spread</span>
+                  <span>{marketNumber(spread)}</span>
+                  <span>{`${((spread / reading.price) * 100).toFixed(3)}%`}</span>
+                </>
+              ) : reading ? (
+                <span>
+                  {!bids.length && !asks.length
+                    ? "No resting orders"
+                    : !bids.length
+                      ? "No bids resting · trades fill via the AMM"
+                      : "No asks resting · trades fill via the AMM"}
+                </span>
+              ) : (
+                <span>…</span>
+              )}
             </div>
             {side !== "asks" && <div>{rows(bids, true)}</div>}
             {!reading && (
