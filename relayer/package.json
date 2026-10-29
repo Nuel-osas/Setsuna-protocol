@@ -1,0 +1,9 @@
+{
+  "name": "setsuna-relayer",
+  "private": true,
+  "type": "module",
+  "description": "Sponsors gas for setsAUSD savers: submits their signed saves and withdrawals through SetsunaAUSDSaver.",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node server.mjs" },
+  "dependencies": { "viem": "2.56.9" }
+}
