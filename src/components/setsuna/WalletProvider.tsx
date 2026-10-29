@@ -489,6 +489,7 @@ export function WalletProvider({
     if (initialGeneration !== generation.current)
       throw new Error("Session changed. Reconnect before continuing.");
     const gasLimit = (gas * BigInt(120)) / BigInt(100);
+    const plain = data === "0x";
     // Browser and embedded wallets get a plain eth_sendTransaction. viem's
     // fallback to wallet_sendTransaction hides the wallet's real error when an
     // embedded provider forwards that method to a public RPC.
@@ -500,9 +501,10 @@ export function WalletProvider({
             {
               from: address,
               to,
-              data,
+              // A plain transfer goes without calldata or a fixed gas limit, so smart-account
+              // (EIP-7702) wallets can price it themselves; they reject a pre-filled 21k-style limit.
+              ...(plain ? {} : { data, gas: toHex(gasLimit) }),
               value: toHex(value),
-              gas: toHex(gasLimit),
               // Privy's embedded provider rejects requests without the chain.
               chainId: toHex(target.chainId),
             },
@@ -512,9 +514,8 @@ export function WalletProvider({
           account: wallet.account ?? address,
           chain: chainFor(target),
           to,
-          data,
           value,
-          gas: gasLimit,
+          ...(plain ? {} : { data, gas: gasLimit }),
         });
     onHash?.(hash);
     try {
