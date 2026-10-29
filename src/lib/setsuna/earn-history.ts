@@ -177,6 +177,26 @@ function ownerFlows(
   return flows;
 }
 
+/** Every log the vault has emitted, from /api/earn/logs; undefined if the index is unreachable. */
+async function serverLogs(asset: "MON" | "USDC", owner: Address) {
+  try {
+    const response = await fetch(`/api/earn/logs/?asset=${asset}&owner=${owner}`);
+    if (!response.ok) return undefined;
+    const body = (await response.json()) as {
+      vault: Address;
+      to: string;
+      logs: (Omit<Log, "blockNumber"> & { blockNumber: string })[];
+    };
+    return {
+      vault: body.vault,
+      to: BigInt(body.to),
+      logs: body.logs.map((l) => ({ ...l, blockNumber: BigInt(l.blockNumber) }) as Log),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 type CachedFlows = { block: bigint; hash: string; flows: EarnFlow[] };
 const flowCache = new Map<string, CachedFlows>();
 export async function readOwnerFlows(
@@ -203,7 +223,21 @@ export async function readOwnerFlows(
   if (end < start) throw new Error("History unavailable");
   // startBlock is the deployment block from the configured manifest. Logs remain
   // available even when the RPC has pruned pre-deployment contract state.
-  const fromBlock = cached ? cached.block + BigInt(1) : start;
+  let fromBlock = cached ? cached.block + BigInt(1) : start;
+  let indexed: EarnFlow[] = [];
+  // A vault older than the browser scan limit reads its earlier logs from Setsuna's server
+  // index (mainnet only), then scans just the remaining tail here.
+  if (!cached && end - fromBlock > MAX_FLOW_SCAN && d.mode === "mainnet") {
+    const index = await serverLogs(asset, owner);
+    if (index && index.vault.toLowerCase() === m.vault.toLowerCase()) {
+      const upTo = index.to < end ? index.to : end;
+      indexed = ownerFlows(
+        vaultEvents(index.logs.filter((l) => (l.blockNumber ?? BigInt(0)) <= upTo)),
+        owner,
+      );
+      fromBlock = upTo + BigInt(1);
+    }
+  }
   // Beyond this an indexer is the right tool. Never calculate from truncated logs.
   if (end - fromBlock > MAX_FLOW_SCAN)
     throw new Error("Full history requires indexing");
@@ -230,7 +264,7 @@ export async function readOwnerFlows(
       },
     ),
   );
-  const flows = [...(cached?.flows ?? []), ...found.flat()];
+  const flows = [...(cached?.flows ?? []), ...indexed, ...found.flat()];
   if ((await client.getBlock({ blockNumber: end })).hash !== head.hash)
     throw new Error("Chain changed during history read");
   if (flowCache.size >= 20 && !flowCache.has(key))
