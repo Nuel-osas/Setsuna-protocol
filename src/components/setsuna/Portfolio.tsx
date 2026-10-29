@@ -34,22 +34,25 @@ function Token({ asset }: { asset: PortfolioAsset }) {
 }
 function Section({
   title,
+  eyebrow,
   note,
   children,
   className = "",
 }: {
   title: string;
+  eyebrow?: string;
   note?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <section className={`p-section ${className}`} aria-label={title}>
-      <header className="p-section-head">
-        <h2>{title}</h2>
-        {note && <span>{note}</span>}
+    <section className={`ax-section p-ax-section ${className}`} aria-label={title}>
+      <header className="ax-head">
+        {eyebrow && <p className="ax-eyebrow">{eyebrow}</p>}
+        <h2 className="ax-pixel ax-h2">{title}</h2>
+        {note && <span className="ax-head-link">{note}</span>}
       </header>
-      {children}
+      <div className="ax-block p-ax-body">{children}</div>
     </section>
   );
 }
@@ -96,12 +99,19 @@ export default function Portfolio() {
     ) ?? [];
 
   return (
-    <main id="main" className="s-app p-portfolio">
-      <header className="p-header">
-        <div>
-          <span className="s-eyebrow">Your account</span>
-          <h1>Portfolio</h1>
-          <p>Your assets, earning positions, and trades in one place.</p>
+    <main id="main" className="s-app p-portfolio ax">
+      <header className="ax-hero p-ax-hero">
+        <div className="ax-hero-copy">
+          <p className="ax-eyebrow">Your account</p>
+          <h1 className="ax-pixel ax-h1">Portfolio</h1>
+          <div className="ax-pbar" aria-hidden="true">
+            <i />
+            <i />
+            <b />
+          </div>
+          <p className="ax-lede">
+            Your assets, earning positions and trades in one place.
+          </p>
         </div>
         {address && (
           <div className="p-header-actions">
@@ -153,38 +163,20 @@ export default function Portfolio() {
           </div>
         )}
       </header>
-      <div className="p-environment">
-        <span>
-          <i />
-          {d?.mode === "mainnet" ? "Monad mainnet · real funds" : "Preview"}
-        </span>
-        {address && (
-          <span aria-live="polite">
-            {loading
-              ? "Refreshing balances…"
-              : data
-                ? `Updated at block ${data.block.toLocaleString("en-US")}`
-                : "Waiting for data"}
-          </span>
-        )}
-      </div>
-
       {!address ? (
-        <section className="p-connect" aria-label="Connect your portfolio">
-          <div className="p-connect-mark">
-            <Mark size={56} />
-          </div>
-          <h2>
+        <section className="p-ax-connect" aria-label="Connect your portfolio">
+          <Mark size={64} />
+          <h2 className="ax-pixel ax-h2">
             Everything you own.
             <br />
-            One place to see it.
+            <span>One place to see it.</span>
           </h2>
           <p>
             Connect your account to view your balances, Earn shares, trading
-            positions, and recent activity.
+            positions and recent activity.
           </p>
-          <button className="s-btn is-primary" onClick={openConnect}>
-            Connect account
+          <button className="ax-btn p-ax-connect-btn" onClick={openConnect}>
+            Connect account <span aria-hidden="true">↗</span>
           </button>
           <div className="p-connect-assets">
             <EarnToken asset="MON" />
@@ -206,7 +198,11 @@ export default function Portfolio() {
               fresh reading is available.
             </p>
           )}
-          <section className="p-totals" aria-label="Wallet balances by asset">
+          <header className="ax-head p-ax-wallet-head">
+            <p className="ax-eyebrow">Available now</p>
+            <h2 className="ax-pixel ax-h2">In your wallet</h2>
+          </header>
+          <section className="p-totals p-ax-totals" aria-label="Wallet balances by asset">
             {(["MON", "USDC", "AUSD"] as const).map((asset) => {
               const state = data?.wallet[asset];
               const balance =
@@ -272,10 +268,11 @@ export default function Portfolio() {
             Perps account.
           </p>
 
-          <div className="p-grid">
+          <div className="p-grid p-ax-grid">
             <div className="p-main-column">
               <Section
-                title="Earn positions"
+                eyebrow="Putting your assets to work"
+                title="Earning"
                 note={
                   data
                     ? `${activeEarn} ${Object.values(data.earn).some((value) => value.status === "unavailable") ? "confirmed" : "active"}`
@@ -405,7 +402,8 @@ export default function Portfolio() {
               </Section>
 
               <Section
-                title="Perps account"
+                eyebrow="Perpl · BTC perpetuals"
+                title="Perps"
                 note={<Link href="/trade/?mode=perps">Open Perps ↗</Link>}
               >
                 {!data ? (
@@ -541,7 +539,8 @@ export default function Portfolio() {
               {data?.spotOrders &&
                 data.spotOrders.status !== "not-configured" && (
                   <Section
-                    title="Spot trading balances"
+                    eyebrow="Kuru · open orders"
+                    title="Spot"
                     note={
                       data.spotOrders.status === "ready"
                         ? `${data.spotOrders.data.count} open orders`
@@ -591,60 +590,12 @@ export default function Portfolio() {
                     </div>
                   </Section>
                 )}
-              <Section title="In your wallet" note="Available assets">
-                <ul className="p-wallet-list">
-                  {(["MON", "USDC", "AUSD"] as const).map((asset) => {
-                    const state = data?.wallet[asset];
-                    const value =
-                      state?.status === "ready" ? state.data : undefined;
-                    return (
-                      <li key={asset}>
-                        <Token asset={asset} />
-                        <div>
-                          <strong>{asset}</strong>
-                          <span>
-                            {asset === "MON"
-                              ? "Earn · Spot · gas"
-                              : asset === "USDC"
-                                ? "Earn · Spot"
-                                : "Perps collateral"}
-                          </span>
-                        </div>
-                        <span
-                          className="p-wallet-amount"
-                          data-testid={`portfolio-wallet-${asset.toLowerCase()}`}
-                        >
-                          {amount(value, asset === "MON" ? 18 : 6)}
-                          {state?.status === "unavailable" && (
-                            <small>Unavailable</small>
-                          )}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className="p-wallet-actions">
-                  <Link className="s-btn is-small" href="/app/">
-                    Earn
-                  </Link>
-                  <Link className="s-btn is-small" href="/trade/?mode=spot">
-                    Swap
-                  </Link>
-                </div>
-              </Section>
-              <div className="p-account-note">
-                <Mark size={25} />
-                <p>
-                  Your assets stay in your wallet or the contracts you use.
-                  Managing a position opens its transaction screen.
-                </p>
-              </div>
             </aside>
           </div>
 
           <Section
-            title="Recent activity"
-            note="Your account only"
+            eyebrow="Your account only"
+            title="Activity"
             className="p-activity-section"
           >
             <div
