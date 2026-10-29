@@ -1120,3 +1120,232 @@ body:has(.t-shell) .s-modal {
 .s-modal h2 + p {
   margin-top: 14px;
 }
+
+/* ════════ Portfolio in the landing's layout ════════ */
+.p-portfolio.ax .p-ax-hero {
+  align-items: end;
+}
+.p-portfolio.ax .p-header-actions {
+  display: flex;
+  gap: 10px;
+  align-self: end;
+}
+.p-portfolio.ax .p-address,
+.p-portfolio.ax .p-refresh {
+  border-radius: 0 !important;
+  border: 1px solid var(--a-line) !important;
+  background: rgba(14, 16, 23, 0.9) !important;
+  font-family: var(--f-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+.p-portfolio.ax .p-ax-env {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--a-line);
+  font-family: var(--f-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.p-portfolio.ax .p-ax-env i {
+  border-radius: 0;
+  background: var(--a-blue-l);
+}
+
+/* not connected */
+.p-ax-connect {
+  display: grid;
+  justify-items: start;
+  gap: 22px;
+  margin-top: 48px;
+  padding: 48px 48px 44px;
+  border: 1px solid var(--a-line);
+  background:
+    linear-gradient(rgba(242, 239, 232, 0.035) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(242, 239, 232, 0.035) 1px, transparent 1px) 0 0 / 40px 40px,
+    rgba(14, 16, 23, 0.92);
+}
+.s-app.ax .p-ax-connect h2 {
+  margin: 8px 0 0;
+}
+.p-ax-connect h2 span {
+  color: var(--a-blue-l);
+}
+.p-ax-connect > p {
+  max-width: 560px;
+  margin: 0;
+  color: #c9c5bc;
+  font-size: 17px;
+  line-height: 1.55;
+}
+.p-ax-connect-btn {
+  display: inline-flex;
+  gap: 40px;
+  border: 0;
+  cursor: pointer;
+}
+.p-ax-connect .p-connect-assets {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--a-muted);
+}
+
+/* wallet tiles: a ruled row, the first one blue */
+.p-ax-wallet-head {
+  margin-top: 56px;
+}
+.p-portfolio.ax .p-ax-totals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0 !important;
+  border: 1px solid var(--a-line);
+}
+.p-portfolio.ax .p-ax-totals .p-total {
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 24px 26px 22px;
+  background: rgba(14, 16, 23, 0.92) !important;
+  box-shadow: none !important;
+}
+.p-portfolio.ax .p-ax-totals .p-total + .p-total {
+  border-left: 1px solid var(--a-line) !important;
+}
+.p-portfolio.ax .p-ax-totals .p-total:first-child {
+  background: var(--a-blue) !important;
+}
+.p-portfolio.ax .p-total-label span {
+  font-family: var(--f-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.p-portfolio.ax .p-total strong {
+  font-family: var(--f-pixel), monospace !important;
+  font-weight: 400 !important;
+  font-size: 46px !important;
+  letter-spacing: 0 !important;
+}
+.p-portfolio.ax .p-total p {
+  color: rgba(242, 239, 232, 0.6);
+}
+.p-portfolio.ax .p-send-open {
+  border-radius: 0 !important;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* one column of sections */
+.p-portfolio.ax .p-ax-grid {
+  display: block !important;
+}
+.p-portfolio.ax .p-wallet-column:empty {
+  display: none;
+}
+.p-portfolio.ax .p-ax-body {
+  display: grid;
+  gap: 18px;
+}
+.p-portfolio.ax .p-earn-position,
+.p-portfolio.ax .p-perp-position,
+.p-portfolio.ax .p-empty,
+.p-portfolio.ax .p-ausd-position,
+.p-portfolio.ax [class*="p-ausd"] {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.p-portfolio.ax .p-earn-position {
+  border: 1px solid var(--a-line) !important;
+  background: rgba(242, 239, 232, 0.025) !important;
+  padding: 20px 22px;
+}
+.p-portfolio.ax .p-earn-title h3 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.p-portfolio.ax .p-rate {
+  font-family: var(--f-pixel), monospace;
+  font-size: 22px;
+  color: var(--a-ice);
+  border-radius: 0 !important;
+}
+.p-portfolio.ax .p-position-values dd,
+.p-portfolio.ax .p-perps-balances dd {
+  font-family: var(--f-pixel), monospace !important;
+  font-weight: 400 !important;
+  font-size: 24px;
+}
+.p-portfolio.ax dt {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+.p-portfolio.ax .p-empty h3 {
+  font-family: var(--f-pixel), monospace;
+  font-weight: 400;
+  font-size: 28px;
+  text-transform: uppercase;
+}
+.p-portfolio.ax .p-activity-filters button {
+  border-radius: 0 !important;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.p-portfolio.ax .p-activity-filters button[aria-pressed="true"] {
+  background: var(--a-blue) !important;
+  color: var(--a-paper) !important;
+}
+.p-portfolio.ax .p-activity li {
+  border-radius: 0 !important;
+}
+.p-portfolio.ax .p-activity-icon {
+  border-radius: 0 !important;
+}
+.p-portfolio.ax .p-section-note,
+.p-portfolio.ax .p-total-note {
+  font-size: 13px;
+  color: var(--a-muted);
+}
+.p-portfolio.ax .p-alert {
+  border-radius: 0 !important;
+}
+@media (max-width: 899px) {
+  .p-portfolio.ax .p-ax-totals {
+    grid-template-columns: 1fr;
+  }
+  .p-portfolio.ax .p-ax-totals .p-total + .p-total {
+    border-left: 0 !important;
+    border-top: 1px solid var(--a-line) !important;
+  }
+  .p-ax-connect {
+    padding: 30px 20px;
+  }
+}
+/* Portfolio stacks several sections: smaller titles keep it compact. */
+.s-app.p-portfolio.ax .ax-section .ax-h2,
+.s-app.p-portfolio.ax .p-ax-wallet-head .ax-h2 {
+  font-size: clamp(30px, 3vw, 46px);
+}
+.p-portfolio.ax .ax-section {
+  padding-top: 44px;
+}
+.p-portfolio.ax .ax-head {
+  margin-bottom: 18px;
+}
+.p-portfolio.ax .ax-head-link a {
+  color: var(--a-blue-l);
+  text-decoration: none;
+}
