@@ -52,6 +52,13 @@ export const docs = [
       "Meet setsMON and setsUSDC: receipts for your share of a vault.",
   },
   {
+    slug: "how-it-works/ausd-savings",
+    title: "AUSD savings",
+    group: "How it works",
+    description:
+      "Save AUSD in setsUSDC: AUSD in, AUSD out, with a 99.8% peg floor.",
+  },
+  {
     slug: "how-it-works/where-funds-go",
     title: "Where your funds go",
     group: "How it works",
@@ -128,6 +135,13 @@ export const docs = [
     title: "Networks and contracts",
     group: "Developers",
     description: "Deployed mainnet contracts and their underlying venues.",
+  },
+  {
+    slug: "developers/ausd-savings",
+    title: "Integrating AUSD savings",
+    group: "Developers",
+    description:
+      "Gas-free AUSD savings in your app with the SDK and Setsuna's relayer.",
   },
   {
     slug: "developers/keepers",

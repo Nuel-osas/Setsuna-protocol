@@ -7,6 +7,8 @@ A share token is a receipt for a fraction of the assets held by a vault. It lets
 | USDC Earn | Native Monad USDC | setsUSDC    | 6 / 12                      |
 | MON Earn  | WMON              | setsMON     | 18 / 24                     |
 
+**setsAUSD** sits on top of the USDC vault: it holds setsUSDC one-for-one and swaps AUSD in and out, so AUSD savers earn the USDC vault's rate. See [AUSD savings](/docs/how-it-works/ausd-savings/).
+
 The six extra share decimals improve precision. They do not multiply the human-readable value of your deposit. Initially, one human-readable share represents approximately one unit of the underlying.
 
 ## What changes as you earn

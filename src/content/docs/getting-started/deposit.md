@@ -26,6 +26,10 @@ The MON gateway wraps your native MON into WMON, deposits it into the setsMON va
 
 setsMON earns in MON terms. It does not protect the dollar price of MON.
 
+## Deposit AUSD
+
+Choose **AUSD** in the asset dropdown. Your AUSD is swapped to USDC on Curve's stable pool and saved in setsUSDC; you receive setsAUSD, and withdrawing returns AUSD. The swap costs about 0.005% each way, and a swap below 99.8% of one-for-one reverts. Approve the exact AUSD amount, then confirm the deposit. Details: [AUSD savings](/docs/how-it-works/ausd-savings/).
+
 ## What happens afterward
 
 New deposits initially add cash to the vault. The public rebalancer moves that cash toward the target allocations over time, subject to observation spacing, cooldowns and movement limits. Depositing does not instantly distribute all your funds across every protocol.

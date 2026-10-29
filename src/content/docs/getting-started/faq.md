@@ -8,6 +8,10 @@ Yes. **Earn, Spot and Perps all run on Monad mainnet** with real funds.
 
 They are transferable vault shares. setsMON represents a claim on the MON vault; setsUSDC represents a claim on the USDC vault. Neither is a fixed-price promise. Read [vaults and share tokens](/docs/how-it-works/vaults/).
 
+## Can I save AUSD?
+
+Yes. Choose AUSD when depositing and you receive **setsAUSD**: your AUSD is swapped to USDC and earns the setsUSDC rate, and it comes back as AUSD when you withdraw. Apps built on the Setsuna SDK can let their users save AUSD without holding MON for gas. Read [AUSD savings](/docs/how-it-works/ausd-savings/).
+
 ## Does the vault always choose the highest APR?
 
 No. It weights eligible destinations using conservative observed rates, then applies exposure, liquidity and movement limits. Some funds remain in cash. A paused market or inconsistent rate can exclude a destination even when its advertised yield is high.

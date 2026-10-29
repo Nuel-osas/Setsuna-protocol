@@ -32,6 +32,15 @@ Deployed at Monad block 112600382. Withdrawals draw first from the lowest-yieldi
 | setsMON vault | `0x408A8C85a3e15446885ADCc954575e7a918dFd33` |
 | Native MON gateway | `0x34fAFC57C6B086bC31a32693BDA0260c85Ff5BB3` |
 
+## Mainnet AUSD savings contracts
+
+setsAUSD saves AUSD in setsUSDC through Curve's AUSD/USDC/USDT0 pool `0x942644106B073E30D72c2C5D7529D5C296ea91ab`; any swap returning under 99.8% of one-for-one reverts. SetsunaAUSDSaver lets a relayer submit a saver's signed deposit or withdrawal and pay the gas. Neither has an owner, admin or fee. See [AUSD savings](/docs/how-it-works/ausd-savings/) and [integrating AUSD savings](/docs/developers/ausd-savings/).
+
+| Component | Address on Monad mainnet (143) |
+| --- | --- |
+| setsAUSD (AUSD wrapper) | `0x551903E3687820A733FBe406DD33Fee8D12bd2F3` |
+| SetsunaAUSDSaver | `0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3` |
+
 These contracts are unaudited. Deposit only what you can afford to lose.
 
 The first vaults (setsUSDC `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7`, setsMON `0x3F271AaD41D6064Be2A9245fE00Fa72606c5Fda1`) are retired: new deposits are permanently paused, and existing holders can still withdraw at any time.
