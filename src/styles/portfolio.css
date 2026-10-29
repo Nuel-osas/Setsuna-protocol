@@ -723,3 +723,18 @@
     padding: 40px 20px;
   }
 }
+
+/* The address chip copies the full address. */
+.p-copy {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  gap: 8px;
+}
+.p-copy:hover,
+.p-copy:focus-visible {
+  border-color: var(--b-line-strong, currentColor);
+}
+.p-copy svg {
+  opacity: 0.7;
+}

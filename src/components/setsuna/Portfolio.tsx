@@ -62,6 +62,7 @@ function Empty({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export default function Portfolio() {
+  const [copied, setCopied] = useState(false);
   const { address, deployment: d, openConnect } = useWallet();
   const { data, loading, error, refresh } = usePortfolio();
   const [filter, setFilter] = useState("All");
@@ -102,10 +103,28 @@ export default function Portfolio() {
         </div>
         {address && (
           <div className="p-header-actions">
-            <span className="p-address" title={address}>
+            <button
+              type="button"
+              className="p-address p-copy"
+              title={address}
+              aria-label={copied ? "Address copied" : `Copy address ${address}`}
+              onClick={() => {
+                void navigator.clipboard
+                  ?.writeText(address)
+                  .then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
+                  })
+                  .catch(() => undefined);
+              }}
+            >
               <span aria-hidden="true" />
-              {shortAddress(address)}
-            </span>
+              {copied ? "Copied" : shortAddress(address)}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="1.8" />
+                <path d="M5 15V5a2 2 0 0 1 2-2h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
             <button
               type="button"
               className="p-refresh"
