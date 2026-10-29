@@ -609,6 +609,9 @@ body .s-app-shell > .t-trade-toolbar + .t-terminal.s-app {
   border: 0;
   font-weight: 500;
 }
+.s-earn-token.is-ausd.is-receipt {
+  background: var(--b-green-tint);
+}
 .e-vault .s-earn-form-body,
 .s-earn-form-body {
   padding: 8px 24px 24px;
