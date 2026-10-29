@@ -64,7 +64,7 @@ Round trip: 0.0102%.
 
 ## Setsuna pays the gas (optional)
 
-You don't need your own relayer. Setsuna runs one that submits a saver's signed save or withdrawal through [`SetsunaAUSDSaver`](https://monadscan.com/address/0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3) and pays the MON. With it, Kova needs no savings contract and no gas budget of its own: the wallet signs, and you post the signature with the SDK (`buildSponsoredDeposit` / `submitSponsoredDeposit`, `buildSponsoredWithdraw` / `submitSponsoredWithdraw`), or straight to `https://setsuna-relayer-production.up.railway.app/v1/ausd/save` and `/v1/ausd/withdraw`.
+You don't need your own relayer. Setsuna runs one that submits a saver's signed save or withdrawal through [`SetsunaAUSDSaver`](https://monadscan.com/address/0x4cbf5688cc98BCb76CcAB602AFc7b6fD57863cC3) and pays the MON. With it, Kova needs no savings contract and no gas budget of its own: the wallet signs, and you post the signature with the SDK (`buildSponsoredDeposit` / `submitSponsoredDeposit`, `buildSponsoredWithdraw` / `submitSponsoredWithdraw`), or straight to `https://setsuna-relayer-production.up.railway.app/v1/ausd/save` and `/v1/ausd/withdraw`. `https://setsuna-relayer-production.up.railway.app/health` shows whether sponsoring is on and today's remaining budget.
 
 Limits keep it from being drained: saves from 1 AUSD, 5 sponsored moves per wallet per day, a daily gas budget, and every request is simulated first, so a bad signature costs nothing. The relayer can't do anything but `save` and `withdraw`, and the saver contract only ever pays the signer. Tested live on mainnet: a wallet saved and withdrew while its MON balance never moved.
 

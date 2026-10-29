@@ -94,7 +94,7 @@ const out = await setsuna.ausd.buildSponsoredWithdraw({ owner, request: { all: t
 await setsuna.ausd.submitSponsoredWithdraw({ typedData: out.typedData, signature: await signTypedData(out.typedData) });
 ```
 
-Sponsored saves start at 1 AUSD; each wallet gets 5 sponsored moves a day, within a daily gas budget. The relayer only ever calls `save` or `withdraw` on the saver, and the saver only ever pays the signer.
+Sponsored saves start at 1 AUSD; each wallet gets 5 sponsored moves a day, within a daily gas budget. The relayer is at `https://setsuna-relayer-production.up.railway.app` (`/health` shows whether sponsoring is on); pass `relayerUrl` to `createSetsuna` to use another. The relayer only ever calls `save` or `withdraw` on the saver, and the saver only ever pays the signer.
 
 setsAUSD: [`0x551903E3687820A733FBe406DD33Fee8D12bd2F3`](https://monadscan.com/address/0x551903E3687820A733FBe406DD33Fee8D12bd2F3), verified on Sourcify.
 
