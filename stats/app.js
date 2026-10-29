@@ -193,9 +193,16 @@
       c.append(top, big, el("p", "st-def", def));
       return c;
     };
+    const vol = last.activity.find((r) => r.metric === "earnVolumeUSD");
+    const volCard = () =>
+      card(
+        "Earn volume",
+        vol && vol.organic !== null ? `$${fmt((vol.organic ?? 0) + (vol.incentivized ?? 0), "USDC")}` : "—",
+        vol ? `Deposits plus withdrawals across setsUSDC, setsMON and setsAUSD. Organic $${fmt(vol.organic, "USDC")} · rewarded $${fmt(vol.incentivized, "USDC")}.` : "Not available.",
+      );
     if (!a || !a.available) {
       const onchain = report => report.wallets.filter((w) => w.group !== "team").length;
-      $("user-cards").replaceChildren(card("Active wallets", fmt(onchain(last)), "Any deposit or trade on chain, team excluded. Includes every login type."));
+      $("user-cards").replaceChildren(card("Active wallets", fmt(onchain(last)), "Any deposit or trade on chain, team excluded. Includes every login type."), volCard());
       note.textContent = a?.reason === "privy_error"
         ? `Couldn't read Privy just now${a.status ? ` (${a.status})` : ""}, so email and Google sign-ups are missing. Check PRIVY_APP_SECRET in the setsuna-stats project.`
         : "Email and Google sign-ups appear here once PRIVY_APP_ID and PRIVY_APP_SECRET are set in the setsuna-stats Vercel project.";
@@ -209,6 +216,7 @@
       card("Email / Google sign-ups", fmt(a.privy_accounts), `From Privy: ${split}.`),
       card("Passkey or wallet users", fmt(a.passkey_or_wallet_users), "Deposited or traded from a wallet that isn't a Privy account. Passkeys leave no sign-up record, so this is how they show."),
       card("Sign-up to first deposit", a.privy_activation_pct === null ? "—" : `${fmt(a.privy_activation_pct)}%`, `${fmt(a.privy_activated)} of ${fmt(a.privy_accounts)} email/Google accounts have deposited or traded.`),
+      volCard(),
     );
     note.textContent = a.team_privy_accounts ? `${a.team_privy_accounts} team Privy account${a.team_privy_accounts > 1 ? "s" : ""} not counted.` : "";
     fill("users-table", [...a.daily].reverse(), [
