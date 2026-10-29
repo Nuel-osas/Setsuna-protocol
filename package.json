@@ -24,7 +24,8 @@
     "test:portfolio": "node --test scripts/portfolio-math.test.mjs",
     "test:order-types": "node --test scripts/order-types.test.mjs",
     "test:markets": "node --test scripts/market-view.test.mjs scripts/live-market.test.mjs",
-    "test:mainnet": "node --test scripts/mainnet-deployment.test.mjs"
+    "test:mainnet": "node --test scripts/mainnet-deployment.test.mjs",
+    "earn:snapshot": "node scripts/earn-log-snapshot.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "0.2.0",
