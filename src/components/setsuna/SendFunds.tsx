@@ -5,6 +5,7 @@ import { encodeFunctionData, erc20Abi, formatUnits, getAddress, isAddress, parse
 import { clientFor, useWallet } from "./WalletProvider";
 import { message } from "@/lib/setsuna/format";
 import { useNoticeToast } from "./Toaster";
+import { smartAccountHint, useMonReserve } from "./useMonReserve";
 
 export type SendAsset = "MON" | "USDC" | "AUSD";
 
@@ -43,6 +44,7 @@ export default function SendFunds({
   const [notice, setNotice] = useState("");
   useNoticeToast(notice);
   const decimals = DECIMALS[asset];
+  const { delegated, reserve } = useMonReserve();
 
   // Keep enough MON for this send's own fee, priced live with a wide margin.
   useEffect(() => {
@@ -78,8 +80,8 @@ export default function SendFunds({
   }
   const spendable =
     asset === "MON"
-      ? (balance ?? BigInt(0)) > gasReserve
-        ? (balance ?? BigInt(0)) - gasReserve
+      ? (balance ?? BigInt(0)) > gasReserve + reserve
+        ? (balance ?? BigInt(0)) - gasReserve - reserve
         : BigInt(0)
       : (balance ?? BigInt(0));
   const reason = !to
@@ -94,7 +96,9 @@ export default function SendFunds({
             ? "Enter a valid amount greater than zero."
             : units > spendable
               ? asset === "MON"
-                ? "Not enough MON once the network fee is set aside."
+                ? delegated
+                  ? `You can send up to ${Number(formatUnits(spendable, 18)).toLocaleString("en-US", { maximumFractionDigits: 6 })} MON. ${smartAccountHint}`
+                  : "Not enough MON once the network fee is set aside."
                 : `Not enough ${asset}.`
               : asset !== "MON" && (monBalance ?? BigInt(0)) === BigInt(0)
                 ? `Sending ${asset} needs a little MON for the network fee.`

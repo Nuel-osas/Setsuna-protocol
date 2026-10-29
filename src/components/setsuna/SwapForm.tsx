@@ -6,6 +6,7 @@ import { clientFor, useWallet } from "./WalletProvider";
 import TokenIcon from "./TokenIcon";
 import { message } from "@/lib/setsuna/format";
 import { useNoticeToast } from "./Toaster";
+import { smartAccountHint, useMonReserve } from "./useMonReserve";
 import {
   SWAP_FEE_BPS,
   SWAP_ROUTER,
@@ -52,6 +53,7 @@ export default function SwapForm({
   useNoticeToast(notice);
   const seq = useRef(0);
   const mainnet = d?.mode === "mainnet";
+  const { delegated, reserve } = useMonReserve();
 
   const readBalances = useCallback(async () => {
     if (!d || !address) return setBalances({});
@@ -80,7 +82,7 @@ export default function SwapForm({
   }
   const balance = balances[from];
   const spendable =
-    balance === undefined ? undefined : from === "MON" ? (balance > GAS_RESERVE ? balance - GAS_RESERVE : BigInt(0)) : balance;
+    balance === undefined ? undefined : from === "MON" ? (balance > GAS_RESERVE + reserve ? balance - GAS_RESERVE - reserve : BigInt(0)) : balance;
 
   // Quote once the amount settles; refresh when it ages.
   useEffect(() => {
@@ -128,7 +130,9 @@ export default function SwapForm({
         ? "Enter a valid amount."
         : address && spendable !== undefined && amountIn > spendable
           ? from === "MON"
-            ? "Not enough MON. Keep 0.1 MON for gas."
+            ? delegated
+              ? `You can swap up to ${show(spendable, 18, 4)} MON. ${smartAccountHint}`
+              : "Not enough MON. Keep 0.1 MON for gas."
             : `Not enough ${from}.`
           : address && from !== "MON" && (balances.MON ?? BigInt(0)) === BigInt(0) && amountIn > BigInt(0)
             ? "You need a little MON for the network fee."

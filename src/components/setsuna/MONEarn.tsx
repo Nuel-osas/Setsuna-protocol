@@ -10,6 +10,7 @@ import {
   type MONSnapshot,
 } from "@/lib/setsuna/mon";
 import { clientFor, useWallet } from "./WalletProvider";
+import { useMonReserve } from "./useMonReserve";
 import AnyChainDeposit from "./AnyChainDeposit";
 import EarnForm, { type EarnControls } from "./EarnForm";
 import { message } from "@/lib/setsuna/format";
@@ -125,7 +126,8 @@ export default function MONEarn(controls: EarnControls) {
   const depositAssets = parseAmount(amount, 18);
   const redeemShares = parseAmount(exitShares, 24);
   const ready = !!snapshot?.healthy && !readError && !busy && !pending;
-  const gasReserve = parseUnits("0.1", 18);
+  const { reserve: smartReserve } = useMonReserve();
+  const gasReserve = parseUnits("0.1", 18) + smartReserve;
   const canDeposit =
     ready &&
     depositAssets > BigInt(0) &&

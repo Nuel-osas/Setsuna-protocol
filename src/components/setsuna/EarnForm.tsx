@@ -5,6 +5,7 @@ import { erc4626Abi, formatUnits, type Address } from "viem";
 import { clientFor, useWallet } from "./WalletProvider";
 import { Mark } from "./Brand";
 import TokenIcon from "./TokenIcon";
+import { smartAccountHint, useMonReserve } from "./useMonReserve";
 
 export type EarnAsset = "MON" | "USDC";
 /** What the token picker offers: the two vaults, plus AUSD, saved in setsUSDC through setsAUSD. */
@@ -339,7 +340,8 @@ export default function EarnForm(p: Props) {
     };
   }, [deployment, p.vault, p.healthy, p.block, units, withdrawing, quoteKey]);
 
-  const gasReserve = asset === "MON" ? BigInt("100000000000000000") : BigInt(0);
+  const { delegated, reserve: smartReserve } = useMonReserve();
+  const gasReserve = asset === "MON" ? BigInt("100000000000000000") + smartReserve : BigInt(0);
   const spendable =
     (p.walletBalance ?? BigInt(0)) > gasReserve
       ? p.walletBalance! - gasReserve
@@ -365,7 +367,9 @@ export default function EarnForm(p: Props) {
           ? "This exceeds your currently withdrawable shares."
           : units > BigInt(0) && !withdrawing && address && units > spendable
             ? asset === "MON"
-              ? "Insufficient MON. Leave 0.1 MON for gas."
+              ? delegated
+                ? `You can deposit up to ${Number(formatUnits(spendable, 18)).toLocaleString("en-US", { maximumFractionDigits: 4 })} MON. ${smartAccountHint}`
+                : "Insufficient MON. Leave 0.1 MON for gas."
               : "Insufficient USDC balance."
             : units > BigInt(0) &&
                 !withdrawing &&
