@@ -8,6 +8,7 @@ import { Mark } from "./Brand";
 import EarnEarnings from "./EarnEarnings";
 import AUSDPosition from "./AUSDPosition";
 import SendFunds, { type SendAsset } from "./SendFunds";
+import SwapForm from "./SwapForm";
 import { EarnToken } from "./EarnForm";
 import TokenIcon from "./TokenIcon";
 import { shortAddress } from "@/lib/setsuna/format";
@@ -68,6 +69,7 @@ function Empty({ title, children }: { title: string; children: ReactNode }) {
 export default function Portfolio() {
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState<SendAsset | null>(null);
+  const [swapping, setSwapping] = useState<SendAsset | null>(null);
   const { address, deployment: d, openConnect } = useWallet();
   const { data, loading, error, refresh } = usePortfolio();
   const [filter, setFilter] = useState("All");
@@ -226,15 +228,32 @@ export default function Portfolio() {
                   </strong>
                   <p>Available in your wallet</p>
                   {address && (
-                    <button
-                      type="button"
-                      className="p-send-open"
-                      disabled={!balance}
-                      aria-pressed={sending === asset}
-                      onClick={() => setSending(sending === asset ? null : asset)}
-                    >
-                      Send
-                    </button>
+                    <div className="p-tile-actions">
+                      <button
+                        type="button"
+                        className="p-send-open"
+                        disabled={!balance}
+                        aria-pressed={sending === asset}
+                        onClick={() => {
+                          setSwapping(null);
+                          setSending(sending === asset ? null : asset);
+                        }}
+                      >
+                        Send
+                      </button>
+                      <button
+                        type="button"
+                        className="p-send-open"
+                        disabled={!balance}
+                        aria-pressed={swapping === asset}
+                        onClick={() => {
+                          setSending(null);
+                          setSwapping(swapping === asset ? null : asset);
+                        }}
+                      >
+                        Swap
+                      </button>
+                    </div>
                   )}
                 </article>
               );
@@ -262,6 +281,22 @@ export default function Portfolio() {
               onClose={() => setSending(null)}
               onSent={refresh}
             />
+          )}
+          {swapping && address && (
+            <section className="s-card p-send" aria-label={`Swap ${swapping}`}>
+              <div className="p-send-head">
+                <h3>Swap {swapping}</h3>
+                <button type="button" className="p-send-close" onClick={() => setSwapping(null)} aria-label="Close">
+                  ×
+                </button>
+              </div>
+              <SwapForm
+                key={swapping}
+                initialFrom={swapping}
+                initialTo={swapping === "MON" ? "USDC" : "MON"}
+                onSwapped={refresh}
+              />
+            </section>
           )}
           <p className="p-total-note">
             Deposited funds are shown separately in Earn positions and your

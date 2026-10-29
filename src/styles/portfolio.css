@@ -833,3 +833,9 @@
     width: 100%;
   }
 }
+
+.p-tile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .p-tile-actions { grid-column: 1 / -1; }
+  .p-tile-actions .p-send-open { flex: 1; }
+}
