@@ -1,0 +1,6 @@
+Compiled Move scripts (deposit_for_burn.mv, receive_message.mv) from
+https://github.com/circlefin/aptos-cctp (typescript/example/precompiled-move-scripts/*/v2),
+commit 440599d. Copyright (c) 2025 Circle Internet Group, Inc. Licensed under Apache-2.0:
+https://www.apache.org/licenses/LICENSE-2.0
+
+sha256 (first 8): mainnet burn 8447c14c, mainnet receive 8b3dc2a4, testnet burn 50bc4299, testnet receive 16d2011e
