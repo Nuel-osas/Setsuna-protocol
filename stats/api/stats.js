@@ -3,7 +3,7 @@
 // instance is warm, and answers from a 60-second memo so a refresh storm reads the chain once.
 import { readFile } from "node:fs/promises";
 import { createPublicClient, http } from "viem";
-import { computeUsage } from "../lib/score.js";
+import { computeUsage, monPriceUSD } from "../lib/score.js";
 import { accountsReport, fetchPrivyUsers } from "../lib/accounts.js";
 
 export const config = { maxDuration: 60 };
@@ -18,7 +18,7 @@ async function build() {
   // team.json is kept out of git (the repo is public); without it no wallet counts as team.
   const [team, incentivized] = await Promise.all([data("team.json").catch(() => ({ wallets: [] })), data("incentivized.json")]);
   const teamAddrs = team.wallets.map((w) => w.address);
-  const report = await computeUsage({ client, cache, team: teamAddrs, incentivized });
+  const report = await computeUsage({ client, cache, team: teamAddrs, incentivized, monPrice: await monPriceUSD() });
   report.accounts = await accounts(report.wallets, teamAddrs);
   return report;
 }

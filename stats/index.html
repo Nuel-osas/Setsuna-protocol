@@ -148,7 +148,7 @@ html, body { margin: 0; background: #f6f4ef; }
     <p class="st-eyebrow">Day by day · UTC</p>
     <div class="st-charts">
       <div class="st-panel"><h3>New wallets per day</h3><div class="st-legend" id="legend-wallets"></div><div class="st-chart" id="chart-wallets"></div></div>
-      <div class="st-panel"><h3>Spot volume per day, USDC</h3><div class="st-legend" id="legend-volume"></div><div class="st-chart" id="chart-volume"></div></div>
+      <div class="st-panel"><h3>Volume per day, USD · spot + Earn deposits and withdrawals</h3><div class="st-legend" id="legend-volume"></div><div class="st-chart" id="chart-volume"></div></div>
     </div>
   </section>
 
@@ -162,14 +162,14 @@ html, body { margin: 0; background: #f6f4ef; }
   <section class="st-section" id="wallets">
     <p class="st-eyebrow">Every wallet that has used Setsuna</p>
     <div class="st-table-wrap"><table class="st-table" id="wallet-table">
-      <thead><tr><th>Wallet</th><th>Group</th><th>First seen</th><th>Spot USDC</th><th>Trades</th><th>Days</th><th>setsUSDC</th><th>setsMON</th><th>setsAUSD</th><th>Perps</th><th>Limits</th></tr></thead><tbody></tbody>
+      <thead><tr><th>Wallet</th><th>Group</th><th>First seen</th><th>Spot USDC</th><th>Trades</th><th>Days</th><th>Earn volume</th><th>setsUSDC</th><th>setsMON</th><th>setsAUSD</th><th>Perps</th><th>Limits</th></tr></thead><tbody></tbody>
     </table></div>
   </section>
 
   <footer class="st-foot">
-    <span>Read live from Setsuna's contracts on Monad mainnet: spot gateway swaps, setsUSDC and setsMON deposits and balances, Perpl and limit-order accounts.</span>
+    <span>Read live from Setsuna's contracts on Monad mainnet: spot gateway swaps, setsUSDC, setsMON and setsAUSD deposits, withdrawals and balances, Perpl and limit-order accounts.</span>
     <span>Organic: any wallet not listed as team or rewarded. Rewarded: wallets that received a campaign payment. Team: Setsuna's own wallets, never counted as users.</span>
-    <span>A wallet is an address, not a verified person. Perps filled notional is not computed. Campaign spend and interviews are tracked by hand.</span>
+    <span>A wallet is an address, not a verified person. Earn volume counts each deposit and withdrawal; MON is valued at today's price. Perps filled notional is not computed. Campaign spend and interviews are tracked by hand.</span>
   </footer>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>

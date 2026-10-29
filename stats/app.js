@@ -4,6 +4,10 @@
   const NAMES = { organic: "Organic", incentivized: "Rewarded", team: "Team" };
   const COLORS = { organic: "#2338ff", incentivized: "#8f9bff", team: "#c9c5bc" };
   const LABELS = {
+    totalVolumeUSD: "Total volume, spot + Earn, USD",
+    earnVolumeUSD: "Earn volume, deposits + withdrawals, USD",
+    earnDeposits: "Earn deposits",
+    earnWithdrawals: "Earn withdrawals",
     spotExecutions: "Spot executions",
     largestWalletSharePct: "Volume from largest wallet",
     perpsTraders: "Perps traders",
@@ -155,10 +159,10 @@
     legend("legend-wallets");
     legend("legend-volume");
     stacked("chart-wallets", report.daily, "new_wallets", "count");
-    stacked("chart-volume", report.daily, "spot_volume_usdc", "USDC");
+    stacked("chart-volume", report.daily, "volume_usd", "USDC");
     fill("activity-table", report.activity, [
       (r) => LABELS[r.metric] || r.metric,
-      ...GROUPS.map((g) => (r) => fmt(r[g], r.metric === "largestWalletSharePct" ? "%" : r.metric === "tvlMON" || r.metric === "tvlAUSD" ? "USDC" : "count")),
+      ...GROUPS.map((g) => (r) => fmt(r[g], r.metric === "largestWalletSharePct" ? "%" : ["tvlMON", "tvlAUSD", "totalVolumeUSD", "earnVolumeUSD"].includes(r.metric) ? "USDC" : "count")),
     ]);
     const addr = (r) => `${r.wallet.slice(0, 6)}…${r.wallet.slice(-4)}`;
     addr.cls = "addr";
@@ -169,6 +173,7 @@
       (r) => fmt(r.spot_volume_usdc, "USDC"),
       (r) => fmt(r.spot_trades),
       (r) => fmt(r.spot_days),
+      (r) => fmt(r.earn_volume_usd, "USDC"),
       (r) => fmt(r.earn_usdc, "USDC"),
       (r) => fmt(r.earn_mon, "USDC"),
       (r) => fmt(r.earn_ausd, "USDC"),

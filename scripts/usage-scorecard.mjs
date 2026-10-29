@@ -9,7 +9,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { createPublicClient, http } from "viem";
-import { computeUsage } from "../stats/lib/score.js";
+import { computeUsage, monPriceUSD } from "../stats/lib/score.js";
 
 const { values } = parseArgs({
   options: {
@@ -28,7 +28,7 @@ const cacheFile = `${root}.local/usage-cache.json`;
 const cache = existsSync(cacheFile) ? readJson(cacheFile) : {};
 
 const client = createPublicClient({ transport: http(values.rpc, { retryCount: 4, timeout: 30_000 }) });
-const report = await computeUsage({ client, cache, team, incentivized });
+const report = await computeUsage({ client, cache, team, incentivized, monPrice: await monPriceUSD() });
 mkdirSync(`${root}.local`, { recursive: true });
 writeFileSync(cacheFile, JSON.stringify(cache));
 

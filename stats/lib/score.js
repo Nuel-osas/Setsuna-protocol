@@ -32,6 +32,7 @@ const GROUPS = ["organic", "incentivized", "team"];
 const ev = {
   swapped: parseAbiItem("event Swapped(address indexed owner, bool monToUSDC, uint256 amountIn, uint256 amountOut)"),
   deposit: parseAbiItem("event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)"),
+  withdraw: parseAbiItem("event Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)"),
   perpsAccount: parseAbiItem("event AccountCreated(address indexed owner, address indexed account, uint256 perpId)"),
   ordersAccount: parseAbiItem("event AccountCreated(address indexed owner, address indexed account)"),
   order: parseAbiItem("event OrderSubmitted(uint256 indexed positionNonce, uint8 orderType, uint256 lotLNS)"),
@@ -51,7 +52,24 @@ const iso = (t) => (t === null ? null : new Date(t * 1000).toISOString());
  * cache: {logs: {"<address>:<event>": json}, times: {block: unixSeconds}} — mutated in place,
  * so callers persist it (a file for the CLI, memory and a checked-in checkpoint for the site).
  */
-export async function computeUsage({ client, cache, team, incentivized = [] }) {
+/** Live MON price in USDC from the KyberSwap aggregator (1 MON in), or null if it can't answer. */
+export async function monPriceUSD() {
+  try {
+    const q = new URLSearchParams({ tokenIn: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", tokenOut: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", amountIn: "1000000000000000000" });
+    const res = await fetch(`https://aggregator-api.kyberswap.com/monad/api/v1/routes?${q}`, { headers: { "x-client-id": "setsuna" }, signal: AbortSignal.timeout(8000) });
+    const out = Number((await res.json())?.data?.routeSummary?.amountOut) / 1e6;
+    return out > 0 ? out : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Earn volume counts every deposit and every withdrawal at its asset value: USDC and AUSD at $1,
+ * MON at `monPrice` (today's price, not the price on the day). Moves between setsUSDC and
+ * setsAUSD's own position are not counted twice.
+ */
+export async function computeUsage({ client, cache, team, incentivized = [], monPrice = null }) {
   const teamSet = new Set(team.map((a) => getAddress(a)));
   const paid = new Set(incentivized.map((a) => getAddress(a)));
   const group = (a) => (teamSet.has(a) ? "team" : paid.has(a) ? "incentivized" : "organic");
@@ -98,9 +116,19 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
   /* Earn: depositors and their positions now */
   const positions = [];
   const depositEvents = [];
+  const flows = [];
   const wrapper = getAddress(CONTRACTS.setsAUSD);
   for (const [vault, address, decimals, from] of [["setsUSDC", CONTRACTS.setsUSDC, 6, FROM], ["setsMON", CONTRACTS.setsMON, 18, FROM], ["setsAUSD", CONTRACTS.setsAUSD, 6, SETS_AUSD_FROM]]) {
     const deps = await stamp(await logs(address, ev.deposit, from));
+    const outs = await stamp(await logs(address, ev.withdraw, from));
+    const price = vault === "setsMON" ? monPrice : 1;
+    for (const [kind, list] of [["deposit", deps], ["withdraw", outs]])
+      for (const l of list) {
+        const w = getAddress(l.args.owner);
+        if (w === wrapper) continue;
+        const amount = Number(l.args.assets) / 10 ** decimals;
+        flows.push({ wallet: w, vault, kind, amount, usd: price === null ? null : amount * price, time: l.time });
+      }
     const first = new Map();
     for (const d of deps) {
       const w = getAddress(d.args.owner);
@@ -121,13 +149,14 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
   const wallets = new Map();
   const row = (w) => {
     if (!wallets.has(w))
-      wallets.set(w, { wallet: w, group: group(w), first_seen: null, spot_volume_usdc: 0, spot_trades: 0, spot_days: new Set(), earn_usdc: 0, earn_mon: 0, earn_ausd: 0, perps_orders: 0, limit_orders: 0 });
+      wallets.set(w, { wallet: w, group: group(w), first_seen: null, spot_volume_usdc: 0, spot_trades: 0, spot_days: new Set(), earn_volume_usd: 0, earn_flows: 0, earn_usdc: 0, earn_mon: 0, earn_ausd: 0, perps_orders: 0, limit_orders: 0 });
     return wallets.get(w);
   };
   const seen = (r, t) => (r.first_seen = r.first_seen === null ? t : Math.min(r.first_seen, t));
   for (const t of trades) { const r = row(t.wallet); r.spot_volume_usdc += t.usd; r.spot_trades++; r.spot_days.add(day(t.time)); seen(r, t.time); }
   for (const o of perpsOrders) if (o.wallet) { const r = row(o.wallet); r.perps_orders++; seen(r, o.time); }
   for (const o of limitOrders) if (o.wallet) { const r = row(o.wallet); r.limit_orders++; seen(r, o.time); }
+  for (const f of flows) { const r = row(f.wallet); r.earn_volume_usd += f.usd ?? 0; r.earn_flows++; seen(r, f.time); }
   const field = { setsUSDC: "earn_usdc", setsMON: "earn_mon", setsAUSD: "earn_ausd" };
   for (const p of positions) { const r = row(p.wallet); r[field[p.vault]] += p.assets; seen(r, p.since); }
 
@@ -139,11 +168,17 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
     const volume = mine.reduce((s, r) => s + r.spot_volume_usdc, 0);
     const top = Math.max(0, ...mine.map((r) => r.spot_volume_usdc));
     const pos = positions.filter((p) => group(p.wallet) === g);
+    const fl = flows.filter((f) => group(f.wallet) === g);
+    const earnVolume = monPrice === null && fl.some((f) => f.usd === null) ? null : fl.reduce((s, f) => s + (f.usd ?? 0), 0);
     const old = pos.filter((p) => now - p.since >= RETENTION_HOURS * 3600);
     return {
       activatedWallets: mine.length,
       spotTraders: mine.filter((r) => r.spot_trades).length,
       spotVolumeUSDC: round(volume),
+      earnVolumeUSD: earnVolume === null ? null : round(earnVolume),
+      earnDeposits: fl.filter((f) => f.kind === "deposit").length,
+      earnWithdrawals: fl.filter((f) => f.kind === "withdraw").length,
+      totalVolumeUSD: earnVolume === null ? null : round(volume + earnVolume),
       spotExecutions: mine.reduce((s, r) => s + r.spot_trades, 0),
       largestWalletSharePct: volume ? Math.round((top / volume) * 1000) / 10 : null,
       returningTraders: mine.filter((r) => r.spot_days.size >= 2).length,
@@ -175,7 +210,9 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
         group: g,
         new_wallets: [...wallets.values()].filter((r) => r.group === g && r.first_seen !== null && day(r.first_seen) === key).length,
         spot_volume_usdc: round(tr.reduce((s, t) => s + t.usd, 0)),
+        earn_volume_usd: round(flows.filter((f) => group(f.wallet) === g && day(f.time) === key).reduce((s, f) => s + (f.usd ?? 0), 0)),
         spot_trades: tr.length,
+        volume_usd: 0,
         earn_deposits: depositEvents.filter((e) => group(e.wallet) === g && day(e.time) === key).length,
       });
     }
@@ -194,15 +231,16 @@ export async function computeUsage({ client, cache, team, incentivized = [] }) {
     const ext = positions.filter((p) => group(p.wallet) !== "team" && now - p.since >= RETENTION_HOURS * 3600);
     scorecard.find((r) => r.metric === "retention72hPct").external = ext.length ? Math.round((ext.filter((p) => p.assets >= MEANINGFUL[p.vault]).length / ext.length) * 1000) / 10 : null;
   }
-  const activity = ["spotExecutions", "largestWalletSharePct", "perpsTraders", "perpsOrders", "limitOrderTraders", "earnDepositors", "tvlMON", "ausdSavers", "tvlAUSD"].map((metric) => ({
+  for (const r of daily) r.volume_usd = round(r.spot_volume_usdc + r.earn_volume_usd);
+  const activity = ["totalVolumeUSD", "earnVolumeUSD", "earnDeposits", "earnWithdrawals", "spotExecutions", "largestWalletSharePct", "perpsTraders", "perpsOrders", "limitOrderTraders", "earnDepositors", "tvlMON", "ausdSavers", "tvlAUSD"].map((metric) => ({
     metric, organic: scores.organic[metric], incentivized: scores.incentivized[metric], team: scores.team[metric],
   }));
   const walletRows = [...wallets.values()]
-    .map((r) => ({ ...r, spot_days: r.spot_days.size, first_seen: iso(r.first_seen), spot_volume_usdc: round(r.spot_volume_usdc), earn_usdc: round(r.earn_usdc), earn_mon: round(r.earn_mon), earn_ausd: round(r.earn_ausd) }))
+    .map((r) => ({ ...r, spot_days: r.spot_days.size, first_seen: iso(r.first_seen), spot_volume_usdc: round(r.spot_volume_usdc), earn_volume_usd: round(r.earn_volume_usd), earn_usdc: round(r.earn_usdc), earn_mon: round(r.earn_mon), earn_ausd: round(r.earn_ausd) }))
     .sort((a, b) => (a.first_seen < b.first_seen ? -1 : 1));
 
   return {
-    snapshot: { through_block: Number(head.number), at: iso(now), network: "Monad mainnet (chain 143)", team_wallets: teamSet.size, incentivized_wallets: paid.size },
+    snapshot: { through_block: Number(head.number), at: iso(now), network: "Monad mainnet (chain 143)", mon_price_usd: monPrice, team_wallets: teamSet.size, incentivized_wallets: paid.size },
     scorecard,
     activity,
     daily,
