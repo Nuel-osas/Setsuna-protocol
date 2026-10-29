@@ -7,6 +7,7 @@ import { usePortfolio } from "./usePortfolio";
 import { Mark } from "./Brand";
 import EarnEarnings from "./EarnEarnings";
 import AUSDPosition from "./AUSDPosition";
+import SendFunds, { type SendAsset } from "./SendFunds";
 import { EarnToken } from "./EarnForm";
 import TokenIcon from "./TokenIcon";
 import { shortAddress } from "@/lib/setsuna/format";
@@ -63,6 +64,7 @@ function Empty({ title, children }: { title: string; children: ReactNode }) {
 
 export default function Portfolio() {
   const [copied, setCopied] = useState(false);
+  const [sending, setSending] = useState<SendAsset | null>(null);
   const { address, deployment: d, openConnect } = useWallet();
   const { data, loading, error, refresh } = usePortfolio();
   const [filter, setFilter] = useState("All");
@@ -227,10 +229,44 @@ export default function Portfolio() {
                     <small>{asset}</small>
                   </strong>
                   <p>Available in your wallet</p>
+                  {address && (
+                    <button
+                      type="button"
+                      className="p-send-open"
+                      disabled={!balance}
+                      aria-pressed={sending === asset}
+                      onClick={() => setSending(sending === asset ? null : asset)}
+                    >
+                      Send
+                    </button>
+                  )}
                 </article>
               );
             })}
           </section>
+          {sending && address && (
+            <SendFunds
+              key={sending}
+              asset={sending}
+              token={
+                sending === "USDC"
+                  ? (d?.earnUSDC?.asset ?? d?.spot?.usdc)
+                  : sending === "AUSD"
+                    ? d?.collateral
+                    : undefined
+              }
+              balance={
+                data?.wallet[sending].status === "ready"
+                  ? data.wallet[sending].data
+                  : undefined
+              }
+              monBalance={
+                data?.wallet.MON.status === "ready" ? data.wallet.MON.data : undefined
+              }
+              onClose={() => setSending(null)}
+              onSent={refresh}
+            />
+          )}
           <p className="p-total-note">
             Deposited funds are shown separately in Earn positions and your
             Perps account.
