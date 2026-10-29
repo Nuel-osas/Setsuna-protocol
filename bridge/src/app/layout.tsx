@@ -9,6 +9,7 @@ const pixel = Geist_Pixel({ subsets: ["latin"], weight: "variable", axes: ["ELSH
 export const metadata: Metadata = {
   title: "Setsuna Bridge · USDC in seconds",
   description: "Native USDC across chains with Circle CCTP V2. Burn, attest, mint: no wrapped tokens, no pools.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
