@@ -21,6 +21,7 @@ import {
   type SpotQuote,
 } from "@/lib/setsuna/spot";
 import { useTradingMarket } from "./useTradingMarket";
+import SwapForm from "./SwapForm";
 import { MarketChart } from "./TradingMarket";
 import { SpotBook, SpotSummary } from "./SpotMarketPanels";
 import Link from "next/link";
@@ -150,6 +151,8 @@ export default function SpotApp() {
   const [quoting, setQuoting] = useState(false);
   const attempted = useRef("");
   useEffect(() => {
+    // Market swaps now go through SwapForm (aggregator); the Kuru gateway quote is no longer shown.
+    if (orderKind === "market") return;
     if (!d?.spot || !ready || !enough || fresh) return;
     const key = `${monToUSDC}:${parsed}:${quote?.deadline ?? ""}`;
     if (attempted.current === key) return;
@@ -170,7 +173,7 @@ export default function SpotApp() {
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [d, ready, enough, fresh, monToUSDC, parsed, quote]);
+  }, [d, ready, enough, fresh, monToUSDC, parsed, quote, orderKind]);
 
   async function swap() {
     if (!d?.spot || !address || !ready || !fresh || !quote || !enough) return;
@@ -392,6 +395,8 @@ export default function SpotApp() {
               ×
             </button>
           </div>
+          {orderKind === "limit" && (
+            <>
           <div
             className="db-direction s-segment"
             role="group"
@@ -420,6 +425,8 @@ export default function SpotApp() {
               {inToken}
             </strong>
           </div>
+            </>
+          )}
           {orderKind === "limit" ? (
             <SpotLimitTicket
               key={`${d?.chainId}:${d?.spot?.ordersFactory}:${address}:${monToUSDC}`}
@@ -430,158 +437,18 @@ export default function SpotApp() {
               connect={openWallet}
             />
           ) : (
-            <>
-              <label className="db-input">
-                <span>
-                  Size <i>{inToken}</i>
-                </span>
-                <div>
-                  <input
-                    aria-label="Spot amount"
-                    inputMode="decimal"
-                    value={input}
-                    disabled={!!busy || !!pending || limitLocked}
-                    onChange={(e) => {
-                      setInput(e.target.value);
-                      setQuote(undefined);
-                      setError("");
-                    }}
-                  />
-                  <span className="s-token-label">
-                    <TokenIcon asset={inToken} size={18} />
-                    {inToken}
-                  </span>
-                </div>
-              </label>
-              <div
-                className="db-fractions"
-                role="group"
-                aria-label="Use wallet balance"
-              >
-                {[0, 25, 50, 75, 100].map((n) => (
-                  <button
-                    key={n}
-                    disabled={!snapshot || !address || !!busy || !!pending}
-                    onClick={() => useFraction(n)}
-                  >
-                    {n === 100 ? "Max" : `${n}%`}
-                  </button>
-                ))}
-              </div>
-              <input
-                className="db-range"
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value={fraction}
-                aria-label="Trade balance percentage"
-                disabled={!snapshot || !address || !!busy || !!pending}
-                onChange={(e) => useFraction(Number(e.target.value))}
-              />
-              <dl className="db-review">
-                <div>
-                  <dt>You pay</dt>
-                  <dd>
-                    {parsed > BigInt(0)
-                      ? show(parsed, monToUSDC ? 18 : 6)
-                      : "—"}{" "}
-                    {inToken}
-                  </dd>
-                </div>
-                <div>
-                  <dt>You receive</dt>
-                  <dd>
-                    {show(quote?.output, monToUSDC ? 6 : 18)} {outToken}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Minimum receive</dt>
-                  <dd>
-                    {show(quote?.minOut, monToUSDC ? 6 : 18)} {outToken}
-                  </dd>
-                </div>
-                <div>
-                  <dt>
-                    Setsuna fee
-                    {quote?.feeBps
-                      ? ` · ${(Number(quote.feeBps) / 100).toFixed(2)}%`
-                      : ""}
-                  </dt>
-                  <dd>
-                    {quote
-                      ? `${show(quote.fee, monToUSDC ? 6 : 18)} ${outToken}`
-                      : "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Max slippage</dt>
-                  <dd>0.50%</dd>
-                </div>
-                <div>
-                  <dt>Execution</dt>
-                  <dd>Fill or kill</dd>
-                </div>
-                <div>
-                  <dt>Quote block</dt>
-                  <dd>{quote?.block?.toString() ?? "—"}</dd>
-                </div>
-              </dl>
-              {!address ? (
-                <button
-                  className="s-btn is-primary is-wide db-submit"
-                  onClick={openWallet}
-                >
-                  Connect to swap
-                </button>
-              ) : (
-                <div className="db-submit-actions">
-                  <button
-                    className="s-btn is-primary db-submit"
-                    disabled={!ready || !fresh || !enough}
-                    onClick={() => void swap()}
-                  >
-                    {busy ||
-                      (enough && !fresh && quoting
-                        ? "Getting the live price…"
-                        : `Swap ${inToken} for ${outToken}`)}
-                  </button>
-                </div>
-              )}
-              {!d?.spot && (
-                <p className="db-ticket-note">
-                  Explore live markets. Public swaps open when the mainnet
-                  deployment is connected.
-                </p>
-              )}
-              {address && snapshot && !enough && (
-                <p className="db-ticket-note">
-                  Enter an amount within your balance. Keep 0.1 MON for gas.
-                </p>
-              )}
-              <details className="db-execution-details">
-                <summary>
-                  Execution details <span>⌄</span>
-                </summary>
-                <p>
-                  Prices refresh automatically and each quote expires after two
-                  minutes of chain time. The full amount must execute above the
-                  minimum receive value or the transaction reverts. Gas is paid
-                  in MON.
-                </p>
-                {!monToUSDC && (
-                  <p>
-                    USDC may require an exact-amount approval. If the swap
-                    fails, that approval may remain.
-                  </p>
-                )}
-                <p>The Max shortcut keeps 0.1 MON in your wallet for gas.</p>
-              </details>
-            </>
+            // Market swaps route across Monad's pools; Kuru limit orders stay above.
+            <SwapForm onSwapped={() => void refresh()} />
           )}
           <div className="db-powered">
-            <span className="db-status-dot" /> Routed through{" "}
-            <ProtocolLabel name="Kuru" size={14} /> · Monad
+            <span className="db-status-dot" />{" "}
+            {orderKind === "limit" ? (
+              <>
+                Orders on <ProtocolLabel name="Kuru" size={14} /> · Monad
+              </>
+            ) : (
+              <>Best price across Monad · routed by KyberSwap</>
+            )}
           </div>
         </section>
         <section className="db-account" aria-label="Spot account activity">

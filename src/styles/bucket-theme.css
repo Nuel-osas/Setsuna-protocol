@@ -1460,3 +1460,18 @@ body:has(.t-shell) .s-modal .s-btn.is-primary {
   font-size: 13px;
   color: var(--b-muted);
 }
+
+/* Swap: token choice and direction flip in the Spot ticket. */
+.sw-form { display: grid; gap: 12px; }
+.sw-tokens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sw-tokens button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 6px; border: 1px solid var(--b-line, rgba(255,255,255,.12)); background: transparent;
+  color: inherit; font: inherit; font-size: 13px; cursor: pointer;
+}
+.sw-tokens button[aria-pressed="true"] { border-color: currentColor; background: var(--b-surface-hover, rgba(255,255,255,.06)); }
+.sw-tokens button:disabled { opacity: .5; cursor: default; }
+.sw-flip {
+  justify-self: center; width: 36px; height: 36px; border: 1px solid var(--b-line, rgba(255,255,255,.12));
+  background: transparent; color: inherit; font-size: 18px; cursor: pointer;
+}
