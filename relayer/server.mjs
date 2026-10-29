@@ -56,6 +56,8 @@ const saverAbi = parseAbi([
   "function save(address owner, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s, uint256 minShares) returns (uint256)",
   "function withdraw(address owner, uint256 shares, uint256 deadline, uint8 v, bytes32 r, bytes32 s, uint256 minAssets) returns (uint256)",
 ]);
+const AUSD = "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a";
+const fmt6 = (v) => (Number(v) / 1e6).toLocaleString("en-US", { maximumFractionDigits: 6 });
 const wrapperAbi = parseAbi([
   "function previewDeposit(uint256 assets) view returns (uint256)",
   "function previewRedeem(uint256 shares) view returns (uint256)",
@@ -141,6 +143,10 @@ async function save(body) {
   if (value < MIN_SAVE) throw Object.assign(new Error("Sponsored saves start at 1 AUSD."), { status: 400 });
   if (!ownerAllowed(owner)) throw Object.assign(new Error("This wallet has used today's sponsored moves. Try again tomorrow."), { status: 429 });
   const { v, r, s } = sig(body.signature);
+  // Say plainly when the wallet can't cover the save, before simulating.
+  const held = await pub.readContract({ address: AUSD, abi: wrapperAbi, functionName: "balanceOf", args: [owner] });
+  if (held < value)
+    throw Object.assign(new Error(`This wallet holds ${fmt6(held)} AUSD, less than the ${fmt6(value)} AUSD it's trying to save.`), { status: 400 });
   const preview = await pub.readContract({ address: WRAPPER, abi: wrapperAbi, functionName: "previewDeposit", args: [value] });
   const minShares = body.minShares ? big(body.minShares, "minShares") : preview - preview / 1000n;
   const data = encodeFunctionData({ abi: saverAbi, functionName: "save", args: [owner, value, validAfter, validBefore, body.nonce, v, r, s, minShares] });
@@ -161,6 +167,8 @@ async function withdraw(body) {
     pub.readContract({ address: WRAPPER, abi: wrapperAbi, functionName: "previewRedeem", args: [shares] }),
     pub.readContract({ address: WRAPPER, abi: wrapperAbi, functionName: "balanceOf", args: [owner] }),
   ]);
+  if (shares > held)
+    throw Object.assign(new Error(`This wallet holds ${(Number(held) / 1e12).toLocaleString("en-US", { maximumFractionDigits: 6 })} setsAUSD, less than it's trying to withdraw.`), { status: 400 });
   if (quote < MIN_WITHDRAW && shares !== held)
     throw Object.assign(new Error("Sponsored withdrawals start at 0.5 AUSD, or withdraw everything."), { status: 400 });
   const minAssets = body.minAssets ? big(body.minAssets, "minAssets") : quote - quote / 1000n;
