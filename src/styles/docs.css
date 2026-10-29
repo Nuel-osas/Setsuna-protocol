@@ -1135,3 +1135,174 @@
     --sd-text: rgba(255, 255, 255, 0.7);
   }
 }
+
+/* ════════ Docs in the landing's language: ink + ruled grid, Geist Pixel titles,
+   mono eyebrows, square panels, blue accents. ════════ */
+.sd-shell {
+  --sd-blue: #7b88ff;
+  --sd-ocean: #7b88ff;
+  --sd-line: rgba(242, 239, 232, 0.09);
+  --sd-panel: rgba(14, 16, 23, 0.9);
+  --sd-header: rgba(7, 8, 12, 0.9);
+  --tide: #7b88ff;
+  background-color: #07080c;
+  background-image:
+    radial-gradient(60% 40% at 50% -8%, rgba(35, 56, 255, 0.2), transparent 70%),
+    linear-gradient(rgba(242, 239, 232, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 239, 232, 0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 80px 80px, 80px 80px;
+  background-attachment: fixed;
+}
+.sd-shell *,
+.sd-shell *::before,
+.sd-shell *::after {
+  border-radius: 0 !important;
+}
+.sd-shell .sd-header {
+  background: rgba(7, 8, 12, 0.9);
+  border-bottom: 1px solid rgba(242, 239, 232, 0.09);
+}
+.sd-shell .sd-logo-label,
+.sd-shell .sd-search-trigger,
+.sd-shell .sd-website,
+.sd-shell .sd-open-app {
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sd-shell .sd-open-app {
+  background: #f2efe8;
+  color: #07080c;
+}
+.sd-shell .sd-open-app:hover {
+  background: #fff;
+}
+/* sidebar: mono group labels, the active page in blue */
+.sd-shell .sd-nav-group > summary {
+  font-family: var(--f-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8e8b84;
+}
+.sd-shell .sd-navigation a[aria-current="page"] {
+  background: #2338ff !important;
+  color: #f2efe8 !important;
+}
+.sd-shell .sd-sidebar-note,
+.sd-shell .sd-small-tag {
+  font-family: var(--f-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* page head: breadcrumb as an eyebrow, the title in pixel type with the pixel bar */
+.sd-shell .sd-breadcrumb {
+  font-family: var(--f-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8e8b84;
+}
+.sd-shell .sd-title h1 {
+  font-family: var(--f-pixel), ui-monospace, monospace !important;
+  font-weight: 400 !important;
+  font-size: clamp(44px, 5vw, 76px) !important;
+  line-height: 0.92 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase;
+  color: #f2efe8;
+}
+.sd-shell .sd-title h1::after {
+  content: "";
+  display: block;
+  width: 200px;
+  height: 18px;
+  margin-top: 22px;
+  background:
+    linear-gradient(#7b88ff, #7b88ff) 0 9px / 9px 9px no-repeat,
+    linear-gradient(#b9c2ff, #b9c2ff) 9px 0 / 9px 9px no-repeat,
+    linear-gradient(90deg, #2338ff, #7b88ff 55%, #f2efe8) 18px 9px / 182px 9px no-repeat;
+}
+.sd-shell .sd-title p {
+  color: #c9c5bc;
+}
+.sd-shell .sd-meta {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.sd-shell .sd-meta-dot {
+  background: #7b88ff !important;
+}
+/* prose headings: section titles in pixel type */
+.sd-shell .sd-prose h2 {
+  font-family: var(--f-pixel), ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 34px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #f2efe8;
+}
+.sd-shell .sd-prose h3 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.sd-shell .sd-prose a {
+  color: #7b88ff;
+}
+.sd-shell .sd-prose code {
+  background: rgba(35, 56, 255, 0.16);
+  color: #b9c2ff;
+  font-family: var(--f-mono), monospace;
+}
+.sd-shell .sd-prose table {
+  border: 1px solid rgba(242, 239, 232, 0.12);
+  background: rgba(14, 16, 23, 0.9);
+}
+.sd-shell .sd-prose th {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8e8b84;
+}
+.sd-shell .sd-prose blockquote,
+.sd-shell .sd-prose aside {
+  border-left: 3px solid #2338ff;
+  background: rgba(35, 56, 255, 0.08);
+}
+/* panels and cards */
+.sd-shell .sd-flow,
+.sd-shell .sd-start-cards a,
+.sd-shell .sd-calculator,
+.sd-shell .sd-pagination a,
+.sd-shell .sd-search-box,
+.sd-shell .sd-search-result {
+  border: 1px solid rgba(242, 239, 232, 0.12) !important;
+  background: rgba(14, 16, 23, 0.92) !important;
+  box-shadow: none !important;
+}
+.sd-shell .sd-pagination a:hover,
+.sd-shell .sd-start-cards a:hover {
+  border-color: #7b88ff !important;
+}
+.sd-shell .sd-copy-page {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* right-hand contents */
+.sd-shell .sd-contents > :first-child {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8e8b84;
+}
+.sd-shell .sd-contents a[aria-current],
+.sd-shell .sd-contents a.is-active {
+  color: #7b88ff;
+}
