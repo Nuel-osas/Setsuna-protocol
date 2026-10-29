@@ -69,14 +69,15 @@ export default function EarnEarnings({
           </dd>
         </div>
       </dl>
-      <p>
-        {!address
-          ? "Connect to see your earnings."
-          : !result
-            ? "Reading your vault history…"
-            : (result.reason ??
-              "Lifetime earnings = current value + withdrawals − deposits. Excludes gas and changes in token market price.")}
-      </p>
+      {(!address || !result || result.reason) && (
+        <p>
+          {!address
+            ? "Connect to see your earnings."
+            : !result
+              ? "Reading your vault history…"
+              : result.reason}
+        </p>
+      )}
     </div>
   );
 }

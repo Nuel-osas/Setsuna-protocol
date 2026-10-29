@@ -58,9 +58,6 @@ export default function AUSDPosition({ apr }: { apr?: bigint }) {
         </div>
       </dl>
       <div className="p-position-actions">
-        <Link href="/earn/usdc/?action=deposit">
-          Deposit <span aria-hidden="true">↗</span>
-        </Link>
         <Link href="/earn/usdc/?action=withdraw">
           Withdraw <span aria-hidden="true">↗</span>
         </Link>

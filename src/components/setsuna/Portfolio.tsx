@@ -382,9 +382,6 @@ export default function Portfolio() {
                             block={data.block}
                           />
                           <div className="p-position-actions">
-                            <Link href={earnLink(asset)}>
-                              Deposit <span aria-hidden="true">↗</span>
-                            </Link>
                             <Link href={earnLink(asset, "withdraw")}>
                               Withdraw <span aria-hidden="true">↗</span>
                             </Link>
