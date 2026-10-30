@@ -55,8 +55,8 @@ export function Bridge() {
   const [active, setActive] = useState<Transfer | null>(null);
   const [history, setHistory] = useState<Transfer[]>([]);
   const [now, setNow] = useState(0);
-  // null until the user flips it: then the bridge picks whichever is cheaper or possible.
-  const [gasPref, setGasPref] = useState<boolean | null>(null);
+  // Off until the user turns it on.
+  const [gasInUsdc, setGasInUsdc] = useState(false);
   const [fq, setFq] = useState<ForwardQuote | null>(null);
   const [cost, setCost] = useState<ClaimCost | null>(null);
   const [dstGas, setDstGas] = useState<bigint | null>(null);
@@ -125,10 +125,6 @@ export function Bridge() {
 
   const fastOk = from.fast && !(bps && bps.fast === null);
   const effSpeed = fastOk ? speed : "SLOW";
-  // Default: Circle delivers unless the user can claim themselves for less (has the gas, and it's cheaper).
-  const canSelfClaim = !!dstWallet && !!cost && dstGas !== null && dstGas >= cost.native;
-  const selfCheaper = !!fq && !!cost && cost.usd !== null && cost.usd < Number(fq.fee) / 1e6;
-  const gasInUsdc = gasPref ?? !(canSelfClaim && selfCheaper);
   const deliver = forwardable && gasInUsdc;
   const feeBps = deliver ? (effSpeed === "FAST" ? fq?.fastBps ?? 0 : fq?.slowBps ?? 0) : effSpeed === "FAST" ? bps?.fast ?? 0 : bps?.slow ?? 0;
   const base = useMemo(() => { try { return amount ? parseUnits(amount, 6) : 0n; } catch { return 0n; } }, [amount]);
@@ -258,7 +254,7 @@ export function Bridge() {
                   </div>
 
                   <button type="button" className="gas-toggle" role="switch" aria-checked={deliver} disabled={!forwardable}
-                    onClick={() => setGasPref(!gasInUsdc)}>
+                    onClick={() => setGasInUsdc(!gasInUsdc)}>
                     <span className="knob" />
                     <span className="gt-copy">
                       <b>Pay gas in USDC</b>
@@ -289,6 +285,7 @@ export function Bridge() {
                         Claiming on {to.name} costs about <b>{fmtNative(cost!.native, cost!.decimals)} {cost!.symbol}</b>
                         {fmtUsd(cost!.usd) ? ` (${fmtUsd(cost!.usd)})` : ""} right now, and your wallet there has{" "}
                         <b>{fmtNative(dstGas!, cost!.decimals)} {cost!.symbol}</b>. The burn can&apos;t be undone, so the USDC would wait until you add {cost!.symbol}.
+                        {forwardable ? <> Or turn on <b>Pay gas in USDC</b> above and Circle delivers it{fq ? ` for ${fmtUsd(Number(fq.fee) / 1e6)}` : ""}.</> : null}
                       </p>
                       <label><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> I&apos;ll add {cost!.symbol} before claiming</label>
                     </div>
