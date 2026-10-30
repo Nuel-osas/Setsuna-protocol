@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { usdcBalance } from "@/lib/balance";
-import { type Transfer, emptySteps, loadTransfers, quoteBps, runTransfer, type StepKey } from "@/lib/bridge";
+import { type Transfer, checkTransfer, emptySteps, loadTransfers, quoteBps, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { type ClaimCost, type ForwardQuote, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
 import { type Chain, type Network, ECOSYSTEM_LABEL, chainsFor, findChain } from "@/lib/chains";
 import { short, useWallets } from "@/lib/wallets";
 import { ChainIcon, ChainPicker } from "./ChainPicker";
@@ -54,12 +55,51 @@ export function Bridge() {
   const [active, setActive] = useState<Transfer | null>(null);
   const [history, setHistory] = useState<Transfer[]>([]);
   const [now, setNow] = useState(0);
+  // null until the user flips it: then the bridge picks whichever is cheaper or possible.
+  const [gasPref, setGasPref] = useState<boolean | null>(null);
+  const [fq, setFq] = useState<ForwardQuote | null>(null);
+  const [cost, setCost] = useState<ClaimCost | null>(null);
+  const [dstGas, setDstGas] = useState<bigint | null>(null);
+  const [ack, setAck] = useState(false);
+  const [costs, setCosts] = useState<Record<string, string>>({});
 
   const srcWallet = connected[from.ecosystem];
   const dstWallet = connected[to.ecosystem];
 
-  useEffect(() => setHistory(loadTransfers()), []);
+  // Stored transfers that aren't done may have been delivered, claimed or landed since: re-check once.
+  useEffect(() => {
+    const all = loadTransfers();
+    setHistory(all);
+    Promise.all(all.filter((t) => t.state !== "done").map(checkTransfer)).then((updated) => {
+      const changed = updated.filter((u): u is Transfer => !!u);
+      if (!changed.length) return;
+      changed.forEach(saveTransfer);
+      setHistory(loadTransfers());
+    });
+  }, []);
   useEffect(() => { setBps(null); quoteBps(net, from.domain, to.domain).then(setBps); }, [net, from.domain, to.domain]);
+  const forwardable = canForward(from, to);
+  useEffect(() => {
+    setFq(null);
+    if (forwardable) forwardQuote(net, from.domain, to.domain).then(setFq);
+  }, [net, from.domain, to.domain, forwardable]);
+  useEffect(() => { setCost(null); claimCost(to).then(setCost); }, [to]);
+  useEffect(() => {
+    setDstGas(null);
+    setAck(false);
+    if (dstWallet) gasBalance(to, dstWallet.address).then(setDstGas);
+  }, [to, dstWallet]);
+
+  // Delivery cost per destination, for the To picker: Circle's fee where it delivers, else the claim gas.
+  const loadCosts = useCallback(() => {
+    setCosts({});
+    for (const c of chains.filter((x) => x.bridgeable && x.family !== from.family)) {
+      (canForward(from, c) ? forwardQuote(net, from.domain, c.domain) : Promise.resolve(null)).then(async (q) => {
+        const label = q ? `delivery ${fmtUsd(Number(q.fee) / 1e6)}` : await claimCost(c).then((k) => (k ? `claim gas ~${fmtUsd(k.usd) ?? fmtNative(k.native, k.decimals) + " " + k.symbol}` : ""));
+        if (label) setCosts((m) => ({ ...m, [c.family]: label }));
+      });
+    }
+  }, [chains, from, net]);
 
   const refreshBalance = useCallback(() => {
     setBalance(null);
@@ -77,18 +117,30 @@ export function Bridge() {
 
   const fastOk = from.fast && !(bps && bps.fast === null);
   const effSpeed = fastOk ? speed : "SLOW";
-  const feeBps = effSpeed === "FAST" ? bps?.fast ?? 0 : bps?.slow ?? 0;
+  // Default: Circle delivers unless the user can claim themselves for less (has the gas, and it's cheaper).
+  const canSelfClaim = !!dstWallet && !!cost && dstGas !== null && dstGas >= cost.native;
+  const selfCheaper = !!fq && !!cost && cost.usd !== null && cost.usd < Number(fq.fee) / 1e6;
+  const gasInUsdc = gasPref ?? !(canSelfClaim && selfCheaper);
+  const deliver = forwardable && gasInUsdc;
+  const feeBps = deliver ? (effSpeed === "FAST" ? fq?.fastBps ?? 0 : fq?.slowBps ?? 0) : effSpeed === "FAST" ? bps?.fast ?? 0 : bps?.slow ?? 0;
   const base = useMemo(() => { try { return amount ? parseUnits(amount, 6) : 0n; } catch { return 0n; } }, [amount]);
-  const fee = (base * BigInt(Math.ceil(feeBps * 100))) / 1_000_000n;
+  const deliveryFee = deliver ? fq?.fee ?? 0n : 0n;
+  const fee = (base * BigInt(Math.ceil(feeBps * 100))) / 1_000_000n + deliveryFee;
   const dest = recipient || dstWallet?.address || "";
+  // Claiming yourself needs gas on the destination; flag it before anything is burned.
+  const shortGas = !deliver && !!cost && dstGas !== null && dstGas < cost.native;
 
   const an = (e: string) => (/^[AEIOU]/.test(ECOSYSTEM_LABEL[e as keyof typeof ECOSYSTEM_LABEL]) ? "an" : "a");
   const needs: string | null =
     !from.bridgeable || !to.bridgeable ? `${!from.bridgeable ? from.name : to.name} routes are coming soon`
     : !srcWallet ? `Connect ${an(from.ecosystem)} ${ECOSYSTEM_LABEL[from.ecosystem]} wallet`
-    : !dstWallet ? `Connect ${an(to.ecosystem)} ${ECOSYSTEM_LABEL[to.ecosystem]} wallet to mint`
+    : deliver && !dest ? `Add a recipient on ${to.name}`
+    : !deliver && !dstWallet ? `Connect ${an(to.ecosystem)} ${ECOSYSTEM_LABEL[to.ecosystem]} wallet to mint`
     : base === 0n ? "Enter an amount"
     : balance !== null && base > balance ? "Not enough USDC"
+    : deliver && !fq ? "Getting Circle's delivery fee…"
+    : deliver && base <= fee ? "Amount is below the delivery fee"
+    : shortGas && !ack ? `Not enough ${cost!.symbol} on ${to.name} to claim`
     : null;
   const needsWallet = !!needs && needs.startsWith("Connect");
 
@@ -97,14 +149,16 @@ export function Bridge() {
     const t: Transfer = resume ? { ...resume, error: undefined } : {
       id: crypto.randomUUID(), network: net, from: from.family, to: to.family, amount, speed: effSpeed,
       sender: srcWallet!.address, recipient: dest, steps: emptySteps(), state: "live", createdAt: Date.now(),
+      gasInUsdc: deliver,
     };
     const f = findChain(t.network, t.from);
     const d = findChain(t.network, t.to);
     const fw = connected[f.ecosystem];
     const dw = connected[d.ecosystem];
-    if (!fw || !dw) { setDrawer(true); return; }
+    const claiming = !t.gasInUsdc || !!t.claimMode;
+    if (!fw || (claiming && !dw)) { setDrawer(true); return; }
     setActive(t);
-    await runTransfer(t, { chain: f, wallet: fw }, { chain: d, wallet: dw }, (x) => { setActive(x); setHistory(loadTransfers()); });
+    await runTransfer(t, { chain: f, wallet: fw }, { chain: d, wallet: dw ?? undefined }, (x) => { setActive(x); setHistory(loadTransfers()); });
     refreshBalance();
   };
 
@@ -171,7 +225,7 @@ export function Bridge() {
                   <div className="flip-row"><button className="flip" onClick={flip} aria-label="Swap direction">⇅</button></div>
 
                   <ChainPicker label="To" value={to} other={from} chains={chains} onChange={pick("to")}
-                    balance={dstWallet ? short(dstWallet.address) : undefined} />
+                    balance={dstWallet ? short(dstWallet.address) : undefined} costs={costs} onOpen={loadCosts} />
 
                   <div className="receive">
                     <span>You receive</span>
@@ -192,15 +246,41 @@ export function Bridge() {
                     </button>
                   </div>
 
+                  <button type="button" className="gas-toggle" role="switch" aria-checked={deliver} disabled={!forwardable}
+                    onClick={() => setGasPref(!gasInUsdc)}>
+                    <span className="knob" />
+                    <span className="gt-copy">
+                      <b>Pay gas in USDC</b>
+                      <small>
+                        {!forwardable
+                          ? `Circle can't deliver ${from.ecosystem === "aptos" ? "from Aptos" : `to ${to.name}`}. You claim with ${cost?.symbol ?? "gas"} on ${to.name}.`
+                          : deliver
+                            ? `Circle delivers to ${to.name} for ${fq ? fmtUsd(Number(fq.fee) / 1e6) : "…"} in USDC. No ${cost?.symbol ?? "gas"} needed.`
+                            : `You claim on ${to.name} with your own ${cost?.symbol ?? "gas"}${cost ? `, about ${fmtUsd(cost.usd) ?? `${fmtNative(cost.native, cost.decimals)} ${cost.symbol}`} now` : ""}.`}
+                      </small>
+                    </span>
+                  </button>
+
+                  {shortGas && (
+                    <div className="warn">
+                      <p>
+                        Claiming on {to.name} costs about <b>{fmtNative(cost!.native, cost!.decimals)} {cost!.symbol}</b>
+                        {fmtUsd(cost!.usd) ? ` (${fmtUsd(cost!.usd)})` : ""} right now, and your wallet there has{" "}
+                        <b>{fmtNative(dstGas!, cost!.decimals)} {cost!.symbol}</b>. The burn can&apos;t be undone, so the USDC would wait until you add {cost!.symbol}.
+                      </p>
+                      <label><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> I&apos;ll add {cost!.symbol} before claiming</label>
+                    </div>
+                  )}
+
                   <details className="recip">
                     <summary>Send to another address</summary>
                     <input placeholder={dstWallet?.address ?? `${ECOSYSTEM_LABEL[to.ecosystem]} address`} value={recipient} onChange={(e) => setRecipient(e.target.value.trim())} />
                   </details>
 
                   <div className="lines">
-                    <div><span>Fee</span><b>{fmt(fee, 4)} USDC</b></div>
+                    <div><span>{deliver ? "Fee incl. delivery" : "Fee"}</span><b>{fmt(fee, 4)} USDC</b></div>
                     <div><span>Recipient</span><b>{dest ? short(dest) : "—"}</b></div>
-                    <div><span>Signatures</span><b>{from.ecosystem === "evm" ? "approve · burn" : "burn"} · mint</b></div>
+                    <div><span>Signatures</span><b>{from.ecosystem === "evm" ? "approve · burn" : "burn"}{deliver ? "" : " · mint"}</b></div>
                   </div>
 
                   {needsWallet
@@ -211,7 +291,7 @@ export function Bridge() {
             ) : (
               <>
                 <div className="panel-head">
-                  <span className="eyebrow">{active.state === "done" ? "Landed" : active.state === "error" ? "Paused" : "In flight"}</span>
+                  <span className="eyebrow">{active.state === "done" ? "Landed" : active.state === "error" ? "Paused" : active.state === "claim" ? "Ready to claim" : active.state === "waiting" ? "Queued" : "In flight"}</span>
                   <span className="pill live">{active.speed === "FAST" ? "fast" : "standard"}</span>
                 </div>
                 <div className="panel-body">
@@ -234,6 +314,14 @@ export function Bridge() {
                       );
                     })}
                   </div>
+                  {active.state === "claim" && (
+                    <ClaimChoice t={active} to={ad} wallet={connected[ad.ecosystem]?.address} onClaim={(mode) => start({ ...active, claimMode: mode })} onConnect={() => setDrawer(true)} />
+                  )}
+                  {active.state === "waiting" && (
+                    <div className="note-box">
+                      Your claim is queued on {ad.name} with a low gas cap. It lands by itself when gas dips, usually within hours. You can close this page; it&apos;s tracked in History.
+                    </div>
+                  )}
                   {active.state === "error" && (
                     <>
                       <div className="err">{active.error}</div>
@@ -245,7 +333,7 @@ export function Bridge() {
                   )}
                   {active.state === "done" && (
                     <>
-                      <div className="done-banner">{Number(active.amount).toLocaleString()} USDC landed on {ad.name} in {elapsed.toFixed(1)}s.</div>
+                      <div className="done-banner">{active.note ? `${active.note}. ` : ""}USDC landed on {ad.name}{active.doneAt ? ` in ${elapsed.toFixed(1)}s` : ""}.</div>
                       <button className="btn ghost big" onClick={() => { setActive(null); setAmount(""); }}>New transfer</button>
                     </>
                   )}
@@ -290,9 +378,9 @@ export function Bridge() {
                         <td><span className="hroute"><ChainIcon c={f} size={20} />→<ChainIcon c={d} size={20} /></span></td>
                         <td className="mono">{Number(t.amount).toLocaleString()}</td>
                         <td className="mono small">{t.speed === "FAST" ? "fast" : "standard"}{t.network === "testnet" ? " · test" : ""}</td>
-                        <td>{t.state === "done" ? <span className="pill ok">Landed</span> : t.state === "error" ? <span className="pill bad">Paused</span> : <span className="pill live">Live</span>}</td>
+                        <td>{t.state === "done" ? <span className="pill ok">Landed</span> : t.state === "error" ? <span className="pill bad">Paused</span> : t.state === "claim" ? <span className="pill live">Ready to claim</span> : t.state === "waiting" ? <span className="pill live">Queued</span> : <span className="pill live">Live</span>}</td>
                         <td className="mono small muted">{new Date(t.createdAt).toLocaleString()}</td>
-                        <td>{t.state === "error" && t.result != null && <button className="btn ghost tiny" onClick={() => start(t)}>Resume</button>}</td>
+                        <td>{t.state !== "done" && !!t.steps.burn.tx && <button className="btn ghost tiny" onClick={() => start(t)}>{t.state === "claim" ? "Claim" : "Resume"}</button>}</td>
                       </tr>
                     );
                   })}
@@ -308,5 +396,35 @@ export function Bridge() {
         </footer>
       </main>
     </>
+  );
+}
+
+// The claim step on an expensive chain: pay today's gas, or queue the claim with a low cap so it lands on a dip.
+function ClaimChoice({ t, to, wallet, onClaim, onConnect }: {
+  t: Transfer; to: Chain; wallet?: string; onClaim: (mode: "now" | "cheap") => void; onConnect: () => void;
+}) {
+  const [cost, setCost] = useState<ClaimCost | null>(null);
+  const [gas, setGas] = useState<bigint | null>(null);
+  useEffect(() => { claimCost(to).then(setCost); }, [to]);
+  useEffect(() => { if (wallet) gasBalance(to, wallet).then(setGas); }, [to, wallet]);
+  const price = cost ? fmtUsd(cost.usd) ?? `${fmtNative(cost.native, cost.decimals)} ${cost.symbol}` : "…";
+  return (
+    <div className="claim-box">
+      <p>
+        {t.note ? `${t.note} ` : ""}Your USDC is ready on {to.name}. Claiming sends one transaction there
+        {cost?.gwei ? ` (gas is ${cost.gwei.toFixed(1)} gwei now)` : ""}. Nothing expires, so you can also come back later from History.
+      </p>
+      {wallet && cost && gas !== null && gas < cost.native && (
+        <p className="warn-line">Your wallet on {to.name} has {fmtNative(gas, cost.decimals)} {cost.symbol}. Add {cost.symbol} first.</p>
+      )}
+      {!wallet ? (
+        <button className="btn big" onClick={onConnect}>Connect a wallet on {to.name} <span className="arrow">→</span></button>
+      ) : (
+        <div className="row-btns">
+          <button className="btn" onClick={() => onClaim("now")}>Claim now · ~{price}</button>
+          <button className="btn ghost" onClick={() => onClaim("cheap")}>Claim cheaper · waits for a dip</button>
+        </div>
+      )}
+    </div>
   );
 }

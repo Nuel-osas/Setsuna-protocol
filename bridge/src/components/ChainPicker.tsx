@@ -12,8 +12,10 @@ export function ChainIcon({ c, size = 28 }: { c: Chain; size?: number }) {
   );
 }
 
-export function ChainPicker({ label, value, other, chains, onChange, balance }: {
+export function ChainPicker({ label, value, other, chains, onChange, balance, costs, onOpen }: {
   label: string; value: Chain; other: Chain; chains: Chain[]; onChange: (c: Chain) => void; balance?: string;
+  /** Per-family delivery cost labels, shown in the menu (destination picker). */
+  costs?: Record<string, string>; onOpen?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -32,7 +34,7 @@ export function ChainPicker({ label, value, other, chains, onChange, balance }: 
 
   return (
     <div ref={ref} className="picker">
-      <button type="button" className="chain-pick" onClick={() => { setOpen(!open); setQ(""); }} aria-expanded={open}>
+      <button type="button" className="chain-pick" onClick={() => { if (!open) onOpen?.(); setOpen(!open); setQ(""); }} aria-expanded={open}>
         <label>{label}</label>
         <span className="val">
           <ChainIcon c={value} />
@@ -48,7 +50,7 @@ export function ChainPicker({ label, value, other, chains, onChange, balance }: 
             {list.map((c) => (
               <button key={c.id} type="button" disabled={!c.bridgeable} onClick={() => { onChange(c); setOpen(false); }}>
                 <ChainIcon c={c} size={24} />
-                <span className="menu-name">{c.name}<small>{ECOSYSTEM_LABEL[c.ecosystem]} · domain {c.domain}</small></span>
+                <span className="menu-name">{c.name}<small>{ECOSYSTEM_LABEL[c.ecosystem]} · {costs?.[c.family] ? costs[c.family] : `domain ${c.domain}`}</small></span>
                 <span className={`tag ${c.bridgeable ? "" : "soon"}`}>{!c.bridgeable ? "SOON" : c.family === other.family ? "⇅ SWAP" : c.family === value.family ? "SELECTED" : c.fast ? "FAST" : "NATIVE"}</span>
               </button>
             ))}

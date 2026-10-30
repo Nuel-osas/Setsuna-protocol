@@ -4,6 +4,7 @@ import { SuiGraphQLClient } from "@mysten/sui/graphql";
 import { Transaction, coinWithBalance } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import type { Wallet } from "@mysten/wallet-standard";
+import { hexToBytes } from "viem";
 import type { Network } from "./chains";
 
 // Circle CCTP V2 on Sui (domain 8). IDs from developers.circle.com/cctp/references/sui-packages,
@@ -69,6 +70,7 @@ async function execute(wallet: Wallet, owner: string, tx: Transaction, network: 
 // Sui → anywhere. Circle marks Fast as N/A for Sui (it finalises in ~0.5s), so finality 2000, fee 0.
 export async function suiBurn(o: {
   network: Network; wallet: Wallet; owner: string; amount: bigint; destDomain: number; mintRecipient32: `0x${string}`;
+  maxFee?: bigint; hookData?: `0x${string}`;
 }) {
   const c = CFG[o.network];
   const tx = new Transaction();
@@ -79,7 +81,8 @@ export async function suiBurn(o: {
     typeArguments: [c.usdc],
     arguments: [
       coin, tx.pure.u32(o.destDomain), tx.pure.address(o.mintRecipient32), tx.pure.address("0x0"),
-      tx.pure.u256(0n), tx.pure.u32(2000), tx.pure.vector("u8", []), tx.object(c.tmmState),
+      tx.pure.u256(o.maxFee ?? 0n), tx.pure.u32(2000),
+      tx.pure.vector("u8", o.hookData ? Array.from(hexToBytes(o.hookData)) : []), tx.object(c.tmmState),
     ],
   });
   const [ticket] = tx.moveCall({

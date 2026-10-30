@@ -2,6 +2,7 @@
 
 import { createPublicClient, createWalletClient, custom, defineChain, http, numberToHex, pad, parseAbi } from "viem";
 import { type BKChain, type Chain, type Network, bkDef } from "./chains";
+import { messageUsed } from "./claim";
 import { aptosBurn, aptosMint, aptosToBytes32 } from "./aptos";
 import { suiBurn, suiMint, suiToBytes32 } from "./sui";
 import type { Connected } from "./wallets";
@@ -12,6 +13,7 @@ import type { Connected } from "./wallets";
 
 const tokenMessengerAbi = parseAbi([
   "function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken, bytes32 destinationCaller, uint256 maxFee, uint32 minFinalityThreshold)",
+  "function depositForBurnWithHook(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken, bytes32 destinationCaller, uint256 maxFee, uint32 minFinalityThreshold, bytes hookData)",
 ]);
 const transmitterAbi = parseAbi(["function receiveMessage(bytes message, bytes attestation) returns (bool)"]);
 const erc20 = parseAbi([
@@ -20,8 +22,18 @@ const erc20 = parseAbi([
 ]);
 const ZERO32 = `0x${"0".repeat(64)}` as const;
 
-export type BurnArgs = { network: Network; chain: Chain; wallet: Connected; amount: bigint; dest: Chain; recipient: string; maxFee: bigint; finality: number; onApproved?: (tx?: string) => void };
-export type MintArgs = { network: Network; chain: Chain; wallet: Connected; source: Chain; message: string; attestation: string; eventNonce: string };
+// hookData set to the Forwarding Service hook asks Circle to mint on the destination, paid from maxFee.
+export type BurnArgs = { network: Network; chain: Chain; wallet: Connected; amount: bigint; dest: Chain; recipient: string; maxFee: bigint; finality: number; hookData?: `0x${string}`; onApproved?: (tx?: string) => void };
+// fees caps the claim's gas price (it then waits for a dip); onSent reports the hash as soon as it's signed.
+export type MintArgs = {
+  network: Network; chain: Chain; wallet: Connected; source: Chain; message: string; attestation: string; eventNonce: string;
+  fees?: { maxFeePerGas: bigint; maxPriorityFeePerGas: bigint }; onSent?: (tx: string) => void;
+};
+
+/** The message was already received on the destination (by Circle, another wallet or an earlier claim). */
+export class AlreadyMinted extends Error {
+  constructor() { super("Already minted"); }
+}
 
 // bytes32 recipient for any destination ecosystem
 export async function recipient32(dest: Chain, addr: string): Promise<`0x${string}`> {
@@ -81,18 +93,27 @@ async function evmBurn(a: BurnArgs) {
     await pub.waitForTransactionReceipt({ hash: approveTx as `0x${string}` });
   }
   a.onApproved?.(approveTx);
-  const hash = await wal.writeContract({
-    address: messenger,
-    abi: tokenMessengerAbi,
-    functionName: "depositForBurn",
-    args: [a.amount, a.dest.domain, await recipient32(a.dest, a.recipient), usdc, ZERO32, a.maxFee, a.finality],
-  });
+  const recipient = await recipient32(a.dest, a.recipient);
+  const hash = a.hookData
+    ? await wal.writeContract({
+        address: messenger,
+        abi: tokenMessengerAbi,
+        functionName: "depositForBurnWithHook",
+        args: [a.amount, a.dest.domain, recipient, usdc, ZERO32, a.maxFee, a.finality, a.hookData],
+      })
+    : await wal.writeContract({
+        address: messenger,
+        abi: tokenMessengerAbi,
+        functionName: "depositForBurn",
+        args: [a.amount, a.dest.domain, recipient, usdc, ZERO32, a.maxFee, a.finality],
+      });
   const rc = await pub.waitForTransactionReceipt({ hash });
   if (rc.status !== "success") throw new Error("Burn reverted");
   return hash as string;
 }
 
 async function evmMint(a: MintArgs) {
+  if (await messageUsed(a.chain, a.message)) throw new AlreadyMinted();
   const def = bkDef(a.chain.id)!;
   const chain = viemChain(def);
   await evmSwitch(a.wallet, def);
@@ -104,8 +125,11 @@ async function evmMint(a: MintArgs) {
     abi: transmitterAbi,
     functionName: "receiveMessage",
     args: [a.message as `0x${string}`, a.attestation as `0x${string}`],
+    ...(a.fees ?? {}),
   });
-  const rc = await pub.waitForTransactionReceipt({ hash });
+  a.onSent?.(hash);
+  // A capped claim can wait hours for a gas dip.
+  const rc = await pub.waitForTransactionReceipt({ hash, timeout: a.fees ? 86_400_000 : 600_000, pollingInterval: a.fees ? 15_000 : 2_000 });
   if (rc.status !== "success") throw new Error("Mint reverted (already claimed?)");
   return hash as string;
 }
@@ -155,7 +179,7 @@ export async function burn(a: BurnArgs): Promise<string> {
     case "solana": return solanaBurn(a);
     case "sui":
       a.onApproved?.();
-      return suiBurn({ network: a.network, wallet: a.wallet.standard!, owner: a.wallet.address, amount: a.amount, destDomain: a.dest.domain, mintRecipient32: await recipient32(a.dest, a.recipient) });
+      return suiBurn({ network: a.network, wallet: a.wallet.standard!, owner: a.wallet.address, amount: a.amount, destDomain: a.dest.domain, mintRecipient32: await recipient32(a.dest, a.recipient), maxFee: a.maxFee, hookData: a.hookData });
     case "aptos":
       a.onApproved?.();
       return aptosBurn({ network: a.network, wallet: a.wallet.standard!, owner: a.wallet.address, amount: a.amount, destDomain: a.dest.domain, mintRecipient32: await recipient32(a.dest, a.recipient) });
