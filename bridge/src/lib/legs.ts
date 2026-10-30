@@ -84,18 +84,41 @@ async function evmSwitch(w: Connected, def: BKChain) {
 const BURN_GAS = 160_000n;
 const APPROVE_GAS = 60_000n;
 
+type Pub = ReturnType<typeof createPublicClient>;
+type Tx = { to: `0x${string}`; data: `0x${string}` };
+
 /**
- * USDC to hold back for gas when the wallet has too little of the chain's gas token: wallets like
- * MetaMask then take the gas from the USDC itself. 1.5x today's estimate; zero if gas is covered.
+ * Gas settings the bridge sets itself: the estimate plus 25%, and a fee cap of 1.5x today's base fee.
+ * Wallets otherwise pad the cap so far (7x seen on Ethereum) that a wallet holding enough ETH for the
+ * real fee is treated as short and pays in USDC at a markup instead.
  */
-async function usdcGasMargin(pub: ReturnType<typeof createPublicClient>, chain: Chain, account: `0x${string}`, gas: bigint) {
-  const [native, price] = await Promise.all([pub.getBalance({ address: account }), pub.getGasPrice()]);
-  const cost = price * gas;
-  if (native >= cost) return 0n;
+async function tightGas(pub: Pub, account: `0x${string}`, tx: Tx | null, fallbackGas: bigint) {
+  const [block, tip] = await Promise.all([pub.getBlock(), pub.estimateMaxPriorityFeePerGas().catch(() => 100_000_000n)]);
+  let gas = fallbackGas;
+  if (tx) gas = await pub.estimateGas({ account, ...tx }).catch(() => fallbackGas);
+  gas = (gas * 125n) / 100n;
+  const base = block.baseFeePerGas;
+  // Chains without EIP-1559 fees keep the wallet's own pricing; only the gas limit is set.
+  if (base == null) {
+    const price = await pub.getGasPrice();
+    return { gas, maxFeePerGas: undefined, maxPriorityFeePerGas: undefined, maxCost: gas * price * 2n };
+  }
+  const maxPriorityFeePerGas = tip;
+  const maxFeePerGas = (base * 3n) / 2n + tip;
+  return { gas, maxFeePerGas, maxPriorityFeePerGas, maxCost: gas * maxFeePerGas };
+}
+
+/**
+ * USDC to hold back for gas when the wallet can't cover the transaction's maximum fee in the chain's
+ * gas token: wallets like MetaMask then take the gas from the USDC itself. Zero if the gas is covered.
+ */
+async function usdcGasMargin(pub: Pub, chain: Chain, account: `0x${string}`, maxCost: bigint) {
+  const native = await pub.getBalance({ address: account });
+  if (native >= maxCost) return 0n;
   const t = gasToken(chain);
   const usd = (await gasPrices())[t.symbol];
   if (!usd) return 0n;
-  return BigInt(Math.ceil((Number(cost) / 10 ** t.decimals) * usd * 1.5 * 1e6));
+  return BigInt(Math.ceil((Number(maxCost) / 10 ** t.decimals) * usd * 1.2 * 1e6));
 }
 
 /** Approve + burn as one atomic batch (EIP-5792) when the wallet supports it. Null if it can't batch. */
@@ -131,9 +154,9 @@ async function evmBurn(a: BurnArgs) {
       : encodeFunctionData({ abi: tokenMessengerAbi, functionName: "depositForBurn", args: [amount, a.dest.domain, recipient, usdc, ZERO32, a.maxFee, a.finality] });
 
   // Send what the wallet can actually cover: if gas will come out of the USDC, hold that back.
-  const fit = async (gas: bigint) => {
+  const fit = async (maxCost: bigint) => {
     const held = await pub.readContract({ address: usdc, abi: erc20, functionName: "balanceOf", args: [account] });
-    const room = held - (await usdcGasMargin(pub, a.chain, account, gas));
+    const room = held - (await usdcGasMargin(pub, a.chain, account, maxCost));
     const amount = room < a.amount ? room : a.amount;
     if (amount <= a.maxFee) {
       const f = (v: bigint) => (Number(v) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 6 });
@@ -147,7 +170,7 @@ async function evmBurn(a: BurnArgs) {
   let approveTx: string | undefined;
   if (allowance < a.amount) {
     // One atomic batch where the wallet allows it: never an approval paid for without its burn.
-    const amount = await fit(APPROVE_GAS + BURN_GAS);
+    const amount = await fit((await tightGas(pub, account, null, APPROVE_GAS + BURN_GAS)).maxCost);
     const batched = await batchBurn(wal, account, chain.id, [
       { to: usdc, data: encodeFunctionData({ abi: erc20, functionName: "approve", args: [messenger, amount] }) },
       { to: messenger, data: burnData(amount) },
@@ -156,13 +179,18 @@ async function evmBurn(a: BurnArgs) {
       a.onApproved?.(batched);
       return batched;
     }
-    approveTx = await wal.writeContract({ address: usdc, abi: erc20, functionName: "approve", args: [messenger, a.amount] });
+    const approveData = encodeFunctionData({ abi: erc20, functionName: "approve", args: [messenger, a.amount] });
+    const g = await tightGas(pub, account, { to: usdc, data: approveData }, APPROVE_GAS);
+    approveTx = await wal.sendTransaction({ to: usdc, data: approveData, account, chain, gas: g.gas, maxFeePerGas: g.maxFeePerGas, maxPriorityFeePerGas: g.maxPriorityFeePerGas });
     await pub.waitForTransactionReceipt({ hash: approveTx as `0x${string}` });
   }
   a.onApproved?.(approveTx);
   // Re-read after the approval: its gas may have been paid in USDC. Bridge what's left rather than nothing.
-  const amount = await fit(BURN_GAS);
-  const hash = await wal.sendTransaction({ to: messenger, data: burnData(amount), account, chain });
+  const g = await tightGas(pub, account, null, BURN_GAS);
+  const amount = await fit(g.maxCost);
+  const burnTx = { to: messenger, data: burnData(amount) };
+  const fees = await tightGas(pub, account, burnTx, BURN_GAS);
+  const hash = await wal.sendTransaction({ ...burnTx, account, chain, gas: fees.gas, maxFeePerGas: fees.maxFeePerGas, maxPriorityFeePerGas: fees.maxPriorityFeePerGas });
   const rc = await pub.waitForTransactionReceipt({ hash });
   if (rc.status !== "success") throw new Error("Burn reverted");
   return hash as string;
@@ -176,12 +204,15 @@ async function evmMint(a: MintArgs) {
   const account = a.wallet.address as `0x${string}`;
   const pub = createPublicClient({ chain, transport: http(def.rpcEndpoints?.[0]) });
   const wal = createWalletClient({ chain, account, transport: custom(a.wallet.evm!) });
-  const hash = await wal.writeContract({
-    address: def.cctp!.contracts!.v2!.messageTransmitter as `0x${string}`,
-    abi: transmitterAbi,
-    functionName: "receiveMessage",
-    args: [a.message as `0x${string}`, a.attestation as `0x${string}`],
-    ...(a.fees ?? {}),
+  const mintTx = {
+    to: def.cctp!.contracts!.v2!.messageTransmitter as `0x${string}`,
+    data: encodeFunctionData({ abi: transmitterAbi, functionName: "receiveMessage", args: [a.message as `0x${string}`, a.attestation as `0x${string}`] }),
+  };
+  const g = await tightGas(pub, account, mintTx, 200_000n);
+  const hash = await wal.sendTransaction({
+    ...mintTx, account, chain, gas: g.gas,
+    maxFeePerGas: a.fees?.maxFeePerGas ?? g.maxFeePerGas,
+    maxPriorityFeePerGas: a.fees?.maxPriorityFeePerGas ?? g.maxPriorityFeePerGas,
   });
   a.onSent?.(hash);
   // A capped claim can wait hours for a gas dip.
