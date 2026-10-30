@@ -8,6 +8,8 @@ import { type Chain, type Network, bkDef } from "./chains";
 
 /** Gas for MessageTransmitterV2.receiveMessage into a first-time USDC holder (174k measured on Ethereum). */
 export const MINT_GAS = 180_000n;
+/** Gas to approve USDC and burn it with depositForBurn(WithHook) on an EVM chain. */
+export const SEND_GAS = 230_000n;
 /** Forwarding Service hook data, version 0: "cctp-forward" magic, version 0, length 0. */
 export const FORWARD_HOOK = "0x636374702d666f72776172640000000000000000000000000000000000000000" as const;
 
@@ -64,8 +66,8 @@ const FLAT_COST: Record<string, bigint> = { solana: 2_500_000n, sui: 10_000_000n
 
 export type ClaimCost = { native: bigint; symbol: string; decimals: number; usd: number | null; gwei?: number };
 
-/** What claiming on `c` costs right now, in its gas token and USD. Null if the chain can't be read. */
-export async function claimCost(c: Chain): Promise<ClaimCost | null> {
+/** What claiming on `c` (or sending `gas` units there) costs right now, in its gas token and USD. Null if unreadable. */
+export async function claimCost(c: Chain, gas: bigint = MINT_GAS): Promise<ClaimCost | null> {
   const t = gasToken(c);
   try {
     let native: bigint;
@@ -73,7 +75,7 @@ export async function claimCost(c: Chain): Promise<ClaimCost | null> {
     if (c.ecosystem === "evm") {
       if (!c.rpc) return null;
       const price = await evmClient(c).getGasPrice();
-      native = price * MINT_GAS;
+      native = price * gas;
       gwei = Number(price) / 1e9;
     } else {
       native = FLAT_COST[c.ecosystem] ?? 0n;

@@ -17,6 +17,7 @@ const tokenMessengerAbi = parseAbi([
 ]);
 const transmitterAbi = parseAbi(["function receiveMessage(bytes message, bytes attestation) returns (bool)"]);
 const erc20 = parseAbi([
+  "function balanceOf(address) view returns (uint256)",
   "function allowance(address, address) view returns (uint256)",
   "function approve(address, uint256) returns (bool)",
 ]);
@@ -93,6 +94,14 @@ async function evmBurn(a: BurnArgs) {
     await pub.waitForTransactionReceipt({ hash: approveTx as `0x${string}` });
   }
   a.onApproved?.(approveTx);
+  // A wallet with no gas token can pay the approval's gas in USDC (MetaMask does), leaving less than the amount.
+  const held = await pub.readContract({ address: usdc, abi: erc20, functionName: "balanceOf", args: [account] });
+  if (held < a.amount) {
+    const f = (v: bigint) => (Number(v) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 6 });
+    throw new Error(
+      `Your wallet now holds ${f(held)} USDC on ${a.chain.name}, less than the ${f(a.amount)} being sent${approveTx ? " (it likely paid the approval's gas in USDC)" : ""}. Nothing was burned. Start a new transfer with ${f(held)} or less.`,
+    );
+  }
   const recipient = await recipient32(a.dest, a.recipient);
   const hash = a.hookData
     ? await wal.writeContract({

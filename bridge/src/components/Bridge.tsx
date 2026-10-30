@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { usdcBalance } from "@/lib/balance";
 import { type Transfer, checkTransfer, emptySteps, loadTransfers, quoteBps, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
-import { type ClaimCost, type ForwardQuote, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
+import { type ClaimCost, type ForwardQuote, SEND_GAS, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
 import { type Chain, type Network, ECOSYSTEM_LABEL, chainsFor, findChain } from "@/lib/chains";
 import { short, useWallets } from "@/lib/wallets";
 import { ChainIcon, ChainPicker } from "./ChainPicker";
@@ -60,6 +60,8 @@ export function Bridge() {
   const [fq, setFq] = useState<ForwardQuote | null>(null);
   const [cost, setCost] = useState<ClaimCost | null>(null);
   const [dstGas, setDstGas] = useState<bigint | null>(null);
+  const [srcCost, setSrcCost] = useState<ClaimCost | null>(null);
+  const [srcGas, setSrcGas] = useState<bigint | null>(null);
   const [ack, setAck] = useState(false);
   const [costs, setCosts] = useState<Record<string, string>>({});
 
@@ -84,6 +86,12 @@ export function Bridge() {
     if (forwardable) forwardQuote(net, from.domain, to.domain).then(setFq);
   }, [net, from.domain, to.domain, forwardable]);
   useEffect(() => { setCost(null); claimCost(to).then(setCost); }, [to]);
+  useEffect(() => { setSrcCost(null); claimCost(from, SEND_GAS).then(setSrcCost); }, [from]);
+  useEffect(() => {
+    setSrcGas(null);
+    setAck(false);
+    if (srcWallet) gasBalance(from, srcWallet.address).then(setSrcGas);
+  }, [from, srcWallet]);
   useEffect(() => {
     setDstGas(null);
     setAck(false);
@@ -129,6 +137,8 @@ export function Bridge() {
   const dest = recipient || dstWallet?.address || "";
   // Claiming yourself needs gas on the destination; flag it before anything is burned.
   const shortGas = !deliver && !!cost && dstGas !== null && dstGas < cost.native;
+  // Sending needs gas on the source chain too; without it some wallets take the gas from the USDC.
+  const srcShort = !!srcCost && srcGas !== null && srcGas < srcCost.native;
 
   const an = (e: string) => (/^[AEIOU]/.test(ECOSYSTEM_LABEL[e as keyof typeof ECOSYSTEM_LABEL]) ? "an" : "a");
   const needs: string | null =
@@ -140,6 +150,7 @@ export function Bridge() {
     : balance !== null && base > balance ? "Not enough USDC"
     : deliver && !fq ? "Getting Circle's delivery fee…"
     : deliver && base <= fee ? "Amount is below the delivery fee"
+    : srcShort && !ack ? `Not enough ${srcCost!.symbol} on ${from.name} to send`
     : shortGas && !ack ? `Not enough ${cost!.symbol} on ${to.name} to claim`
     : null;
   const needsWallet = !!needs && needs.startsWith("Connect");
@@ -260,6 +271,17 @@ export function Bridge() {
                       </small>
                     </span>
                   </button>
+
+                  {srcShort && (
+                    <div className="warn">
+                      <p>
+                        Sending from {from.name} costs about <b>{fmtNative(srcCost!.native, srcCost!.decimals)} {srcCost!.symbol}</b>
+                        {fmtUsd(srcCost!.usd) ? ` (${fmtUsd(srcCost!.usd)})` : ""} in gas right now, and your wallet there has{" "}
+                        <b>{fmtNative(srcGas!, srcCost!.decimals)} {srcCost!.symbol}</b>. Some wallets then pay the gas out of your USDC, which leaves less to send.
+                      </p>
+                      {!shortGas && <label><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> Continue anyway</label>}
+                    </div>
+                  )}
 
                   {shortGas && (
                     <div className="warn">
