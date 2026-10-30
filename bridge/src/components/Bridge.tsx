@@ -302,7 +302,7 @@ export function Bridge() {
                   <div className="lines">
                     <div><span>{deliver ? "Fee incl. delivery" : "Fee"}</span><b>{fmt(fee, 4)} USDC</b></div>
                     <div><span>Recipient</span><b>{dest ? short(dest) : "—"}</b></div>
-                    <div><span>Signatures</span><b>{from.ecosystem === "evm" ? "approve · burn" : "burn"}{deliver ? "" : " · mint"}</b></div>
+                    <div><span>Signatures</span><b>{from.ecosystem === "evm" ? "approve + burn" : "burn"}{deliver ? "" : " · mint"}</b></div>
                   </div>
 
                   {needsWallet

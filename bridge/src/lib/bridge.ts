@@ -151,6 +151,10 @@ async function runCustom(
       const tx = await burn({
         network: t.network, chain: from.chain, wallet: from.wallet, amount, dest: to.chain, recipient: t.recipient,
         maxFee, finality: fast ? 1000 : 2000, hookData,
+        onAdjusted: (sent, held) => {
+          const f = (v: bigint) => (Number(v) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 6 });
+          patch(t, { amount: (Number(sent) / 1e6).toString(), note: `Sent ${f(sent)} of ${t.amount} USDC: the wallet held ${f(held)} after paying gas in USDC` }, emit);
+        },
         onApproved: (approveTx) => {
           t.steps.approve = approveTx ? { state: "done", tx: approveTx, url: txUrlFor(from.chain, approveTx) } : { state: "skip" };
           markLive(t, "burn");
