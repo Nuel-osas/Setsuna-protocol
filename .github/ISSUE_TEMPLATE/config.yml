@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Nuel-osas/Setsuna-protocol/security/advisories/new
+    about: Report privately. Never in a public issue.
+  - name: Docs
+    url: https://setsuna.finance/docs/
+    about: How Setsuna works, the contracts, and building on it.

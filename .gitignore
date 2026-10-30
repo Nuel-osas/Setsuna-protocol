@@ -19,3 +19,4 @@ brand/**/*.zip
 brand/social/*/
 *.mp4
 *.wav
+/cache/
