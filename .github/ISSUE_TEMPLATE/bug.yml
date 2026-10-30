@@ -1,0 +1,38 @@
+name: Bug
+description: Something on setsuna.finance, the bridge, the SDK or the MCP doesn't work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Found a security issue? Don't file it here. See SECURITY.md."
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where
+      options: [Earn, Trade, Portfolio, Bridge, SDK, MCP, Docs, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open ... 2. Click ... 3. See ..."
+  - type: input
+    id: tx
+    attributes:
+      label: Transaction hash or wallet address (if any)
+  - type: dropdown
+    id: moved
+    attributes:
+      label: Did money move?
+      options: ["No", "Yes", "Not sure"]
+  - type: input
+    id: env
+    attributes:
+      label: Browser, device and wallet
