@@ -19,25 +19,65 @@
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue" /></a>
 </p>
 
-# Setsuna
+<p align="center">
+  <b>Rule-bound Earn vaults on Monad.</b><br>
+  Deposit USDC, MON or AUSD. The vault spreads it across Monad's lending markets by fixed onchain<br>
+  rules, anyone can trigger a rebalance, and no admin can move your funds or set the rate.
+</p>
 
-**Rule-bound Earn vaults on Monad.** Deposit USDC, MON or AUSD; the vault spreads it across Monad's
-lending markets by fixed onchain rules, and anyone can trigger a rebalance. There is no admin who can
-move your funds or set the rate. Spot, perps and a USDC bridge support it.
+<p align="center">
+  <img src="docs/readme/earn.gif" alt="setsuna.finance: the Earn landing page, with live vault rates cycling through the hexagons" width="880">
+  <br>
+  <sub>The live site: the hexagons cycle through live reads from the vaults and the markets they lend to.</sub>
+</p>
 
 Live on **Monad mainnet** at [setsuna.finance](https://setsuna.finance). Earn is a capped beta with
 real funds, and the contracts are **unaudited**: deposit only what you can afford to lose.
 
-## What's live
+## What it does
 
-| | What it does |
-|---|---|
-| **setsUSDC** | USDC across Aave, Morpho, Euler, Neverland and Curvance. Capped at 2,000 USDC. |
-| **setsMON** | MON across Neverland and Euler, through a native-MON gateway. Capped at 25,000 MON. |
-| **setsAUSD** | AUSD in and out, saved in setsUSDC through Curve's AUSD/USDC pool, with a 99.8% peg floor. Savers can deposit and withdraw by signature while a relayer pays the gas. |
-| **Trade** | Spot on Kuru and BTC perps on Perpl, plus an in-app swap routed by KyberSwap. |
-| **Bridge** | Native USDC between 28 chains with Circle CCTP V2, at [bridge.setsuna.finance](https://bridge.setsuna.finance). Optional delivery paid in USDC. |
-| **SDK and MCP** | [`@setsunaprotocol/sdk`](packages/sdk) reads vaults and builds transactions. [`@setsunaprotocol/mcp`](packages/mcp) lets any AI client prepare a deposit you sign in your own wallet. |
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <img src="docs/readme/home.png" alt="Setsuna home: put your assets in motion, with live vault rates" width="240"><br>
+      <b>One deposit, five markets</b><br>
+      Put USDC or MON to work across Aave, Morpho, Euler, Neverland and Curvance. The contract
+      decides the split; you hold one share token.
+    </td>
+    <td width="33%" valign="top">
+      <img src="docs/readme/alloc.png" alt="The setsUSDC vault: base APR, assets in the vault and the share price" width="240"><br>
+      <b>Rules you can read</b><br>
+      setsUSDC (cap 2,000 USDC) and setsMON (cap 25,000 MON) show the live rate, what's in the
+      vault and what one share is worth. A 2% fee comes from yield, never principal.
+    </td>
+    <td width="33%" valign="top">
+      <img src="docs/readme/ausd.png" alt="Deposit AUSD and receive setsAUSD, with the current rate and swap cost" width="240"><br>
+      <b>Save AUSD</b><br>
+      AUSD in, AUSD out through Curve, earning the setsUSDC rate, with a 99.8% peg floor. Apps can
+      let savers deposit by signature while a relayer pays the gas.
+    </td>
+  </tr>
+  <tr>
+    <td width="33%" valign="top">
+      <img src="docs/readme/trade.png" alt="Trade: MON/USDC spot chart with order book and trades" width="240"><br>
+      <b>Spot and perps</b><br>
+      MON/USDC spot on Kuru, limit orders, BTC perps on Perpl, and an in-app swap routed for the
+      best price across Monad.
+    </td>
+    <td width="33%" valign="top">
+      <img src="docs/readme/bridge.png" alt="Bridge: 250 USDC from Sui to Monad with Pay gas in USDC switched on" width="240"><br>
+      <b>USDC from 28 chains</b><br>
+      Native USDC over Circle CCTP V2 at <a href="https://bridge.setsuna.finance">bridge.setsuna.finance</a>.
+      Turn on "Pay gas in USDC" and Circle delivers it, with no gas needed on Monad.
+    </td>
+    <td width="33%" valign="top">
+      <img src="docs/readme/docs.png" alt="Setsuna docs: the AUSD savings page" width="240"><br>
+      <b>Built to build on</b><br>
+      Every rule is documented at <a href="https://setsuna.finance/docs/">setsuna.finance/docs</a>.
+      The SDK and MCP server let apps and AI clients read vaults and prepare deposits users sign.
+    </td>
+  </tr>
+</table>
 
 ## How Earn works
 
