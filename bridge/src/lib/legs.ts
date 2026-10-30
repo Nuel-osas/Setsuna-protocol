@@ -169,12 +169,19 @@ async function evmBurn(a: BurnArgs) {
   const allowance = await pub.readContract({ address: usdc, abi: erc20, functionName: "allowance", args: [account, messenger] });
   let approveTx: string | undefined;
   if (allowance < a.amount) {
-    // One atomic batch where the wallet allows it: never an approval paid for without its burn.
-    const amount = await fit((await tightGas(pub, account, null, APPROVE_GAS + BURN_GAS)).maxCost);
-    const batched = await batchBurn(wal, account, chain.id, [
-      { to: usdc, data: encodeFunctionData({ abi: erc20, functionName: "approve", args: [messenger, amount] }) },
-      { to: messenger, data: burnData(amount) },
-    ]);
+    // One atomic batch where the wallet allows it: never an approval paid for without its burn. A batch
+    // can't carry our gas settings and wallets pad its fee cap (up to ~10x), so batch only when the
+    // wallet's gas token covers that padding; otherwise two transactions with tight gas, paid in gas token.
+    const pair = await tightGas(pub, account, null, APPROVE_GAS + BURN_GAS);
+    const native = await pub.getBalance({ address: account });
+    let batched: string | null = null;
+    if (native >= pair.maxCost * 15n) {
+      const amount = await fit(pair.maxCost);
+      batched = await batchBurn(wal, account, chain.id, [
+        { to: usdc, data: encodeFunctionData({ abi: erc20, functionName: "approve", args: [messenger, amount] }) },
+        { to: messenger, data: burnData(amount) },
+      ]);
+    }
     if (batched) {
       a.onApproved?.(batched);
       return batched;
