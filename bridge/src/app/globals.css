@@ -829,8 +829,27 @@ a {
   .amount input {
     font-size: 34px;
   }
-  .hdr .seg {
+  /* Keep the network switch on phones (it was hidden, leaving mobile stuck on Sandbox); make room for it. */
+  .hdr {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+  .brand span {
     display: none;
+  }
+  .hdr-right {
+    gap: 6px;
+  }
+  .hdr .seg button {
+    padding: 6px 7px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  .hdr .wallet-btn {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
   }
 }
 
