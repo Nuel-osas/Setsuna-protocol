@@ -155,6 +155,7 @@
       el("span", null, `${s.incentivized_wallets} rewarded wallets listed`),
     );
     users(report.accounts);
+    bridge(report.bridge);
     cards(report.scorecard);
     legend("legend-wallets");
     legend("legend-volume");
@@ -226,6 +227,46 @@
     ]);
   }
 
+  // Setsuna Bridge: transfers reported by bridge.setsuna.finance and checked against Circle's record.
+  function bridge(b) {
+    $("bridge").hidden = !b;
+    if (!b) return;
+    const t = b.totals;
+    const users = (k) => (t.organic[k] ?? 0) + (t.incentivized[k] ?? 0);
+    const card = (label, value, def) => {
+      const c = el("article", "st-card");
+      const top = el("div", "st-card-top");
+      top.append(el("span", "st-label", label));
+      const big = el("div", "st-big");
+      big.append(el("span", "st-num", value));
+      c.append(top, big, el("p", "st-def", def));
+      return c;
+    };
+    $("bridge-cards").replaceChildren(
+      card("Bridge volume", `$${fmt(users("volumeUSDC"), "USDC")}`, `Bridged by users, team excluded. Team tests: $${fmt(t.team.volumeUSDC, "USDC")}.`),
+      card("Transfers", fmt(users("transfers")), `${fmt(t.team.transfers)} more by the team.`),
+      card("Bridge users", fmt(users("wallets")), "Sending wallets, team excluded."),
+      card("Gas paid in USDC", fmt(users("delivered")), "User transfers Circle delivered, with the gas taken from the USDC."),
+    );
+    $("bridge-note").textContent = b.since
+      ? `Recorded since ${d3.utcFormat("%b %-d")(new Date(b.since))}. Transfers before tracking began are included only where they could be traced to known wallets.`
+      : "No bridge transfers recorded yet.";
+    legend("legend-bridge");
+    stacked("chart-bridge", b.daily, "volume_usdc", "USDC");
+    fill("bridge-routes", b.routes, [(r) => r.route, (r) => fmt(r.transfers), (r) => fmt(r.volumeUSDC, "USDC"), (r) => fmt(r.organicUSDC, "USDC")]);
+    const short = (a) => (a.length > 14 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a);
+    const sender = (r) => short(r.sender);
+    sender.cls = "addr";
+    fill("bridge-recent", b.recent, [
+      (r) => d3.utcFormat("%b %-d, %H:%M")(new Date(r.at)),
+      (r) => `${r.from} → ${r.to}`,
+      (r) => fmt(r.usdc, "USDC"),
+      (r) => el("span", `st-grp ${r.group}`, NAMES[r.group] || r.group),
+      (r) => (r.delivered ? "USDC" : "Own"),
+      sender,
+    ]);
+  }
+
   function status() {
     if (!readAt) return;
     const s = Math.round((Date.now() - readAt) / 1000);
@@ -241,7 +282,9 @@
       if (res.status === 401) return location.assign("/login");
       if (!res.ok) throw new Error(String(res.status));
       last = await res.json();
-      readAt = Date.now();
+      readAt = Date.parse(last.snapshot.at) || Date.now();
+      // A stale answer is the last saved report while a fresh one is built; fetch again shortly.
+      if (last.stale) setTimeout(load, 8000);
       $("error").hidden = true;
       draw(last);
       status();
