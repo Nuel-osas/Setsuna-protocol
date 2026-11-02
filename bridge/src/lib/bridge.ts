@@ -4,7 +4,7 @@ import { BridgeKit } from "@circle-fin/bridge-kit";
 import { createPublicClient, http } from "viem";
 import { type Chain, type Network, findChain } from "./chains";
 import { FORWARD_HOOK, cheapFees, forwardQuote, irisMessage, messageUsed } from "./claim";
-import { AlreadyMinted, burn, mint, waitForAttestation } from "./legs";
+import { AlreadyMinted, burn, mint, settleBurn, waitForAttestation } from "./legs";
 import type { Connected } from "./wallets";
 
 // Bridge Kit drives approve → burn → attestation → mint for every EVM and Solana route.
@@ -160,8 +160,31 @@ async function runCustom(
           markLive(t, "burn");
           patch(t, {}, emit);
         },
+        onBurnSent: (sent) => {
+          t.steps.burn = { state: "live", tx: sent, url: txUrlFor(from.chain, sent) };
+          patch(t, {}, emit);
+        },
       });
       t.steps.burn = { state: "done", tx, url: txUrlFor(from.chain, tx) };
+      markLive(t, "attest");
+      patch(t, {}, emit);
+    }
+
+    // A burn that was sent but never seen to confirm (the wait was cut short, the tab closed): settle
+    // it first. If it landed, carry on; if it reverted or was cancelled, nothing left the wallet, so
+    // clear it and let a retry send a fresh one. A retry can never burn twice.
+    if (t.steps.burn.state !== "done" && from.chain.ecosystem === "evm") {
+      markLive(t, "burn");
+      patch(t, {}, emit);
+      const outcome = await settleBurn(from.chain, t.steps.burn.tx!, (h) => {
+        t.steps.burn = { state: "live", tx: h, url: txUrlFor(from.chain, h) };
+        patch(t, {}, emit);
+      });
+      if (outcome !== "success") {
+        t.steps.burn = { state: "idle" };
+        throw new Error(`The burn ${outcome === "cancelled" ? "was cancelled" : "reverted"}, so nothing left your wallet. Retry to send it.`);
+      }
+      t.steps.burn = { ...t.steps.burn, state: "done" };
       markLive(t, "attest");
       patch(t, {}, emit);
     }

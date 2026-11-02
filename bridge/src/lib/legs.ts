@@ -28,6 +28,8 @@ const ZERO32 = `0x${"0".repeat(64)}` as const;
 export type BurnArgs = {
   network: Network; chain: Chain; wallet: Connected; amount: bigint; dest: Chain; recipient: string; maxFee: bigint; finality: number;
   hookData?: `0x${string}`; onApproved?: (tx?: string) => void; onAdjusted?: (amount: bigint, held: bigint) => void;
+  /** The burn's hash, reported as soon as the wallet returns it, before it confirms. */
+  onBurnSent?: (tx: string) => void;
 };
 // fees caps the claim's gas price (it then waits for a dip); onSent reports the hash as soon as it's signed.
 export type MintArgs = {
@@ -198,9 +200,38 @@ async function evmBurn(a: BurnArgs) {
   const burnTx = { to: messenger, data: burnData(amount) };
   const fees = await tightGas(pub, account, burnTx, BURN_GAS);
   const hash = await wal.sendTransaction({ ...burnTx, account, chain, gas: fees.gas, maxFeePerGas: fees.maxFeePerGas, maxPriorityFeePerGas: fees.maxPriorityFeePerGas });
-  const rc = await pub.waitForTransactionReceipt({ hash });
-  if (rc.status !== "success") throw new Error("Burn reverted");
-  return hash as string;
+  // Record the hash before waiting: if the wait is cut short, the transfer can still be settled and
+  // claimed, and a retry can't burn a second time.
+  a.onBurnSent?.(hash);
+  let final: string = hash;
+  const outcome = await settleBurn(a.chain, hash, (h) => {
+    final = h;
+    a.onBurnSent?.(h);
+  });
+  if (outcome === "cancelled") throw new Error("The burn was cancelled in your wallet, so nothing was sent.");
+  if (outcome === "reverted") throw new Error("Burn reverted");
+  return final;
+}
+
+/**
+ * Wait (up to six hours: a capped fee can sit through a gas spike) for an EVM burn's outcome. A
+ * replacement sent from the wallet (sped up) is followed and reported; a cancellation means nothing burned.
+ */
+export async function settleBurn(chain: Chain, hash: string, onReplaced?: (hash: string) => void): Promise<"success" | "reverted" | "cancelled"> {
+  const def = bkDef(chain.id)!;
+  const pub = createPublicClient({ chain: viemChain(def), transport: http(def.rpcEndpoints?.[0]) });
+  let cancelled = false;
+  const rc = await pub.waitForTransactionReceipt({
+    hash: hash as `0x${string}`,
+    timeout: 6 * 3_600_000,
+    pollingInterval: 4_000,
+    onReplaced: (r) => {
+      if (r.reason === "cancelled") cancelled = true;
+      else onReplaced?.(r.transaction.hash);
+    },
+  });
+  if (cancelled) return "cancelled";
+  return rc.status === "success" ? "success" : "reverted";
 }
 
 async function evmMint(a: MintArgs) {
