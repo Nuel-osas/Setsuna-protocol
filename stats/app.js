@@ -157,6 +157,8 @@
     users(report.accounts);
     bridge(report.bridge);
     requestAnimationFrame(fitNumbers);
+    // The pixel font is wider than its fallback, so fit again once it has loaded.
+    document.fonts?.ready.then(fitNumbers);
     cards(report.scorecard);
     legend("legend-wallets");
     legend("legend-volume");
