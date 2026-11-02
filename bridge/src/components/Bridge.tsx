@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { usdcBalance } from "@/lib/balance";
-import { type Transfer, checkTransfer, emptySteps, loadTransfers, quoteBps, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { type Transfer, checkTransfer, emptySteps, loadTransfers, quoteBps, reportTransfer, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
 import { type ClaimCost, type ForwardQuote, SEND_GAS, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
 import { type Chain, type Network, ECOSYSTEM_LABEL, chainsFor, findChain } from "@/lib/chains";
 import { short, useWallets } from "@/lib/wallets";
@@ -72,6 +72,8 @@ export function Bridge() {
   useEffect(() => {
     const all = loadTransfers();
     setHistory(all);
+    // Transfers made before the bridge reported them: send any attested one now (each only once).
+    all.filter((t) => t.state === "done" || t.steps.attest.state === "done").forEach(reportTransfer);
     Promise.all(all.filter((t) => t.state !== "done").map(checkTransfer)).then((updated) => {
       const changed = updated.filter((u): u is Transfer => !!u);
       if (!changed.length) return;

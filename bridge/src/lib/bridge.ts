@@ -176,6 +176,7 @@ async function runCustom(
     t.steps.attest = { state: "done" };
     markLive(t, "mint");
     patch(t, { result: att }, emit);
+    reportTransfer(t);
 
     if (t.gasInUsdc && !t.claimMode) {
       // Circle mints; follow it until the forward transaction shows up (or someone else claims).
@@ -304,6 +305,7 @@ async function runKit(
 
     absorbResult(t, result as never);
     if ((result as { state: string }).state === "success") {
+      reportTransfer(t);
       ORDER.forEach((k) => { if (t.steps[k].state === "live" || t.steps[k].state === "idle") t.steps[k].state = "done"; });
       patch(t, { state: "done", doneAt: Date.now(), result }, emit);
     } else {
@@ -317,6 +319,29 @@ async function runKit(
   } finally {
     unsubscribe();
   }
+}
+
+// Mainnet transfers are reported to Setsuna's stats once Circle has attested them. The stats service
+// takes only the source chain and burn hash and reads everything else from Circle, so nothing here is
+// trusted. Best effort: a failed report never touches the transfer, and each burn is sent once.
+const REPORTED = "setsuna-bridge:v1:reported";
+export function reportTransfer(t: Transfer) {
+  if (t.network !== "mainnet" || !t.steps.burn.tx) return;
+  const sourceDomain = findChain(t.network, t.from).domain;
+  const key = `${sourceDomain}:${t.steps.burn.tx}`;
+  let seen: string[] = [];
+  try { seen = JSON.parse(localStorage.getItem(REPORTED) ?? "[]"); } catch {}
+  if (seen.includes(key)) return;
+  fetch("https://stats.setsuna.finance/api/bridge-report", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ sourceDomain, burnTx: t.steps.burn.tx }),
+    keepalive: true,
+  })
+    .then((r) => {
+      if (r.ok) try { localStorage.setItem(REPORTED, JSON.stringify([key, ...seen].slice(0, 200))); } catch {}
+    })
+    .catch(() => {});
 }
 
 export const emptySteps = (): Transfer["steps"] => ({
