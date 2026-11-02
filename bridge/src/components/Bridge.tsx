@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { usdcBalance } from "@/lib/balance";
 import { type Transfer, checkTransfer, emptySteps, loadTransfers, quoteBps, reportTransfer, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { checkRecipient } from "@/lib/recipient";
 import { type ClaimCost, type ForwardQuote, SEND_GAS, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
 import { type Chain, type Network, ECOSYSTEM_LABEL, chainsFor, findChain } from "@/lib/chains";
 import { short, useWallets } from "@/lib/wallets";
@@ -132,7 +133,9 @@ export function Bridge() {
   const base = useMemo(() => { try { return amount ? parseUnits(amount, 6) : 0n; } catch { return 0n; } }, [amount]);
   const deliveryFee = deliver ? fq?.fee ?? 0n : 0n;
   const fee = (base * BigInt(Math.ceil(feeBps * 100))) / 1_000_000n + deliveryFee;
-  const dest = recipient || dstWallet?.address || "";
+  // A typed recipient is used only once it is a valid address for the destination chain.
+  const recipientCheck = recipient ? checkRecipient(to, recipient) : null;
+  const dest = recipientCheck ? (recipientCheck.ok ? recipientCheck.address : "") : dstWallet?.address || "";
   // Claiming yourself needs gas on the destination; flag it before anything is burned.
   const shortGas = !deliver && !!cost && dstGas !== null && dstGas < cost.native;
   // Sending needs gas on the source chain too; without it some wallets take the gas from the USDC.
@@ -142,6 +145,7 @@ export function Bridge() {
   const needs: string | null =
     !from.bridgeable || !to.bridgeable ? `${!from.bridgeable ? from.name : to.name} routes are coming soon`
     : !srcWallet ? `Connect ${an(from.ecosystem)} ${ECOSYSTEM_LABEL[from.ecosystem]} wallet`
+    : recipientCheck && !recipientCheck.ok ? `Fix the ${to.name} recipient address`
     : deliver && !dest ? `Add a recipient on ${to.name}`
     : !deliver && !dstWallet ? `Connect ${an(to.ecosystem)} ${ECOSYSTEM_LABEL[to.ecosystem]} wallet to mint`
     : base === 0n ? "Enter an amount"
@@ -170,6 +174,10 @@ export function Bridge() {
     await runTransfer(t, { chain: f, wallet: fw }, { chain: d, wallet: dw ?? undefined }, (x) => { setActive(x); setHistory(loadTransfers()); });
     refreshBalance();
   };
+
+  // An address typed for one chain is never carried over to another.
+  const toEcosystem = to.ecosystem;
+  useEffect(() => setRecipient(""), [toEcosystem]);
 
   const flip = () => { setFromF(toF); setToF(fromF); };
   const pick = (side: "from" | "to") => (c: Chain) => {
@@ -295,7 +303,10 @@ export function Bridge() {
 
                   <details className="recip">
                     <summary>Send to another address</summary>
-                    <input placeholder={dstWallet?.address ?? `${ECOSYSTEM_LABEL[to.ecosystem]} address`} value={recipient} onChange={(e) => setRecipient(e.target.value.trim())} />
+                    <input placeholder={dstWallet?.address ?? `${ECOSYSTEM_LABEL[to.ecosystem]} address`} value={recipient} onChange={(e) => setRecipient(e.target.value.trim())}
+                      aria-invalid={!!recipientCheck && !recipientCheck.ok} />
+                    {recipientCheck && !recipientCheck.ok && <p className="warn-line" role="alert">{recipientCheck.error}</p>}
+                    {recipientCheck?.ok && <p className="recip-ok">USDC will arrive at {recipientCheck.address} on {to.name}. Check it: a transfer to a wrong address can&apos;t be undone.</p>}
                   </details>
 
                   <div className="lines">
