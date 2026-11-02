@@ -275,9 +275,12 @@
   function fitNumbers() {
     for (const n of document.querySelectorAll(".st-num")) {
       n.style.fontSize = "";
-      const room = n.parentElement.clientWidth;
+      // Measure against the card: the number's own row stretches to fit it, so it never looks too wide.
+      const card = n.closest(".st-card") ?? n.parentElement;
+      const pad = getComputedStyle(card);
+      const room = card.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight);
       let size = parseFloat(getComputedStyle(n).fontSize);
-      while (n.scrollWidth > room && size > 24) n.style.fontSize = `${(size -= 2)}px`;
+      while (n.getBoundingClientRect().width > room && size > 24) n.style.fontSize = `${(size -= 2)}px`;
     }
   }
 
