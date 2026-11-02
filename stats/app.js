@@ -156,6 +156,7 @@
     );
     users(report.accounts);
     bridge(report.bridge);
+    requestAnimationFrame(fitNumbers);
     cards(report.scorecard);
     legend("legend-wallets");
     legend("legend-volume");
@@ -266,6 +267,16 @@
       (r) => (r.delivered ? "USDC" : "Own"),
       sender,
     ]);
+  }
+
+  // Big pixel numbers shrink to fit their card, so a long figure like $1,047.47 never runs into the next card.
+  function fitNumbers() {
+    for (const n of document.querySelectorAll(".st-num")) {
+      n.style.fontSize = "";
+      const room = n.parentElement.clientWidth;
+      let size = parseFloat(getComputedStyle(n).fontSize);
+      while (n.scrollWidth > room && size > 24) n.style.fontSize = `${(size -= 2)}px`;
+    }
   }
 
   function status() {
