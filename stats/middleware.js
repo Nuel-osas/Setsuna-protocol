@@ -1,8 +1,9 @@
-// Everything except the sign-in page, its handler and the font needs a valid session cookie.
+// Everything except the sign-in page, its handler, the font and the bridge's report endpoint needs a
+// valid session cookie. The report endpoint is public by design and verifies each report with Circle.
 import { next } from "@vercel/functions";
 import { COOKIE, readCookie, same, sessionToken } from "./lib/session.js";
 
-export const config = { matcher: ["/((?!login|api/login|fonts/).*)"] };
+export const config = { matcher: ["/((?!login|api/login|api/bridge-report|fonts/).*)"] };
 
 export default async function middleware(request) {
   const password = process.env.STATS_PASSWORD;
