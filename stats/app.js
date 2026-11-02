@@ -232,7 +232,8 @@
     $("bridge").hidden = !b;
     if (!b) return;
     const t = b.totals;
-    const users = (k) => (t.organic[k] ?? 0) + (t.incentivized[k] ?? 0);
+    const all = (k) => GROUPS.reduce((sum, g) => sum + (t[g][k] ?? 0), 0);
+    const split = (k, unit) => GROUPS.map((g) => `${NAMES[g]} ${unit === "USDC" ? "$" : ""}${fmt(t[g][k], unit)}`).join(" · ");
     const card = (label, value, def) => {
       const c = el("article", "st-card");
       const top = el("div", "st-card-top");
@@ -243,10 +244,10 @@
       return c;
     };
     $("bridge-cards").replaceChildren(
-      card("Bridge volume", `$${fmt(users("volumeUSDC"), "USDC")}`, `Bridged by users, team excluded. Team tests: $${fmt(t.team.volumeUSDC, "USDC")}.`),
-      card("Transfers", fmt(users("transfers")), `${fmt(t.team.transfers)} more by the team.`),
-      card("Bridge users", fmt(users("wallets")), "Sending wallets, team excluded."),
-      card("Gas paid in USDC", fmt(users("delivered")), "User transfers Circle delivered, with the gas taken from the USDC."),
+      card("Bridge volume", `$${fmt(all("volumeUSDC"), "USDC")}`, `All transfers, team included. ${split("volumeUSDC", "USDC")}.`),
+      card("Transfers", fmt(all("transfers")), `${split("transfers")}.`),
+      card("Wallets", fmt(all("wallets")), `Sending wallets. ${split("wallets")}.`),
+      card("Gas paid in USDC", fmt(all("delivered")), `Transfers Circle delivered, gas taken from the USDC. ${split("delivered")}.`),
     );
     $("bridge-note").textContent = b.since
       ? `Recorded since ${d3.utcFormat("%b %-d")(new Date(b.since))}. Transfers before tracking began are included only where they could be traced to known wallets.`
