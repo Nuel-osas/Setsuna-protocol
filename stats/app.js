@@ -199,8 +199,8 @@
     const volCard = () =>
       card(
         "Earn volume",
-        vol && vol.organic !== null ? `$${fmt((vol.organic ?? 0) + (vol.incentivized ?? 0), "USDC")}` : "—",
-        vol ? `Deposits plus withdrawals across setsUSDC, setsMON and setsAUSD. Organic $${fmt(vol.organic, "USDC")} · rewarded $${fmt(vol.incentivized, "USDC")}.` : "Not available.",
+        vol && vol.organic !== null ? `$${fmt((vol.organic ?? 0) + (vol.incentivized ?? 0) + (vol.team ?? 0), "USDC")}` : "—",
+        vol ? `Deposits plus withdrawals across setsUSDC, setsMON and setsAUSD, team included. Organic $${fmt(vol.organic, "USDC")} · rewarded $${fmt(vol.incentivized, "USDC")} · team $${fmt(vol.team, "USDC")}.` : "Not available.",
       );
     if (!a || !a.available) {
       const onchain = report => report.wallets.filter((w) => w.group !== "team").length;
