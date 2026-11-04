@@ -28,6 +28,21 @@ export const json = (value) =>
     typeof item === "bigint" ? item.toString() : item,
   );
 
+/**
+ * What went wrong, safe to log: the error type, a contract revert name if any, and the first line of
+ * the message with every URL removed (RPC errors can carry endpoint credentials).
+ */
+export function describeError(error) {
+  const out = { error: error?.name ?? "Error" };
+  const reverted = error?.walk?.((c) => c?.name === "ContractFunctionRevertedError");
+  if (reverted?.data?.errorName) out.revert = reverted.data.errorName;
+  else if (reverted?.reason) out.revert = reverted.reason;
+  const text = String(error?.shortMessage ?? error?.message ?? "").split("\n")[0];
+  if (text) out.reason = text.replace(/https?:\/\/\S+/g, "<rpc>").slice(0, 200);
+  if (error?.details) out.details = String(error.details).split("\n")[0].replace(/https?:\/\/\S+/g, "<rpc>").slice(0, 200);
+  return out;
+}
+
 export class ReconciliationRequired extends Error {
   constructor(hash) {
     super(
@@ -472,13 +487,42 @@ export async function reconcilePending({
   try {
     receipt = await client.getTransactionReceipt({ hash: pending.hash });
   } catch {
-    throw new ReconciliationRequired(pending.hash);
+    return recoverPending({ client, pending, persist });
   }
   const report = receiptReport(receipt, pending, abi);
   if (report.action === "unconfirmed-event")
     throw new ReconciliationRequired(pending.hash);
   await persist({ pending: null, lastReceipt: report });
   return report;
+}
+
+// How long an unmined, unrebroadcastable signed transaction is kept before its nonce is reused.
+export const ABANDON_AFTER_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * No receipt for the pending hash. Instead of halting forever, settle it from the signer's nonce:
+ * - the nonce was used: something else with that nonce was mined, so this hash never will be. Clear it.
+ * - the nonce is free: send the same signed bytes again (same nonce, same hash; never a new
+ *   transaction) and check again next run. After ABANDON_AFTER_MS, or without the bytes, clear it;
+ *   the next action re-signs that nonce, so at most one of the two can ever be mined.
+ */
+async function recoverPending({ client, pending, persist }) {
+  const confirmed = await client.getTransactionCount({ address: pending.signer, blockTag: "latest" });
+  if (confirmed > pending.nonce) {
+    await persist({ pending: null, lastReceipt: { action: "replaced", hash: pending.hash, nonce: pending.nonce } });
+    return { action: "replaced", hash: pending.hash };
+  }
+  const age = Date.now() - (pending.createdAt ?? 0);
+  if (!pending.raw || age > ABANDON_AFTER_MS) {
+    await persist({ pending: null, lastReceipt: { action: "abandoned", hash: pending.hash, nonce: pending.nonce } });
+    return { action: "abandoned", hash: pending.hash };
+  }
+  try {
+    await client.sendRawTransaction({ serializedTransaction: pending.raw });
+  } catch {
+    // Already known to the node, or rejected for now; either way the same hash is checked next run.
+  }
+  return { action: "rebroadcast", hash: pending.hash };
 }
 
 /** Caller holds a signer lock. Sign locally, persist the hash, then broadcast. */
@@ -552,6 +596,9 @@ export async function executeAction({
     chainId,
     vault: address,
     action,
+    // The signed bytes, so a lost broadcast can be sent again unchanged (same nonce, same hash).
+    raw,
+    createdAt: Date.now(),
   };
   // A crash after this durable write stops subsequent runs even if broadcast
   // failed or the RPC accepted the transaction but lost its response.
