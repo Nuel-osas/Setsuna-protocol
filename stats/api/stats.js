@@ -10,6 +10,7 @@ import { computeUsage, monPriceUSD } from "../lib/score.js";
 import { accountsReport, fetchPrivyUsers } from "../lib/accounts.js";
 import { db, kvGet, kvSet, ready } from "../lib/db.js";
 import { summarize } from "../lib/bridge.js";
+import { keeperHealth, vaultUpkeep } from "../lib/ops.js";
 
 export const config = { maxDuration: 60 };
 
@@ -37,6 +38,7 @@ async function build() {
   const report = await computeUsage({ client, cache, team: teamEvm, incentivized, monPrice: await monPriceUSD() });
   report.accounts = await accounts(report.wallets, teamEvm);
   report.bridge = sql ? summarize(await sql`select * from bridge_transfers`, teamAll, incentivized) : null;
+  report.vaults = await vaultUpkeep(client);
   if (sql) await Promise.all([kvSet(sql, "scan-cache", cache), kvSet(sql, "report", report)]);
   return report;
 }
@@ -52,8 +54,10 @@ function refresh() {
   return memo.pending;
 }
 
-const reply = (report, stale) =>
-  Response.json(stale ? { ...report, stale: true } : report, { headers: { "Cache-Control": "private, no-store" } });
+// Keeper health is read on every request (it's one small call), so a stall shows up at once even
+// when the rest of the report comes from the saved copy.
+const reply = async (report, stale) =>
+  Response.json({ ...report, ...(stale ? { stale: true } : {}), keepers: await keeperHealth() }, { headers: { "Cache-Control": "private, no-store" } });
 
 // Sign-ups from Privy, matched to on-chain wallets. Optional: without the secret the page says so.
 async function accounts(walletRows, team) {
