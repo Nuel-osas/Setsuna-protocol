@@ -9,7 +9,7 @@ let schema;
 export function db() {
   const url = process.env.STATS_DATABASE_URL;
   if (!url) return null;
-  client ??= postgres(url, { ssl: "require", max: 2, idle_timeout: 20, connect_timeout: 10 });
+  client ??= postgres(url, { ssl: "require", max: 2, idle_timeout: 20, connect_timeout: 10, onnotice: () => {} });
   return client;
 }
 
