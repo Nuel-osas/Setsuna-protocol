@@ -2,11 +2,12 @@ import { mkdir, open, readFile, rename, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { createWalletClient, http, isAddress, parseGwei } from "viem";
+import { createWalletClient, isAddress, parseGwei } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { keeperNetwork } from "./earn-keeper-network.mjs";
+import { keeperNetwork, keeperTransport } from "./earn-keeper-network.mjs";
 import {
   assetPolicy,
+  describeError,
   executeAction,
   inspectVault,
   json,
@@ -118,7 +119,7 @@ async function main() {
   const wallet = createWalletClient({
     chain,
     account: privateKeyToAccount(process.env.EARN_KEEPER_PRIVATE_KEY),
-    transport: http(rpc, { timeout: 15_000, retryCount: 0 }),
+    transport: keeperTransport(rpc),
   });
   const directory = resolve(
     values["state-dir"] ??
@@ -203,11 +204,11 @@ async function main() {
 }
 
 main().catch((error) => {
-  // Do not echo exception messages: RPC errors may contain endpoint credentials.
+  // The revert name and a short reason, with any URL removed: RPC errors may carry endpoint credentials.
   console.error(
     json({
       action: "stopped",
-      error: error?.name ?? "Error",
+      ...describeError(error),
       ...(error instanceof ReconciliationRequired
         ? { hash: error.hash, reconciliationRequired: true }
         : {}),

@@ -18,6 +18,8 @@ import {
   MONAD_USDC,
   reconcilePending,
   ReconciliationRequired,
+  ABANDON_AFTER_MS,
+  describeError,
   unsafeVenue,
   worthGas,
 } from "./earn-keeper-core.mjs";
@@ -214,28 +216,69 @@ test("disk failure prevents broadcasting signed work", async () => {
   assert.equal(f.order.includes("broadcast"), false);
 });
 
-test("uncertain broadcast retains pending hash and prevents restart resubmission", async () => {
+test("uncertain broadcast: a restart resends the same signed bytes, never a new transaction", async () => {
   const f = fixture();
   f.client.sendRawTransaction = async () => {
     throw new Error("response lost");
   };
   await assert.rejects(execute(f), ReconciliationRequired);
   const state = f.getState();
-  assert.ok(state.pending.hash);
+  assert.ok(state.pending.hash && state.pending.raw);
   f.client.getTransactionReceipt = async () => {
     throw new Error("not found");
   };
-  await assert.rejects(
-    reconcilePending({
-      ...f,
-      state,
-      abi,
-      chainId: 143,
-      signer: account.address,
-    }),
-    ReconciliationRequired,
-  );
-  assert.equal(f.getState(), state);
+  const resent = [];
+  f.client.sendRawTransaction = async ({ serializedTransaction }) => {
+    resent.push(serializedTransaction);
+    return keccak256(serializedTransaction);
+  };
+  const report = await reconcilePending({ ...f, state, abi, chainId: 143, signer: account.address });
+  assert.equal(report.action, "rebroadcast");
+  assert.deepEqual(resent, [state.pending.raw]);
+  assert.equal(keccak256(resent[0]), state.pending.hash);
+  assert.equal(f.order.filter((x) => x === "sign").length, 1);
+  assert.equal(f.getState(), state, "pending stays until a receipt or the nonce settles it");
+});
+
+test("a used nonce with no receipt for our hash clears the pending transaction", async () => {
+  const f = fixture();
+  f.client.sendRawTransaction = async () => {
+    throw new Error("response lost");
+  };
+  await assert.rejects(execute(f), ReconciliationRequired);
+  f.client.getTransactionReceipt = async () => {
+    throw new Error("not found");
+  };
+  f.client.getTransactionCount = async () => 8; // nonce 7 is used
+  const report = await reconcilePending({ ...f, state: f.getState(), abi, chainId: 143, signer: account.address });
+  assert.equal(report.action, "replaced");
+  assert.equal(f.getState().pending, null);
+});
+
+test("an old unmined transaction, or one without its bytes, is abandoned and its nonce freed", async () => {
+  const f = fixture();
+  f.client.getTransactionReceipt = async () => {
+    throw new Error("not found");
+  };
+  const stale = { hash: `0x${"ab".repeat(32)}`, nonce: 7, signer: account.address, chainId: 143, vault: address, action: "observeRates", raw: "0x01", createdAt: Date.now() - ABANDON_AFTER_MS - 1 };
+  assert.equal((await reconcilePending({ ...f, state: { pending: stale }, abi, chainId: 143, signer: account.address })).action, "abandoned");
+  assert.equal(f.getState().pending, null);
+  const legacy = { ...stale, raw: undefined, createdAt: undefined };
+  assert.equal((await reconcilePending({ ...f, state: { pending: legacy }, abi, chainId: 143, signer: account.address })).action, "abandoned");
+});
+
+test("logged errors keep the revert name and drop RPC URLs", () => {
+  const err = Object.assign(new Error("HTTP request failed.\nURL: https://rpc.example/key-123\nmore"), {
+    name: "HttpRequestError",
+    shortMessage: "HTTP request failed. URL: https://rpc.example/key-123",
+    walk: () => null,
+  });
+  const d = describeError(err);
+  assert.equal(d.error, "HttpRequestError");
+  assert.ok(!JSON.stringify(d).includes("key-123"));
+  assert.ok(d.reason.includes("<rpc>"));
+  const reverted = { name: "ContractFunctionExecutionError", shortMessage: "reverted", walk: (fn) => [{ name: "ContractFunctionRevertedError", data: { errorName: "RatesNotReady" } }].find(fn) };
+  assert.equal(describeError(reverted).revert, "RatesNotReady");
 });
 
 test("a restart reconciles a mined transaction without broadcasting again", async () => {
