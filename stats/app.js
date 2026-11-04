@@ -154,6 +154,7 @@
       el("span", null, `${s.team_wallets} team wallets excluded`),
       el("span", null, `${s.incentivized_wallets} rewarded wallets listed`),
     );
+    ops(report.keepers, report.vaults);
     users(report.accounts);
     bridge(report.bridge);
     requestAnimationFrame(fitNumbers);
@@ -228,6 +229,53 @@
       (r) => fmt(r.privy_signups),
       (r) => fmt(r.passkey_or_wallet_users),
     ]);
+  }
+
+  // Keepers: whether each one is running, recently successful and funded, next to its vault's upkeep.
+  // Anything that needs attention also shows as a red banner at the top of the page.
+  function ops(k, vaults) {
+    const ago = (iso) => {
+      if (!iso) return "never";
+      const s = Math.max(0, (Date.now() - Date.parse(iso)) / 1000);
+      return s < 90 ? `${Math.round(s)} s ago` : s < 5400 ? `${Math.round(s / 60)} min ago` : s < 172800 ? `${Math.round(s / 3600)} h ago` : `${Math.round(s / 86400)} days ago`;
+    };
+    const problems = [];
+    if (!k || !k.reachable) problems.push("The keeper service isn't answering its health check.");
+    const pairs = [["MON", "setsMON"], ["USDC", "setsUSDC"]];
+    const cards = pairs.map(([name, vaultName]) => {
+      const kp = k?.keepers?.find((x) => x.name === name);
+      const v = (vaults ?? []).find((x) => x.name === vaultName);
+      let chip = ["is-met", "Healthy"];
+      if (!kp) chip = ["is-bad", "No report"];
+      else if (!kp.running) chip = ["is-bad", "Stopped"];
+      else if (!kp.healthy) chip = ["is-bad", kp.gasMON !== null && kp.gasMON < 1 ? "Out of gas" : "Stalled"];
+      else if (kp.lowGas) chip = ["is-moving", "Low gas"];
+      else if ((kp.failuresInARow ?? 0) >= 5) chip = ["is-moving", "Failing"];
+      if (chip[0] !== "is-met" && k?.reachable) problems.push(`${vaultName} keeper: ${chip[1].toLowerCase()}${kp?.gasMON != null ? ` (${kp.gasMON.toFixed(2)} MON gas)` : ""}.`);
+      const card = el("article", "st-card");
+      const top = el("div", "st-card-top");
+      top.append(el("span", "st-label", `${vaultName} keeper`), el("span", `st-chip ${chip[0]}`, chip[1]));
+      const line = (label, value) => {
+        const d = el("div", "st-ops-line");
+        d.append(el("span", null, label), el("span", null, value));
+        return d;
+      };
+      card.append(
+        top,
+        line("Last successful run", kp?.lastOkSecondsAgo != null ? ago(new Date(Date.now() - kp.lastOkSecondsAgo * 1000).toISOString()) : "—"),
+        line("Failures in a row", kp?.failuresInARow != null ? fmt(kp.failuresInARow) : "—"),
+        line("Gas", kp?.gasMON != null ? `${kp.gasMON.toFixed(2)} MON` : "—"),
+        line("Vault size", v && !v.unavailable ? `${fmt(v.size, "USDC")} ${v.unit}` : "—"),
+        line("In cash", v?.cashPct != null ? `${fmt(v.cashPct)}%` : "—"),
+        line("Last rebalance", v && !v.unavailable ? ago(v.lastRebalanceAt) : "—"),
+        line("Rates last recorded", v && !v.unavailable ? ago(v.ratesReadAt) : "—"),
+      );
+      return card;
+    });
+    $("ops-cards").replaceChildren(...cards);
+    const banner = $("ops-alert");
+    banner.hidden = !problems.length;
+    banner.textContent = problems.length ? `Keeper attention needed. ${problems.join(" ")}` : "";
   }
 
   // Setsuna Bridge: transfers reported by bridge.setsuna.finance and checked against Circle's record.
