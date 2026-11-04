@@ -103,24 +103,30 @@ async function main() {
     );
   }
 
-  // Alerts go to ALERT_WEBHOOK_URL (Discord or Slack incoming webhook) when set, and always to the
-  // log as an ALERT line. Each condition alerts at most hourly, and once more when it clears.
+  // Alerts go to Telegram (TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID) and/or ALERT_WEBHOOK_URL (Discord
+  // or Slack) when set, and always to the log as an ALERT line. Each condition alerts at most hourly,
+  // and once more when it clears. The bot token is never logged.
+  async function notify(message) {
+    const sends = [];
+    const url = process.env.ALERT_WEBHOOK_URL;
+    if (url)
+      sends.push(fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ content: message, text: message }), signal: AbortSignal.timeout(10_000) }));
+    const bot = process.env.TELEGRAM_BOT_TOKEN;
+    const chat = process.env.TELEGRAM_CHAT_ID;
+    if (bot && chat)
+      sends.push(fetch(`https://api.telegram.org/bot${bot}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chat, text: message, disable_web_page_preview: true }), signal: AbortSignal.timeout(10_000) }));
+    const results = await Promise.allSettled(sends);
+    if (results.some((r) => r.status === "rejected" || !r.value.ok)) console.error("ALERT delivery failed for at least one destination");
+  }
   const raised = new Map();
   async function alert(key, active, text) {
     const last = raised.get(key);
     if (active && (!last || Date.now() - last >= ALERT_EVERY_MS)) raised.set(key, Date.now());
     else if (!active && last) raised.delete(key);
     else return;
-    const message = active ? `Setsuna keepers: ${text}` : `Setsuna keepers: resolved, ${text}`;
+    const message = active ? `⚠️ Setsuna keepers: ${text}` : `✅ Setsuna keepers: resolved, ${text}`;
     console.error(`ALERT ${message}`);
-    const url = process.env.ALERT_WEBHOOK_URL;
-    if (url)
-      await fetch(url, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ content: message, text: message }),
-        signal: AbortSignal.timeout(10_000),
-      }).catch(() => {});
+    await notify(message);
   }
   const watch = setInterval(async () => {
     for (const s of await status().catch(() => [])) {
@@ -178,6 +184,9 @@ async function main() {
     child.once("exit", (code) => restart(`exit ${code}`));
   }
   for (const def of definitions) run(def);
+  // One message per start, so a new alert destination can be confirmed working.
+  if (process.env.TELEGRAM_BOT_TOKEN || process.env.ALERT_WEBHOOK_URL)
+    await notify("Setsuna keepers started. Alerts are on: you'll hear here if a keeper stalls or runs low on gas.");
 }
 main().catch(() => {
   console.error(
