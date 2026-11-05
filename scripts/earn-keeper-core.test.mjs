@@ -20,6 +20,7 @@ import {
   ReconciliationRequired,
   ABANDON_AFTER_MS,
   describeError,
+  DUST_CYCLES,
   spendCosts,
   unsafeVenue,
   worthGas,
@@ -412,7 +413,7 @@ test("a real buffer shortfall or unsafe venue always repairs", () => {
       idle: 2_000_000n,
       unsafe: false,
       policy,
-      cycleCost: 10n ** 9n,
+      cycleCost: 1_000_000n,
     }).reason,
     "material-repair",
   );
@@ -422,10 +423,21 @@ test("a real buffer shortfall or unsafe venue always repairs", () => {
       idle: 10_000_000n,
       unsafe: true,
       policy,
-      cycleCost: 10n ** 9n,
+      cycleCost: 1_000_000n,
     }).reason,
     "material-repair",
   );
+});
+
+test("a dust vault spends nothing, not even on a safety repair", () => {
+  // setsUSDC on 4 Nov 2026: 0.113 USDC in the vault, a full cycle about 0.0084 USDC of gas.
+  const dust = { ...gated({ repairsLimits: true, annualIncomeAfter: 3_000_000n }), nav: 113_000n };
+  const decision = worthGas({ plan: dust, idle: 0n, unsafe: true, policy, cycleCost: 8_400n });
+  assert.equal(decision.worth, false);
+  assert.equal(decision.reason, "vault-too-small");
+  // Twenty cycles of gas is the line: a vault worth more than that is acted on again.
+  const enough = { ...dust, nav: 8_400n * DUST_CYCLES };
+  assert.equal(worthGas({ plan: enough, idle: 0n, unsafe: true, policy, cycleCost: 8_400n }).reason, "material-repair");
 });
 
 test("gas costs come from the measured calls, not the gas ceiling", () => {
