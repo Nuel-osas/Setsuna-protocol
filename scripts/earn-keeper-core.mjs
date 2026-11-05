@@ -79,15 +79,22 @@ export function chooseAction({
 const BPS = 10_000n;
 const YEAR_DAYS = 365n;
 
+// A vault worth less than this many gas cycles is dust: no action on it can be worth its gas,
+// a safety repair included (the most it could protect is the vault itself).
+export const DUST_CYCLES = 20n;
+
 /**
  * Off-chain spend gate. The contract decides what a rebalance does; this
- * decides whether it is worth gas. Repairs that fix a real limit always pass.
- * A repair caused only by the idle buffer drifting below 10% by accrued
- * interest is dust and must pay for itself like any other move.
+ * decides whether it is worth gas. Nothing is spent on a dust vault. Otherwise
+ * repairs that fix a real limit always pass. A repair caused only by the idle
+ * buffer drifting below 10% by accrued interest is dust and must pay for itself
+ * like any other move.
  */
 export function worthGas({ plan, idle, unsafe, policy, cycleCost }) {
   if (!plan || plan.grossMovement === 0n)
     return { worth: false, reason: "no-movement" };
+  if (cycleCost !== undefined && plan.nav < cycleCost * DUST_CYCLES)
+    return { worth: false, reason: "vault-too-small", nav: plan.nav, cycleCost };
   const tolerance = (plan.nav * policy.repairToleranceBps) / BPS;
   const minIdle = (plan.nav * policy.bufferBps + BPS - 1n) / BPS;
   if (plan.repairsLimits && (unsafe || minIdle > idle + tolerance))
@@ -307,10 +314,20 @@ async function gasContext({ client, address, abi, gate, block, asset }) {
       marketCashCapBps,
     },
     policy: { ...gate, bufferBps },
-    rebalanceCost: toAsset(gasPrice * gate.maxGas),
+    rebalanceCost: toAsset(spendCosts(gasPrice, gate).rebalance),
     // Two observations, then the rebalance itself.
-    cycleCost: toAsset(gasPrice * gate.maxGas * 3n),
+    cycleCost: toAsset(spendCosts(gasPrice, gate).cycle),
   };
+}
+
+/**
+ * Gas, in wei, for a rebalance alone and for a full cycle (two observations, then the rebalance),
+ * from the measured gas of each call. Monad charges the whole gas limit, so these are the real costs.
+ */
+export function spendCosts(gasPrice, gate) {
+  const observe = gate.observeGas ?? gate.maxGas;
+  const rebalance = gate.rebalanceGas ?? gate.maxGas;
+  return { rebalance: gasPrice * rebalance, cycle: gasPrice * (2n * observe + rebalance) };
 }
 
 export function gateDecision({ plan, context }) {
