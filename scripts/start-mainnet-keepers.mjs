@@ -47,14 +47,16 @@ async function main() {
       name: "MON",
       signer: signers[0].address,
       state: `${dir}/mon`,
-      args: ["--asset", "MON", "--vault", d.earnMON.vault, "--max-gas", "2000000", "--state-dir", `${dir}/mon`],
+      // Measured on mainnet receipts: setsMON observe ~0.57M, rebalance ~1.55M; setsUSDC observe
+      // 1.21-1.24M, rebalance 1.89-2.14M. A little headroom on each, still well under max-gas.
+      args: ["--asset", "MON", "--vault", d.earnMON.vault, "--max-gas", "2000000", "--observe-gas", "650000", "--rebalance-gas", "1750000", "--state-dir", `${dir}/mon`],
       key: keyMON,
     },
     {
       name: "USDC",
       signer: signers[1].address,
       state: `${dir}/usdc`,
-      args: ["--asset", "USDC", "--multi", "--vault", d.earnUSDC.vault, "--max-gas", "3500000", "--state-dir", `${dir}/usdc`],
+      args: ["--asset", "USDC", "--multi", "--vault", d.earnUSDC.vault, "--max-gas", "3500000", "--observe-gas", "1300000", "--rebalance-gas", "2300000", "--state-dir", `${dir}/usdc`],
       key: keyUSDC,
     },
   ];

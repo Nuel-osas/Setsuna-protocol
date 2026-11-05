@@ -307,10 +307,20 @@ async function gasContext({ client, address, abi, gate, block, asset }) {
       marketCashCapBps,
     },
     policy: { ...gate, bufferBps },
-    rebalanceCost: toAsset(gasPrice * gate.maxGas),
+    rebalanceCost: toAsset(spendCosts(gasPrice, gate).rebalance),
     // Two observations, then the rebalance itself.
-    cycleCost: toAsset(gasPrice * gate.maxGas * 3n),
+    cycleCost: toAsset(spendCosts(gasPrice, gate).cycle),
   };
+}
+
+/**
+ * Gas, in wei, for a rebalance alone and for a full cycle (two observations, then the rebalance),
+ * from the measured gas of each call. Monad charges the whole gas limit, so these are the real costs.
+ */
+export function spendCosts(gasPrice, gate) {
+  const observe = gate.observeGas ?? gate.maxGas;
+  const rebalance = gate.rebalanceGas ?? gate.maxGas;
+  return { rebalance: gasPrice * rebalance, cycle: gasPrice * (2n * observe + rebalance) };
 }
 
 export function gateDecision({ plan, context }) {

@@ -20,6 +20,7 @@ import {
   ReconciliationRequired,
   ABANDON_AFTER_MS,
   describeError,
+  spendCosts,
   unsafeVenue,
   worthGas,
 } from "./earn-keeper-core.mjs";
@@ -425,6 +426,16 @@ test("a real buffer shortfall or unsafe venue always repairs", () => {
     }).reason,
     "material-repair",
   );
+});
+
+test("gas costs come from the measured calls, not the gas ceiling", () => {
+  const gate = { maxGas: 3_500_000n, observeGas: 1_300_000n, rebalanceGas: 2_300_000n };
+  const price = 102_000_000_000n; // 102 gwei
+  const { rebalance, cycle } = spendCosts(price, gate);
+  assert.equal(rebalance, price * 2_300_000n);
+  assert.equal(cycle, price * 4_900_000n); // 2 x 1.3M + 2.3M, not 3 x 3.5M
+  // Without measurements it falls back to the ceiling, as before.
+  assert.equal(spendCosts(price, { maxGas: 3_500_000n }).cycle, price * 10_500_000n);
 });
 
 test("a move runs only when a week of gain covers twice its gas", () => {
