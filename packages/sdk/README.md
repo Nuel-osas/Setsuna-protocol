@@ -1,8 +1,8 @@
 # @setsunaprotocol/sdk
 
-Read Setsuna's rule-bound Earn vaults on Monad, and prepare deposits and withdrawals for a wallet to sign.
+Read Setsuna's rule-bound Earn vaults on Monad, prepare deposits and withdrawals for a wallet to sign, and bridge USDC or AUSD out of Monad with the gas sponsored.
 
-The SDK never holds a key and never sends a transaction. Reads come straight from the contracts on Monad mainnet. Prepared transactions are plain `{ to, data, value }` objects that your user's wallet signs.
+The SDK never holds a key and never sends a transaction itself (sponsored calls go to Setsuna's relayer, which can only carry out what the user signed). Reads come straight from the contracts on Monad mainnet. Prepared transactions are plain `{ to, data, value }` objects that your user's wallet signs.
 
 ```sh
 npm install @setsunaprotocol/sdk viem
@@ -98,6 +98,45 @@ Sponsored saves start at 1 AUSD; each wallet gets 5 sponsored moves a day, withi
 
 setsAUSD: [`0x551903E3687820A733FBe406DD33Fee8D12bd2F3`](https://monadscan.com/address/0x551903E3687820A733FBe406DD33Fee8D12bd2F3), verified on Sourcify.
 
+## Bridge out of Monad, gas sponsored
+
+Send USDC, or AUSD, from Monad to any chain Circle's CCTP V2 reaches. The user signs once, and nothing else.
+
+- **Monad gas:** Setsuna's relayer pays the MON.
+- **AUSD:** swapped to USDC first, on the Curve pool setsAUSD uses. The swap never fills below 99.8% of one-for-one.
+- **Destination gas:** on chains marked `gasInUSDC`, Circle delivers the USDC and takes its gas fee from it, so the recipient needs no gas there either.
+
+```ts
+import { createSetsuna } from "@setsunaprotocol/sdk";
+const setsuna = createSetsuna();
+
+// 1. A chain picker: name, CCTP domain, logo URL, and whether gas is paid in USDC on arrival.
+const chains = setsuna.bridge.chains();
+
+// 2. What happens: the swap (AUSD), Circle's fee, what arrives. Show `problems` if !ok.
+const quote = await setsuna.bridge.quote({ token: "AUSD", amount: "25", destinationDomain: 6 }); // Base
+
+// 3. One signature (EIP-3009 typed data on the token; no approval, no MON).
+const request = setsuna.bridge.buildSponsored({ owner, recipient, quote });
+const signature = await walletClient.signTypedData(request.typedData);
+
+// 4. Setsuna's relayer burns it on Monad and pays the gas.
+const sent = await setsuna.bridge.submitSponsored({ ...request, signature, app: "your-app" });
+
+// 5. Follow it: pending → attested → delivered (with the destination transaction).
+const status = await setsuna.bridge.waitForDelivery(sent.burnTx);
+```
+
+**How the money is protected.** The signature is a `ReceiveWithAuthorization` naming [`SetsunaBridgeSponsor`](https://monadscan.com/address/0xeabF1Aa629a686C9E5862b316F954bF2C0b68DBe). Only that contract can use it. Its nonce is a hash of every bridge detail: destination, recipient, fee ceiling, forwarding and swap minimum. Neither the relayer nor anyone else can change where the money goes; a changed detail makes the signature invalid. Each signature works once and expires after 10 minutes by default. The contract has no owner and holds nothing between transfers.
+
+**Fees.** Circle keeps the whole fee ceiling (`quote.maxFee`), which the quote sets at Circle's delivery fee plus 5%, so `quote.receive` is what arrives. Today that's about $0.06 to Base, Arbitrum or OP, $0.12 to Solana and $1.05 to Ethereum. Setsuna charges nothing.
+
+**Recipients.** EVM chains take an address. Solana takes the wallet address, and the SDK works out its USDC token account, which is where Circle mints. On chains where `gasInUSDC` is false (Sui, Aptos, Cronos, Plasma, X Layer, Injective, Morph, Pharos), the USDC is burned on Monad. The recipient then claims it on that chain with their own gas; `getStatus` returns the `message` and `attestation` for that claim.
+
+**Limits.** At least 1 USDC or AUSD; 10 sponsored bridges per wallet per day, within a daily gas budget. The relayer's `/health` shows whether bridging is on. Pass `app` to label your transfers on [stats.setsuna.finance](https://stats.setsuna.finance).
+
+`setsuna.bridge.balances(owner)` returns the wallet's USDC and AUSD on Monad.
+
 ## The vaults
 
 | Vault | Asset | Markets | Cap |
@@ -115,4 +154,4 @@ Setsuna's contracts are unaudited and the vaults are capped. Deposit only what y
 npm test
 ```
 
-The tests read Monad mainnet and simulate the prepared transactions with `eth_call`. They send nothing.
+The tests read Monad mainnet and simulate the prepared transactions with `eth_call`. They send nothing. `RUN_FORK=1 npm test` also runs a sponsored bridge end to end, from quote to signature to Setsuna's relayer to burn, on a local fork of Monad. It needs `anvil` and `npm install` in `relayer/`.
