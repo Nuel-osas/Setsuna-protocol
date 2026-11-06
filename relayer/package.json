@@ -2,8 +2,15 @@
   "name": "setsuna-relayer",
   "private": true,
   "type": "module",
-  "description": "Sponsors gas for setsAUSD savers: submits their signed saves and withdrawals through SetsunaAUSDSaver.",
-  "engines": { "node": ">=20" },
-  "scripts": { "start": "node server.mjs" },
-  "dependencies": { "viem": "2.56.9" }
+  "description": "Sponsors gas on Monad: setsAUSD saves and withdrawals through SetsunaAUSDSaver, and bridges out of Monad through SetsunaBridgeSponsor.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test:fork": "node test/bridge.fork.mjs"
+  },
+  "dependencies": {
+    "viem": "2.56.9"
+  }
 }
