@@ -298,7 +298,7 @@
       card("Bridge volume", `$${fmt(all("volumeUSDC"), "USDC")}`, `All transfers, team included. ${split("volumeUSDC", "USDC")}.`),
       card("Transfers", fmt(all("transfers")), `${split("transfers")}.`),
       card("Wallets", fmt(all("wallets")), `Sending wallets. ${split("wallets")}.`),
-      card("Gas paid in USDC", fmt(all("delivered")), `Transfers Circle delivered, gas taken from the USDC. ${split("delivered")}.`),
+      card("Gas paid in USDC", fmt(all("delivered")), `Transfers Circle delivered, gas taken from the USDC. ${split("delivered")}. ${fmt(all("sponsored"))} of them had their Monad gas paid by Setsuna.`),
     );
     $("bridge-note").textContent = b.since
       ? `Recorded since ${d3.utcFormat("%b %-d")(new Date(b.since))}. Transfers before tracking began are included only where they could be traced to known wallets.`
@@ -314,7 +314,7 @@
       (r) => `${r.from} → ${r.to}`,
       (r) => fmt(r.usdc, "USDC"),
       (r) => el("span", `st-grp ${r.group}`, NAMES[r.group] || r.group),
-      (r) => (r.delivered ? "USDC" : "Own"),
+      (r) => (r.sponsored ? "Sponsored" : r.delivered ? "USDC" : "Own"),
       sender,
     ]);
   }
