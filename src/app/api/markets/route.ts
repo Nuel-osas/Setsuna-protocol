@@ -30,7 +30,15 @@ export async function GET(request: Request) {
         : interval
           ? await liveCandles(kind, interval as "15m" | "1h" | "4h")
           : await liveSnapshot(kind);
-    return Response.json(data, { headers: { "Cache-Control": "no-store" } });
+    // The same for every visitor: Vercel's edge serves repeat polls from cache instead of running
+    // this function each time (the market server already holds readings this long in memory).
+    return Response.json(data, {
+      headers: {
+        "Cache-Control": interval
+          ? "public, max-age=0, s-maxage=30, stale-while-revalidate=60"
+          : "public, max-age=0, s-maxage=4, stale-while-revalidate=10",
+      },
+    });
   } catch {
     return Response.json(
       { error: "Market data is temporarily unavailable. Reconnecting…" },

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import type { TradingReading } from "./useTradingMarket";
+import { whileVisible } from "@/lib/setsuna/visible-interval";
 
 export type ReferenceMarket = TradingReading & {
   volume24h?: number;
@@ -44,10 +45,10 @@ export function useReferenceMarket(kind: "spot" | "perps", enabled = true) {
       }
     };
     void read();
-    const timer = setInterval(read, 5000);
+    const stop = whileVisible(read, 5000);
     return () => {
       stopped = true;
-      clearInterval(timer);
+      stop();
     };
   }, [kind, enabled]);
   return enabled ? market : undefined;

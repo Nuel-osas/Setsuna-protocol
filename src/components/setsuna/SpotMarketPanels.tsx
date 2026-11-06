@@ -4,6 +4,7 @@ import type { TradingReading } from "./useTradingMarket";
 import { marketNumber, type Level } from "@/lib/setsuna/market-view";
 import type { SpotTrade } from "@/lib/setsuna/live-market";
 import TokenIcon from "./TokenIcon";
+import { whileVisible } from "@/lib/setsuna/visible-interval";
 
 /** Latest Kuru swap price. The order book leaves out AMM liquidity, so with one side
  * empty it has no midpoint, while trades still print through the pool. */
@@ -20,10 +21,10 @@ function useLastTrade() {
         })
         .catch(() => undefined);
     void load();
-    const timer = setInterval(load, 30000);
+    const stop = whileVisible(load, 30000);
     return () => {
       alive = false;
-      clearInterval(timer);
+      stop();
     };
   }, []);
   return price;
@@ -124,11 +125,11 @@ export function SpotBook({
       }
     }
     void read();
-    const timer = window.setInterval(read, 8000);
+    const stop = whileVisible(read, 8000);
     return () => {
       stopped = true;
       controller.abort();
-      clearInterval(timer);
+      stop();
     };
   }, [live, view]);
   const group = (items: Level[], buy: boolean) => {

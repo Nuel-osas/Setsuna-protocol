@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { IChartApi, ISeriesApi, UTCTimestamp } from "lightweight-charts";
 import type { Candle } from "@/lib/setsuna/live-market";
 import { compactNumber, marketNumber } from "@/lib/setsuna/market-view";
+import { whileVisible } from "@/lib/setsuna/visible-interval";
 
 type Interval = "15m" | "1h" | "4h";
 const UP = "#3fb68b",
@@ -138,11 +139,11 @@ export function ProChart({ kind }: { kind: "spot" | "perps" }) {
       }
     };
     void read();
-    const timer = setInterval(read, 30_000);
+    const stop = whileVisible(read, 30_000);
     return () => {
       stopped = true;
       controller.abort();
-      clearInterval(timer);
+      stop();
     };
   }, [kind, interval]);
 

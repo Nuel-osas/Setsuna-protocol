@@ -20,7 +20,8 @@ const toSeed = (s: EarnSummary): SummarySeed => ({
 });
 
 /**
- * The vault figures every page shows, read on the server and cached for 30s,
+ * The vault figures every page shows, read on the server and cached for 5 min (pages
+ * rebuild on the same schedule; the browser's own reads replace them within seconds),
  * so pages open with numbers instead of waiting on the browser's own chain reads.
  * A failed read seeds nothing; the browser then loads as before.
  */
@@ -42,6 +43,6 @@ export function earnSeeds(deployment: Deployment): Promise<EarnSeeds> {
       };
     },
     ["earn-seeds-v1", d.earnUSDC?.vault ?? "", d.earnMON?.vault ?? ""],
-    { revalidate: 30 },
+    { revalidate: 300 },
   )().catch(() => ({ summaries: {} }));
 }
