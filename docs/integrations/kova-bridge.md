@@ -8,6 +8,11 @@ How to let Kova users send AUSD or USDC from Monad to another chain, with no gas
 
 Kova deploys nothing and holds no MON.
 
+**What the user gets.** A user who holds only AUSD on Monad, with no USDC and no MON, can send it to another chain.
+
+- **It arrives as native USDC, not AUSD.** Circle's bridge only moves USDC, so the AUSD is swapped first. Show "you'll receive ~24.94 USDC on Base", using the quote's `receive`.
+- **The recipient can be any address:** the user's own wallet on the other chain, or someone else's. On Solana, give the wallet address; the SDK works out where Circle mints.
+
 ## What happens
 
 ```
