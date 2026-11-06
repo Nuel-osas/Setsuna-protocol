@@ -104,8 +104,10 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-// Pages carry the vaults' figures in their HTML, refreshed at most every 30s.
-export const revalidate = 30;
+// Pages carry the vaults' figures in their HTML as a first paint; the browser replaces them with
+// its own reads within seconds. Rebuilding every page (docs and legal included) every 30s ran a
+// function and a cache write each time a crawler passed, so the HTML now refreshes every 5 min.
+export const revalidate = 300;
 
 export default async function RootLayout({
   children,
