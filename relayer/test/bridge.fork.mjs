@@ -176,6 +176,12 @@ async function main() {
     assert.match(r.body.error, /doesn't deliver/);
   });
 
+  await check("forwarding to a chain Circle quotes but doesn't list (Cronos) is refused", async () => {
+    const r = await post(await signed("USDC", { destinationDomain: 32 }));
+    assert.equal(r.status, 400);
+    assert.match(r.body.error, /doesn't deliver/);
+  });
+
   await check("without forwarding, Sui is accepted (the recipient claims there)", async () => {
     const r = await post(await signed("USDC", { destinationDomain: SUI, forward: false, maxFee: 0n }));
     assert.equal(r.status, 200, JSON.stringify(r.body));

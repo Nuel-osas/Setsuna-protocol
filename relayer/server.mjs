@@ -42,6 +42,11 @@ const MIN_BRIDGE = 1_000_000n; // 1 USDC or AUSD
 const BRIDGES_PER_OWNER_PER_DAY = Number(process.env.BRIDGES_PER_OWNER_PER_DAY ?? 10);
 const BRIDGE_DAILY_BUDGET_WEI = BigInt(process.env.BRIDGE_DAILY_BUDGET_WEI ?? 3n * 10n ** 18n); // 3 MON, ~50 bridges
 const STATS_REPORT_URL = process.env.STATS_REPORT_URL ?? "https://stats.setsuna.finance/api/bridge-report";
+// Where Circle delivers for the user: listed for forwarding in Circle's CCTP V2 chain list AND quoted
+// from Monad by its fee API (6 Nov 2026), the SDK's `gasInUSDC` chains. Cronos, Plasma and X Layer get a
+// quote but aren't listed, so forwarding there stays off until proven: a burn Circle never delivers
+// would leave the USDC waiting for a manual claim.
+const FORWARD_DOMAINS = new Set([0, 1, 2, 3, 5, 6, 7, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 26, 28]);
 
 const key = process.env.SETSUNA_RELAYER_PRIVATE_KEY;
 if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) throw new Error("SETSUNA_RELAYER_PRIVATE_KEY is missing");
@@ -276,7 +281,7 @@ async function bridge(body) {
   const reaching = token === "AUSD" ? (transfer.minUsdcOut > floor ? transfer.minUsdcOut : floor) : transfer.value;
   if (transfer.maxFee >= reaching) throw Object.assign(new Error("The fee ceiling must be below the amount that reaches Circle."), { status: 400 });
   if (transfer.forward) {
-    const fee = await forwardFee(d);
+    const fee = FORWARD_DOMAINS.has(d) ? await forwardFee(d) : null;
     if (fee === null)
       throw Object.assign(new Error("Circle doesn't deliver to that chain. Send with forward: false; the recipient then claims there with their own gas."), { status: 400 });
     // Circle charges the whole ceiling and its fee drifts by a few percent between quote and send:
