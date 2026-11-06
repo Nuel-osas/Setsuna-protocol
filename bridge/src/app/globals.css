@@ -348,6 +348,7 @@ a {
 .glyph {
   display: inline-grid;
   place-items: center;
+  overflow: hidden;
   width: 26px;
   height: 26px;
   border-radius: 2px;
@@ -774,7 +775,7 @@ a {
   padding: 16px 0;
   animation: tick 40s linear infinite;
 }
-.ticker-track span {
+.ticker-track > span {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -1083,7 +1084,7 @@ a {
   margin-top: 8px;
   font-size: 13px;
 }
-.flight-route span {
+.flight-route > span:not(.glyph) {
   color: var(--muted);
 }
 .flight-route .cicon {
@@ -1300,7 +1301,7 @@ a {
   padding: 6px 10px;
   font-size: 10.5px;
 }
-.ticker-track span.is-soon {
+.ticker-track > span.is-soon {
   opacity: 0.45;
 }
 
