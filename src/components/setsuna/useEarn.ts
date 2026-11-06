@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import type { EarnSnapshot } from "@/lib/setsuna/earn";
+import { whileVisible } from "@/lib/setsuna/visible-interval";
 
 // One fetch and one minute timer shared by every component on the page; each
 // used to poll /api/earn on its own, so a page with several fired several requests.
 type EarnState = { data?: EarnSnapshot; failed: boolean };
 let state: EarnState = { failed: false };
 const listeners = new Set<(s: EarnState) => void>();
-let timer: ReturnType<typeof setInterval> | undefined;
+let stop: (() => void) | undefined;
 
 function load() {
   fetch("/api/earn/", { cache: "no-store" })
@@ -33,11 +34,11 @@ export function useEarn() {
     setSnap(state);
     if (listeners.size === 1) {
       load();
-      timer = setInterval(load, 60_000);
+      stop = whileVisible(load, 60_000);
     }
     return () => {
       listeners.delete(setSnap);
-      if (!listeners.size) clearInterval(timer);
+      if (!listeners.size) stop?.();
     };
   }, []);
   return { data: snap.data, failed: snap.failed };
