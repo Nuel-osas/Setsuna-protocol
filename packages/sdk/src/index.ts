@@ -19,3 +19,5 @@ export type { SignRequest } from "./sign.js";
 export { amount } from "./format.js";
 export type { Amount } from "./format.js";
 export type { AUSDPosition, AUSDPrepared, AUSDQuote, AUSDSavingsState, AUSDWithdrawAmount, SponsoredResult, TypedData } from "./ausd.js";
+export { BRIDGE, BRIDGE_CHAINS, bridgeChain, mintRecipient, solanaUsdcAccount, authorizationNonce as bridgeAuthorizationNonce } from "./bridge.js";
+export type { BridgeChain, BridgeQuote, BridgeStatus, BridgeSubmitted, BridgeToken, BridgeTransfer, Ecosystem, ReceiveAuthorization, SponsoredBridgeRequest } from "./bridge.js";

@@ -24,13 +24,14 @@ import {
 import { amount, bpsToPercent, iso, percentFrom1e18, percentOf, type Amount } from "./format.js";
 import { signUrl } from "./sign.js";
 import { createAUSDSavings } from "./ausd.js";
+import { createBridge } from "./bridge.js";
 
 export interface SetsunaOptions {
   /** A viem public client for Monad (chain 143). Takes precedence over `rpcUrl`. */
   client?: PublicClient;
   /** Monad RPC. Defaults to https://rpc2.monad.xyz. */
   rpcUrl?: string;
-  /** Setsuna's gas-sponsoring relayer for setsAUSD. Defaults to RELAYER_URL. */
+  /** Setsuna's gas-sponsoring relayer for setsAUSD and sponsored bridging. Defaults to RELAYER_URL. */
   relayerUrl?: string;
 }
 
@@ -508,7 +509,9 @@ export function createSetsuna(options: SetsunaOptions = {}) {
   /** setsAUSD: AUSD savings held in setsUSDC, with gasless signature builders for apps that relay. */
   const ausd = createAUSDSavings(client, async () => (await getVault("setsUSDC")).netAprPct, options.relayerUrl);
 
-  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, getRules, ausd };
+  const bridge = createBridge(client, options.relayerUrl);
+
+  return { getVault, getVaults, getMarkets, getPosition, quoteDeposit, quoteWithdraw, prepareDeposit, prepareWithdraw, getRules, ausd, bridge };
 }
 
 export type Setsuna = ReturnType<typeof createSetsuna>;

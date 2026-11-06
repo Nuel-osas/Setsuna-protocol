@@ -1,7 +1,7 @@
 {
   "name": "@setsunaprotocol/sdk",
   "version": "0.3.0",
-  "description": "Read Setsuna's rule-bound Earn vaults on Monad and prepare deposits and withdrawals for the user to sign.",
+  "description": "Read Setsuna's rule-bound Earn vaults on Monad, prepare deposits and withdrawals for the user to sign, and bridge USDC or AUSD out of Monad with the gas sponsored.",
   "type": "module",
   "license": "MIT",
   "homepage": "https://setsuna.finance",
@@ -35,12 +35,21 @@
     "erc4626",
     "vault",
     "defi",
-    "sdk"
+    "sdk",
+    "cctp",
+    "bridge",
+    "usdc",
+    "gasless"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.9.1",
+    "@noble/hashes": "^1.8.0",
+    "@scure/base": "^1.2.6"
   },
   "peerDependencies": {
     "viem": "^2.30.0"
