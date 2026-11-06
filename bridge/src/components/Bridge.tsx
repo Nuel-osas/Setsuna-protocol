@@ -42,7 +42,8 @@ function Mark() {
 export function Bridge() {
   const { connected } = useWallets();
   const [drawer, setDrawer] = useState(false);
-  const [net, setNet] = useState<Network>("testnet");
+  // Mainnet on every load; testnet stays one click away in the header switch.
+  const [net, setNet] = useState<Network>("mainnet");
   const chains = useMemo(() => chainsFor(net), [net]);
   const [fromF, setFromF] = useState("base");
   const [toF, setToF] = useState("solana");
@@ -195,7 +196,7 @@ export function Bridge() {
         <a className="brand" href="#"><Mark /><b>setsuna</b><span>/ bridge</span></a>
         <div className="hdr-right">
           <div className="seg" role="group" aria-label="Network">
-            {(["testnet", "mainnet"] as const).map((n) => (
+            {(["mainnet", "testnet"] as const).map((n) => (
               <button key={n} aria-pressed={net === n} onClick={() => setNet(n)}>{n}</button>
             ))}
           </div>
