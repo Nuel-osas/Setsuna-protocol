@@ -1,5 +1,6 @@
 // Setsuna Bridge transfers: verified against Circle's attestation service (Iris), never taken from a
 // client, and grouped organic / rewarded / team like the rest of the stats.
+import { decodeEventLog, parseAbi } from "viem";
 
 export const DOMAINS = {
   0: "Ethereum", 1: "Avalanche", 2: "OP Mainnet", 3: "Arbitrum", 5: "Solana", 6: "Base", 7: "Polygon PoS",
@@ -9,6 +10,26 @@ export const DOMAINS = {
 };
 
 const FORWARD_HOOK = "0x636374702d666f7277617264";
+
+// SetsunaBridgeSponsor burns on Monad for users who only signed, so Circle records the contract as
+// the sender. The user is in the contract's Bridged event in the same transaction.
+export const SPONSOR = "0xeabf1aa629a686c9e5862b316f954bf2c0b68dbe";
+const sponsorAbi = parseAbi([
+  "event Bridged(address indexed owner, address indexed token, uint256 value, uint256 burned, uint32 indexed destinationDomain, bytes32 mintRecipient, uint256 maxFee, bool forward, address relayer)",
+]);
+
+/** For a sponsored burn: the wallet that signed it, from the Bridged event in the burn tx, or null. */
+export async function sponsoredOwner(client, burnTx) {
+  const receipt = await client.getTransactionReceipt({ hash: burnTx });
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== SPONSOR) continue;
+    try {
+      const ev = decodeEventLog({ abi: sponsorAbi, data: log.data, topics: log.topics });
+      if (ev.eventName === "Bridged") return ev.args.owner.toLowerCase();
+    } catch {}
+  }
+  return null;
+}
 
 /** A bytes32 that holds a 20-byte EVM address becomes that address; anything else stays as is. */
 export function normal(addr) {
@@ -61,11 +82,14 @@ export function summarize(rows, team, paid) {
   const items = rows.map((r) => ({
     burnTx: r.burn_tx, from: DOMAINS[r.source_domain] ?? `Domain ${r.source_domain}`, to: DOMAINS[r.dest_domain] ?? `Domain ${r.dest_domain}`,
     usdc: Number(r.amount) / 1e6, sender: r.sender, recipient: r.recipient, delivered: r.delivered, mintTx: r.mint_tx,
-    at: new Date(r.burned_at).toISOString(), group: group(r), origin: r.origin,
+    at: new Date(r.burned_at).toISOString(), group: group(r), origin: r.origin, sponsored: String(r.origin ?? "").startsWith("sponsored"),
   }));
   const totals = Object.fromEntries(GROUPS.map((g) => {
     const mine = items.filter((i) => i.group === g);
-    return [g, { transfers: mine.length, volumeUSDC: round(mine.reduce((s, i) => s + i.usdc, 0)), wallets: new Set(mine.map((i) => i.sender)).size, delivered: mine.filter((i) => i.delivered).length }];
+    return [g, {
+      transfers: mine.length, volumeUSDC: round(mine.reduce((s, i) => s + i.usdc, 0)), wallets: new Set(mine.map((i) => i.sender)).size,
+      delivered: mine.filter((i) => i.delivered).length, sponsored: mine.filter((i) => i.sponsored).length,
+    }];
   }));
   const days = [...new Set(items.map((i) => day(i.at)))].sort();
   const daily = days.flatMap((d) => GROUPS.map((g) => {
