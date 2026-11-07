@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { usdcBalance } from "@/lib/balance";
-import { type Transfer, checkTransfer, emptySteps, loadTransfers, quoteBps, reportTransfer, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { type Transfer, emptySteps, loadTransfers, quoteBps, reportTransfer, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { findByHash, refresh, walletKeys, walletTransfers } from "@/lib/lookup";
 import { checkRecipient } from "@/lib/recipient";
 import { type ClaimCost, type ForwardQuote, SEND_GAS, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
 import { type Chain, type Network, ECOSYSTEM_LABEL, chainsFor, findChain } from "@/lib/chains";
@@ -71,18 +72,47 @@ export function Bridge() {
   const dstWallet = connected[to.ecosystem];
 
   // Stored transfers that aren't done may have been delivered, claimed or landed since: re-check once.
-  useEffect(() => {
+  // Transfers follow the wallet, not the browser: merge in what Setsuna recorded for the connected
+  // wallets (made on any device), then bring every unfinished transfer up to date.
+  const walletsKey = Object.values(connected).map((w) => w?.address).filter(Boolean).join(",");
+  const syncHistory = useCallback(async () => {
+    setHistory(loadTransfers());
+    const known = new Set(loadTransfers().map((t) => t.steps.burn.tx?.toLowerCase()).filter(Boolean));
+    const found = await walletTransfers(await walletKeys(connected));
+    found.filter((t) => !known.has(t.steps.burn.tx?.toLowerCase())).forEach(saveTransfer);
     const all = loadTransfers();
     setHistory(all);
     // Transfers made before the bridge reported them: send any attested one now (each only once).
     all.filter((t) => t.state === "done" || t.steps.attest.state === "done").forEach(reportTransfer);
-    Promise.all(all.filter((t) => t.state !== "done").map(checkTransfer)).then((updated) => {
-      const changed = updated.filter((u): u is Transfer => !!u);
-      if (!changed.length) return;
-      changed.forEach(saveTransfer);
-      setHistory(loadTransfers());
-    });
-  }, []);
+    const updated = await Promise.all(all.filter((t) => t.state !== "done").map(refresh));
+    const changed = updated.filter((u): u is Transfer => !!u);
+    if (!changed.length) return;
+    changed.forEach(saveTransfer);
+    setHistory(loadTransfers());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsKey]);
+  useEffect(() => {
+    void syncHistory();
+  }, [syncHistory]);
+
+  // A transfer from its burn transaction hash, from any chain and any device.
+  const [hashQuery, setHashQuery] = useState("");
+  const [finding, setFinding] = useState<"" | "busy" | "none">("");
+  const find = async () => {
+    const q = hashQuery.trim();
+    if (!q) return;
+    setFinding("busy");
+    const local = loadTransfers().find((t) => t.steps.burn.tx?.toLowerCase() === q.toLowerCase());
+    const t = local ?? (await findByHash(q));
+    if (!t) return setFinding("none");
+    if (!local) {
+      saveTransfer((await refresh(t)) ?? t);
+      reportTransfer(t);
+    }
+    setHistory(loadTransfers());
+    setHashQuery("");
+    setFinding("");
+  };
   useEffect(() => { setBps(null); quoteBps(net, from.domain, to.domain).then(setBps); }, [net, from.domain, to.domain]);
   const forwardable = canForward(from, to);
   useEffect(() => {
@@ -170,9 +200,11 @@ export function Bridge() {
     const fw = connected[f.ecosystem];
     const dw = connected[d.ecosystem];
     const claiming = !t.gasInUsdc || !!t.claimMode;
-    if (!fw || (claiming && !dw)) { setDrawer(true); return; }
+    // Once the burn is done, the sending wallet isn't needed: the transfer finishes from the burn alone.
+    const burned = t.steps.burn.state === "done" && !!t.steps.burn.tx;
+    if ((!fw && !burned) || (claiming && !dw)) { setDrawer(true); return; }
     setActive(t);
-    await runTransfer(t, { chain: f, wallet: fw }, { chain: d, wallet: dw ?? undefined }, (x) => { setActive(x); setHistory(loadTransfers()); });
+    await runTransfer(t, { chain: f, wallet: fw ?? undefined }, { chain: d, wallet: dw ?? undefined }, (x) => { setActive(x); setHistory(loadTransfers()); });
     refreshBalance();
   };
 
@@ -396,14 +428,24 @@ export function Bridge() {
         <section className="section">
           <span className="eyebrow">Your transfers</span>
           <h2>History</h2>
+          <form className="find" onSubmit={(e) => { e.preventDefault(); void find(); }}>
+            <input
+              placeholder="Paste a burn transaction hash, from any chain"
+              aria-label="Burn transaction hash"
+              value={hashQuery}
+              onChange={(e) => { setHashQuery(e.target.value); setFinding(""); }}
+            />
+            <button className="btn ghost tiny" disabled={finding === "busy" || !hashQuery.trim()}>{finding === "busy" ? "Finding…" : "Find"}</button>
+          </form>
+          {finding === "none" && <p className="find-note">Circle has no transfer with that hash yet. Use the burn transaction on the sending chain.</p>}
           <div className="table">
             {history.length === 0 ? (
-              <div className="empty">No transfers yet. They&apos;re kept in this browser, so you can resume one that stopped.</div>
+              <div className="empty">No transfers yet. Connect the wallet you bridged with, or paste a burn transaction hash, to pick a transfer up on any device.</div>
             ) : (
               <table>
                 <thead><tr><th>Route</th><th>Amount</th><th>Speed</th><th>Status</th><th>When</th><th /></tr></thead>
                 <tbody>
-                  {history.map((t) => {
+                  {[...history].sort((a, b) => b.createdAt - a.createdAt).map((t) => {
                     const f = findChain(t.network, t.from);
                     const d = findChain(t.network, t.to);
                     return (
