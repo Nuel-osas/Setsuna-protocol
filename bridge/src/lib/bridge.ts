@@ -105,11 +105,18 @@ const askHowToClaim = (c: Chain) => c.ecosystem === "evm" && c.family === "ether
 
 export async function runTransfer(
   t: Transfer,
-  from: { chain: Chain; wallet: Connected },
+  from: { chain: Chain; wallet?: Connected },
   to: { chain: Chain; wallet?: Connected },
   emit: Emit,
 ) {
-  return viaKit(from.chain, to.chain) ? runKit(t, from, to, emit) : runCustom(t, from, to, emit);
+  // A transfer rebuilt from its burn (found by wallet or hash on another device) has no Bridge Kit
+  // state to retry: our own legs pick it up from the burn, whichever chain sent it.
+  const rebuilt = !!t.steps.burn.tx && !t.result;
+  if (viaKit(from.chain, to.chain) && !rebuilt) {
+    if (!from.wallet) throw new Error(`Connect a wallet on ${from.chain.name} to continue.`);
+    return runKit(t, { chain: from.chain, wallet: from.wallet }, to, emit);
+  }
+  return runCustom(t, from, to, emit);
 }
 
 function landed(t: Transfer, to: Chain, emit: Emit, tx?: string, note?: string) {
@@ -122,7 +129,7 @@ function landed(t: Transfer, to: Chain, emit: Emit, tx?: string, note?: string) 
 // Resumable per step.
 async function runCustom(
   t: Transfer,
-  from: { chain: Chain; wallet: Connected },
+  from: { chain: Chain; wallet?: Connected },
   to: { chain: Chain; wallet?: Connected },
   emit: Emit,
 ) {
@@ -148,6 +155,7 @@ async function runCustom(
         const q = await quoteBps(t.network, from.chain.domain, to.chain.domain);
         maxFee = q?.fast ? (amount * BigInt(Math.ceil(q.fast * 125)) + 999_999n) / 1_000_000n : 0n;
       }
+      if (!from.wallet) throw new Error(`Connect a wallet on ${from.chain.name} to send.`);
       const tx = await burn({
         network: t.network, chain: from.chain, wallet: from.wallet, amount, dest: to.chain, recipient: t.recipient,
         maxFee, finality: fast ? 1000 : 2000, hookData,
@@ -168,6 +176,8 @@ async function runCustom(
       t.steps.burn = { state: "done", tx, url: txUrlFor(from.chain, tx) };
       markLive(t, "attest");
       patch(t, {}, emit);
+      // Recorded as soon as Circle sees the burn, so it can be picked up from any device.
+      reportTransfer(t);
     }
 
     // A burn that was sent but never seen to confirm (the wait was cut short, the tab closed): settle
@@ -187,6 +197,7 @@ async function runCustom(
       t.steps.burn = { ...t.steps.burn, state: "done" };
       markLive(t, "attest");
       patch(t, {}, emit);
+      reportTransfer(t);
     }
     const fastAtt = t.speed === "FAST" && from.chain.fast;
 
@@ -305,6 +316,7 @@ async function runKit(
     const next = ORDER[ORDER.indexOf(k) + 1];
     if (next) markLive(t, next);
     patch(t, {}, emit);
+    if (k === "burn") reportTransfer(t);
   });
 
   try {
@@ -344,27 +356,38 @@ async function runKit(
   }
 }
 
-// Mainnet transfers are reported to Setsuna's stats once Circle has attested them. The stats service
-// takes only the source chain and burn hash and reads everything else from Circle, so nothing here is
-// trusted. Best effort: a failed report never touches the transfer, and each burn is sent once.
+// Mainnet burns are reported to Setsuna's record as soon as Circle has them, so the transfer can be
+// found from the wallet on any device. The stats service takes only the source chain and burn hash
+// and reads everything else from Circle, so nothing here is trusted. Best effort: a failed report
+// never touches the transfer; until Circle has the burn (404) it retries for about three minutes.
 const REPORTED = "setsuna-bridge:v1:reported";
+const reporting = new Set<string>();
 export function reportTransfer(t: Transfer) {
   if (t.network !== "mainnet" || !t.steps.burn.tx) return;
   const sourceDomain = findChain(t.network, t.from).domain;
-  const key = `${sourceDomain}:${t.steps.burn.tx}`;
+  const burnTx = t.steps.burn.tx;
+  const key = `${sourceDomain}:${burnTx}`;
   let seen: string[] = [];
   try { seen = JSON.parse(localStorage.getItem(REPORTED) ?? "[]"); } catch {}
-  if (seen.includes(key)) return;
-  fetch("https://stats.setsuna.finance/api/bridge-report", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ sourceDomain, burnTx: t.steps.burn.tx }),
-    keepalive: true,
-  })
-    .then((r) => {
-      if (r.ok) try { localStorage.setItem(REPORTED, JSON.stringify([key, ...seen].slice(0, 200))); } catch {}
+  if (seen.includes(key) || reporting.has(key)) return;
+  reporting.add(key);
+  const again = (n: number) => (n < 12 ? setTimeout(() => attempt(n + 1), 15_000) : reporting.delete(key));
+  const attempt = (n: number) =>
+    fetch("https://stats.setsuna.finance/api/bridge-report", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sourceDomain, burnTx }),
+      keepalive: true,
     })
-    .catch(() => {});
+      .then((r) => {
+        if (r.ok) {
+          reporting.delete(key);
+          try { localStorage.setItem(REPORTED, JSON.stringify([key, ...seen].slice(0, 200))); } catch {}
+        } else if (r.status === 404 || r.status >= 500) again(n);
+        else reporting.delete(key);
+      })
+      .catch(() => again(n));
+  void attempt(0);
 }
 
 export const emptySteps = (): Transfer["steps"] => ({
