@@ -1,6 +1,7 @@
 import { createPublicClient, http } from "viem";
 import { decodeBook } from "./market-view";
 import { kuruABI } from "./spot";
+import { exchangeAbi } from "./contracts";
 import {
   record,
   finite,
@@ -178,12 +179,48 @@ export function liveCandles(
   });
 }
 
+// Whether Kuru's MON/USDC book is still a live market. It stopped trading on 21 Oct 2026, so its
+// last price and resting asks no longer say what MON is worth. Measured against MON's live price:
+// the Chainlink feed behind Perpl's MON market on Monad, refused when older than 5 minutes.
+const PERPL_EXCHANGE = "0x34B6552d57a35a1D042CcAe1951BD1C370112a6F";
+const PERPL_MON = BigInt(10);
+const STALE_AFTER_MS = 24 * 3_600_000;
+const MAX_DRIFT = 0.1;
+
+function monReference() {
+  return cached("mon-reference", 15000, async () => {
+    const block = await rpc.getBlock();
+    const m = (await rpc.readContract({
+      address: PERPL_EXCHANGE,
+      abi: exchangeAbi,
+      functionName: "getPerpetualInfo",
+      args: [PERPL_MON],
+      blockNumber: block.number,
+    })) as { symbol: string; priceDecimals: bigint; oraclePNS: bigint; oracleTimestampSec: bigint };
+    if (m.symbol !== "MON" || m.oraclePNS === BigInt(0) || block.timestamp - m.oracleTimestampSec > BigInt(300)) return null;
+    return Number(m.oraclePNS) / 10 ** Number(m.priceDecimals);
+  });
+}
+
 export function liveSpotTrades() {
-  return cached("spot-trades", 5000, async () => ({
-    network: "monad-mainnet",
-    source: "Kuru",
-    trades: kuruTrades(
-      await json(`${KURU}/markets/${MARKET}/swaps?offset=0&limit=30`),
-    ),
-  }));
+  return cached("spot-trades", 5000, async () => {
+    const [trades, reference] = await Promise.all([
+      json(`${KURU}/markets/${MARKET}/swaps?offset=0&limit=30`).then(kuruTrades),
+      monReference().catch(() => null),
+    ]);
+    const newest = trades[0];
+    const drift = newest && reference ? Math.abs(newest.price / reference - 1) : null;
+    return {
+      network: "monad-mainnet",
+      source: "Kuru",
+      trades,
+      health: {
+        // No trade for a day, or a last price more than 10% off MON's live price.
+        stale: !newest || Date.now() - newest.time > STALE_AFTER_MS || (drift !== null && drift > MAX_DRIFT),
+        lastTradeAt: newest?.time ?? null,
+        reference,
+        referenceSource: reference === null ? null : "Chainlink via Perpl",
+      },
+    };
+  });
 }

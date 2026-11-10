@@ -6,18 +6,33 @@ import type { SpotTrade } from "@/lib/setsuna/live-market";
 import TokenIcon from "./TokenIcon";
 import { whileVisible } from "@/lib/setsuna/visible-interval";
 
-/** Latest Kuru swap price. The order book leaves out AMM liquidity, so with one side
- * empty it has no midpoint, while trades still print through the pool. */
-function useLastTrade() {
-  const [price, setPrice] = useState<number>();
+export type SpotHealth = {
+  /** Kuru's book is no longer a live market: no trade for a day, or its price far off MON's. */
+  stale: boolean;
+  lastTradeAt: number | null;
+  /** MON's live price (Chainlink via Perpl), or null when it couldn't be read fresh. */
+  reference: number | null;
+  referenceSource: string | null;
+};
+export type SpotFeed = { last?: number; health?: SpotHealth };
+
+/** Latest Kuru swap price, and whether Kuru's book is still a live market. The order book leaves
+ * out AMM liquidity, so with one side empty it has no midpoint, while trades still print through
+ * the pool. A failed read leaves health unknown (undefined), never "fine". */
+export function useSpotFeed(): SpotFeed {
+  const [feed, setFeed] = useState<SpotFeed>({});
   useEffect(() => {
     let alive = true;
     const load = () =>
       fetch("/api/markets/?kind=spot&view=trades", { cache: "no-store" })
         .then((r) => (r.ok ? r.json() : undefined))
-        .then((body: { trades?: SpotTrade[] } | undefined) => {
+        .then((body: { trades?: SpotTrade[]; health?: SpotHealth } | undefined) => {
           const last = Array.isArray(body?.trades) ? body.trades[0]?.price : undefined;
-          if (alive && last !== undefined && Number.isFinite(last)) setPrice(last);
+          if (!alive) return;
+          setFeed((f) => ({
+            last: last !== undefined && Number.isFinite(last) ? last : f.last,
+            health: body?.health ?? f.health,
+          }));
         })
         .catch(() => undefined);
     void load();
@@ -27,16 +42,19 @@ function useLastTrade() {
       stop();
     };
   }, []);
-  return price;
+  return feed;
 }
 
-export function SpotSummary({ reading }: { reading?: TradingReading }) {
+export function SpotSummary({ reading, feed }: { reading?: TradingReading; feed: SpotFeed }) {
   const bid = reading?.bids[0]?.price,
     ask = reading?.asks[0]?.price;
   const spread = bid !== undefined && ask !== undefined ? ask - bid : undefined;
-  const last = useLastTrade();
-  const price = reading?.price ?? last;
+  const stale = feed.health?.stale === true;
+  const live = stale ? feed.health?.reference ?? undefined : undefined;
+  // A stale book's midpoint or last trade isn't MON's price: show the live one instead.
+  const price = stale ? live : reading?.price ?? feed.last;
   const loaded = !!reading;
+  const since = feed.health?.lastTradeAt ? new Date(feed.health.lastTradeAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : null;
   return (
     <header className="db-summary">
       <div className="db-pair">
@@ -54,9 +72,15 @@ export function SpotSummary({ reading }: { reading?: TradingReading }) {
         )}
       </div>
       <div className="db-stat t-stat">
-        <span>{reading?.price !== undefined ? "Market midpoint" : "Last price"}</span>
-        <strong>{price === undefined ? "…" : `$${marketNumber(price)}`}</strong>
+        <span>{stale ? "MON price (live)" : reading?.price !== undefined ? "Market midpoint" : "Last price"}</span>
+        <strong>{price === undefined ? (stale ? "Unavailable" : "…") : `$${marketNumber(price)}`}</strong>
       </div>
+      {stale && (
+        <div className="db-stat db-stale">
+          <span>Kuru book</span>
+          <strong>{since ? `No trades since ${since}` : "Not trading"}</strong>
+        </div>
+      )}
       <div className="db-stat">
         <span>Best bid</span>
         <strong>{bid !== undefined ? marketNumber(bid) : loaded ? "No bids" : "…"}</strong>
