@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import {
   decodeEventLog,
   decodeFunctionResult,
@@ -203,34 +204,46 @@ const ADAPTER_ABI = parseAbi([
   "function marketSupply() view returns (uint256)",
   "function marketLiquidity() view returns (uint256)",
 ]);
-// Kuru MON/USDC order book: native MON base, USDC quote, 18-decimal prices.
-export const KURU_MON_USDC = "0x065c9d28e428a0db40191a54d33d5b7c71a9c394";
-const KURU_ABI = parseAbi([
-  "function bestBidAsk() view returns (uint256, uint256)",
-  "function getMarketParams() view returns (uint32,uint96,address,uint256,address,uint256,uint32,uint96,uint96,uint256,uint256)",
-]);
+// MON's USDC price, to price gas for USDC vaults. Kuru's MON/USDC book used to serve, but it stopped
+// trading on 21 Oct 2026 and its ask went ~40% stale. Now: Perpl's MON market on Monad, whose oracle
+// is a Chainlink feed (on-chain, refused when older than PRICE_MAX_AGE), then its mark, then
+// KyberSwap's live quote. Nothing readable means no price, and the keeper doesn't act.
+export const PERPL_EXCHANGE = "0x34B6552d57a35a1D042CcAe1951BD1C370112a6F";
+export const PERPL_MON = 10n;
+export const PRICE_MAX_AGE = 300n;
+const KYBER_ROUTES = "https://aggregator-api.kyberswap.com/monad/api/v1/routes";
+const NATIVE = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+let perplAbi;
 
-/** USDC base units per MON at Kuru's best ask, or undefined when unreadable. */
-export async function monPriceUsdc({ client, block }) {
+/** USDC base units per MON: Perpl's oracle or mark when fresh, else KyberSwap; undefined when none answers. */
+export async function monPriceUsdc({ client, block, fetchImpl = fetch }) {
   try {
-    const read = (functionName) =>
-      client.readContract({
-        address: KURU_MON_USDC,
-        abi: KURU_ABI,
-        functionName,
-        blockNumber: block.number,
-      });
-    const [params, [, ask]] = await Promise.all([
-      read("getMarketParams"),
-      read("bestBidAsk"),
-    ]);
-    if (
-      params[2] !== "0x0000000000000000000000000000000000000000" ||
-      params[4].toLowerCase() !== MONAD_USDC ||
-      ask === 0n
-    )
-      return undefined;
-    return ask / 10n ** 12n;
+    perplAbi ??= JSON.parse(readFileSync(new URL("../contracts/abi/IPerplExchange.json", import.meta.url), "utf8"));
+    const m = await client.readContract({
+      address: PERPL_EXCHANGE,
+      abi: perplAbi,
+      functionName: "getPerpetualInfo",
+      args: [PERPL_MON],
+      blockNumber: block.number,
+    });
+    const decimals = BigInt(m.priceDecimals);
+    const usdc = (pns) => (decimals >= 6n ? pns / 10n ** (decimals - 6n) : pns * 10n ** (6n - decimals));
+    const fresh = (at) => at > 0n && block.timestamp - at <= PRICE_MAX_AGE;
+    if (m.symbol === "MON" && decimals <= 18n) {
+      if (m.oraclePNS > 0n && fresh(m.oracleTimestampSec)) return usdc(m.oraclePNS);
+      if (m.markPNS > 0n && fresh(m.markTimestamp)) return usdc(m.markPNS);
+    }
+  } catch {
+    // fall through to the aggregator
+  }
+  try {
+    const res = await fetchImpl(`${KYBER_ROUTES}?tokenIn=${NATIVE}&tokenOut=${MONAD_USDC}&amountIn=${10n ** 20n}`, {
+      headers: { "x-client-id": "setsuna" },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!res.ok) return undefined;
+    const out = BigInt((await res.json())?.data?.routeSummary?.amountOut ?? 0);
+    return out > 0n ? out / 100n : undefined; // quoted for 100 MON
   } catch {
     return undefined;
   }
@@ -299,7 +312,7 @@ async function gasContext({ client, address, abi, gate, block, asset }) {
       read("minimumMarketSupply"),
     ]);
   const marketCashCapBps = multi ? await read("MARKET_CASH_CAP_BPS") : 0n;
-  // MON vaults pay gas in their own asset; USDC vaults use Kuru's live ask.
+  // MON vaults pay gas in their own asset; USDC vaults price MON from Perpl's oracle (see monPriceUsdc).
   const price = multi ? await monPriceUsdc({ client, block }) : undefined;
   const toAsset = (wei) =>
     !multi ? wei : price ? (wei * price) / 10n ** 18n : undefined;
