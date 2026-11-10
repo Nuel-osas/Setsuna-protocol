@@ -23,7 +23,7 @@ import {
 import { useTradingMarket } from "./useTradingMarket";
 import SwapForm from "./SwapForm";
 import { MarketChart } from "./TradingMarket";
-import { SpotBook, SpotSummary } from "./SpotMarketPanels";
+import { SpotBook, SpotSummary, useSpotFeed } from "./SpotMarketPanels";
 import Link from "next/link";
 import { amount, message, shortAddress } from "@/lib/setsuna/format";
 
@@ -48,6 +48,17 @@ export default function SpotApp() {
   const [mobileTrade, setMobileTrade] = useState(false);
   const [snapshot, setSnapshot] = useState<SpotSnapshot>();
   const [orderKind, setOrderKind] = useState<"market" | "limit">("market");
+  // When Kuru's book stops being a live market, new limit orders would rest unfilled (or fill at its
+  // stale asks), so they pause; market swaps route through KyberSwap at the live price, and open
+  // orders can still be cancelled from the Orders tab.
+  const feed = useSpotFeed();
+  const kuruStale = feed.health?.stale === true;
+  const kuruSince = feed.health?.lastTradeAt
+    ? new Date(feed.health.lastTradeAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    : null;
+  useEffect(() => {
+    if (kuruStale) setOrderKind("market");
+  }, [kuruStale]);
   const [monToUSDC, setDirection] = useState(true);
   const [input, setInput] = useState("100");
   const [quote, setQuote] = useState<SpotQuote>();
@@ -348,7 +359,7 @@ export default function SpotApp() {
       )}
       <SpotOrderAlerts orders={limit} />
       <div className="db-workspace">
-        <SpotSummary reading={terminal.reading} />
+        <SpotSummary reading={terminal.reading} feed={feed} />
         <div
           className="db-mobile-tabs"
           role="group"
@@ -384,7 +395,7 @@ export default function SpotApp() {
                 setOrderKind(kind);
                 setQuote(undefined);
               }}
-              disabled={!!busy || !!pending || limitLocked}
+              disabled={!!busy || !!pending || limitLocked || kuruStale}
               label="Spot order type"
             />
             <button
@@ -437,8 +448,17 @@ export default function SpotApp() {
               connect={openWallet}
             />
           ) : (
-            // Market swaps route across Monad's pools; Kuru limit orders stay above.
-            <SwapForm onSwapped={() => void refresh()} />
+            <>
+              {kuruStale && (
+                <p className="db-stale-note" role="status">
+                  Kuru&apos;s MON/USDC order book {kuruSince ? `hasn't traded since ${kuruSince}` : "isn't trading"}, so its
+                  prices are out of date and limit orders are paused. Market swaps below still fill at the live price
+                  through KyberSwap. Open orders can still be cancelled under Open Orders.
+                </p>
+              )}
+              {/* Market swaps route across Monad's pools; Kuru limit orders stay above. */}
+              <SwapForm onSwapped={() => void refresh()} />
+            </>
           )}
           <div className="db-powered">
             <span className="db-status-dot" />{" "}

@@ -695,6 +695,19 @@ body:has(.db-spot) .t-shell > .s-tabs button.is-on::after {
 .db-execution-details p {
   margin: 8px 0;
 }
+.db-stale-note {
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 196, 120, 0.35);
+  border-radius: 4px;
+  background: rgba(255, 196, 120, 0.06);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #ffd9a3;
+}
+.db-stale strong {
+  color: #ffc478;
+}
 .db-powered {
   margin-top: 25px;
   display: flex;
