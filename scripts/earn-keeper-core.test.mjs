@@ -22,6 +22,8 @@ import {
   describeError,
   DUST_CYCLES,
   spendCosts,
+  monPriceUsdc,
+  PRICE_MAX_AGE,
   unsafeVenue,
   worthGas,
 } from "./earn-keeper-core.mjs";
@@ -523,4 +525,31 @@ test("without a live MON price, only safety repairs may spend", () => {
     }).reason,
     "material-repair",
   );
+});
+
+test("MON is priced from Perpl's oracle when fresh, then its mark, then KyberSwap, else not at all", async () => {
+  const block = { number: 1n, timestamp: 10_000n };
+  const market = (over = {}) => ({
+    symbol: "MON", priceDecimals: 6n,
+    oraclePNS: 16_415n, oracleTimestampSec: 9_990n,
+    markPNS: 16_411n, markTimestamp: 9_950n,
+    ...over,
+  });
+  const chain = (m) => ({ readContract: async () => m });
+  const kyber = (amountOut) => async () => ({ ok: true, json: async () => ({ data: { routeSummary: { amountOut: String(amountOut) } } }) });
+  const down = async () => ({ ok: false });
+  const stale = block.timestamp - PRICE_MAX_AGE - 1n;
+
+  assert.equal(await monPriceUsdc({ client: chain(market()), block, fetchImpl: down }), 16_415n);
+  // A stale oracle falls back to a fresh mark.
+  assert.equal(await monPriceUsdc({ client: chain(market({ oracleTimestampSec: stale })), block, fetchImpl: down }), 16_411n);
+  // Both stale, or the wrong market: KyberSwap's quote for 100 MON, per MON.
+  assert.equal(await monPriceUsdc({ client: chain(market({ oracleTimestampSec: stale, markTimestamp: stale })), block, fetchImpl: kyber(1_640_300n) }), 16_403n);
+  assert.equal(await monPriceUsdc({ client: chain(market({ symbol: "BTC" })), block, fetchImpl: kyber(1_640_300n) }), 16_403n);
+  // 18-decimal prices scale down to USDC base units.
+  assert.equal(await monPriceUsdc({ client: chain(market({ priceDecimals: 18n, oraclePNS: 16_415n * 10n ** 12n })), block, fetchImpl: down }), 16_415n);
+  // Nothing readable: no price, so the keeper won't act.
+  const broken = { readContract: async () => { throw new Error("rpc down"); } };
+  assert.equal(await monPriceUsdc({ client: broken, block, fetchImpl: down }), undefined);
+  assert.equal(await monPriceUsdc({ client: broken, block, fetchImpl: kyber(0) }), undefined);
 });
