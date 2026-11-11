@@ -4,9 +4,9 @@ Venue addresses identify protocol deployments on Monad. Setsuna's Earn, Spot and
 
 | Environment | Chain ID | Current scope |
 | --- | --- | --- |
-| Monad mainnet | 143 | Earn (capped beta), Spot (KyberSwap swaps, Kuru limit orders) and Perps (Perpl) with real funds |
+| Monad mainnet | 143 | Earn (capped beta), Spot (KyberSwap swaps, Kuru limit orders), Perps (Perpl) and sponsored bridging with real funds |
 
-The application uses mainnet exclusively. Contract tests use local mocks; fork test suites and launchers have been removed.
+The application uses mainnet exclusively. Contract tests use local mocks, except SetsunaBridgeSponsor's, which run against a local fork of Monad mainnet with Circle's and Curve's real contracts.
 
 ## Mainnet trading contracts
 
@@ -46,6 +46,16 @@ setsAUSD saves AUSD in setsUSDC through Curve's AUSD/USDC/USDT0 pool `0x94264410
 These contracts are unaudited. Deposit only what you can afford to lose.
 
 The first vaults (setsUSDC `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7`, setsMON `0x3F271AaD41D6064Be2A9245fE00Fa72606c5Fda1`) are retired: new deposits are permanently paused, and existing holders can still withdraw at any time.
+
+## Mainnet bridge contract
+
+SetsunaBridgeSponsor lets Setsuna's relayer pay the Monad gas for a user's CCTP V2 transfer out of Monad, of USDC or of AUSD swapped to USDC first. It has no owner, admin or fee, and holds nothing between transfers. Deployed at Monad block 119944444 and verified on Sourcify (exact match). Its fixed links, read back from the deployed contract: USDC and AUSD below, the Curve pool `0x942644106B073E30D72c2C5D7529D5C296ea91ab` (any swap under 99.8% of one-for-one reverts) and Circle's TokenMessengerV2 `0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d`, from Circle's CCTP V2 contract list. See [sponsored bridging](/docs/developers/bridge/).
+
+| Component | Address on Monad mainnet (143) |
+| --- | --- |
+| SetsunaBridgeSponsor | `0xeabF1Aa629a686C9E5862b316F954bF2C0b68DBe` |
+
+This contract is unaudited. Bridge small amounts.
 
 ## Underlying assets
 

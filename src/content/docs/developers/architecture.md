@@ -32,8 +32,12 @@ These are interface excerpts. State-changing adapter functions are restricted to
 
 `SetsunaSpot` uses a fixed Kuru route. The app's market swaps no longer go through it: they are signed straight to KyberSwap's router, and limit orders rest on Kuru through each wallet's account from the Spot limit-order factory. `SetsunaFactory` creates immutable-owner `SetsunaAccount` instances for Perpl. The account has separate trading-collateral and reserve operations; it is not a general arbitrary-call wallet.
 
+## Bridge boundary
+
+`SetsunaBridgeSponsor` lets a relayer pay the Monad gas for a user's CCTP V2 transfer out of Monad. The user signs one EIP-3009 `ReceiveWithAuthorization` on USDC or AUSD with the sponsor as recipient. Its nonce hashes every bridge detail (destination, recipient, fee ceiling, finality, forwarding, swap minimum), so the relayer cannot change any of them. AUSD is swapped to USDC on the Curve pool setsAUSD uses, refusing less than 99.8% of one-for-one, then burned through Circle's `TokenMessengerV2`. The contract has no owner and holds nothing between transfers. See [sponsored bridging](/docs/developers/bridge/).
+
 ## Verification boundary
 
-The October 8 five-protocol delivery passed 152 Solidity tests, 18 keeper/configuration tests and a signed browser journey. That historical run included fault injection and fork tests with synthetic funding and simulated time. The fork suites have since been removed; current contract tests use local mocks. Tests substantiate those scenarios, not an independent audit or production guarantee.
+The October 8 five-protocol delivery passed 152 Solidity tests, 18 keeper/configuration tests and a signed browser journey. That historical run included fault injection and fork tests with synthetic funding and simulated time. Those fork suites have since been removed; current contract tests use local mocks, except the bridge sponsor's, which run on a fork of Monad mainnet. Tests substantiate those scenarios, not an independent audit or production guarantee.
 
 Reproduction and source live in `contracts/`, `scripts/` and the repository's engineering `docs/` directory. Start with [local development](/docs/developers/local-demo/).

@@ -144,6 +144,13 @@ export const docs = [
       "Gas-free AUSD savings in your app with the SDK and Setsuna's relayer.",
   },
   {
+    slug: "developers/bridge",
+    title: "Sponsored bridging",
+    group: "Developers",
+    description:
+      "Gas-free USDC and AUSD out of Monad to any CCTP chain, with one signature.",
+  },
+  {
     slug: "developers/keepers",
     title: "Running a keeper",
     group: "Developers",
