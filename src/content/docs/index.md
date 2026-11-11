@@ -20,16 +20,16 @@ The current setsUSDC vault connects to **Aave, Morpho, Euler, Neverland and Curv
 
 ## Earn, Spot and Perps
 
-| Product | What it does                                         | Assets                         |
-| ------- | ---------------------------------------------------- | ------------------------------ |
-| Earn    | Allocates across lending markets                     | MON → setsMON; USDC → setsUSDC |
-| Spot    | Executes MON/USDC swaps through Kuru                 | MON and USDC                   |
-| Perps   | Trades through Perpl with optional margin protection | AUSD                           |
+| Product | What it does                                               | Assets                         |
+| ------- | ---------------------------------------------------------- | ------------------------------ |
+| Earn    | Allocates across lending markets                           | MON → setsMON; USDC → setsUSDC |
+| Spot    | Swaps at the best price across Monad; limit orders on Kuru | MON, USDC and AUSD             |
+| Perps   | Trades through Perpl with optional margin protection       | AUSD                           |
 
 A single interface does not mean a shared balance. A trade cannot spend assets held in your Earn vault.
 
 ## Current release
 
-> **Live on Monad mainnet.** [Open the app](/app/) and connect a wallet on Monad (chain 143). Earn is a capped beta (2,000 USDC and 25,000 MON) with real funds; Spot and Perps trade on Kuru and Perpl at live prices. Setsuna's contracts are unaudited. See [networks and contracts](/docs/developers/contracts/).
+> **Live on Monad mainnet.** [Open the app](/app/) and connect a wallet on Monad (chain 143). Earn is a capped beta (2,000 USDC and 25,000 MON) with real funds; Spot swaps route through KyberSwap and Perps trade on Perpl, at live prices. Setsuna's contracts are unaudited. See [networks and contracts](/docs/developers/contracts/).
 
-These docs describe the implementation available on October 9, 2026. Start with the user guides, follow the mechanism in **How it works**, or explore the calculations in **The math**.
+These docs describe the implementation available on November 11, 2026. Start with the user guides, follow the mechanism in **How it works**, or explore the calculations in **The math**.

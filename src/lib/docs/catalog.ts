@@ -115,7 +115,7 @@ export const docs = [
     title: "Spot trading",
     group: "Trading",
     description:
-      "Swap MON and USDC through Kuru, with your Earn balance kept separate.",
+      "Swap at the best price across Monad, with your Earn balance kept separate.",
   },
   {
     slug: "trading/perps",

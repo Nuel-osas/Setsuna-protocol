@@ -30,7 +30,7 @@ These are interface excerpts. State-changing adapter functions are restricted to
 
 ## Trading boundary
 
-`SetsunaSpot` uses a fixed Kuru route. `SetsunaFactory` creates immutable-owner `SetsunaAccount` instances for Perpl. The account has separate trading-collateral and reserve operations; it is not a general arbitrary-call wallet.
+`SetsunaSpot` uses a fixed Kuru route. The app's market swaps no longer go through it: they are signed straight to KyberSwap's router, and limit orders rest on Kuru through each wallet's account from the Spot limit-order factory. `SetsunaFactory` creates immutable-owner `SetsunaAccount` instances for Perpl. The account has separate trading-collateral and reserve operations; it is not a general arbitrary-call wallet.
 
 ## Verification boundary
 
