@@ -1,18 +1,18 @@
-Setsuna's Spot workspace executes MON/USDC swaps through the selected **Kuru** market on Monad. Funds come from your wallet, not your Earn vault or Perps protection reserve.
+Setsuna's Spot workspace swaps MON and USDC at the best price across Monad, routed by **KyberSwap**, and places limit orders on **Kuru's** MON/USDC book. Funds come from your wallet, not your Earn vault or Perps protection reserve.
 
-## The current flow
+## Market swaps
 
-1. Open **Spot**, connect your wallet and check the environment.
-2. Choose the direction: MON to USDC or USDC to MON.
-3. Enter an amount and review the executable quote, minimum output and price impact.
-4. Approve the required USDC amount when selling USDC; a native MON input uses transaction value.
-5. Confirm the swap and inspect the actual fill and balance changes after settlement.
+1. Open **Spot** and connect your wallet.
+2. Choose what to swap: MON, USDC or AUSD, in either direction.
+3. Enter an amount and review the route, the minimum you'll receive and Setsuna's fee.
+4. Approve the exact amount when selling USDC or AUSD; a native MON input uses transaction value.
+5. Confirm the swap and check the balance changes after settlement.
 
-The gateway checks the fixed market and token pair and enforces the transaction's output bound. A displayed order book does not imply that every exchange order type is implemented in Setsuna's gateway.
+KyberSwap splits a swap across Monad's pools (Uniswap v4, Curve, Balancer and others) for the best price. You sign the router call from your own wallet; Setsuna never holds the funds. The app only accepts a route built for KyberSwap's router at `0x6131B5fae19EA4f9D964eAc0408E4408b66337b5` and refuses any other. The minimum output allows 0.5% slippage; a swap that would fill below it reverts.
 
 ## Limit orders
 
-On deployments with limit orders enabled, switch **Market → Limit**, choose Buy or Sell, and enter a MON size and USDC limit price. Create your Spot limit account once, then review the amount required from your wallet and confirm.
+Switch **Market → Limit**, choose Buy or Sell, and enter a MON size and USDC limit price. Create your Spot limit account once, then review the amount required from your wallet and confirm.
 
 Buy orders execute at the limit price or lower; sell orders execute at the limit or higher. An order can fill immediately, partially, or rest until it fills or you cancel it. Kuru enforces the market's minimum size and price increment, shown in the form.
 
@@ -20,16 +20,20 @@ Each wallet has its own Spot order account. Existing free funds are used before 
 
 The limit-order account does not charge a Setsuna fee; venue fees still apply. A successful placement transaction is not a promise that the entire order filled.
 
-Limit orders require new contracts. Existing deployments without them continue to support market swaps and display the limitation when you select Limit.
+### When limit orders pause
+
+A limit order is only as good as the book it rests on. The workspace compares Kuru's MON/USDC book with MON's live price, read from the Chainlink feed behind Perpl's MON market (refused when older than 5 minutes). Limit orders pause when Kuru's book has not traded for 24 hours, or when its last price is more than 10% away from the live price. The header then shows the live MON price and when Kuru last traded.
+
+While paused, market swaps still fill at the live price through KyberSwap, and existing orders can still be cancelled under **Open orders**. Kuru's MON/USDC book has not traded since 21 October 2026, so limit orders are paused for now.
 
 ## Market data and execution
 
-Quotes and execution must use the same connected environment. The workspace reports actual receipts and fills after confirmation. If a quote cannot be obtained or the execution simulation fails, review the error before submitting again.
+The chart, order book and trades show Kuru's MON/USDC market. Market swaps don't use Kuru's book, so their price comes from the KyberSwap route, not from the order book. The workspace reports actual receipts and fills after confirmation. If a quote cannot be obtained or the transaction simulation fails, review the error before submitting again.
 
 Spot changes your asset exposure. Swapping MON for USDC does not automatically deposit that USDC into Earn; supplying it is a separate action.
 
-## Network
+## Fees and network
 
-Spot runs on **Monad mainnet**. [Trade](/trade/?mode=spot) swaps MON and USDC on Kuru's live MON/USDC book with your own funds. Setsuna takes 0.10% of each swap's output. Its contracts are unaudited; trade small.
+Spot runs on **Monad mainnet** with your own funds. [Trade](/trade/?mode=spot) takes 0.10% of each market swap's input, paid by KyberSwap's router to Setsuna's treasury `0x6915aEf0947F4daD61aeF39Fe0f546A03190c92C`. Limit orders carry no Setsuna fee. Setsuna's contracts are unaudited; trade small.
 
-For the selected market address and mainnet setup, see [networks and contracts](/docs/developers/contracts/).
+For the market and contract addresses, see [networks and contracts](/docs/developers/contracts/).

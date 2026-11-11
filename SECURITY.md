@@ -19,11 +19,13 @@ expect. We will acknowledge within 72 hours and keep you updated until it is res
 
 - The Earn vaults, adapters, MON gateway, setsAUSD wrapper and SetsunaAUSDSaver listed in the README.
 - The Spot gateway, limit-order factory and Perpl account factory.
-- The apps at setsuna.finance and bridge.setsuna.finance, the gas relayer, and the published
+- SetsunaBridgeSponsor, which bridges a holder's signed USDC or AUSD out of Monad.
+- The apps at setsuna.finance and bridge.setsuna.finance, the gas relayer, the bridge transfer
+  lookup at stats.setsuna.finance/api/bridge-transfers, and the published
   `@setsunaprotocol/sdk` and `@setsunaprotocol/mcp` packages.
 
-Third-party protocols the vaults lend into (Aave, Morpho, Euler, Neverland, Curvance, Kuru, Perpl,
-Curve, Circle CCTP) are out of scope; report issues in them to their own teams.
+Third-party protocols Setsuna builds on (Aave, Morpho, Euler, Neverland, Curvance, Kuru, Perpl,
+Curve, Circle CCTP, KyberSwap) are out of scope; report issues in them to their own teams.
 
 ## Trust model
 
@@ -33,3 +35,7 @@ Curve, Circle CCTP) are out of scope; report issues in them to their own teams.
 - Rebalancing and rate observation are permissionless; callers cannot choose weights or recipients.
 - The setsAUSD wrapper and saver have no owner. The relayer can only submit a saver's own signed
   deposit or withdrawal, and funds only ever reach the signer.
+- SetsunaBridgeSponsor has no owner and holds nothing between transfers. The holder's signature
+  commits to every bridge detail (destination, recipient, fee ceiling, finality, forwarding, swap
+  minimum), so the relayer can carry out the transfer exactly as signed or not at all. An AUSD swap
+  below 99.8% of one-for-one reverts.

@@ -4,9 +4,9 @@ Venue addresses identify protocol deployments on Monad. Setsuna's Earn, Spot and
 
 | Environment | Chain ID | Current scope |
 | --- | --- | --- |
-| Monad mainnet | 143 | Earn (capped beta), Spot (Kuru) and Perps (Perpl) with real funds |
+| Monad mainnet | 143 | Earn (capped beta), Spot (KyberSwap swaps, Kuru limit orders), Perps (Perpl) and sponsored bridging with real funds |
 
-The application uses mainnet exclusively. Contract tests use local mocks; fork test suites and launchers have been removed.
+The application uses mainnet exclusively. Contract tests use local mocks, except SetsunaBridgeSponsor's, which run against a local fork of Monad mainnet with Circle's and Curve's real contracts.
 
 ## Mainnet trading contracts
 
@@ -17,6 +17,8 @@ Deployed at Monad block 112443702. Each address is fixed at construction; there 
 | Spot gateway (Kuru MON/USDC) | `0x978BdBaD035F1cdf47e10915c0ceC4A94C3fC17D` | 0.10% of swap output |
 | Spot limit-order factory | `0x323ad3cd45Cc366306B60878b59ED0d6C56EEfA4` | None |
 | Perpl account factory (BTC) | `0x00206Efbf5C49B61f2701a20d86329df4C3aB50D` | 1% of each protection top-up |
+
+The app's market swaps no longer use the Spot gateway: they are signed straight to KyberSwap's router (below), which pays Setsuna 0.10% of the amount in. The gateway stays deployed and usable. Limit orders still go through the order factory.
 
 These contracts are unaudited. Trade small.
 
@@ -45,6 +47,16 @@ These contracts are unaudited. Deposit only what you can afford to lose.
 
 The first vaults (setsUSDC `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7`, setsMON `0x3F271AaD41D6064Be2A9245fE00Fa72606c5Fda1`) are retired: new deposits are permanently paused, and existing holders can still withdraw at any time.
 
+## Mainnet bridge contract
+
+SetsunaBridgeSponsor lets Setsuna's relayer pay the Monad gas for a user's CCTP V2 transfer out of Monad, of USDC or of AUSD swapped to USDC first. It has no owner, admin or fee, and holds nothing between transfers. Deployed at Monad block 119944444 and verified on Sourcify (exact match). Its fixed links, read back from the deployed contract: USDC and AUSD below, the Curve pool `0x942644106B073E30D72c2C5D7529D5C296ea91ab` (any swap under 99.8% of one-for-one reverts) and Circle's TokenMessengerV2 `0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d`, from Circle's CCTP V2 contract list. See [sponsored bridging](/docs/developers/bridge/).
+
+| Component | Address on Monad mainnet (143) |
+| --- | --- |
+| SetsunaBridgeSponsor | `0xeabF1Aa629a686C9E5862b316F954bF2C0b68DBe` |
+
+This contract is unaudited. Bridge small amounts.
+
 ## Underlying assets
 
 | Asset | Monad address                                |
@@ -72,6 +84,7 @@ The first vaults (setsUSDC `0xAA5366660c3dDb3400f7083F21196Db125d6a2E7`, setsMON
 | Neverland WMON receipt | `0xD0fd2Cf7F6CEff4F96B1161F5E995D5843326154` |
 | Kuru MON/USDC market   | `0x065c9d28e428a0db40191a54d33d5b7c71a9c394` |
 | Perpl exchange         | `0x34B6552d57a35a1D042CcAe1951BD1C370112a6F` |
+| KyberSwap router       | `0x6131B5fae19EA4f9D964eAc0408E4408b66337b5` |
 
 These are the destinations used by the checked implementation and pinned proof environments, not an assertion about current market liquidity or governance state.
 

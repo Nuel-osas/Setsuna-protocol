@@ -61,20 +61,21 @@ real funds, and the contracts are **unaudited**: deposit only what you can affor
     <td width="33%" valign="top">
       <img src="docs/readme/trade.png" alt="Trade: MON/USDC spot chart with order book and trades" width="240"><br>
       <b>Spot and perps</b><br>
-      MON/USDC spot on Kuru, limit orders, BTC perps on Perpl, and an in-app swap routed for the
-      best price across Monad.
+      Swaps routed for the best price across Monad, Kuru limit orders and BTC perps on Perpl.
     </td>
     <td width="33%" valign="top">
       <img src="docs/readme/bridge.png" alt="Bridge: 250 USDC from Sui to Monad with Pay gas in USDC switched on" width="240"><br>
       <b>USDC from 28 chains</b><br>
       Native USDC over Circle CCTP V2 at <a href="https://bridge.setsuna.finance">bridge.setsuna.finance</a>.
-      Turn on "Pay gas in USDC" and Circle delivers it, with no gas needed on Monad.
+      Turn on "Pay gas in USDC" and Circle delivers it, with no gas needed on Monad. Transfers follow
+      your wallet, so you can finish one on any device.
     </td>
     <td width="33%" valign="top">
       <img src="docs/readme/docs.png" alt="Setsuna docs: the AUSD savings page" width="240"><br>
       <b>Built to build on</b><br>
       Every rule is documented at <a href="https://setsuna.finance/docs/">setsuna.finance/docs</a>.
       The SDK and MCP server let apps and AI clients read vaults and prepare deposits users sign.
+      With the SDK, apps can also bridge USDC or AUSD out of Monad gas-free.
     </td>
   </tr>
 </table>
@@ -105,6 +106,7 @@ The guardian can only pause deposits or disable a market. It cannot move funds. 
 | Spot gateway (Kuru) | [`0x978BdBaD035F1cdf47e10915c0ceC4A94C3fC17D`](https://monadscan.com/address/0x978BdBaD035F1cdf47e10915c0ceC4A94C3fC17D) |
 | Limit-order factory | [`0x323ad3cd45Cc366306B60878b59ED0d6C56EEfA4`](https://monadscan.com/address/0x323ad3cd45Cc366306B60878b59ED0d6C56EEfA4) |
 | Perpl account factory | [`0x00206Efbf5C49B61f2701a20d86329df4C3aB50D`](https://monadscan.com/address/0x00206Efbf5C49B61f2701a20d86329df4C3aB50D) |
+| SetsunaBridgeSponsor | [`0xeabF1Aa629a686C9E5862b316F954bF2C0b68DBe`](https://monadscan.com/address/0xeabF1Aa629a686C9E5862b316F954bF2C0b68DBe) |
 
 Source for each is verified on [Sourcify](https://sourcify.dev/). Lending destinations and
 assets: [networks and contracts](src/content/docs/developers/contracts.md).
@@ -121,6 +123,7 @@ import { createSetsuna } from "@setsunaprotocol/sdk";
 const setsuna = createSetsuna(); // Monad mainnet, read-only, no key
 const vaults = await setsuna.getVaults(); // rates, allocations, room under the cap
 const savings = await setsuna.ausd.getSavings(); // AUSD savings for your users
+const quote = await setsuna.bridge.quote({ token: "AUSD", amount: "25", destinationDomain: 6 }); // gas-free to Base
 ```
 
 Connect an AI client to the hosted MCP server:
@@ -130,16 +133,17 @@ claude mcp add --transport http setsuna https://mcp.setsuna.finance/mcp
 ```
 
 Gas-free AUSD savings for apps: [integration guide](https://setsuna.finance/docs/developers/ausd-savings/).
+Gas-free bridging out of Monad: [sponsored bridging](https://setsuna.finance/docs/developers/bridge/).
 
 ## Repository
 
 | Path | Contents |
 |---|---|
 | [`src/`](src) | The Next.js app at setsuna.finance: Earn, Trade, Portfolio and the docs site |
-| [`contracts/`](contracts) | Solidity vaults, adapters, gateway, AUSD wrapper and saver (Foundry) |
+| [`contracts/`](contracts) | Solidity vaults, adapters, gateway, AUSD wrapper and saver, bridge sponsor (Foundry) |
 | [`bridge/`](bridge) | The CCTP V2 bridge app at bridge.setsuna.finance |
 | [`packages/sdk`](packages/sdk), [`packages/mcp`](packages/mcp) | The published SDK and MCP server |
-| [`relayer/`](relayer) | Gas relayer for signed setsAUSD deposits and withdrawals |
+| [`relayer/`](relayer) | Gas relayer for signed setsAUSD deposits and withdrawals, and sponsored bridges out of Monad |
 | [`scripts/`](scripts) | Keepers, deployment and verification scripts |
 | [`stats/`](stats) | The private real-usage dashboard |
 | [`docs/`](docs) | Engineering notes, research and deployment records |

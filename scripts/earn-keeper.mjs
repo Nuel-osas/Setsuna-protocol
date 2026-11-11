@@ -43,7 +43,7 @@ async function main() {
         "Execute at most one permissionless action with --execute --max-gas-price-gwei N and EARN_KEEPER_PRIVATE_KEY.\n" +
         "Optional: --asset MON|USDC --max-gas 1000000 --min-annual-gain 0.001 --state-dir PATH. Gain uses the selected asset, never USD conversion.\n" +
         "Use one dedicated signer and one shared state directory. Pending work is reconciled before further writes.\n" +
-        "Spend gate: act only when gain over --horizon-days 90 covers --profit-factor 2 x gas (measured with --observe-gas and --rebalance-gas), or a repair fixes more than --repair-tolerance-bps 100 of NAV. USDC vaults price gas at Kuru's live MON/USDC ask.",
+        "Spend gate: act only when gain over --horizon-days 90 covers --profit-factor 2 x gas (measured with --observe-gas and --rebalance-gas), or a repair fixes more than --repair-tolerance-bps 100 of NAV. USDC vaults price gas at MON's live price: Perpl's Chainlink oracle, else Perpl's mark, else a KyberSwap quote.",
     );
     return;
   }

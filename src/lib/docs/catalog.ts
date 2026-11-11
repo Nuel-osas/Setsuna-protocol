@@ -115,7 +115,7 @@ export const docs = [
     title: "Spot trading",
     group: "Trading",
     description:
-      "Swap MON and USDC through Kuru, with your Earn balance kept separate.",
+      "Swap at the best price across Monad, with your Earn balance kept separate.",
   },
   {
     slug: "trading/perps",
@@ -142,6 +142,13 @@ export const docs = [
     group: "Developers",
     description:
       "Gas-free AUSD savings in your app with the SDK and Setsuna's relayer.",
+  },
+  {
+    slug: "developers/bridge",
+    title: "Sponsored bridging",
+    group: "Developers",
+    description:
+      "Gas-free USDC and AUSD out of Monad to any CCTP chain, with one signature.",
   },
   {
     slug: "developers/keepers",

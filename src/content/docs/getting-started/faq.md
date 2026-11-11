@@ -2,7 +2,7 @@
 
 Yes. **Earn, Spot and Perps all run on Monad mainnet** with real funds.
 
-**Earn is a capped beta.** setsUSDC (at most 2,000 USDC) allocates across Aave, Morpho, Euler, Neverland and Curvance; setsMON (at most 25,000 MON) across Neverland and Euler. Permissionless keepers record rates and rebalance continuously. Spot swaps settle on Kuru and BTC perps on Perpl at live prices. Setsuna's contracts are unaudited; start small.
+**Earn is a capped beta.** setsUSDC (at most 2,000 USDC) allocates across Aave, Morpho, Euler, Neverland and Curvance; setsMON (at most 25,000 MON) across Neverland and Euler. Permissionless keepers record rates and rebalance continuously. Spot swaps route through KyberSwap across Monad's pools, and BTC perps trade on Perpl, at live prices. Setsuna's contracts are unaudited; start small.
 
 ## What are setsMON and setsUSDC?
 
