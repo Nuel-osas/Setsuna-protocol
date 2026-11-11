@@ -40,6 +40,7 @@ Transfers are also kept in `localStorage` and can be retried from the failed ste
 
 - Circle marks Fast Transfer as N/A for Sui and Aptos as sources (sub-second finality), so those burns use finality 2000 with no fee. The sandbox fee API has no quotes for Sui routes; the UI falls back to Standard.
 - Not yet exercised end to end on every route; Solana ↔ Sui/Aptos uses Bridge Kit's action layer with a synthesized V2 chain definition and is the first place to look if a route fails.
+- Moving ETH from Ethereum to its rollups (Base, Arbitrum, Robinhood Chain) through their own deposit contracts is proposed, not built: see `docs/BRIDGE-ETH-DEPOSITS.md`.
 - Gas-free bridging out of Monad for other apps (the user signs, Setsuna's relayer pays) is not part of this app; it lives in the SDK, the relayer and `contracts/src/bridge/SetsunaBridgeSponsor.sol`. See the [sponsored bridging guide](https://setsuna.finance/docs/developers/bridge/).
 
 Chain logos: [web3icons](https://github.com/0xa3k5/web3icons) (MIT), see `public/icons/ATTRIBUTION.txt`. Aptos scripts: Circle (Apache-2.0), see `public/cctp/aptos/NOTICE`.
