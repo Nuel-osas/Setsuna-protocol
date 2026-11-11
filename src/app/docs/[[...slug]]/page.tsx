@@ -124,7 +124,7 @@ export default async function DocPage({ params }: Props) {
           )}
         </nav>
         <footer className="sd-page-footer">
-          <span>Updated October 8, 2026</span>
+          <span>Updated November 11, 2026</span>
           <Link href="/docs/developers/contracts/">
             Deployment status <span aria-hidden="true">↗</span>
           </Link>
