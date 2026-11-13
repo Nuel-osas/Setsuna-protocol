@@ -141,8 +141,8 @@ async function burnTime(chain: Chain, hash: string): Promise<string | null> {
       const ts = j.data?.transaction?.effects?.timestamp;
       return ts ? new Date(ts).toISOString() : null;
     }
-    if (chain.ecosystem === "solana") {
-      const j = await rpc("https://api.mainnet-beta.solana.com", "getTransaction", [hash, { maxSupportedTransactionVersion: 0 }]);
+    if (chain.ecosystem === "solana" && chain.rpc) {
+      const j = await rpc(chain.rpc, "getTransaction", [hash, { maxSupportedTransactionVersion: 0 }]);
       return j.result?.blockTime ? new Date(j.result.blockTime * 1000).toISOString() : null;
     }
     if (chain.ecosystem === "aptos") {

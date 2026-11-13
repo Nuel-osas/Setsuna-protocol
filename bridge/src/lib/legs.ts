@@ -269,16 +269,18 @@ function v2Def(c: Chain) {
   return { ...(d ?? { chain: c.id, name: c.name, type: c.ecosystem }), cctp: { domain: c.domain, contracts: { v2: { type: "split", tokenMessenger: "0x0", messageTransmitter: "0x0", confirmations: 1, fastConfirmations: 1 } } } };
 }
 
-async function solanaAdapter(w: Connected) {
-  const { createSolanaAdapterFromProvider } = await import("@circle-fin/adapter-solana");
-  return createSolanaAdapterFromProvider({ provider: w.solana as never });
+// Without a connection the adapter falls back to Solana's public endpoint, which refuses browsers.
+export async function solanaAdapter(w: Connected, chain: Chain) {
+  const [{ createSolanaAdapterFromProvider }, { Connection }] = await Promise.all([import("@circle-fin/adapter-solana"), import("@solana/web3.js")]);
+  const connection = chain.rpc ? new Connection(chain.rpc, { commitment: "confirmed", confirmTransactionInitialTimeout: 60_000 }) : undefined;
+  return createSolanaAdapterFromProvider({ provider: w.solana as never, connection });
 }
 
 type Prepared = { execute: () => Promise<string> };
 type ActionAdapter = { prepareAction: (name: string, params: unknown, ctx: unknown) => Promise<Prepared> };
 
 async function solanaBurn(a: BurnArgs) {
-  const adapter = (await solanaAdapter(a.wallet)) as unknown as ActionAdapter;
+  const adapter = (await solanaAdapter(a.wallet, a.chain)) as unknown as ActionAdapter;
   a.onApproved?.();
   const p = await adapter.prepareAction("cctp.v2.depositForBurn", {
     amount: a.amount, mintRecipient: await recipient32(a.dest, a.recipient), destinationCaller: ZERO32,
@@ -288,7 +290,7 @@ async function solanaBurn(a: BurnArgs) {
 }
 
 async function solanaMint(a: MintArgs) {
-  const adapter = (await solanaAdapter(a.wallet)) as unknown as ActionAdapter;
+  const adapter = (await solanaAdapter(a.wallet, a.chain)) as unknown as ActionAdapter;
   const p = await adapter.prepareAction("cctp.v2.receiveMessage", {
     eventNonce: a.eventNonce, attestation: a.attestation, message: a.message,
     fromChain: v2Def(a.source), toChain: bkDef(a.chain.id), destinationAddress: a.wallet.address,
