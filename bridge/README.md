@@ -39,6 +39,7 @@ Transfers are also kept in `localStorage` and can be retried from the failed ste
 ## Notes
 
 - Circle marks Fast Transfer as N/A for Sui and Aptos as sources (sub-second finality), so those burns use finality 2000 with no fee. The sandbox fee API has no quotes for Sui routes; the UI falls back to Standard.
+- Solana mainnet calls go to PublicNode (`solana-rpc.publicnode.com`), set in `src/lib/chains.ts`. Solana's public endpoint, which Bridge Kit uses by default, refuses requests from web pages with `403 Access forbidden`, so every Solana adapter is given this connection.
 - Not yet exercised end to end on every route; Solana ↔ Sui/Aptos uses Bridge Kit's action layer with a synthesized V2 chain definition and is the first place to look if a route fails.
 - Gas-free bridging out of Monad for other apps (the user signs, Setsuna's relayer pays) is not part of this app; it lives in the SDK, the relayer and `contracts/src/bridge/SetsunaBridgeSponsor.sol`. See the [sponsored bridging guide](https://setsuna.finance/docs/developers/bridge/).
 

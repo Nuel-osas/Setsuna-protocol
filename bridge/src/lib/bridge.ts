@@ -4,7 +4,7 @@ import { BridgeKit } from "@circle-fin/bridge-kit";
 import { createPublicClient, http } from "viem";
 import { type Chain, type Network, findChain } from "./chains";
 import { FORWARD_HOOK, cheapFees, forwardQuote, irisMessage, messageUsed } from "./claim";
-import { AlreadyMinted, burn, mint, settleBurn, waitForAttestation } from "./legs";
+import { AlreadyMinted, burn, mint, settleBurn, solanaAdapter, waitForAttestation } from "./legs";
 import type { Connected } from "./wallets";
 
 // Bridge Kit drives approve → burn → attestation → mint for every EVM and Solana route.
@@ -52,15 +52,12 @@ export function saveTransfer(t: Transfer) {
 const kit = new BridgeKit();
 
 // Bridge Kit's adapter factories pull in chain SDKs, so load them only when a transfer starts.
-async function adapterFor(w: Connected) {
+async function adapterFor(w: Connected, chain: Chain) {
   if (w.ecosystem === "evm" && w.evm) {
     const { createViemAdapterFromProvider } = await import("@circle-fin/adapter-viem-v2");
     return createViemAdapterFromProvider({ provider: w.evm as never });
   }
-  if (w.ecosystem === "solana" && w.solana) {
-    const { createSolanaAdapterFromProvider } = await import("@circle-fin/adapter-solana");
-    return createSolanaAdapterFromProvider({ provider: w.solana as never });
-  }
+  if (w.ecosystem === "solana" && w.solana) return solanaAdapter(w, chain);
   throw new Error(`Bridging from ${w.ecosystem} isn't wired up yet`);
 }
 
@@ -321,7 +318,7 @@ async function runKit(
 
   try {
     if (!t.gasInUsdc && !to.wallet) throw new Error(`Connect a wallet on ${to.chain.name} to claim.`);
-    const [fromAdapter, toAdapter] = await Promise.all([adapterFor(from.wallet), t.gasInUsdc ? undefined : adapterFor(to.wallet!)]);
+    const [fromAdapter, toAdapter] = await Promise.all([adapterFor(from.wallet, from.chain), t.gasInUsdc ? undefined : adapterFor(to.wallet!, to.chain)]);
     if (t.steps.approve.state === "idle" && t.steps.burn.state === "idle") markLive(t, "approve");
     patch(t, { state: "live", error: undefined }, emit);
 

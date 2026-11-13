@@ -42,6 +42,11 @@ const SHORT: Record<string, string> = {
 
 const NAME_FIX: Record<string, string> = { optimism: "OP Mainnet", polygon: "Polygon PoS", world_chain: "World Chain", x_layer: "X Layer" };
 
+// Solana's public endpoint (Bridge Kit's default) answers 403 "Access forbidden" to any request
+// carrying a web page's Origin; the same call from a server succeeds (checked 13 Nov 2026).
+// PublicNode serves browsers (CORS *) with no key. Devnet's public endpoint still serves browsers.
+const RPC_FIX: Record<string, string> = { Solana: "https://solana-rpc.publicnode.com" };
+
 const familyOf = (id: string) =>
   id.replace(/_(Sepolia|Testnet|Fuji|Amoy_Testnet|Devnet|Apothem)$/, "").toLowerCase();
 
@@ -80,7 +85,7 @@ const bridgeable: Chain[] = bkChains
       chainId: c.chainId,
       usdc: c.usdcAddress ?? undefined,
       explorer: c.explorerUrl,
-      rpc: c.rpcEndpoints?.[0],
+      rpc: RPC_FIX[c.chain] ?? c.rpcEndpoints?.[0],
       hue: hueOf(family),
     } satisfies Chain;
   });
