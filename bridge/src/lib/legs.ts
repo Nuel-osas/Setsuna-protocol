@@ -289,11 +289,23 @@ async function solanaBurn(a: BurnArgs) {
   return p.execute();
 }
 
+// The burn token in an attested CCTP V2 message: bytes 152–184, after the 148-byte header and the
+// body's 4-byte version. Solana's mint finds its token pair from the source chain's USDC address,
+// which Bridge Kit has no Sui or Aptos definition to supply, and Sui's burn token isn't its USDC
+// package id, so it is read from the message the attestation signs.
+function burnTokenOf(message: string): `0x${string}` {
+  const hex = message.replace(/^0x/, "");
+  if (hex.length < 368 || !/^[0-9a-fA-F]+$/.test(hex)) throw new Error("The attested message is malformed, so the mint can't be built.");
+  return `0x${hex.slice(304, 368)}`;
+}
+
 async function solanaMint(a: MintArgs) {
   const adapter = (await solanaAdapter(a.wallet, a.chain)) as unknown as ActionAdapter;
+  const source = v2Def(a.source);
+  const fromChain = "usdcAddress" in source && source.usdcAddress ? source : { ...source, usdcAddress: burnTokenOf(a.message) };
   const p = await adapter.prepareAction("cctp.v2.receiveMessage", {
     eventNonce: a.eventNonce, attestation: a.attestation, message: a.message,
-    fromChain: v2Def(a.source), toChain: bkDef(a.chain.id), destinationAddress: a.wallet.address,
+    fromChain, toChain: bkDef(a.chain.id), destinationAddress: a.wallet.address,
   }, { chain: a.chain.id, address: a.wallet.address });
   return p.execute();
 }
