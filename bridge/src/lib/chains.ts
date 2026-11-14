@@ -48,8 +48,17 @@ const NAME_FIX: Record<string, string> = { optimism: "OP Mainnet", polygon: "Pol
 // - Solana: the public endpoint (Bridge Kit's default) answers 403 "Access forbidden" to any request
 //   carrying a web page's Origin; the same call from a server succeeds (checked 13 Nov 2026).
 //   PublicNode serves browsers (CORS *) with no key. Devnet's public endpoint still serves browsers.
+// - XDC: erpc.xdcrpc.com answers eth_chainId but fails block reads (upstream errors, 429s), so gas
+//   estimates fail. XinFin's own endpoints (rpc, rpc1, earpc, erpc.xinfin.network) sit behind a
+//   Cloudflare check that blocks the browser's fetch. Ankr and public-rpc.com passed 21/21, chain id 0x32.
+// - X Layer: xlayerrpc.okx.com sits on okx.com, which some networks block outright (timed out from
+//   ours). rpc.xlayer.tech and dRPC passed 15/15, chain id 0xc4 (196).
+//   XDC and X Layer checked 14 Nov 2026 from Chrome on bridge.setsuna.finance: chain id, latest block,
+//   gas price, tip, balance, eth_call and estimateGas, 3 rounds each.
 const RPC_FIX: Record<string, string[]> = {
   Solana: ["https://solana-rpc.publicnode.com"],
+  XDC: ["https://rpc.ankr.com/xdc", "https://xdc.public-rpc.com"],
+  X_Layer: ["https://rpc.xlayer.tech", "https://xlayer.drpc.org"],
 };
 
 const familyOf = (id: string) =>
