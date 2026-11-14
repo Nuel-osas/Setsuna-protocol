@@ -1,7 +1,7 @@
 "use client";
 
-import { createPublicClient, http, parseAbi } from "viem";
-import { type Chain, type Network, bkDef } from "./chains";
+import { createPublicClient, parseAbi } from "viem";
+import { type Chain, type Network, bkDef, evmTransport } from "./chains";
 
 // What it costs to receive on a chain, and Circle's Forwarding Service, which mints for the user
 // (paid from the USDC) so they need no gas on the destination at all.
@@ -59,7 +59,7 @@ export async function gasPrices(): Promise<Record<string, number>> {
 
 // ── claim cost and the claiming wallet's gas ──────────────────────────────
 
-const evmClient = (c: Chain) => createPublicClient({ transport: http(c.rpc) });
+const evmClient = (c: Chain) => createPublicClient({ transport: evmTransport(c) });
 
 // Approximate cost of a mint on non-EVM chains, in base units (Solana includes creating the token account).
 const FLAT_COST: Record<string, bigint> = { solana: 2_500_000n, sui: 10_000_000n, aptos: 200_000n };

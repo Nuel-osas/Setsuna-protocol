@@ -4,13 +4,13 @@
 // transaction to finish a transfer, and the USDC can only go to the recipient fixed in the burn, so a
 // transfer can be picked up on any device: from the wallet that sent or receives it (looked up in
 // Setsuna's record), or from its transaction hash (looked up at Circle).
-import { ALL_CHAINS, type Chain } from "./chains";
+import { ALL_CHAINS, type Chain, evmTransport } from "./chains";
 import { aptosToBytes32 } from "./aptos";
 import { suiToBytes32 } from "./sui";
 import { type Transfer, checkTransfer, emptySteps } from "./bridge";
 import { FORWARD_HOOK, irisMessage, messageUsed } from "./claim";
 import type { Connected } from "./wallets";
-import { createPublicClient, http } from "viem";
+import { createPublicClient } from "viem";
 
 const STATS = "https://stats.setsuna.finance/api/bridge-transfers";
 const IRIS = "https://iris-api.circle.com";
@@ -126,7 +126,7 @@ async function burnTime(chain: Chain, hash: string): Promise<string | null> {
     fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) }).then((r) => r.json());
   try {
     if (chain.ecosystem === "evm" && chain.rpc) {
-      const c = createPublicClient({ transport: http(chain.rpc) });
+      const c = createPublicClient({ transport: evmTransport(chain) });
       const rc = await c.getTransactionReceipt({ hash: hash as `0x${string}` });
       const block = await c.getBlock({ blockNumber: rc.blockNumber });
       return new Date(Number(block.timestamp) * 1000).toISOString();

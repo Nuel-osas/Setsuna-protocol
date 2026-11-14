@@ -1,8 +1,8 @@
 "use client";
 
-import { createPublicClient, http, parseAbi } from "viem";
+import { createPublicClient, parseAbi } from "viem";
 import { aptosUsdcBalance } from "./aptos";
-import type { Chain } from "./chains";
+import { type Chain, evmTransport } from "./chains";
 import { suiUsdcBalance } from "./sui";
 
 const erc20 = parseAbi(["function balanceOf(address) view returns (uint256)"]);
@@ -14,7 +14,7 @@ export async function usdcBalance(chain: Chain, owner: string): Promise<bigint |
   if (!chain.usdc || !chain.rpc) return null;
   try {
     if (chain.ecosystem === "evm") {
-      const client = createPublicClient({ transport: http(chain.rpc) });
+      const client = createPublicClient({ transport: evmTransport(chain) });
       return await client.readContract({ address: chain.usdc as `0x${string}`, abi: erc20, functionName: "balanceOf", args: [owner as `0x${string}`] });
     }
     if (chain.ecosystem === "solana") {
