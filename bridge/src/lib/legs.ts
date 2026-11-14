@@ -1,7 +1,7 @@
 "use client";
 
-import { createPublicClient, createWalletClient, custom, defineChain, encodeFunctionData, http, numberToHex, pad, parseAbi } from "viem";
-import { type BKChain, type Chain, type Network, bkDef } from "./chains";
+import { createPublicClient, createWalletClient, custom, defineChain, encodeFunctionData, numberToHex, pad, parseAbi } from "viem";
+import { type BKChain, type Chain, type Network, bkDef, evmTransport } from "./chains";
 import { gasPrices, gasToken, messageUsed } from "./claim";
 import { aptosBurn, aptosMint, aptosToBytes32 } from "./aptos";
 import { suiBurn, suiMint, suiToBytes32 } from "./sui";
@@ -59,16 +59,19 @@ export async function recipient32(dest: Chain, addr: string): Promise<`0x${strin
 
 // ── EVM ───────────────────────────────────────────────────────────────────
 
-function viemChain(def: BKChain) {
+// Our endpoint list (chains.ts), not Bridge Kit's: its first endpoint can be one that's down or blocked.
+const rpcList = (c: Chain, def: BKChain) => (c.rpcs?.length ? c.rpcs : def.rpcEndpoints ?? []);
+
+function viemChain(c: Chain, def: BKChain) {
   return defineChain({
     id: def.chainId!,
     name: def.name,
     nativeCurrency: def.nativeCurrency ?? { name: "Ether", symbol: "ETH", decimals: 18 },
-    rpcUrls: { default: { http: def.rpcEndpoints ?? [] } },
+    rpcUrls: { default: { http: rpcList(c, def) } },
   });
 }
 
-async function evmSwitch(w: Connected, def: BKChain) {
+async function evmSwitch(w: Connected, c: Chain, def: BKChain) {
   const p = w.evm!;
   const want = numberToHex(def.chainId!);
   if ((await p.request({ method: "eth_chainId" })) === want) return;
@@ -78,7 +81,7 @@ async function evmSwitch(w: Connected, def: BKChain) {
     if ((e as { code?: number }).code !== 4902) throw e;
     await p.request({
       method: "wallet_addEthereumChain",
-      params: [{ chainId: want, chainName: def.name, nativeCurrency: def.nativeCurrency, rpcUrls: def.rpcEndpoints }],
+      params: [{ chainId: want, chainName: def.name, nativeCurrency: def.nativeCurrency, rpcUrls: rpcList(c, def) }],
     });
   }
 }
@@ -142,10 +145,10 @@ async function batchBurn(wal: ReturnType<typeof createWalletClient>, account: `0
 async function evmBurn(a: BurnArgs) {
   const def = bkDef(a.chain.id)!;
   const v2 = def.cctp!.contracts!.v2!;
-  const chain = viemChain(def);
-  await evmSwitch(a.wallet, def);
+  const chain = viemChain(a.chain, def);
+  await evmSwitch(a.wallet, a.chain, def);
   const account = a.wallet.address as `0x${string}`;
-  const pub = createPublicClient({ chain, transport: http(def.rpcEndpoints?.[0]) });
+  const pub = createPublicClient({ chain, transport: evmTransport(a.chain) });
   const wal = createWalletClient({ chain, account, transport: custom(a.wallet.evm!) });
   const usdc = def.usdcAddress as `0x${string}`;
   const messenger = v2.tokenMessenger as `0x${string}`;
@@ -219,7 +222,7 @@ async function evmBurn(a: BurnArgs) {
  */
 export async function settleBurn(chain: Chain, hash: string, onReplaced?: (hash: string) => void): Promise<"success" | "reverted" | "cancelled"> {
   const def = bkDef(chain.id)!;
-  const pub = createPublicClient({ chain: viemChain(def), transport: http(def.rpcEndpoints?.[0]) });
+  const pub = createPublicClient({ chain: viemChain(chain, def), transport: evmTransport(chain) });
   let cancelled = false;
   const rc = await pub.waitForTransactionReceipt({
     hash: hash as `0x${string}`,
@@ -237,10 +240,10 @@ export async function settleBurn(chain: Chain, hash: string, onReplaced?: (hash:
 async function evmMint(a: MintArgs) {
   if (await messageUsed(a.chain, a.message)) throw new AlreadyMinted();
   const def = bkDef(a.chain.id)!;
-  const chain = viemChain(def);
-  await evmSwitch(a.wallet, def);
+  const chain = viemChain(a.chain, def);
+  await evmSwitch(a.wallet, a.chain, def);
   const account = a.wallet.address as `0x${string}`;
-  const pub = createPublicClient({ chain, transport: http(def.rpcEndpoints?.[0]) });
+  const pub = createPublicClient({ chain, transport: evmTransport(a.chain) });
   const wal = createWalletClient({ chain, account, transport: custom(a.wallet.evm!) });
   const mintTx = {
     to: def.cctp!.contracts!.v2!.messageTransmitter as `0x${string}`,

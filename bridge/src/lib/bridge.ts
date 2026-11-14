@@ -1,8 +1,8 @@
 "use client";
 
 import { BridgeKit } from "@circle-fin/bridge-kit";
-import { createPublicClient, http } from "viem";
-import { type Chain, type Network, findChain } from "./chains";
+import { type PublicClient, type Chain as ViemChain, createPublicClient, http } from "viem";
+import { ALL_CHAINS, type Chain, type Network, evmTransport, findChain } from "./chains";
 import { FORWARD_HOOK, cheapFees, forwardQuote, irisMessage, messageUsed } from "./claim";
 import { AlreadyMinted, burn, mint, settleBurn, solanaAdapter, waitForAttestation } from "./legs";
 import type { Connected } from "./wallets";
@@ -55,7 +55,18 @@ const kit = new BridgeKit();
 async function adapterFor(w: Connected, chain: Chain) {
   if (w.ecosystem === "evm" && w.evm) {
     const { createViemAdapterFromProvider } = await import("@circle-fin/adapter-viem-v2");
-    return createViemAdapterFromProvider({ provider: w.evm as never });
+    // Its default reads start at Bridge Kit's first endpoint, which can be down or blocked (chains.ts).
+    const clients = new Map<number, PublicClient>();
+    const getPublicClient = ({ chain: vc }: { chain: ViemChain }) => {
+      let client = clients.get(vc.id);
+      if (!client) {
+        const ours = ALL_CHAINS.find((c) => c.ecosystem === "evm" && c.chainId === vc.id);
+        client = createPublicClient({ chain: vc, transport: ours ? evmTransport(ours) : http() });
+        clients.set(vc.id, client);
+      }
+      return client;
+    };
+    return createViemAdapterFromProvider({ provider: w.evm as never, getPublicClient });
   }
   if (w.ecosystem === "solana" && w.solana) return solanaAdapter(w, chain);
   throw new Error(`Bridging from ${w.ecosystem} isn't wired up yet`);
@@ -247,7 +258,7 @@ async function runCustom(
 async function waitReceipt(c: Chain, hash: string, timeout = 86_400_000) {
   if (!c.rpc) return false;
   try {
-    const rc = await createPublicClient({ transport: http(c.rpc) }).waitForTransactionReceipt({ hash: hash as `0x${string}`, timeout, pollingInterval: 15_000 });
+    const rc = await createPublicClient({ transport: evmTransport(c) }).waitForTransactionReceipt({ hash: hash as `0x${string}`, timeout, pollingInterval: 15_000 });
     return rc.status === "success";
   } catch {
     return false;
@@ -257,7 +268,7 @@ async function waitReceipt(c: Chain, hash: string, timeout = 86_400_000) {
 async function receiptNow(c: Chain, hash: string) {
   if (!c.rpc) return false;
   try {
-    const rc = await createPublicClient({ transport: http(c.rpc) }).getTransactionReceipt({ hash: hash as `0x${string}` });
+    const rc = await createPublicClient({ transport: evmTransport(c) }).getTransactionReceipt({ hash: hash as `0x${string}` });
     return rc.status === "success";
   } catch {
     return false;

@@ -1,4 +1,5 @@
 import * as BK from "@circle-fin/bridge-kit/chains";
+import { fallback, http } from "viem";
 
 // Every CCTP V2 chain. Bridgeable ones come straight from Circle's Bridge Kit definitions;
 // the rest are CCTP V2 domains Bridge Kit has no browser adapter for yet.
@@ -20,7 +21,8 @@ export type Chain = {
   chainId?: number;
   usdc?: string;
   explorer?: string;
-  rpc?: string;
+  rpc?: string; // the endpoint reads go to first
+  rpcs?: string[]; // every endpoint, ours first, then Bridge Kit's list
   hue: number;
 };
 
@@ -42,10 +44,22 @@ const SHORT: Record<string, string> = {
 
 const NAME_FIX: Record<string, string> = { optimism: "OP Mainnet", polygon: "Polygon PoS", world_chain: "World Chain", x_layer: "X Layer" };
 
-// Solana's public endpoint (Bridge Kit's default) answers 403 "Access forbidden" to any request
-// carrying a web page's Origin; the same call from a server succeeds (checked 13 Nov 2026).
-// PublicNode serves browsers (CORS *) with no key. Devnet's public endpoint still serves browsers.
-const RPC_FIX: Record<string, string> = { Solana: "https://solana-rpc.publicnode.com" };
+// Endpoints tried before Bridge Kit's own list, each checked from Chrome on a web page.
+// - Solana: the public endpoint (Bridge Kit's default) answers 403 "Access forbidden" to any request
+//   carrying a web page's Origin; the same call from a server succeeds (checked 13 Nov 2026).
+//   PublicNode serves browsers (CORS *) with no key. Devnet's public endpoint still serves browsers.
+// - XDC: erpc.xdcrpc.com answers eth_chainId but fails block reads (upstream errors, 429s), so gas
+//   estimates fail. XinFin's own endpoints (rpc, rpc1, earpc, erpc.xinfin.network) sit behind a
+//   Cloudflare check that blocks the browser's fetch. Ankr and public-rpc.com passed 21/21, chain id 0x32.
+// - X Layer: xlayerrpc.okx.com sits on okx.com, which some networks block outright (timed out from
+//   ours). rpc.xlayer.tech and dRPC passed 15/15, chain id 0xc4 (196).
+//   XDC and X Layer checked 14 Nov 2026 from Chrome on bridge.setsuna.finance: chain id, latest block,
+//   gas price, tip, balance, eth_call and estimateGas, 3 rounds each.
+const RPC_FIX: Record<string, string[]> = {
+  Solana: ["https://solana-rpc.publicnode.com"],
+  XDC: ["https://rpc.ankr.com/xdc", "https://xdc.public-rpc.com"],
+  X_Layer: ["https://rpc.xlayer.tech", "https://xlayer.drpc.org"],
+};
 
 const familyOf = (id: string) =>
   id.replace(/_(Sepolia|Testnet|Fuji|Amoy_Testnet|Devnet|Apothem)$/, "").toLowerCase();
@@ -71,6 +85,7 @@ const mainnetName = new Map(bkChains.filter((c) => !c.isTestnet).map((c) => [fam
 const bridgeable: Chain[] = bkChains
   .map((c) => {
     const family = familyOf(c.chain);
+    const rpcs = [...new Set([...(RPC_FIX[c.chain] ?? []), ...(c.rpcEndpoints ?? [])])];
     return {
       id: c.chain,
       family,
@@ -85,7 +100,8 @@ const bridgeable: Chain[] = bkChains
       chainId: c.chainId,
       usdc: c.usdcAddress ?? undefined,
       explorer: c.explorerUrl,
-      rpc: RPC_FIX[c.chain] ?? c.rpcEndpoints?.[0],
+      rpc: rpcs[0],
+      rpcs,
       hue: hueOf(family),
     } satisfies Chain;
   });
@@ -122,3 +138,12 @@ export const ECOSYSTEM_LABEL: Record<Ecosystem, string> = {
 };
 
 export const txUrl = (c: Chain, hash: string) => c.explorer?.replace("{hash}", hash);
+
+/**
+ * Where an EVM chain's reads go: our endpoint first, then down Bridge Kit's list when one fails, as
+ * Bridge Kit's own adapter does. A dead first endpoint then costs one failed call, not the transfer.
+ */
+export const evmTransport = (c: Chain) => {
+  const urls = c.rpcs?.length ? c.rpcs : c.rpc ? [c.rpc] : [];
+  return urls.length > 1 ? fallback(urls.map((u) => http(u))) : http(urls[0]);
+};
