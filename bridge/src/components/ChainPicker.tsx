@@ -50,8 +50,8 @@ export function ChainPicker({ label, value, other, chains, onChange, balance, co
             {list.map((c) => (
               <button key={c.id} type="button" disabled={!c.bridgeable} onClick={() => { onChange(c); setOpen(false); }}>
                 <ChainIcon c={c} size={24} />
-                <span className="menu-name">{c.name}<small>{ECOSYSTEM_LABEL[c.ecosystem]} · {costs?.[c.family] ? costs[c.family] : `domain ${c.domain}`}</small></span>
-                <span className={`tag ${c.bridgeable ? "" : "soon"}`}>{!c.bridgeable ? "SOON" : c.family === other.family ? "⇅ SWAP" : c.family === value.family ? "SELECTED" : c.fast ? "FAST" : "NATIVE"}</span>
+                <span className="menu-name">{c.name}<small>{ECOSYSTEM_LABEL[c.ecosystem]} · {costs?.[c.family] ? costs[c.family] : c.provider === "lifi" ? "via LI.FI" : `domain ${c.domain}`}</small></span>
+                <span className={`tag ${c.bridgeable ? "" : "soon"}`}>{!c.bridgeable ? "SOON" : c.family === other.family ? "⇅ SWAP" : c.family === value.family ? "SELECTED" : c.provider === "lifi" ? "LI.FI" : c.fast ? "FAST" : "NATIVE"}</span>
               </button>
             ))}
             {list.length === 0 && <div className="menu-empty">No chain matches “{q}”</div>}
