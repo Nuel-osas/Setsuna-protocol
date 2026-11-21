@@ -108,7 +108,8 @@ export async function walletTransfers(keys: string[]): Promise<Transfer[]> {
 export async function refresh(t: Transfer): Promise<Transfer | null> {
   const updated = await checkTransfer(t);
   if (updated) return updated;
-  if (t.state === "done" || t.state === "claim" || !t.steps.burn.tx) return null;
+  // A LI.FI transfer's CCTP leg mints to the holder, never the final recipient: it has no claim to offer.
+  if (t.hop || t.state === "done" || t.state === "claim" || !t.steps.burn.tx) return null;
   const from = ALL_CHAINS.find((c) => c.network === t.network && c.family === t.from);
   const to = ALL_CHAINS.find((c) => c.network === t.network && c.family === t.to);
   if (!from || !to) return null;

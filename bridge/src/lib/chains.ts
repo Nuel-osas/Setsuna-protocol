@@ -24,6 +24,8 @@ export type Chain = {
   rpc?: string; // the endpoint reads go to first
   rpcs?: string[]; // every endpoint, ours first, then Bridge Kit's list
   hue: number;
+  /** Reached through LI.FI, not CCTP: the chain has no USDC, so it has no CCTP domain (domain is -1). */
+  provider?: "lifi";
 };
 
 // Circle lists Fast as "N/A" for these sources: standard attestation is already fast.
@@ -122,9 +124,24 @@ const pending = (["mainnet", "testnet"] as const).flatMap((network) =>
   }) satisfies Chain),
 );
 
-export const ALL_CHAINS: Chain[] = [...bridgeable, ...pending];
+// Chains reached through LI.FI, mainnet only. Robinhood Chain (4663, Arbitrum Orbit on Ethereum) has
+// no USDC, so USDC arrives as USDG or ETH (lifi.ts). Chain id 0x1237 from each RPC below. RPCs from
+// chainid.network's entry, each 15/15 from Chrome on bridge.setsuna.finance (chain id, block, gas price,
+// balance, eth_call; 21 Nov 2026). Explorer: the Blockscout instance Robinhood's docs link to.
+const viaLifi: Chain[] = [
+  {
+    id: "Robinhood", family: "robinhood", name: "Robinhood Chain", short: "HOOD", network: "mainnet", ecosystem: "evm",
+    domain: -1, icon: "/icons/robinhood.svg", fast: false, bridgeable: true, chainId: 4663, provider: "lifi",
+    explorer: "https://robinhoodchain.blockscout.com/tx/{hash}",
+    rpc: "https://rpc.mainnet.chain.robinhood.com",
+    rpcs: ["https://rpc.mainnet.chain.robinhood.com", "https://robinhood-rpc.publicnode.com", "https://robinhood.drpc.org"],
+    hue: hueOf("robinhood"),
+  },
+];
 
-const ORDER = ["ethereum", "base", "arbitrum", "solana", "optimism", "sui", "monad", "polygon", "avalanche", "unichain", "linea", "hyperevm", "world_chain", "sonic", "aptos"];
+export const ALL_CHAINS: Chain[] = [...bridgeable, ...viaLifi, ...pending];
+
+const ORDER = ["ethereum", "base", "arbitrum", "solana", "optimism", "sui", "robinhood", "monad", "polygon", "avalanche", "unichain", "linea", "hyperevm", "world_chain", "sonic", "aptos"];
 const rank = (c: Chain) => { const i = ORDER.indexOf(c.family); return i === -1 ? 100 : i; };
 
 export const chainsFor = (network: Network) =>
@@ -132,6 +149,10 @@ export const chainsFor = (network: Network) =>
 
 export const findChain = (network: Network, family: string) =>
   ALL_CHAINS.find((c) => c.network === network && c.family === family)!;
+
+/** A chain on `network`, or `fallback` when the family isn't on that network (Robinhood is mainnet only). */
+export const chainOr = (network: Network, family: string, fallback: string) =>
+  ALL_CHAINS.find((c) => c.network === network && c.family === family) ?? findChain(network, fallback);
 
 export const ECOSYSTEM_LABEL: Record<Ecosystem, string> = {
   evm: "EVM", solana: "Solana", sui: "Sui · Move", aptos: "Aptos · Move", starknet: "Starknet", stellar: "Stellar",

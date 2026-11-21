@@ -5,6 +5,7 @@ import { type PublicClient, type Chain as ViemChain, createPublicClient, http } 
 import { ALL_CHAINS, type Chain, type Network, evmTransport, findChain } from "./chains";
 import { FORWARD_HOOK, cheapFees, forwardQuote, irisMessage, messageUsed } from "./claim";
 import { AlreadyMinted, burn, mint, settleBurn, solanaAdapter, waitForAttestation } from "./legs";
+import { type HopToken, HOP_TOKENS, crossedAmount, lifiApprove, lifiQuote, lifiSend, lifiStatus } from "./lifi";
 import type { Connected } from "./wallets";
 
 // Bridge Kit drives approve → burn → attestation → mint for every EVM and Solana route.
@@ -34,7 +35,33 @@ export type Transfer = {
   result?: unknown; // Bridge Kit's BridgeResult, kept for kit.retry
   createdAt: number;
   doneAt?: number;
+  /** A last hop through LI.FI, to a chain CCTP doesn't reach (Robinhood). */
+  hop?: Hop;
 };
+
+export type HopStep = { state: StepState; tx?: string; url?: string };
+
+export type Hop = {
+  provider: "lifi";
+  token: HopToken;
+  /** The EVM wallet that holds the USDC for LI.FI and signs its transaction. */
+  holder: string;
+  /** Middle chain family when the USDC first crosses on CCTP (sources LI.FI can't take directly). */
+  via?: string;
+  /** USDC handed to LI.FI, in base units: measured from the attested mint when it crossed first. */
+  amount?: string;
+  tool?: string;
+  steps: { approve: HopStep; send: HopStep; receive: HopStep };
+  /** What arrived, in the received token's base units, and that token when LI.FI delivered another. */
+  received?: string;
+  receivedSymbol?: string;
+  receivedDecimals?: number;
+  explorer?: string;
+};
+
+export const emptyHop = (token: HopToken, holder: string, via?: string): Hop => ({
+  provider: "lifi", token, holder, via, steps: { approve: { state: "idle" }, send: { state: "idle" }, receive: { state: "idle" } },
+});
 
 const KEY = "setsuna-bridge:v2:transfers";
 
@@ -119,6 +146,7 @@ export async function runTransfer(
 ) {
   // A transfer rebuilt from its burn (found by wallet or hash on another device) has no Bridge Kit
   // state to retry: our own legs pick it up from the burn, whichever chain sent it.
+  if (t.hop) return runHop(t, from, to, emit);
   const rebuilt = !!t.steps.burn.tx && !t.result;
   if (viaKit(from.chain, to.chain) && !rebuilt) {
     if (!from.wallet) throw new Error(`Connect a wallet on ${from.chain.name} to continue.`);
@@ -133,15 +161,25 @@ function landed(t: Transfer, to: Chain, emit: Emit, tx?: string, note?: string) 
   patch(t, { state: "done", doneAt: t.doneAt ?? Date.now(), note, error: undefined }, emit);
 }
 
+// The CCTP leg of a LI.FI transfer is done: the USDC sits in the holder's wallet on the middle chain.
+function crossed(t: Transfer, via: Chain, emit: Emit, tx?: string) {
+  ORDER.forEach((k) => { if (t.steps[k].state === "live" || t.steps[k].state === "idle") t.steps[k].state = k === "approve" ? "skip" : "done"; });
+  t.steps.mint = { state: "done", tx: tx ?? t.steps.mint.tx, url: tx ? txUrlFor(via, tx) : t.steps.mint.url };
+  patch(t, {}, emit);
+}
+
 // Our own legs: burn, attestation from Iris, then either Circle's forwarded mint or the user's claim.
-// Resumable per step.
+// Resumable per step. With `leg`, `to` is a middle chain: the USDC is minted to `leg.recipient` there and
+// the transfer stays live for the hop that follows.
 async function runCustom(
   t: Transfer,
   from: { chain: Chain; wallet?: Connected },
   to: { chain: Chain; wallet?: Connected },
   emit: Emit,
+  leg?: { recipient: string },
 ) {
   const amount = BigInt(Math.round(Number(t.amount) * 1e6));
+  const finish = (tx?: string, note?: string) => (leg ? crossed(t, to.chain, emit, tx) : landed(t, to.chain, emit, tx, note));
   try {
     patch(t, { state: "live", error: undefined }, emit);
     if (!t.steps.burn.tx) {
@@ -165,7 +203,7 @@ async function runCustom(
       }
       if (!from.wallet) throw new Error(`Connect a wallet on ${from.chain.name} to send.`);
       const tx = await burn({
-        network: t.network, chain: from.chain, wallet: from.wallet, amount, dest: to.chain, recipient: t.recipient,
+        network: t.network, chain: from.chain, wallet: from.wallet, amount, dest: to.chain, recipient: leg?.recipient ?? t.recipient,
         maxFee, finality: fast ? 1000 : 2000, hookData,
         onAdjusted: (sent, held) => {
           const f = (v: bigint) => (Number(v) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 6 });
@@ -211,7 +249,7 @@ async function runCustom(
 
     // A claim sent earlier and queued for cheaper gas: just wait for it.
     if (t.steps.mint.tx && t.state !== "error" && to.chain.ecosystem === "evm") {
-      if (await waitReceipt(to.chain, t.steps.mint.tx)) return landed(t, to.chain, emit);
+      if (await waitReceipt(to.chain, t.steps.mint.tx)) return finish();
     }
 
     const att = await waitForAttestation(t.network, from.chain.domain, t.steps.burn.tx!, fastAtt);
@@ -224,15 +262,15 @@ async function runCustom(
       // Circle mints; follow it until the forward transaction shows up (or someone else claims).
       for (let i = 0; i < 360; i++) {
         const m = await irisMessage(t.network, from.chain.domain, t.steps.burn.tx!);
-        if (m?.forwardTx) return landed(t, to.chain, emit, m.forwardTx, "Delivered by Circle");
-        if (await messageUsed(to.chain, att.message)) return landed(t, to.chain, emit, undefined, "Delivered");
+        if (m?.forwardTx) return finish(m.forwardTx, "Delivered by Circle");
+        if (await messageUsed(to.chain, att.message)) return finish(undefined, "Delivered");
         await new Promise((r) => setTimeout(r, 5000));
       }
       t.steps.mint.state = "idle";
       return patch(t, { state: "claim", note: "Circle hasn't delivered yet. It may still arrive, or you can claim it yourself." }, emit);
     }
 
-    if (await messageUsed(to.chain, att.message)) return landed(t, to.chain, emit, undefined, "Already minted");
+    if (await messageUsed(to.chain, att.message)) return finish(undefined, "Already minted");
     if (askHowToClaim(to.chain) && !t.claimMode) {
       t.steps.mint.state = "idle";
       return patch(t, { state: "claim" }, emit);
@@ -246,9 +284,9 @@ async function runCustom(
         patch(t, { state: fees ? "waiting" : "live" }, emit);
       },
     });
-    landed(t, to.chain, emit, mintTx);
+    finish(mintTx);
   } catch (e) {
-    if (e instanceof AlreadyMinted) return landed(t, to.chain, emit, undefined, "Already minted");
+    if (e instanceof AlreadyMinted) return finish(undefined, "Already minted");
     const err = e as { shortMessage?: string; message?: string };
     (["approve", "burn", "attest", "mint"] as StepKey[]).forEach((k) => { if (t.steps[k].state === "live") t.steps[k].state = "error"; });
     patch(t, { state: "error", error: (err.shortMessage ?? err.message ?? "Something went wrong").split("\n")[0] }, emit);
@@ -280,6 +318,7 @@ async function receiptNow(c: Chain, hash: string) {
  * have landed, or someone else may have claimed it. Returns the updated transfer, or null if unchanged.
  */
 export async function checkTransfer(t: Transfer): Promise<Transfer | null> {
+  if (t.hop) return checkHop(t);
   if (t.state === "done" || !t.steps.burn.tx) return null;
   const f = findChain(t.network, t.from);
   const d = findChain(t.network, t.to);
@@ -304,6 +343,163 @@ export async function checkTransfer(t: Transfer): Promise<Transfer | null> {
 }
 
 const txUrlFor = (c: Chain, hash: string) => c.explorer?.replace("{hash}", hash);
+
+// ── LI.FI hop ─────────────────────────────────────────────────────────────
+
+const HOP_KEYS = ["approve", "send", "receive"] as const;
+
+/**
+ * A transfer to a LI.FI chain. EVM sources LI.FI takes directly send one LI.FI transaction. Any other
+ * source first crosses on CCTP to the holder's EVM wallet on Base (our own legs), then LI.FI takes the
+ * USDC that actually arrived. Resumable per step; a sent LI.FI transaction is never sent twice.
+ */
+async function runHop(
+  t: Transfer,
+  from: { chain: Chain; wallet?: Connected },
+  to: { chain: Chain; wallet?: Connected },
+  emit: Emit,
+) {
+  const hop = t.hop!;
+  const via = hop.via ? findChain(t.network, hop.via) : undefined;
+  const src = via ?? from.chain;
+  try {
+    patch(t, { state: "live", error: undefined }, emit);
+    // The holder's wallet signs on the middle chain (or is the sender, for a direct hop).
+    const holder = to.wallet?.ecosystem === "evm" ? to.wallet : undefined;
+    if (via && t.steps.mint.state !== "done") {
+      await runCustom(t, from, { chain: via, wallet: holder }, emit, { recipient: hop.holder });
+      if ((t.steps.mint.state as StepState) !== "done") return; // paused: the CCTP leg recorded its own error
+      patch(t, { state: "live" }, emit);
+    }
+
+    if (!hop.amount) {
+      let crossedUsdc = BigInt(Math.round(Number(t.amount) * 1e6));
+      if (via) {
+        const att = t.result as { message?: string } | undefined;
+        const message = att?.message ?? (await irisMessage(t.network, from.chain.domain, t.steps.burn.tx!))?.message;
+        if (!message) throw new Error("Circle's record of the crossing isn't available yet. Retry in a moment.");
+        crossedUsdc = crossedAmount(message, hop.holder);
+      }
+      hop.amount = crossedUsdc.toString();
+      patch(t, {}, emit);
+    }
+    const amount = BigInt(hop.amount);
+
+    if (!hop.steps.send.tx) {
+      if (!holder) throw new Error(`Connect the EVM wallet ${short(hop.holder)} to send on ${src.name}.`);
+      if (holder.address.toLowerCase() !== hop.holder.toLowerCase()) throw new Error(`The USDC is in ${short(hop.holder)} on ${src.name}. Connect that wallet to continue.`);
+      hop.steps.approve = { state: "live" };
+      patch(t, {}, emit);
+      const approveTx = await lifiApprove(src, holder, amount);
+      hop.steps.approve = approveTx ? { state: "done", tx: approveTx, url: txUrlFor(src, approveTx) } : { state: "skip" };
+      hop.steps.send = { state: "live" };
+      patch(t, {}, emit);
+      // Quoted after the approval, so the route isn't stale by the time it's signed.
+      const q = await lifiQuote({ fromChain: src, fromAmount: amount, from: hop.holder, toChain: to.chain, to: t.recipient, token: hop.token });
+      hop.tool = q.tool;
+      patch(t, {}, emit);
+      await lifiSend(src, holder, q, (hash) => {
+        hop.steps.send = { state: "live", tx: hash, url: txUrlFor(src, hash) };
+        patch(t, {}, emit);
+      });
+      hop.steps.send = { ...hop.steps.send, state: "done" };
+      patch(t, {}, emit);
+    } else if (hop.steps.send.state !== "done") {
+      // Sent but never seen to confirm (the tab closed): settle it before following it.
+      const sent = hop.steps.send.tx;
+      hop.steps.send = { ...hop.steps.send, state: "live" };
+      patch(t, {}, emit);
+      const ok = await receiptStatus(src, sent);
+      if (ok === false) {
+        hop.steps.send = { state: "idle" };
+        throw new Error("The LI.FI transaction reverted, so nothing left your wallet. Retry to send it.");
+      }
+      if (ok) hop.steps.send = { ...hop.steps.send, state: "done" };
+      patch(t, {}, emit);
+    }
+    await followHop(t, src, to.chain, emit);
+  } catch (e) {
+    const err = e as { shortMessage?: string; message?: string };
+    HOP_KEYS.forEach((k) => { if (hop.steps[k].state === "live") hop.steps[k].state = "error"; });
+    patch(t, { state: "error", error: (err.shortMessage ?? err.message ?? "Something went wrong").split("\n")[0] }, emit);
+  }
+}
+
+/** True if the transaction succeeded, false if it reverted, null if there's no receipt yet. */
+async function receiptStatus(c: Chain, hash: string): Promise<boolean | null> {
+  try {
+    const rc = await createPublicClient({ transport: evmTransport(c) }).getTransactionReceipt({ hash: hash as `0x${string}` });
+    return rc.status === "success";
+  } catch {
+    return null;
+  }
+}
+
+/** Apply a terminal LI.FI status to the transfer. Returns false while it is still pending. */
+function settleHop(t: Transfer, dst: Chain, s: Awaited<ReturnType<typeof lifiStatus>>, src: Chain): boolean {
+  const hop = t.hop!;
+  if (s.explorer) hop.explorer = s.explorer;
+  if (s.state === "done" || s.state === "partial") {
+    hop.steps.send = { ...hop.steps.send, state: "done" };
+    hop.steps.receive = { state: "done", tx: s.receivingTx, url: s.receivingTx ? txUrlFor(dst, s.receivingTx) : s.explorer };
+    if (s.received !== undefined) hop.received = s.received.toString();
+    hop.receivedSymbol = s.symbol;
+    hop.receivedDecimals = s.decimals;
+    Object.assign(t, {
+      state: "done", doneAt: t.doneAt ?? Date.now(), error: undefined,
+      note: s.state === "partial" ? `LI.FI delivered ${s.symbol ?? "another token"} instead of ${hop.token}` : undefined,
+    });
+    return true;
+  }
+  if (s.state === "refunded") {
+    // The USDC went back to the holder on the sending chain: clear the hop so a retry sends it again.
+    hop.steps.send = { state: "idle" };
+    hop.steps.receive = { state: "idle" };
+    Object.assign(t, { state: "error", error: `LI.FI couldn't complete it and returned the USDC to your wallet on ${src.name}. Retry to send it again.` });
+    return true;
+  }
+  if (s.state === "failed") {
+    hop.steps.receive = { state: "error", url: s.explorer };
+    Object.assign(t, { state: "error", error: `LI.FI reports this transfer failed${s.message ? ` (${s.message})` : ""}. Check it on LI.FI's explorer before retrying.` });
+    return true;
+  }
+  return false;
+}
+
+// Follow LI.FI until it lands, refunds or fails; after ~30 minutes leave it live for History to pick up.
+async function followHop(t: Transfer, src: Chain, dst: Chain, emit: Emit) {
+  const hop = t.hop!;
+  hop.steps.receive = { ...hop.steps.receive, state: "live" };
+  patch(t, {}, emit);
+  for (let i = 0; i < 360; i++) {
+    const s = await lifiStatus(hop.steps.send.tx!, src.chainId!, dst.chainId!);
+    if (settleHop(t, dst, s, src)) return patch(t, {}, emit);
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  patch(t, { note: `Still with LI.FI. It updates here when it lands on ${dst.name}.` }, emit);
+}
+
+async function checkHop(t: Transfer): Promise<Transfer | null> {
+  const hop = t.hop!;
+  if (t.state === "done" || !hop.steps.send.tx) return null;
+  const src = findChain(t.network, hop.via ?? t.from);
+  const dst = findChain(t.network, t.to);
+  const s = await lifiStatus(hop.steps.send.tx, src.chainId!, dst.chainId!);
+  const u = structuredClone({ ...t, result: undefined }) as Transfer;
+  u.result = t.result;
+  return settleHop(u, dst, s, src) ? u : null;
+}
+
+/** What a LI.FI transfer delivered (or is set to deliver), formatted for display. */
+export function hopReceived(t: Transfer): string | null {
+  const h = t.hop;
+  if (!h?.received) return null;
+  const decimals = h.receivedDecimals ?? HOP_TOKENS[h.token].decimals;
+  const n = Number(h.received) / 10 ** decimals;
+  return `${n.toLocaleString(undefined, { maximumSignificantDigits: 6 })} ${h.receivedSymbol ?? h.token}`;
+}
+
+const short = (a: string) => (a.length > 12 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a);
 
 async function runKit(
   t: Transfer,

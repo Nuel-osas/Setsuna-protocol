@@ -86,18 +86,32 @@ async function evmSwitch(w: Connected, c: Chain, def: BKChain) {
   }
 }
 
+/** A public and wallet client on EVM chain `c`, with the wallet switched to it first. */
+export async function evmOn(w: Connected, c: Chain) {
+  const def = bkDef(c.id);
+  if (!def?.chainId || !w.evm) throw new Error(`Connect an EVM wallet to send on ${c.name}.`);
+  const chain = viemChain(c, def);
+  await evmSwitch(w, c, def);
+  const account = w.address as `0x${string}`;
+  return {
+    chain, account,
+    pub: createPublicClient({ chain, transport: evmTransport(c) }),
+    wal: createWalletClient({ chain, account, transport: custom(w.evm) }),
+  };
+}
+
 const BURN_GAS = 160_000n;
 const APPROVE_GAS = 60_000n;
 
 type Pub = ReturnType<typeof createPublicClient>;
-type Tx = { to: `0x${string}`; data: `0x${string}` };
+type Tx = { to: `0x${string}`; data: `0x${string}`; value?: bigint };
 
 /**
  * Gas settings the bridge sets itself: the estimate plus 25%, and a fee cap of 1.5x today's base fee.
  * Wallets otherwise pad the cap so far (7x seen on Ethereum) that a wallet holding enough ETH for the
  * real fee is treated as short and pays in USDC at a markup instead.
  */
-async function tightGas(pub: Pub, account: `0x${string}`, tx: Tx | null, fallbackGas: bigint) {
+export async function tightGas(pub: Pub, account: `0x${string}`, tx: Tx | null, fallbackGas: bigint) {
   const [block, tip] = await Promise.all([pub.getBlock(), pub.estimateMaxPriorityFeePerGas().catch(() => 100_000_000n)]);
   let gas = fallbackGas;
   if (tx) gas = await pub.estimateGas({ account, ...tx }).catch(() => fallbackGas);
