@@ -247,6 +247,8 @@ export function Bridge() {
   const an = (e: string) => (/^[AEIOU]/.test(ECOSYSTEM_LABEL[e as keyof typeof ECOSYSTEM_LABEL]) ? "an" : "a");
   const needs: string | null =
     !from.bridgeable || !to.bridgeable ? `${!from.bridgeable ? from.name : to.name} routes are coming soon`
+    // LI.FI chains are destinations only; never start a burn from one, whatever state the pickers reach.
+    : from.provider === "lifi" ? `${from.name} can only be sent to for now`
     : !srcWallet ? `Connect ${an(from.ecosystem)} ${ECOSYSTEM_LABEL[from.ecosystem]} wallet`
     : recipientCheck && !recipientCheck.ok ? `Fix the ${to.name} recipient address`
     : deliver && !dest ? `Add a recipient on ${to.name}`
@@ -292,7 +294,9 @@ export function Bridge() {
   const sources = useMemo(() => chains.map((c) => (c.provider === "lifi" ? { ...c, bridgeable: false } : c)), [chains]);
   const pick = (side: "from" | "to") => (c: Chain) => {
     if (side === "from") { if (c.family === toF) setToF(fromF); setFromF(c.family); }
-    else { if (c.family === fromF) setFromF(toF); setToF(c.family); }
+    // Picking the source as the destination swaps the two, except when the destination can't send
+    // (a LI.FI chain): the source then moves to Base, or to Ethereum when Base is the pick.
+    else { if (c.family === fromF) setFromF(hopTo ? (c.family === "base" ? "ethereum" : "base") : toF); setToF(c.family); }
   };
 
   const elapsed = active ? ((active.doneAt ?? (now || active.createdAt)) - active.createdAt) / 1000 : 0;
@@ -351,7 +355,7 @@ export function Bridge() {
 
                   <div className="flip-row"><button className="flip" onClick={flip} disabled={hopTo} aria-label="Swap direction">⇅</button></div>
 
-                  <ChainPicker label="To" value={to} other={from} chains={chains} onChange={pick("to")}
+                  <ChainPicker label="To" value={to} other={from} swap={!hopTo} chains={chains} onChange={pick("to")}
                     balance={dstWallet ? short(dstWallet.address) : undefined} costs={costs} onOpen={loadCosts} />
 
                   {hopTo ? (

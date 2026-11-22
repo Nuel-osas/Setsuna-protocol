@@ -12,8 +12,10 @@ export function ChainIcon({ c, size = 28 }: { c: Chain; size?: number }) {
   );
 }
 
-export function ChainPicker({ label, value, other, chains, onChange, balance, costs, onOpen }: {
+export function ChainPicker({ label, value, other, swap = true, chains, onChange, balance, costs, onOpen }: {
   label: string; value: Chain; other: Chain; chains: Chain[]; onChange: (c: Chain) => void; balance?: string;
+  /** Whether picking `other` swaps the two sides (not when the other side can't take this one's place). */
+  swap?: boolean;
   /** Per-family delivery cost labels, shown in the menu (destination picker). */
   costs?: Record<string, string>; onOpen?: () => void;
 }) {
@@ -51,7 +53,8 @@ export function ChainPicker({ label, value, other, chains, onChange, balance, co
               <button key={c.id} type="button" disabled={!c.bridgeable} onClick={() => { onChange(c); setOpen(false); }}>
                 <ChainIcon c={c} size={24} />
                 <span className="menu-name">{c.name}<small>{ECOSYSTEM_LABEL[c.ecosystem]} · {costs?.[c.family] ? costs[c.family] : c.provider === "lifi" ? "via LI.FI" : `domain ${c.domain}`}</small></span>
-                <span className={`tag ${c.bridgeable ? "" : "soon"}`}>{!c.bridgeable ? "SOON" : c.family === other.family ? "⇅ SWAP" : c.family === value.family ? "SELECTED" : c.provider === "lifi" ? "LI.FI" : c.fast ? "FAST" : "NATIVE"}</span>
+                {/* A LI.FI chain is off in the From list because it's a destination only, not because it's coming. */}
+                <span className={`tag ${c.bridgeable ? "" : "soon"}`}>{!c.bridgeable ? (c.provider === "lifi" ? "TO ONLY" : "SOON") : c.family === other.family ? (swap ? "⇅ SWAP" : "FROM") : c.family === value.family ? "SELECTED" : c.provider === "lifi" ? "LI.FI" : c.fast ? "FAST" : "NATIVE"}</span>
               </button>
             ))}
             {list.length === 0 && <div className="menu-empty">No chain matches “{q}”</div>}
