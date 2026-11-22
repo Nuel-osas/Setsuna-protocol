@@ -378,7 +378,7 @@ export function Bridge() {
                         <button key={k} className="speed" aria-pressed={hopToken === k} onClick={() => setHopToken(k)}>
                           <div className="k">{k}</div>
                           <div className="t">{HOP_TOKENS[k].name}</div>
-                          <div className="f">{k === "USDG" ? `${to.name} has no USDC` : `Gas on ${to.name}`}</div>
+                          <div className="f">{k === "USDG" ? `${to.name} has no USDC` : `Native ETH on ${to.name}`}</div>
                         </button>
                       ))}
                     </div>

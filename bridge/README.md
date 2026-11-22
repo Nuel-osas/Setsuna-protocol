@@ -23,7 +23,7 @@ Mixed routes (e.g. Base → Sui, Sui → Solana) burn on the source, wait for th
 
 ## Robinhood Chain (LI.FI)
 
-Robinhood Chain (4663) has no USDC, so the bridge swaps on the way through LI.FI's public API: into **USDG** (Paxos's Global Dollar, the default) or **ETH** for gas there.
+Robinhood Chain (4663) has no USDC, so the bridge swaps on the way through LI.FI's public API: into **USDG** (Paxos's Global Dollar, the default) or **ETH**, the chain's native token (which also pays gas there).
 
 - **EVM chains LI.FI takes directly** (20 of them, listed in `DIAMOND`) send one LI.FI transaction: approve the exact amount, then send.
 - **Every other source** (Sui, Solana, Aptos, and EVM chains LI.FI can't route from) first crosses on CCTP to the user's EVM wallet on Base, with our own legs. LI.FI then takes the USDC that actually arrived, read from Circle's signed message (amount minus the fee Circle took). That wallet signs the mint and the LI.FI transaction on Base, so it needs a little ETH there.

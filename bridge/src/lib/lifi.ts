@@ -19,10 +19,11 @@ export type HopToken = "USDG" | "ETH";
 //   21 Nov 2026 (read from rpc.mainnet.chain.robinhood.com). The other token LI.FI lists as "Paxos
 //   USDG" (0x0A3B…954F) has 1,100 in supply and no routes. Robinhood's docs name Paxos (USDG) as the
 //   chain's stablecoin provider.
-// - ETH: the chain's gas token.
+// - ETH: the chain's native token (chainid.network nativeCurrency ETH; LI.FI quotes it as 0x0 on 4663),
+//   which also pays its gas.
 export const HOP_TOKENS: Record<HopToken, { address: `0x${string}`; decimals: number; name: string }> = {
   USDG: { address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168", decimals: 6, name: "Global Dollar (Paxos)" },
-  ETH: { address: "0x0000000000000000000000000000000000000000", decimals: 18, name: "Ether, for gas" },
+  ETH: { address: "0x0000000000000000000000000000000000000000", decimals: 18, name: "Ether" },
 };
 
 // LI.FI's contract (its "diamond") on each chain the bridge sends from: the only address an approval or a
