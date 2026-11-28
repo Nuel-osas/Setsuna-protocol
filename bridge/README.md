@@ -16,9 +16,20 @@ npm run build && npm start
 | EVM ↔ EVM, EVM ↔ Solana (26 chains) | Circle Bridge Kit (`@circle-fin/bridge-kit` + viem and Solana adapters) |
 | anything ↔ Sui | Our PTBs against Circle's Sui V2 packages (`src/lib/sui.ts`) |
 | anything ↔ Aptos | Circle's precompiled V2 Move scripts (`src/lib/aptos.ts`, `public/cctp/aptos`) |
+| anything → Robinhood Chain | LI.FI (`src/lib/lifi.ts`): Robinhood has no USDC or CCTP, so the USDC lands as USDG or ETH |
 | Starknet, Stellar | Listed as "soon" |
 
 Mixed routes (e.g. Base → Sui, Sui → Solana) burn on the source, wait for the Iris attestation, then mint on the destination (`src/lib/legs.ts`, `runCustom` in `src/lib/bridge.ts`). Chain data comes from Bridge Kit's definitions (`src/lib/chains.ts`); Sui and Aptos V2 IDs are from Circle's package references and were checked on-chain in Oct 2026.
+
+## Robinhood Chain (LI.FI)
+
+Robinhood Chain (4663) has no USDC, so the bridge swaps on the way through LI.FI's public API: into **USDG** (Paxos's Global Dollar, the default) or **ETH**, the chain's native token (which also pays gas there).
+
+- **EVM chains LI.FI takes directly** (20 of them, listed in `DIAMOND`) send one LI.FI transaction: approve the exact amount, then send.
+- **Every other source** (Sui, Solana, Aptos, and EVM chains LI.FI can't route from) first crosses on CCTP to the user's EVM wallet on Base, with our own legs. LI.FI then takes the USDC that actually arrived, read from Circle's signed message (amount minus the fee Circle took). That wallet signs the mint and the LI.FI transaction on Base, so it needs a little ETH there.
+- **Every quote is checked before anything is signed:** chains, tokens, amount, sender and recipient must match the request. The transaction and the approval must go to LI.FI's contract pinned for that chain (from `li.quest/v1/chains`, checked against live quotes). Anything else is refused.
+- **Progress comes from LI.FI's status API.** An unclear status stays pending. A refund clears the hop so a retry can send again; a sent LI.FI transaction is never sent twice.
+- **Fees:** LI.FI's fixed 0.25% and the bridge it picks. Setsuna adds none.
 
 The app always opens on mainnet. Testnet is one click away and is never remembered, so a returning visitor can't land on testnet by accident.
 

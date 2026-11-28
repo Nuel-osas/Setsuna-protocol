@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { usdcBalance } from "@/lib/balance";
-import { type Transfer, emptySteps, loadTransfers, quoteBps, reportTransfer, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { type HopStep, type Transfer, emptyHop, emptySteps, hopReceived, loadTransfers, quoteBps, reportTransfer, runTransfer, saveTransfer, type StepKey } from "@/lib/bridge";
+import { type HopToken, type LifiQuote, HOP_TOKENS, VIA, lifiDirect, lifiQuote } from "@/lib/lifi";
 import { findByHash, refresh, walletKeys, walletTransfers } from "@/lib/lookup";
 import { checkRecipient } from "@/lib/recipient";
-import { type ClaimCost, type ForwardQuote, SEND_GAS, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
-import { type Chain, type Network, ECOSYSTEM_LABEL, chainsFor, findChain } from "@/lib/chains";
+import { type ClaimCost, type ForwardQuote, MINT_GAS, SEND_GAS, canForward, claimCost, fmtNative, fmtUsd, forwardQuote, gasBalance } from "@/lib/claim";
+import { type Chain, type Network, ECOSYSTEM_LABEL, chainOr, chainsFor, findChain } from "@/lib/chains";
 import { short, useWallets } from "@/lib/wallets";
 import { ChainIcon, ChainPicker } from "./ChainPicker";
 import { RouteViz } from "./RouteViz";
@@ -19,6 +20,34 @@ const STEPS: { key: StepKey; label: string; hint: (t: Transfer, f: Chain, d: Cha
   { key: "attest", label: "Circle attestation", hint: (t) => (t.speed === "FAST" ? "Fast: soft finality, seconds" : "Standard: waits for hard finality") },
   { key: "mint", label: "Mint", hint: (_, __, d) => `receiveMessage on ${d.name}` },
 ];
+
+/** Gas for approving USDC to LI.FI and sending its transaction (estimate; LI.FI's own runs ~150–350k). */
+const HOP_GAS = 400_000n;
+/** Quotes before a wallet is connected are made for this address; the real one is quoted before signing. */
+const QUOTE_ADDR = "0x1111111111111111111111111111111111111111";
+
+type Row = { key: string; label: string; hint: string; st: HopStep };
+
+// A LI.FI transfer's steps: the CCTP crossing to the middle chain when it has one, then LI.FI's own.
+function hopRows(t: Transfer, f: Chain, d: Chain): Row[] {
+  const h = t.hop!;
+  const via = h.via ? findChain(t.network, h.via) : null;
+  const src = via ?? f;
+  const cctp: Row[] = via
+    ? STEPS.filter((s) => s.key !== "approve" || f.ecosystem === "evm").map((s) => ({
+        key: s.key, label: s.key === "mint" ? `Mint on ${via.name}` : s.label, hint: s.hint(t, f, via), st: t.steps[s.key],
+      }))
+    : [];
+  return [
+    ...cctp,
+    { key: "h-approve", label: "Approve USDC for LI.FI", hint: `On ${src.name}`, st: h.steps.approve },
+    { key: "h-send", label: "Send through LI.FI", hint: h.tool ? `${h.tool}, from ${src.name}` : `From ${src.name}`, st: h.steps.send },
+    { key: "h-receive", label: `Arrive on ${d.name}`, hint: hopReceived(t) ?? `${h.token} to ${t.recipient.slice(0, 6)}…${t.recipient.slice(-4)}`, st: h.steps.receive },
+  ];
+}
+
+const fmtToken = (v: bigint, decimals: number) =>
+  (Number(v) / 10 ** decimals).toLocaleString(undefined, { maximumFractionDigits: decimals > 6 ? 6 : 2, minimumFractionDigits: decimals > 6 ? 0 : 2 });
 
 const fmt = (base: bigint, dp = 2) =>
   Number(formatUnits(base, 6)).toLocaleString(undefined, { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -48,8 +77,22 @@ export function Bridge() {
   const chains = useMemo(() => chainsFor(net), [net]);
   const [fromF, setFromF] = useState("base");
   const [toF, setToF] = useState("solana");
-  const from = findChain(net, fromF);
-  const to = findChain(net, toF);
+  // Robinhood is mainnet only: switching to testnet moves a mainnet-only pick (switchNet), and until then
+  // the render falls back rather than finding nothing.
+  const from = chainOr(net, fromF, "base");
+  const to = chainOr(net, toF, fromF === "solana" ? "base" : "solana");
+  const switchNet = (n: Network) => {
+    setNet(n);
+    if (!chainsFor(n).some((c) => c.family === toF)) setToF(fromF === "solana" ? "base" : "solana");
+  };
+  // A LI.FI destination: one LI.FI transaction from EVM sources it takes directly, else CCTP to Base first.
+  const hopTo = to.provider === "lifi";
+  const direct = hopTo && lifiDirect(from);
+  const via = hopTo && !direct ? findChain(net, VIA) : undefined;
+  const cctpTo = via ?? to;
+  const [hopToken, setHopToken] = useState<HopToken>("USDG");
+  // LI.FI's latest answer, kept with the request it answers so a stale one is never shown.
+  const [hqState, setHqState] = useState<{ key: string; q?: LifiQuote; err?: string } | null>(null);
   const [amount, setAmount] = useState("");
   const [speed, setSpeed] = useState<"FAST" | "SLOW">("FAST");
   const [recipient, setRecipient] = useState("");
@@ -113,14 +156,17 @@ export function Bridge() {
     setHashQuery("");
     setFinding("");
   };
-  useEffect(() => { setBps(null); quoteBps(net, from.domain, to.domain).then(setBps); }, [net, from.domain, to.domain]);
-  const forwardable = canForward(from, to);
+  useEffect(() => { setBps(null); quoteBps(net, from.domain, cctpTo.domain).then(setBps); }, [net, from.domain, cctpTo.domain]);
+  const forwardable = !hopTo && canForward(from, to);
   useEffect(() => {
     setFq(null);
     if (forwardable) forwardQuote(net, from.domain, to.domain).then(setFq);
   }, [net, from.domain, to.domain, forwardable]);
-  useEffect(() => { setCost(null); claimCost(to).then(setCost); }, [to]);
-  useEffect(() => { setSrcCost(null); claimCost(from, SEND_GAS).then(setSrcCost); }, [from]);
+  // The claim happens on the middle chain for a LI.FI transfer that crosses first (plus LI.FI's own
+  // transaction there); a direct one has no claim, just LI.FI's transaction on the source.
+  const claimChain = via ?? (hopTo ? null : to);
+  useEffect(() => { setCost(null); if (claimChain) claimCost(claimChain, via ? MINT_GAS + HOP_GAS : MINT_GAS).then(setCost); }, [claimChain, via]);
+  useEffect(() => { setSrcCost(null); claimCost(from, direct ? HOP_GAS : SEND_GAS).then(setSrcCost); }, [from, direct]);
   useEffect(() => {
     setSrcGas(null);
     setAck(false);
@@ -129,13 +175,17 @@ export function Bridge() {
   useEffect(() => {
     setDstGas(null);
     setAck(false);
-    if (dstWallet) gasBalance(to, dstWallet.address).then(setDstGas);
-  }, [to, dstWallet]);
+    if (dstWallet && claimChain) gasBalance(claimChain, dstWallet.address).then(setDstGas);
+  }, [claimChain, dstWallet]);
 
   // Delivery cost per destination, for the To picker: Circle's fee where it delivers, else the claim gas.
   const loadCosts = useCallback(() => {
     setCosts({});
     for (const c of chains.filter((x) => x.bridgeable && x.family !== from.family)) {
+      if (c.provider === "lifi") {
+        setCosts((m) => ({ ...m, [c.family]: "via LI.FI · USDG or ETH" }));
+        continue;
+      }
       (canForward(from, c) ? forwardQuote(net, from.domain, c.domain) : Promise.resolve(null)).then(async (q) => {
         const label = q ? `delivery ${fmtUsd(Number(q.fee) / 1e6)}` : await claimCost(c).then((k) => (k ? `claim gas ~${fmtUsd(k.usd) ?? fmtNative(k.native, k.decimals) + " " + k.symbol}` : ""));
         if (label) setCosts((m) => ({ ...m, [c.family]: label }));
@@ -163,26 +213,53 @@ export function Bridge() {
   const feeBps = deliver ? (effSpeed === "FAST" ? fq?.fastBps ?? 0 : fq?.slowBps ?? 0) : effSpeed === "FAST" ? bps?.fast ?? 0 : bps?.slow ?? 0;
   const base = useMemo(() => { try { return amount ? parseUnits(amount, 6) : 0n; } catch { return 0n; } }, [amount]);
   const deliveryFee = deliver ? fq?.fee ?? 0n : 0n;
-  const fee = (base * BigInt(Math.ceil(feeBps * 100))) / 1_000_000n + deliveryFee;
+  // A direct LI.FI transfer has no CCTP leg, so no Circle fee; LI.FI's own fees are inside its quote.
+  const fee = direct ? 0n : (base * BigInt(Math.ceil(feeBps * 100))) / 1_000_000n + deliveryFee;
+  const hopAmount = base > fee ? base - fee : 0n;
   // A typed recipient is used only once it is a valid address for the destination chain.
   const recipientCheck = recipient ? checkRecipient(to, recipient) : null;
   const dest = recipientCheck ? (recipientCheck.ok ? recipientCheck.address : "") : dstWallet?.address || "";
   // Claiming yourself needs gas on the destination; flag it before anything is burned.
-  const shortGas = !deliver && !!cost && dstGas !== null && dstGas < cost.native;
+  const shortGas = !deliver && !!claimChain && !!cost && dstGas !== null && dstGas < cost.native;
+
+  // LI.FI's quote for the hop, refreshed as the route, amount or token changes. Before a wallet is
+  // connected it's quoted for a placeholder address; the transfer re-quotes for the real one.
+  const hopSrc = via ?? from;
+  const holderAddr = dstWallet?.address;
+  const hqKey = hopTo && hopAmount > 0n ? [hopSrc.family, to.family, hopAmount, holderAddr, dest, hopToken].join("|") : null;
+  const hq = hqKey && hqState?.key === hqKey ? hqState.q ?? null : null;
+  const hqErr = hqKey && hqState?.key === hqKey ? hqState.err ?? null : null;
+  useEffect(() => {
+    if (!hqKey) return;
+    let gone = false;
+    const id = setTimeout(() => {
+      lifiQuote({ fromChain: hopSrc, fromAmount: hopAmount, from: holderAddr ?? QUOTE_ADDR, toChain: to, to: dest || holderAddr || QUOTE_ADDR, token: hopToken })
+        .then((q) => { if (!gone) setHqState({ key: hqKey, q }); })
+        .catch((e: Error) => { if (!gone) setHqState({ key: hqKey, err: e.message }); });
+    }, 400);
+    return () => { gone = true; clearTimeout(id); };
+    // hqKey covers every input of the quote.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hqKey]);
   // Sending needs gas on the source chain too; without it some wallets take the gas from the USDC.
   const srcShort = !!srcCost && srcGas !== null && srcGas < srcCost.native;
 
   const an = (e: string) => (/^[AEIOU]/.test(ECOSYSTEM_LABEL[e as keyof typeof ECOSYSTEM_LABEL]) ? "an" : "a");
   const needs: string | null =
     !from.bridgeable || !to.bridgeable ? `${!from.bridgeable ? from.name : to.name} routes are coming soon`
+    // LI.FI chains are destinations only; never start a burn from one, whatever state the pickers reach.
+    : from.provider === "lifi" ? `${from.name} can only be sent to for now`
     : !srcWallet ? `Connect ${an(from.ecosystem)} ${ECOSYSTEM_LABEL[from.ecosystem]} wallet`
     : recipientCheck && !recipientCheck.ok ? `Fix the ${to.name} recipient address`
     : deliver && !dest ? `Add a recipient on ${to.name}`
+    : hopTo && !dstWallet ? `Connect an EVM wallet to send on ${hopSrc.name}`
     : !deliver && !dstWallet ? `Connect ${an(to.ecosystem)} ${ECOSYSTEM_LABEL[to.ecosystem]} wallet to mint`
     : base === 0n ? "Enter an amount"
     : balance !== null && base > balance ? "Not enough USDC"
     : deliver && !fq ? "Getting Circle's delivery fee…"
     : deliver && base <= fee ? "Amount is below the delivery fee"
+    : hopTo && hqErr ? hqErr
+    : hopTo && !hq ? "Getting LI.FI's quote…"
     : srcShort && !ack ? `Not enough ${srcCost!.symbol} on ${from.name} to send`
     : shortGas && !ack ? `Not enough ${cost!.symbol} on ${to.name} to claim`
     : null;
@@ -191,9 +268,9 @@ export function Bridge() {
   const start = async (resume?: Transfer) => {
     if (!resume && needs) return;
     const t: Transfer = resume ? { ...resume, error: undefined } : {
-      id: crypto.randomUUID(), network: net, from: from.family, to: to.family, amount, speed: effSpeed,
+      id: crypto.randomUUID(), network: net, from: from.family, to: to.family, amount, speed: direct ? "SLOW" : effSpeed,
       sender: srcWallet!.address, recipient: dest, steps: emptySteps(), state: "live", createdAt: Date.now(),
-      gasInUsdc: deliver,
+      gasInUsdc: deliver, ...(hopTo ? { hop: emptyHop(hopToken, dstWallet!.address, via?.family) } : {}),
     };
     const f = findChain(t.network, t.from);
     const d = findChain(t.network, t.to);
@@ -212,10 +289,14 @@ export function Bridge() {
   const toEcosystem = to.ecosystem;
   useEffect(() => setRecipient(""), [toEcosystem]);
 
-  const flip = () => { setFromF(toF); setToF(fromF); };
+  // LI.FI chains are destinations only for now.
+  const flip = () => { if (hopTo) return; setFromF(toF); setToF(fromF); };
+  const sources = useMemo(() => chains.map((c) => (c.provider === "lifi" ? { ...c, bridgeable: false } : c)), [chains]);
   const pick = (side: "from" | "to") => (c: Chain) => {
     if (side === "from") { if (c.family === toF) setToF(fromF); setFromF(c.family); }
-    else { if (c.family === fromF) setFromF(toF); setToF(c.family); }
+    // Picking the source as the destination swaps the two, except when the destination can't send
+    // (a LI.FI chain): the source then moves to Base, or to Ethereum when Base is the pick.
+    else { if (c.family === fromF) setFromF(hopTo ? (c.family === "base" ? "ethereum" : "base") : toF); setToF(c.family); }
   };
 
   const elapsed = active ? ((active.doneAt ?? (now || active.createdAt)) - active.createdAt) / 1000 : 0;
@@ -229,7 +310,7 @@ export function Bridge() {
         <div className="hdr-right">
           <div className="seg" role="group" aria-label="Network">
             {(["mainnet", "testnet"] as const).map((n) => (
-              <button key={n} aria-pressed={net === n} onClick={() => setNet(n)}>{n}</button>
+              <button key={n} aria-pressed={net === n} onClick={() => switchNet(n)}>{n}</button>
             ))}
           </div>
           <WalletChips onOpen={() => setDrawer(true)} />
@@ -252,7 +333,7 @@ export function Bridge() {
                   <span className={`net ${net}`}>{net === "testnet" ? "Sandbox" : "Mainnet · real funds"}</span>
                 </div>
                 <div className="panel-body">
-                  <ChainPicker label="From" value={from} other={to} chains={chains} onChange={pick("from")}
+                  <ChainPicker label="From" value={from} other={to} chains={sources} onChange={pick("from")}
                     balance={srcWallet ? (balance !== null ? `${fmt(balance)} USDC` : "…") : undefined} />
 
                   <div className="amount">
@@ -272,18 +353,38 @@ export function Bridge() {
                     </div>
                   </div>
 
-                  <div className="flip-row"><button className="flip" onClick={flip} aria-label="Swap direction">⇅</button></div>
+                  <div className="flip-row"><button className="flip" onClick={flip} disabled={hopTo} aria-label="Swap direction">⇅</button></div>
 
-                  <ChainPicker label="To" value={to} other={from} chains={chains} onChange={pick("to")}
+                  <ChainPicker label="To" value={to} other={from} swap={!hopTo} chains={chains} onChange={pick("to")}
                     balance={dstWallet ? short(dstWallet.address) : undefined} costs={costs} onOpen={loadCosts} />
 
-                  <div className="receive">
-                    <span>You receive</span>
-                    <b className="pixel">{fmt(base > fee ? base - fee : 0n)}</b>
-                    <span>USDC on {to.name}</span>
-                  </div>
+                  {hopTo ? (
+                    <div className="receive">
+                      <span>You receive about</span>
+                      <b className="pixel">{hq ? fmtToken(hq.toAmount, HOP_TOKENS[hopToken].decimals) : "—"}</b>
+                      <span>{hopToken} on {to.name}{hq ? ` · at least ${fmtToken(hq.toAmountMin, HOP_TOKENS[hopToken].decimals)}` : ""}</span>
+                    </div>
+                  ) : (
+                    <div className="receive">
+                      <span>You receive</span>
+                      <b className="pixel">{fmt(base > fee ? base - fee : 0n)}</b>
+                      <span>USDC on {to.name}</span>
+                    </div>
+                  )}
 
-                  <div className="speeds">
+                  {hopTo && (
+                    <div className="speeds">
+                      {(["USDG", "ETH"] as const).map((k) => (
+                        <button key={k} className="speed" aria-pressed={hopToken === k} onClick={() => setHopToken(k)}>
+                          <div className="k">{k}</div>
+                          <div className="t">{HOP_TOKENS[k].name}</div>
+                          <div className="f">{k === "USDG" ? `${to.name} has no USDC` : `Native ETH on ${to.name}`}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {!direct && <div className="speeds">
                     <button className="speed" aria-pressed={effSpeed === "FAST"} disabled={!fastOk} onClick={() => setSpeed("FAST")}>
                       <div className="k">Fast</div>
                       <div className="t">{fastOk ? eta("FAST", from) : "—"}</div>
@@ -294,9 +395,19 @@ export function Bridge() {
                       <div className="t">{eta("SLOW", from)}</div>
                       <div className="f">{bps?.slow ? `${bps.slow} bps` : "Free"}</div>
                     </button>
-                  </div>
+                  </div>}
 
-                  <button type="button" className="gas-toggle" role="switch" aria-checked={deliver} disabled={!forwardable}
+                  {hopTo && (
+                    <div className="note-box">
+                      {to.name} has no USDC, so LI.FI{hq ? ` (via ${hq.tool})` : ""} swaps it into {hopToken === "USDG" ? "USDG, Paxos's Global Dollar" : "ETH"} on the way, for about {hq ? fmtUsd(hq.feeUsd) ?? "—" : "…"} in fees.{" "}
+                      {via
+                        ? <>Your USDC first crosses to {via.name} on Circle&apos;s CCTP, into your EVM wallet there, which then sends it through LI.FI. That needs a little ETH on {via.name}.</>
+                        : <>One LI.FI transaction from your wallet on {from.name}.</>}{" "}
+                      LI.FI and the bridge it picks are third parties, outside Circle&apos;s burn and mint.
+                    </div>
+                  )}
+
+                  {!hopTo && <button type="button" className="gas-toggle" role="switch" aria-checked={deliver} disabled={!forwardable}
                     onClick={() => setGasInUsdc(!gasInUsdc)}>
                     <span className="knob" />
                     <span className="gt-copy">
@@ -309,7 +420,7 @@ export function Bridge() {
                             : `You claim on ${to.name} with your own ${cost?.symbol ?? "gas"}${cost ? `, about ${fmtUsd(cost.usd) ?? `${fmtNative(cost.native, cost.decimals)} ${cost.symbol}`} now` : ""}.`}
                       </small>
                     </span>
-                  </button>
+                  </button>}
 
                   {srcShort && (
                     <div className="warn">
@@ -325,7 +436,7 @@ export function Bridge() {
                   {shortGas && (
                     <div className="warn">
                       <p>
-                        Claiming on {to.name} costs about <b>{fmtNative(cost!.native, cost!.decimals)} {cost!.symbol}</b>
+                        {via ? `Minting on ${via.name} and sending it on through LI.FI costs` : `Claiming on ${to.name} costs`} about <b>{fmtNative(cost!.native, cost!.decimals)} {cost!.symbol}</b>
                         {fmtUsd(cost!.usd) ? ` (${fmtUsd(cost!.usd)})` : ""} right now, and your wallet there has{" "}
                         <b>{fmtNative(dstGas!, cost!.decimals)} {cost!.symbol}</b>. The burn can&apos;t be undone, so the USDC would wait until you add {cost!.symbol}.
                         {forwardable ? <> Or turn on <b>Pay gas in USDC</b> above and Circle delivers it{fq ? ` for ${fmtUsd(Number(fq.fee) / 1e6)}` : ""}.</> : null}
@@ -339,14 +450,23 @@ export function Bridge() {
                     <input placeholder={dstWallet?.address ?? `${ECOSYSTEM_LABEL[to.ecosystem]} address`} value={recipient} onChange={(e) => setRecipient(e.target.value.trim())}
                       aria-invalid={!!recipientCheck && !recipientCheck.ok} />
                     {recipientCheck && !recipientCheck.ok && <p className="warn-line" role="alert">{recipientCheck.error}</p>}
-                    {recipientCheck?.ok && <p className="recip-ok">USDC will arrive at {recipientCheck.address} on {to.name}. Check it: a transfer to a wrong address can&apos;t be undone.</p>}
+                    {recipientCheck?.ok && <p className="recip-ok">{hopTo ? hopToken : "USDC"} will arrive at {recipientCheck.address} on {to.name}. Check it: a transfer to a wrong address can&apos;t be undone.</p>}
                   </details>
 
-                  <div className="lines">
-                    <div><span>{deliver ? "Fee incl. delivery" : "Fee"}</span><b>{fmt(fee, 4)} USDC</b></div>
-                    <div><span>Recipient</span><b>{dest ? short(dest) : "—"}</b></div>
-                    <div><span>Signatures</span><b>{from.ecosystem === "evm" ? "approve + burn" : "burn"}{deliver ? "" : " · mint"}</b></div>
-                  </div>
+                  {hopTo ? (
+                    <div className="lines">
+                      <div><span>Route</span><b>{via ? `CCTP to ${via.name} · LI.FI` : "LI.FI"}{hq ? ` (${hq.tool})` : ""}</b></div>
+                      <div><span>Fees</span><b>{fee > 0n ? `${fmt(fee, 4)} USDC Circle · ` : ""}{hq ? `${fmtUsd(hq.feeUsd) ?? "$0"} LI.FI` : "…"}</b></div>
+                      <div><span>Recipient</span><b>{dest ? short(dest) : "—"}</b></div>
+                      <div><span>Signatures</span><b>{via ? `${from.ecosystem === "evm" ? "approve + burn" : "burn"} · mint · ` : ""}approve + send</b></div>
+                    </div>
+                  ) : (
+                    <div className="lines">
+                      <div><span>{deliver ? "Fee incl. delivery" : "Fee"}</span><b>{fmt(fee, 4)} USDC</b></div>
+                      <div><span>Recipient</span><b>{dest ? short(dest) : "—"}</b></div>
+                      <div><span>Signatures</span><b>{from.ecosystem === "evm" ? "approve + burn" : "burn"}{deliver ? "" : " · mint"}</b></div>
+                    </div>
+                  )}
 
                   {needsWallet
                     ? <button className="btn big" onClick={() => setDrawer(true)}>{needs} <span className="arrow">→</span></button>
@@ -357,7 +477,7 @@ export function Bridge() {
               <>
                 <div className="panel-head">
                   <span className="eyebrow">{active.state === "done" ? "Landed" : active.state === "error" ? "Paused" : active.state === "claim" ? "Ready to claim" : active.state === "waiting" ? "Queued" : "In flight"}</span>
-                  <span className="pill live">{active.speed === "FAST" ? "fast" : "standard"}</span>
+                  <span className="pill live">{active.hop ? "LI.FI" : active.speed === "FAST" ? "fast" : "standard"}</span>
                 </div>
                 <div className="panel-body">
                   <div className="flight">
@@ -368,17 +488,17 @@ export function Bridge() {
                     <div className="timer">{elapsed.toFixed(1)}<small>s</small></div>
                   </div>
                   <div className="steps">
-                    {STEPS.map((s) => {
-                      const st = active.steps[s.key];
-                      return (
-                        <div key={s.key} className={`stp is-${st.state}`}>
-                          <span className="dot" />
-                          <div>{s.label}<small>{st.state === "skip" ? "Not needed" : s.hint(active, af, ad)}</small></div>
-                          {st.url ? <a href={st.url} target="_blank" rel="noreferrer">tx ↗</a> : <span />}
-                        </div>
-                      );
-                    })}
+                    {(active.hop ? hopRows(active, af, ad) : STEPS.map((s) => ({ key: s.key, label: s.label, hint: s.hint(active, af, ad), st: active.steps[s.key] }))).map((r) => (
+                      <div key={r.key} className={`stp is-${r.st.state}`}>
+                        <span className="dot" />
+                        <div>{r.label}<small>{r.st.state === "skip" ? "Not needed" : r.hint}</small></div>
+                        {r.st.url ? <a href={r.st.url} target="_blank" rel="noreferrer">tx ↗</a> : <span />}
+                      </div>
+                    ))}
                   </div>
+                  {active.hop?.explorer && active.state !== "done" && (
+                    <a className="find-note" href={active.hop.explorer} target="_blank" rel="noreferrer">Follow it on LI.FI&apos;s explorer ↗</a>
+                  )}
                   {active.state === "claim" && (
                     <ClaimChoice t={active} to={ad} wallet={connected[ad.ecosystem]?.address} onClaim={(mode) => start({ ...active, claimMode: mode })} onConnect={() => setDrawer(true)} />
                   )}
@@ -398,7 +518,7 @@ export function Bridge() {
                   )}
                   {active.state === "done" && (
                     <>
-                      <div className="done-banner">{active.note ? `${active.note}. ` : ""}USDC landed on {ad.name}{active.doneAt ? ` in ${elapsed.toFixed(1)}s` : ""}.</div>
+                      <div className="done-banner">{active.note ? `${active.note}. ` : ""}{active.hop ? hopReceived(active) ?? active.hop.token : "USDC"} landed on {ad.name}{active.doneAt ? ` in ${elapsed.toFixed(1)}s` : ""}.</div>
                       <button className="btn ghost big" onClick={() => { setActive(null); setAmount(""); }}>New transfer</button>
                     </>
                   )}
@@ -452,10 +572,10 @@ export function Bridge() {
                       <tr key={t.id}>
                         <td><span className="hroute"><ChainIcon c={f} size={20} />→<ChainIcon c={d} size={20} /></span></td>
                         <td className="mono">{Number(t.amount).toLocaleString()}</td>
-                        <td className="mono small">{t.speed === "FAST" ? "fast" : "standard"}{t.network === "testnet" ? " · test" : ""}</td>
+                        <td className="mono small">{t.hop ? `LI.FI · ${t.hop.token}` : t.speed === "FAST" ? "fast" : "standard"}{t.network === "testnet" ? " · test" : ""}</td>
                         <td>{t.state === "done" ? <span className="pill ok">Landed</span> : t.state === "error" ? <span className="pill bad">Paused</span> : t.state === "claim" ? <span className="pill live">Ready to claim</span> : t.state === "waiting" ? <span className="pill live">Queued</span> : <span className="pill live">Live</span>}</td>
                         <td className="mono small muted">{new Date(t.createdAt).toLocaleString()}</td>
-                        <td>{t.state !== "done" && !!t.steps.burn.tx && <button className="btn ghost tiny" onClick={() => start(t)}>{t.state === "claim" ? "Claim" : "Resume"}</button>}</td>
+                        <td>{t.state !== "done" && (!!t.steps.burn.tx || !!t.hop?.steps.send.tx) && <button className="btn ghost tiny" onClick={() => start(t)}>{t.state === "claim" ? "Claim" : "Resume"}</button>}</td>
                       </tr>
                     );
                   })}
@@ -466,7 +586,7 @@ export function Bridge() {
         </section>
 
         <footer className="foot">
-          <span>Circle CCTP V2 via Bridge Kit · TokenMessengerV2 · MessageTransmitterV2</span>
+          <span>Circle CCTP V2 via Bridge Kit · TokenMessengerV2 · MessageTransmitterV2 · Robinhood Chain via LI.FI</span>
           <span>{net === "testnet" ? "Test USDC: faucet.circle.com" : "Mainnet: real funds"}</span>
         </footer>
       </main>
